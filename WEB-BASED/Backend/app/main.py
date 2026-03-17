@@ -1,0 +1,174 @@
+"""
+HydraNet Backend - Main Entry Point
+FastAPI application initialization and route registration
+"""
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+
+from app.config import settings
+from app.middleware import LoggingMiddleware, RequestIDMiddleware, RateLimitMiddleware, register_exception_handlers
+from app.api import (
+    auth_router,
+    users_router,
+    utilities_router,
+    dmas_router,
+    branches_router,
+    teams_router,
+    engineers_router,
+    reports_router,
+    utility_managers_router,
+    dma_managers_router,
+    notifications_router,
+    logs_router,
+    health_router,
+    uploads_router,
+)
+
+# ============================================================
+# Lifecycle Events
+# ============================================================
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Handle startup and shutdown events
+    """
+    print("=" * 60)
+    print(f"🚀 {settings.app_name} v{settings.app_version} Starting...")
+    print(f"   Environment: {settings.environment}")
+    print(f"   Backend URL: http://{settings.host}:{settings.port}")
+    print(f"   Frontend URL: {settings.frontend_url}")
+    print("=" * 60)
+    yield
+    print("=" * 60)
+    print(f"🛑 {settings.app_name} Shutting Down...")
+    print("=" * 60)
+
+
+# ============================================================
+# FastAPI Application
+# ============================================================
+
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    description="Water Leakage Management System - Backend API",
+    lifespan=lifespan,
+)
+
+# ============================================================
+# CORS Configuration
+# ============================================================
+# Frontend URL is dynamically included in CORS origins via settings.get_cors_origins()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.get_cors_origins(),
+    allow_credentials=settings.cors_credentials,
+    allow_methods=settings.cors_allow_methods,
+    allow_headers=settings.cors_allow_headers,
+)
+
+# ============================================================
+# Database Setup (Placeholder)
+# ============================================================
+# This will be uncommented when database models are created
+# Base.metadata.create_all(bind=engine)
+
+# ============================================================
+# Global Middleware & Exception Handlers
+# ============================================================
+
+# Add custom middleware (order matters - last added is first executed)
+app.add_middleware(RateLimitMiddleware, requests_per_minute=100)
+app.add_middleware(RequestIDMiddleware)
+app.add_middleware(LoggingMiddleware)
+
+# Register global exception handlers
+register_exception_handlers(app)
+
+# ============================================================
+# API Routes
+# ============================================================
+
+# Register all API routers
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(utilities_router)
+app.include_router(dmas_router)
+app.include_router(branches_router)
+app.include_router(teams_router)
+app.include_router(engineers_router)
+app.include_router(reports_router)
+app.include_router(utility_managers_router)
+app.include_router(dma_managers_router)
+app.include_router(notifications_router)
+app.include_router(logs_router)
+app.include_router(health_router)
+app.include_router(uploads_router)
+
+# ============================================================
+# Health Check & Status Endpoints
+# ============================================================
+# Health check endpoints are provided by health_router
+# See app/api/health.py for detailed health checks
+
+
+@app.get("/", tags=["root"])
+async def root():
+    """
+    Root endpoint
+    Returns API information
+    """
+    return {
+        "message": f"Welcome to {settings.app_name}",
+        "version": settings.app_version,
+        "docs": f"http://{settings.host}:{settings.port}/docs",
+        "api_prefix": settings.api_prefix,
+    }
+
+
+@app.get("/api", tags=["root"])
+async def api_root():
+    """
+    API root endpoint
+    Returns information about available endpoints
+    """
+    return {
+        "message": "HydraNet API",
+        "version": settings.app_version,
+        "endpoints": {
+            "auth": f"{settings.api_prefix}/auth",
+            "users": f"{settings.api_prefix}/users",
+            "utilities": f"{settings.api_prefix}/utilities",
+            "dmas": f"{settings.api_prefix}/dmas",
+            "branches": f"{settings.api_prefix}/branches",
+            "teams": f"{settings.api_prefix}/teams",
+            "engineers": f"{settings.api_prefix}/engineers",
+            "reports": f"{settings.api_prefix}/reports",
+            "dma_managers": f"{settings.api_prefix}/dma-managers",
+            "utility_managers": f"{settings.api_prefix}/utility-managers",
+            "notifications": f"{settings.api_prefix}/notifications",
+            "logs": f"{settings.api_prefix}/logs",
+        },
+        "documentation": "/docs",
+        "openapi_schema": "/openapi.json",
+    }
+
+
+# ============================================================
+# Entry Point
+# ============================================================
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "app.main:app",
+        host=settings.host,
+        port=settings.port,
+        reload=settings.debug,
+        log_level="info",
+    )

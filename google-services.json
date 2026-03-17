@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "781622805026",
+    "project_id": "hydranet-e071d",
+    "storage_bucket": "hydranet-e071d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:781622805026:android:ba5db3bd5085330d30407b",
+        "android_client_info": {
+          "package_name": "hydranet.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANEU8ims1Ta_gIJ5l8Qso_YkWtkTR9-Nw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

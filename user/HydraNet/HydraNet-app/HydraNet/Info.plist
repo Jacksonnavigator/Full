@@ -1,0 +1,15 @@
+<dict>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>HydraNet needs your location to report water problems accurately</string>
+    
+    <key>NSCameraUsageDescription</key>
+    <string>HydraNet needs camera access to take photos of water problems</string>
+    
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>HydraNet needs photo library access to select images</string>
+    
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>HydraNet needs permission to save photos</string>
+    
+    <!-- Other keys -->
+</dict>

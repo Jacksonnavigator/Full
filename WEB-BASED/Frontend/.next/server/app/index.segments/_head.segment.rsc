@@ -1,0 +1,6 @@
+1:"$Sreact.fragment"
+2:I[97367,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/13a13a6ffd32e834.js"],"ViewportBoundary"]
+3:I[97367,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/13a13a6ffd32e834.js"],"MetadataBoundary"]
+4:"$Sreact.suspense"
+5:I[27201,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/13a13a6ffd32e834.js"],"IconMark"]
+0:{"buildId":"ryWkbQkGBblHKd8g15dVn","rsc":["$","$1","h",{"children":[null,["$","$L2",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#1e3a8a"}]]}],["$","div",null,{"hidden":true,"children":["$","$L3",null,{"children":["$","$4",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"HydraNet - Water Leakage Management System"}],["$","meta","1",{"name":"description","content":"Government-grade water leakage reporting and management platform for South African municipalities"}],["$","link","2",{"rel":"icon","href":"/favicon.ico"}],["$","$L5","3",{}]]}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"loading":null,"isPartial":false}
