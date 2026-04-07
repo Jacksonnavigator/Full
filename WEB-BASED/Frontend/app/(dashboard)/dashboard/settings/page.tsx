@@ -1,2 +1,2 @@
-export { default } from "../../settings/page"
+export { default } from "../../_views/settings-page"
 

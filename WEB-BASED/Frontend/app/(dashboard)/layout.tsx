@@ -23,7 +23,7 @@ export default function DashboardLayout({
     setHydrated(true)
   }, [])
 
-  // Initialize mock data on first load
+  // Initialize live API-backed store state on first load
   useEffect(() => {
     if (hydrated && !initialized) {
       initialize()

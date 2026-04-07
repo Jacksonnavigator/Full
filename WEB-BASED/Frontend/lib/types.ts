@@ -54,22 +54,12 @@ export interface DMA {
   name: string
   utilityId: string
   utilityName: string
+  centerLatitude?: number
+  centerLongitude?: number
   managerId: string
   managerName: string
   status: EntityStatus
-  branchesCount: number
-  createdAt: string
-}
-
-export interface Branch {
-  id: string
-  name: string
-  dmaId: string
-  dmaName: string
-  utilityId: string
-  status: EntityStatus
-  engineerCount: number
-  teamCount: number
+  teamsCount: number
   createdAt: string
 }
 
@@ -78,8 +68,6 @@ export interface Engineer {
   name: string
   email: string
   phone: string
-  branchId: string
-  branchName: string
   dmaId: string
   teamId?: string
   teamName?: string
@@ -92,8 +80,6 @@ export interface Engineer {
 export interface Team {
   id: string
   name: string
-  branchId: string
-  branchName: string
   dmaId: string
   leaderId: string
   leaderName: string
@@ -112,13 +98,15 @@ export interface Report {
   longitude: number
   address: string
   photos: string[]
+  reportPhotos?: string[]
+  submissionBeforePhotos?: string[]
+  submissionAfterPhotos?: string[]
   priority: ReportPriority
   status: ReportStatus
   utilityId: string
   utilityName: string
   dmaId: string
   dmaName: string
-  branchId?: string
   teamId?: string
   teamName?: string
   assignedEngineerId?: string
@@ -171,7 +159,6 @@ export interface AuthState {
 export interface DataState {
   utilities: Utility[]
   dmas: DMA[]
-  branches: Branch[]
   engineers: Engineer[]
   teams: Team[]
   reports: Report[]
@@ -184,14 +171,9 @@ export interface DataState {
   deleteUtility: (id: string) => void
 
   // DMA CRUD
-  addDMA: (dma: Omit<DMA, "id" | "createdAt" | "branchesCount">) => void
+  addDMA: (dma: Omit<DMA, "id" | "createdAt" | "teamsCount">) => void
   updateDMA: (id: string, data: Partial<DMA>) => void
   deleteDMA: (id: string) => void
-
-  // Branch CRUD
-  addBranch: (branch: Omit<Branch, "id" | "createdAt" | "engineerCount" | "teamCount">) => void
-  updateBranch: (id: string, data: Partial<Branch>) => void
-  deleteBranch: (id: string) => void
 
   // Engineer CRUD
   addEngineer: (engineer: Omit<Engineer, "id" | "createdAt" | "assignedReports">) => void
@@ -213,8 +195,6 @@ export interface DataState {
 
   // Filtered getters
   getDMAsByUtility: (utilityId: string) => DMA[]
-  getBranchesByDMA: (dmaId: string) => Branch[]
-  getEngineersByBranch: (branchId: string) => Engineer[]
   getEngineersByDMA: (dmaId: string) => Engineer[]
   getTeamsByDMA: (dmaId: string) => Team[]
   getReportsByUtility: (utilityId: string) => Report[]

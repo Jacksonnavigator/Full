@@ -1,2 +1,2 @@
-export { default } from "../../branches/page"
+export { default } from "../../_views/branches-page"
 

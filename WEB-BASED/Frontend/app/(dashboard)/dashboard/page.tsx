@@ -1,2 +1,2 @@
-export { default } from "../page"
+export { default } from "../_views/dashboard-home-page"
 

@@ -1,2 +1,2 @@
-export { default } from "../../dmas/page"
+export { default } from "../../_views/dmas-page"
 

@@ -1,2 +1,2 @@
-export { default } from "../../teams/page"
+export { default } from "../../_views/teams-page"
 

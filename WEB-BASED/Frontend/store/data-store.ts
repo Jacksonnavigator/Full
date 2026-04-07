@@ -31,22 +31,14 @@ export interface DMA {
   description: string | null
   utilityId: string
   utilityName?: string
+  centerLatitude?: number | null
+  centerLongitude?: number | null
   managerId?: string | null
   managerName?: string
   status: EntityStatus
-  branchesCount?: number
+  teamsCount?: number
   reportsCount?: number
   engineersCount?: number
-  createdAt: string
-  updatedAt: string
-}
-
-export interface Branch {
-  id: string
-  name: string
-  dmaId: string
-  utilityId: string
-  status: EntityStatus
   createdAt: string
   updatedAt: string
 }
@@ -56,8 +48,6 @@ export interface Engineer {
   name: string
   email: string
   phone: string | null
-  branchId: string
-  branchName: string
   dmaId: string
   dmaName: string
   teamId: string | null
@@ -72,8 +62,6 @@ export interface Engineer {
 export interface Team {
   id: string
   name: string
-  branchId: string
-  branchName: string
   dmaId: string
   dmaName: string
   utilityId?: string
@@ -95,14 +83,15 @@ export interface Report {
   longitude: number
   address: string | null
   photos: string[]
+  reportPhotos?: string[]
+  submissionBeforePhotos?: string[]
+  submissionAfterPhotos?: string[]
   priority: ReportPriority
   status: ReportStatus
   utilityId: string
   utilityName: string
   dmaId: string
   dmaName: string
-  branchId: string | null
-  branchName: string | null
   teamId: string | null
   teamName: string | null
   assignedEngineerId: string | null
@@ -171,7 +160,6 @@ interface DataState {
   utilities: Utility[]
   dmas: DMA[]
   dmaManagers: DMAManager[]
-  branches: Branch[]
   engineers: Engineer[]
   teams: Team[]
   reports: Report[]
@@ -225,19 +213,12 @@ interface DataState {
   updateTeam: (id: string, data: Partial<Team>) => Promise<void>
   deleteTeam: (id: string) => Promise<void>
   
-  // CRUD: Branches
-  addBranch: (data: Partial<Branch>) => Promise<void>
-  updateBranch: (id: string, data: Partial<Branch>) => Promise<void>
-  deleteBranch: (id: string) => Promise<void>
-  fetchBranches: (dmaId?: string) => Promise<void>
-  
   // Helper functions
   getDMAsByUtility: (utilityId: string) => DMA[]
   getReportsByUtility: (utilityId: string) => Report[]
   getReportsByDMA: (dmaId: string) => Report[]
   getTeamsByDMA: (dmaId: string) => Team[]
   getEngineersByDMA: (dmaId: string) => Engineer[]
-  getBranchesByDMA: (dmaId: string) => Branch[]
   updateReportStatus: (id: string, status: string) => Promise<void>
   assignReport: (id: string, teamId: string, engineerId: string) => Promise<void>
 }
@@ -247,7 +228,6 @@ export const useDataStore = create<DataState>((set, get) => ({
   utilities: [],
   dmas: [],
   dmaManagers: [],
-  branches: [],
   engineers: [],
   teams: [],
   reports: [],
@@ -309,25 +289,10 @@ export const useDataStore = create<DataState>((set, get) => ({
     }
   },
 
-  // Fetch branches
-  fetchBranches: async () => {
-    try {
-      const response = await apiClient.get("/branches")
-      if (response.success && response.data) {
-        const transformed = (response.data.items || []).map(transformKeys)
-        set({ branches: transformed })
-      } else {
-        console.error("Error fetching branches:", response.error)
-      }
-    } catch (error) {
-      console.error("Error fetching branches:", error)
-    }
-  },
-
   // Fetch engineers
   fetchEngineers: async (dmaId?: string) => {
     try {
-      const endpoint = dmaId ? `/engineers?dmaId=${dmaId}` : "/engineers"
+      const endpoint = dmaId ? `/engineers?dma_id=${dmaId}` : "/engineers"
       const response = await apiClient.get(endpoint)
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
@@ -343,7 +308,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   // Fetch teams
   fetchTeams: async (dmaId?: string) => {
     try {
-      const endpoint = dmaId ? `/teams?dmaId=${dmaId}` : "/teams"
+      const endpoint = dmaId ? `/teams?dma_id=${dmaId}` : "/teams"
       const response = await apiClient.get(endpoint)
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
@@ -360,8 +325,8 @@ export const useDataStore = create<DataState>((set, get) => ({
   fetchReports: async (filters?: { utilityId?: string; dmaId?: string; status?: string }) => {
     try {
       const params = new URLSearchParams()
-      if (filters?.utilityId) params.set("utilityId", filters.utilityId)
-      if (filters?.dmaId) params.set("dmaId", filters.dmaId)
+      if (filters?.utilityId) params.set("utility_id", filters.utilityId)
+      if (filters?.dmaId) params.set("dma_id", filters.dmaId)
       if (filters?.status) params.set("status", filters.status)
 
       const endpoint = `/reports${params.toString() ? `?${params}` : ""}`
@@ -381,8 +346,8 @@ export const useDataStore = create<DataState>((set, get) => ({
   fetchLogs: async (utilityId?: string, dmaId?: string) => {
     try {
       const params = new URLSearchParams()
-      if (utilityId) params.set("utilityId", utilityId)
-      if (dmaId) params.set("dmaId", dmaId)
+      if (utilityId) params.set("utility_id", utilityId)
+      if (dmaId) params.set("dma_id", dmaId)
 
       const endpoint = `/logs${params.toString() ? `?${params}` : ""}`
       const response = await apiClient.get(endpoint)
@@ -642,40 +607,6 @@ export const useDataStore = create<DataState>((set, get) => ({
     }
   },
 
-  // CRUD: Branches
-  addBranch: async (data: Partial<Branch>) => {
-    try {
-      const response = await apiClient.post("/branches", data)
-      if (!response.success) throw new Error(response.error || "Failed to create branch")
-      await get().fetchBranches()
-    } catch (error) {
-      console.error("Error creating branch:", error)
-      throw error
-    }
-  },
-
-  updateBranch: async (id: string, data: Partial<Branch>) => {
-    try {
-      const response = await apiClient.put(`/branches/${id}`, data)
-      if (!response.success) throw new Error(response.error || "Failed to update branch")
-      await get().fetchBranches()
-    } catch (error) {
-      console.error("Error updating branch:", error)
-      throw error
-    }
-  },
-
-  deleteBranch: async (id: string) => {
-    try {
-      const response = await apiClient.delete(`/branches/${id}`)
-      if (!response.success) throw new Error(response.error || "Failed to delete branch")
-      await get().fetchBranches()
-    } catch (error) {
-      console.error("Error deleting branch:", error)
-      throw error
-    }
-  },
-
   // Helper functions
   getDMAsByUtility: (utilityId: string) => {
     return get().dmas.filter((d) => d.utilityId === utilityId)
@@ -695,10 +626,6 @@ export const useDataStore = create<DataState>((set, get) => ({
 
   getEngineersByDMA: (dmaId: string) => {
     return get().engineers.filter((e) => e.dmaId === dmaId)
-  },
-
-  getBranchesByDMA: (dmaId: string) => {
-    return get().branches.filter((b) => b.dmaId === dmaId)
   },
 
   updateReportStatus: async (id: string, status: string) => {

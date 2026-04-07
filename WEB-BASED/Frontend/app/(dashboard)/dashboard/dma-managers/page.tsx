@@ -597,9 +597,9 @@ export default function DMAManagersPage() {
                         <div className="rounded-xl bg-slate-50 p-3">
                           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
                             <Layers className="h-3.5 w-3.5" />
-                            Branches
+                            Teams
                           </div>
-                          <p className="text-lg font-bold text-slate-800">{dma.branchesCount || 0}</p>
+                          <p className="text-lg font-bold text-slate-800">{dma.teamsCount || 0}</p>
                         </div>
                         <div className="rounded-xl bg-slate-50 p-3">
                           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">

@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Globe,
   MapPin,
-  GitBranch,
   Users,
   UserCog,
   FileText,
@@ -57,12 +56,6 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/dashboard/dma-managers",
     icon: UserCog,
     roles: ["admin", "utility_manager"],
-  },
-  {
-    title: "Branches",
-    href: "/dashboard/branches",
-    icon: GitBranch,
-    roles: ["admin", "utility_manager", "dma_manager"],
   },
   {
     title: "Engineers",
@@ -136,7 +129,7 @@ export const REPORT_STATUS_CONFIG: Record<
     bgColor: "bg-amber-50 border-amber-200",
   },
   pending_approval: {
-    label: "Pending Approval",
+    label: "Awaiting DMA Approval",
     color: "text-orange-700",
     bgColor: "bg-orange-50 border-orange-200",
   },

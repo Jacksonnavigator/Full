@@ -26,9 +26,6 @@ export const PAGE_ACCESS_MAP: Record<string, UserRole[]> = {
   // DMA Managers - admin and utility managers (limited to their utility)
   '/dma-managers': ['admin', 'utility_manager'],
 
-  // Branches - DMA managers only (limited to their DMA)
-  '/branches': ['dma_manager'],
-
   // Engineers - DMA managers only (limited to their DMA)
   '/engineers': ['dma_manager'],
 
@@ -97,9 +94,6 @@ export const ROLE_PERMISSIONS = {
     canCreateDMAManager: true,
     canEditDMAManager: true,
     canDeleteDMAManager: true,
-    canCreateBranch: true,
-    canEditBranch: true,
-    canDeleteBranch: true,
     canCreateEngineer: true,
     canEditEngineer: true,
     canDeleteEngineer: true,
@@ -128,9 +122,6 @@ export const ROLE_PERMISSIONS = {
     canCreateDMAManager: false,
     canEditDMAManager: false,
     canDeleteDMAManager: false,
-    canCreateBranch: false,
-    canEditBranch: false,
-    canDeleteBranch: false,
     canCreateEngineer: false,
     canEditEngineer: false,
     canDeleteEngineer: false,
@@ -159,9 +150,6 @@ export const ROLE_PERMISSIONS = {
     canCreateDMAManager: false,
     canEditDMAManager: false,
     canDeleteDMAManager: false,
-    canCreateBranch: false,
-    canEditBranch: false,
-    canDeleteBranch: false,
     canCreateEngineer: false,
     canEditEngineer: false,
     canDeleteEngineer: false,

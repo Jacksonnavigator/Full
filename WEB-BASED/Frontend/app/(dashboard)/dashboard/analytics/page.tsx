@@ -1,2 +1,2 @@
-export { default } from "../../analytics/page"
+export { default } from "../../_views/analytics-page"
 

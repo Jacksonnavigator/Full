@@ -1,2 +1,2 @@
-export { default } from "../../reports/page"
+export { default } from "../../_views/reports-page"
 

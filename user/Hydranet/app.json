@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "HydraNet User App",
+    "slug": "hydranet-user-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "splash": {
+      "image": "./assets/splash-screen.jpg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hydratech.hydranetuser"
+    },
+    "android": {
+      "package": "com.hydratech.hydranetuser"
+    }
+  }
+}

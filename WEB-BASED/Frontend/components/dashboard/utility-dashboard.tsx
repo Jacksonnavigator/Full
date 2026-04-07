@@ -1,16 +1,21 @@
 "use client"
 
+import { useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
 import { StatCard } from "@/components/shared/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ReportStatusMap } from "@/components/maps/report-status-map"
 import { EntityStatusBadge, PriorityBadge, ReportStatusBadge } from "@/components/shared/status-badge"
 import {
   MapPin,
   FileText,
   Users,
   CheckCircle2,
-  GitBranch,
+  AlertTriangle,
+  Flame,
+  Building2,
 } from "lucide-react"
 import {
   BarChart,
@@ -24,7 +29,12 @@ import {
   Line,
 } from "recharts"
 
+const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short" })
+const HOTSPOT_CELL_SIZE = 0.0045
+const RESOLVED_STATUSES = new Set(["approved", "closed"])
+
 export function UtilityDashboard() {
+  const router = useRouter()
   const { currentUser } = useAuthStore()
   const { getDMAsByUtility, getReportsByUtility, teams, engineers, utilities } =
     useDataStore()
@@ -58,20 +68,141 @@ export function UtilityDashboard() {
     }
   })
 
-  // SLA trend (mock monthly data)
-  const slaTrend = [
-    { month: "Jan", compliance: 78 },
-    { month: "Feb", compliance: 82 },
-    { month: "Mar", compliance: 75 },
-    { month: "Apr", compliance: 88 },
-    { month: "May", compliance: 91 },
-    { month: "Jun", compliance: slaCompliance },
-  ]
+  const slaTrend = useMemo(() => {
+    const now = new Date()
+    const buckets = Array.from({ length: 6 }, (_, index) => {
+      const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1)
+      return {
+        key: `${date.getFullYear()}-${date.getMonth()}`,
+        month: monthFormatter.format(date),
+        total: 0,
+        resolved: 0,
+      }
+    })
+
+    const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]))
+
+    myReports.forEach((report) => {
+      const reportDate = new Date(report.createdAt)
+      if (Number.isNaN(reportDate.getTime())) return
+
+      const key = `${reportDate.getFullYear()}-${reportDate.getMonth()}`
+      const bucket = bucketMap.get(key)
+      if (!bucket) return
+
+      bucket.total += 1
+      if (report.status === "approved" || report.status === "closed") {
+        bucket.resolved += 1
+      }
+    })
+
+    return buckets.map((bucket) => ({
+      month: bucket.month,
+      compliance: bucket.total > 0 ? Math.round((bucket.resolved / bucket.total) * 100) : 0,
+      reports: bucket.total,
+    }))
+  }, [myReports])
 
   // Recent reports
   const recentReports = [...myReports]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5)
+
+  const utilityMapCenter = useMemo<[number, number] | null>(() => {
+    const dmaWithCenter = myDMAs.find((dma) => dma.centerLatitude != null && dma.centerLongitude != null)
+    if (dmaWithCenter?.centerLatitude != null && dmaWithCenter.centerLongitude != null) {
+      return [dmaWithCenter.centerLatitude, dmaWithCenter.centerLongitude]
+    }
+    return null
+  }, [myDMAs])
+
+  const now = Date.now()
+  const isOpenReport = (status: string) => !RESOLVED_STATUSES.has(status) && status !== "rejected"
+  const isOverdue = (deadline?: string) => Boolean(deadline && new Date(deadline).getTime() < now)
+
+  const dmaWatchlist = useMemo(() => {
+    return myDMAs
+      .map((dma) => {
+        const reports = myReports.filter((report) => report.dmaId === dma.id)
+        const openReports = reports.filter((report) => isOpenReport(report.status))
+        const overdueReports = openReports.filter((report) => isOverdue(report.slaDeadline))
+        const pendingApprovals = reports.filter((report) => report.status === "pending_approval").length
+        const teamsInDMA = teams.filter((team) => team.dmaId === dma.id && team.status === "active").length
+        const engineersInDMA = engineers.filter(
+          (engineer) => engineer.dmaId === dma.id && engineer.status === "active"
+        ).length
+        const resolvedReportsCount = reports.filter((report) => RESOLVED_STATUSES.has(report.status)).length
+        const completionRate = reports.length > 0 ? Math.round((resolvedReportsCount / reports.length) * 100) : 0
+
+        return {
+          id: dma.id,
+          name: dma.name,
+          openReports: openReports.length,
+          overdueReports: overdueReports.length,
+          pendingApprovals,
+          teamsInDMA,
+          engineersInDMA,
+          completionRate,
+        }
+      })
+      .sort((left, right) => {
+        if (right.overdueReports !== left.overdueReports) {
+          return right.overdueReports - left.overdueReports
+        }
+        if (right.openReports !== left.openReports) {
+          return right.openReports - left.openReports
+        }
+        return left.completionRate - right.completionRate
+      })
+      .slice(0, 5)
+  }, [myDMAs, myReports, teams, engineers])
+
+  const hotspotWatch = useMemo(() => {
+    const buckets = new Map<
+      string,
+      {
+        count: number
+        openCount: number
+        dmaName: string
+        address: string
+        latitude: number
+        longitude: number
+      }
+    >()
+
+    myReports
+      .filter((report) => Number.isFinite(report.latitude) && Number.isFinite(report.longitude))
+      .forEach((report) => {
+        const latBucket = Math.round(report.latitude / HOTSPOT_CELL_SIZE)
+        const lngBucket = Math.round(report.longitude / HOTSPOT_CELL_SIZE)
+        const key = `${latBucket}:${lngBucket}`
+        const current = buckets.get(key) ?? {
+          count: 0,
+          openCount: 0,
+          dmaName: report.dmaName,
+          address: report.address || report.description,
+          latitude: report.latitude,
+          longitude: report.longitude,
+        }
+        current.count += 1
+        current.openCount += isOpenReport(report.status) ? 1 : 0
+        if (new Date(report.updatedAt).getTime() >= 0) {
+          current.dmaName = report.dmaName
+          current.address = report.address || report.description
+        }
+        buckets.set(key, current)
+      })
+
+    return Array.from(buckets.values())
+      .filter((bucket) => bucket.count > 1)
+      .sort((left, right) => {
+        if (right.openCount !== left.openCount) {
+          return right.openCount - left.openCount
+        }
+        return right.count - left.count
+      })
+      .slice(0, 6)
+  }, [myReports])
 
   return (
     <div className="flex flex-col gap-6">
@@ -115,6 +246,114 @@ export function UtilityDashboard() {
           gradient="cyan"
           trend={{ value: 3, isPositive: true }}
         />
+      </div>
+
+      <ReportStatusMap
+        title="Utility Report Map"
+        description="View report distribution across all DMAs in this utility. Red marks unassigned reports, yellow marks assigned work, and green marks completed reports."
+        reports={myReports.map((report) => ({
+          id: report.id,
+          trackingId: report.trackingId,
+          description: report.description,
+          latitude: report.latitude,
+          longitude: report.longitude,
+          status: report.status,
+          priority: report.priority,
+          dmaName: report.dmaName,
+          teamName: report.teamName,
+        }))}
+        center={utilityMapCenter}
+        onReportSelect={(reportId) => router.push(`/dashboard/reports/${reportId}`)}
+        emptyMessage="No geolocated reports are available for this utility yet."
+      />
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              Operational Watchlist
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {dmaWatchlist.map((dma) => (
+              <button
+                key={dma.id}
+                type="button"
+                onClick={() => router.push(`/dashboard/reports?dma=${dma.id}`)}
+                className="w-full rounded-2xl border border-border/70 bg-card p-4 text-left transition-all hover:border-primary/30 hover:bg-muted/30"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{dma.name}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {dma.teamsInDMA} active teams · {dma.engineersInDMA} active engineers
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                    {dma.pendingApprovals} awaiting DMA
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Open</p>
+                    <p className="mt-1 font-semibold text-foreground">{dma.openReports}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Overdue</p>
+                    <p className="mt-1 font-semibold text-rose-600">{dma.overdueReports}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Resolved</p>
+                    <p className="mt-1 font-semibold text-emerald-600">{dma.completionRate}%</p>
+                  </div>
+                </div>
+              </button>
+            ))}
+            {dmaWatchlist.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+                DMA watchlist signals will appear here as report activity grows.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Flame className="h-4 w-4 text-rose-500" />
+              Recurring Hotspots
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {hotspotWatch.map((hotspot, index) => (
+              <div key={`${hotspot.latitude}-${hotspot.longitude}-${index}`} className="rounded-2xl border border-border/70 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{hotspot.address || "Leakage cluster"}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{hotspot.dmaName}</p>
+                  </div>
+                  <span className="rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
+                    {hotspot.count} reports
+                  </span>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                  <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">
+                    Open: {hotspot.openCount}
+                  </span>
+                  <span className="rounded-full bg-blue-50 px-2.5 py-1 text-blue-700">
+                    {hotspot.latitude.toFixed(4)}, {hotspot.longitude.toFixed(4)}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {hotspotWatch.length === 0 && (
+              <div className="rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+                No repeated leakage corridors are standing out across the utility right now.
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Charts row */}
@@ -182,7 +421,10 @@ export function UtilityDashboard() {
       {/* Recent reports */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Recent Reports</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Building2 className="h-4 w-4 text-primary" />
+            Recent Reports
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

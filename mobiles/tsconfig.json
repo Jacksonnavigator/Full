@@ -1,0 +1,40 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@screens/*": ["src/screens/*"],
+      "@navigation/*": ["src/navigation/*"],
+      "@data/*": ["src/data/*"],
+      "@store/*": ["src/store/*"],
+      "@utils/*": ["src/utils/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@services/*": ["src/services/*"],
+      "@lib/*": ["src/lib/*"]
+    }
+  },
+  "include": [
+    "App.tsx",
+    "index.ts",
+    "src/App.tsx",
+    "src/components/**/*",
+    "src/constants/**/*",
+    "src/data/**/*",
+    "src/hooks/**/*",
+    "src/lib/**/*",
+    "src/navigation/**/*",
+    "src/screens/**/*",
+    "src/store/**/*",
+    "src/theme/**/*",
+    "src/types/**/*",
+    "src/utils/**/*",
+    "src/services/**/*"
+  ],
+  "exclude": [
+    "archive",
+    "src/services/pushNotificationService.ts"
+  ]
+}

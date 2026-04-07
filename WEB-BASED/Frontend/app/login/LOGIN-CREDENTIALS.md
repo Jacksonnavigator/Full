@@ -49,7 +49,7 @@ Engineers and Team Leaders are created by DMA Managers through the Engineers Man
 |------|-----------------|
 | Admin | Full system access |
 | Utility Manager | Manage utilities, DMAs, DMA managers |
-| DMA Manager | Manage branches, teams, engineers in their DMA |
+| DMA Manager | Manage DMAs, teams, engineers, reports, and assignments in their DMA |
 | Team Leader | View and update assigned reports |
 | Engineer | View and update assigned reports |
 
