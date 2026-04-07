@@ -5,7 +5,7 @@ Centralized environment and application settings
 
 import os
 from typing import Any, List
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -36,10 +36,10 @@ class Settings(BaseSettings):
     # ===== Frontend Configuration =====
     # IMPORTANT: This is used for CORS and rendering frontend URLs
     frontend_url: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
-    cors_origins_raw: str = os.getenv("CORS_ORIGINS", "")
+    cors_origins_raw: str = Field(default="", alias="CORS_ORIGINS")
     
     # ===== CORS Settings =====
-    cors_origins: List[str] = [
+    default_cors_origins: List[str] = [
         "http://localhost:3000",      # Development frontend
         "http://127.0.0.1:3000",      # Alternative localhost
         "http://192.168.1.2:8081",    # Expo development server
@@ -91,7 +91,7 @@ class Settings(BaseSettings):
             if origin.strip()
         ]
 
-        origins = configured_origins or list(self.cors_origins)
+        origins = configured_origins or list(self.default_cors_origins)
 
         if self.frontend_url and self.frontend_url not in origins:
             origins.insert(0, self.frontend_url)
