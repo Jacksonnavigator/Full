@@ -6,7 +6,9 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 
 # Database
-sqlalchemy>=2.1.0
+# SQLAlchemy 2.1 is not yet broadly available as a stable release on common
+# deployment builders. Keep production on the stable 2.0 line.
+sqlalchemy>=2.0.36,<2.1
 psycopg2-binary>=2.9.11
 psycopg[binary]>=3.1.0
 alembic==1.13.1
