@@ -19,15 +19,15 @@ const ROLE_PRESETS = [
   },
   {
     label: "Utility Mgr",
-    email: "manager@dawasa.go.tz",
-    password: "utility123",
-    description: "DAWASA Manager"
+    email: "manager@utility.com",
+    password: "manager123",
+    description: "Utility Manager"
   },
   {
     label: "DMA Mgr",
-    email: "ilala@dawasa.go.tz",
-    password: "dma123",
-    description: "Ilala DMA Manager"
+    email: "dma.manager@utility.com",
+    password: "dmamanager123",
+    description: "DMA Manager"
   },
 ]
 

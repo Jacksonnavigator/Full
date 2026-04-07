@@ -53,6 +53,8 @@ export const useAuthStore = create<AuthState>()(
           const response = await apiClient.post(CONFIG.auth.loginEndpoint, {
             email,
             password,
+          }, {
+            disableAuth: true,
           })
 
           if (!response.success || !response.data) {

@@ -182,7 +182,7 @@ class ApiClient {
         if (!response.ok) {
           return {
             success: false,
-            error: data.error || `HTTP ${response.status}`,
+            error: data.error || data.detail || `HTTP ${response.status}`,
             code: data.code,
             details: data.details,
           };
