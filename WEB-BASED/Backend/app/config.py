@@ -91,7 +91,10 @@ class Settings(BaseSettings):
             if origin.strip()
         ]
 
-        origins = configured_origins or list(self.default_cors_origins)
+        origins = list(self.default_cors_origins)
+        for origin in configured_origins:
+            if origin not in origins:
+                origins.append(origin)
 
         if self.frontend_url and self.frontend_url not in origins:
             origins.insert(0, self.frontend_url)
