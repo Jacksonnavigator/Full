@@ -37,6 +37,10 @@ class Settings(BaseSettings):
     # IMPORTANT: This is used for CORS and rendering frontend URLs
     frontend_url: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
     cors_origins_raw: str = Field(default="", alias="CORS_ORIGINS")
+    cors_origin_regex: str = os.getenv(
+        "CORS_ORIGIN_REGEX",
+        r"^https:\/\/.*\.onrender\.com$|^http:\/\/localhost:3000$|^http:\/\/127\.0\.0\.1:3000$"
+    )
     
     # ===== CORS Settings =====
     default_cors_origins: List[str] = [

@@ -43,6 +43,8 @@ async def lifespan(app: FastAPI):
     print(f"   Environment: {settings.environment}")
     print(f"   Backend URL: http://{settings.host}:{settings.port}")
     print(f"   Frontend URL: {settings.frontend_url}")
+    print(f"   CORS Origins: {settings.get_cors_origins()}")
+    print(f"   CORS Origin Regex: {settings.cors_origin_regex}")
     print("=" * 60)
     run_startup_migrations(engine)
     Base.metadata.create_all(bind=engine)
@@ -71,6 +73,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.get_cors_origins(),
+    allow_origin_regex=settings.cors_origin_regex,
     allow_credentials=settings.cors_credentials,
     allow_methods=settings.cors_allow_methods,
     allow_headers=settings.cors_allow_headers,
