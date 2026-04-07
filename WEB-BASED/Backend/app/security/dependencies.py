@@ -45,51 +45,61 @@ async def get_current_user(
     Raises:
         HTTPException: If token invalid or user not found
     """
+    import logging
+    logger = logging.getLogger("auth-debug")
     if not authorization:
+        logger.error("Authorization header missing")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authorization header missing",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     # Extract token from "Bearer <token>" format
     try:
         scheme, token = authorization.split()
         if scheme.lower() != "bearer":
             raise ValueError("Invalid authentication scheme")
     except ValueError:
+        logger.error(f"Invalid authorization header format: {authorization}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authorization header format",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     # Extract user info from token
     user_info = extract_user_from_token(token)
-    
+    logger.info(f"Decoded token user_info: {user_info}")
+
     if not user_info:
+        logger.error("Invalid or expired token")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     user_id = user_info['user_id']
     email = user_info['email']
-    
+
     # Check User table (admin)
     user = db.query(User).filter(User.id == user_id).first()
+    logger.info(f"User table lookup for id={user_id}: {user}")
     if user:
+        logger.info(f"Authenticated as user: {user.email}")
         return CurrentUser(
             id=user.id,
             email=user.email,
             user_type="user",
             role=None
         )
-    
+
     # Check UtilityManager table
     util_mgr = db.query(UtilityManager).filter(UtilityManager.id == user_id).first()
+    logger.info(f"UtilityManager table lookup for id={user_id}: {util_mgr}")
     if util_mgr:
+        logger.info(f"Authenticated as utility_manager: {util_mgr.email}")
         return CurrentUser(
             id=util_mgr.id,
             email=util_mgr.email,

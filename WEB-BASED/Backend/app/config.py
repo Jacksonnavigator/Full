@@ -4,7 +4,8 @@ Centralized environment and application settings
 """
 
 import os
-from typing import List
+from typing import Any, List
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -35,12 +36,16 @@ class Settings(BaseSettings):
     # ===== Frontend Configuration =====
     # IMPORTANT: This is used for CORS and rendering frontend URLs
     frontend_url: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    cors_origins_raw: str = os.getenv("CORS_ORIGINS", "")
     
     # ===== CORS Settings =====
     cors_origins: List[str] = [
         "http://localhost:3000",      # Development frontend
         "http://127.0.0.1:3000",      # Alternative localhost
-        # Add production URLs here when deployed
+        "http://192.168.1.2:8081",    # Expo development server
+        "http://10.0.2.2:8081",       # Android emulator
+        "exp://192.168.1.2:8081",     # Expo Go app
+        "exp://10.0.2.2:8081",        # Expo Go on Android emulator
     ]
     cors_credentials: bool = True
     cors_allow_methods: List[str] = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
@@ -57,6 +62,19 @@ class Settings(BaseSettings):
     host: str = os.getenv("HOST", "0.0.0.0")
     port: int = int(os.getenv("PORT", "8000"))
 
+    @field_validator("debug", mode="before")
+    @classmethod
+    def parse_debug_value(cls, value: Any) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"1", "true", "yes", "on", "debug", "development"}:
+                return True
+            if normalized in {"0", "false", "no", "off", "release", "production"}:
+                return False
+        return bool(value)
+
     class Config:
         """Pydantic config"""
         env_file = ".env"
@@ -67,13 +85,23 @@ class Settings(BaseSettings):
         Get all CORS origins including frontend_url
         Ensures frontend is always allowed
         """
-        origins = list(self.cors_origins)
-        
-        # Add frontend URL if not already present
-        if self.frontend_url not in origins:
+        configured_origins = [
+            origin.strip()
+            for origin in self.cors_origins_raw.split(",")
+            if origin.strip()
+        ]
+
+        origins = configured_origins or list(self.cors_origins)
+
+        if self.frontend_url and self.frontend_url not in origins:
             origins.insert(0, self.frontend_url)
-        
-        return origins
+
+        deduped_origins: List[str] = []
+        for origin in origins:
+            if origin and origin not in deduped_origins:
+                deduped_origins.append(origin)
+
+        return deduped_origins
 
 
 # Create global settings instance

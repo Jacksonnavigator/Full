@@ -1,15 +1,14 @@
 """
 Report Routes
-CRUD operations for reports
+CRUD operations for reports in the simplified DMA -> Team -> Engineer flow.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
 from app.database.session import get_db
-from app.models import Report, Team, Engineer, Branch, DMA, Utility
-from app.models.user import EntityStatusEnum
-from app.models.business import ReportStatusEnum, ReportPriorityEnum
+from app.models import Report, Team, Engineer, DMA, Utility, ImageUpload, ImageTypeEnum
+from app.models.business import ReportStatusEnum, ReportPriorityEnum, NotificationTypeEnum
+from app.models.user import DMAManager
 from app.schemas.business import (
     ReportCreate,
     ReportUpdate,
@@ -26,78 +25,15 @@ from app.security.dependencies import get_current_user, CurrentUser
 from typing import Optional, List, Tuple
 from pydantic import BaseModel, Field
 from datetime import datetime
-import math
-
-# ============================================================
-# Geospatial Helper Functions
-# ============================================================
-
-def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """
-    Calculate the great circle distance between two points 
-    on the earth (specified in decimal degrees).
-    Returns distance in kilometers.
-    """
-    # Convert decimal degrees to radians
-    lat1_rad = math.radians(lat1)
-    lon1_rad = math.radians(lon1)
-    lat2_rad = math.radians(lat2)
-    lon2_rad = math.radians(lon2)
-    
-    # Haversine formula
-    dlat = lat2_rad - lat1_rad
-    dlon = lon2_rad - lon1_rad
-    a = math.sin(dlat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon/2)**2
-    c = 2 * math.asin(math.sqrt(a))
-    
-    # Radius of earth in kilometers
-    km = 6371 * c
-    return km
-
-
-def find_nearest_branch(
-    latitude: float, 
-    longitude: float, 
-    db: Session
-) -> Tuple[Optional[Branch], float]:
-    """
-    Find the nearest branch to the given coordinates.
-    
-    Returns:
-        Tuple of (Branch object, distance in km) or (None, inf) if no branches exist
-    """
-    branches = db.query(Branch).filter(
-        Branch.status == EntityStatusEnum.ACTIVE
-    ).all()
-    
-    if not branches:
-        return None, float('inf')
-    
-    # For now, since we don't have branch center coordinates stored,
-    # we'll assign to the first/default branch.
-    # In the future, when geoBoundary data is added, this can be improved
-    # to use proper geospatial queries.
-    
-    # TODO: Once branches have center_latitude, center_longitude or geoBoundary,
-    # implement the following logic:
-    # min_distance = float('inf')
-    # nearest_branch = None
-    # for branch in branches:
-    #     if branch.center_latitude and branch.center_longitude:
-    #         distance = haversine_distance(
-    #             latitude, longitude,
-    #             branch.center_latitude, branch.center_longitude
-    #         )
-    #         if distance < min_distance:
-    #             min_distance = distance
-    #             nearest_branch = branch
-    # return nearest_branch or branches[0], min_distance if nearest_branch else 0
-    
-    # For now, return the first active branch
-    return branches[0], 0.0
+import re
+from app.services.hierarchy import find_nearest_dma
+from app.services.push_notifications import create_notification_record, deliver_notifications_push
+from app.services.activity_logs import log_report_activity
 
 
 reports_router = APIRouter(prefix="/api/reports", tags=["reports"])
+
+UPLOAD_URL_PATTERN = re.compile(r"/api/uploads/([0-9a-fA-F-]{36})$")
 
 
 class ReportWithDetails(BaseModel):
@@ -109,14 +45,15 @@ class ReportWithDetails(BaseModel):
     longitude: float
     address: Optional[str] = None
     photos: List[str] = []
+    report_photos: List[str] = []
+    submission_before_photos: List[str] = []
+    submission_after_photos: List[str] = []
     priority: str
     status: str
     utility_id: str
     utility_name: Optional[str] = None
     dma_id: Optional[str] = None
     dma_name: Optional[str] = None
-    branch_id: Optional[str] = None
-    branch_name: Optional[str] = None
     team_id: Optional[str] = None
     team_name: Optional[str] = None
     assigned_engineer_id: Optional[str] = None
@@ -136,12 +73,200 @@ class AssignReportRequest(BaseModel):
     engineer_id: str = Field(..., description="Engineer ID to assign")
 
 
+def _report_link(report_id: str) -> str:
+    return f"/dashboard/reports/{report_id}"
+
+
+def _queue_dma_manager_notification(
+    db: Session,
+    report: Report,
+    title: str,
+    message: str,
+    notification_type: NotificationTypeEnum,
+):
+    dma_manager = db.query(DMAManager).filter(DMAManager.dma_id == report.dma_id).first()
+    if not dma_manager:
+        return None
+
+    return create_notification_record(
+        db,
+        title=title,
+        message=message,
+        notification_type=notification_type,
+        dma_manager_id=dma_manager.id,
+        data={"reportId": report.id, "trackingId": report.tracking_id, "status": report.status.value if hasattr(report.status, "value") else report.status},
+        link=_report_link(report.id),
+        flush=False,
+    )
+
+
+def _queue_engineer_notification(
+    db: Session,
+    report: Report,
+    title: str,
+    message: str,
+    notification_type: NotificationTypeEnum,
+):
+    if not report.assigned_engineer_id:
+        return None
+    return create_notification_record(
+        db,
+        title=title,
+        message=message,
+        notification_type=notification_type,
+        engineer_id=report.assigned_engineer_id,
+        data={"reportId": report.id, "trackingId": report.tracking_id, "status": report.status.value if hasattr(report.status, "value") else report.status},
+        link=_report_link(report.id),
+        flush=False,
+    )
+
+
+def _queue_team_leader_notification(
+    db: Session,
+    report: Report,
+    title: str,
+    message: str,
+    notification_type: NotificationTypeEnum,
+):
+    if not report.team_id:
+        return None
+    team = db.query(Team).filter(Team.id == report.team_id).first()
+    if not team or not team.leader_id:
+        return None
+    return create_notification_record(
+        db,
+        title=title,
+        message=message,
+        notification_type=notification_type,
+        engineer_id=team.leader_id,
+        data={"reportId": report.id, "trackingId": report.tracking_id, "status": report.status.value if hasattr(report.status, "value") else report.status},
+        link=_report_link(report.id),
+        flush=False,
+    )
+
+
+def _extract_upload_id(photo_ref: str) -> Optional[str]:
+    if not photo_ref:
+        return None
+
+    match = UPLOAD_URL_PATTERN.search(photo_ref)
+    return match.group(1) if match else None
+
+
+def _attach_upload_refs_to_report(report: Report, photo_refs: List[str], db: Session) -> None:
+    upload_ids = [_extract_upload_id(photo_ref) for photo_ref in photo_refs]
+    upload_ids = [upload_id for upload_id in upload_ids if upload_id]
+    if not upload_ids:
+        return
+
+    uploads = db.query(ImageUpload).filter(ImageUpload.id.in_(upload_ids)).all()
+    for upload in uploads:
+        upload.report_id = report.id
+        upload.image_type = ImageTypeEnum.REPORT
+
+
+def _apply_report_photo_update(report: Report, incoming_photos: List[str], db: Session) -> None:
+    """
+    Backward-compatible photo handling.
+
+    Older mobile builds sent repair upload URLs through the generic `photos` field.
+    That should not overwrite the original report photos. We now:
+    1. Associate any referenced uploaded images with this report.
+    2. Keep original report.photos intact when the incoming set is only submission media.
+    3. Still allow true report-photo updates (data URIs / normal URLs / report uploads).
+    """
+    upload_ids = [_extract_upload_id(photo) for photo in incoming_photos]
+    upload_ids = [upload_id for upload_id in upload_ids if upload_id]
+
+    uploads_by_id = {}
+    if upload_ids:
+        uploads = db.query(ImageUpload).filter(ImageUpload.id.in_(upload_ids)).all()
+        uploads_by_id = {upload.id: upload for upload in uploads}
+
+        for upload in uploads:
+            if upload.report_id != report.id:
+                upload.report_id = report.id
+
+    matched_uploads = [uploads_by_id[upload_id] for upload_id in upload_ids if upload_id in uploads_by_id]
+    only_submission_uploads = bool(matched_uploads) and len(matched_uploads) == len(incoming_photos) and all(
+        (upload.image_type.value if hasattr(upload.image_type, "value") else upload.image_type)
+        in {"submission_before", "submission_after"}
+        for upload in matched_uploads
+    )
+    engineer_submission_uploads = bool(matched_uploads) and len(matched_uploads) == len(incoming_photos) and all(
+        upload.engineer_id is not None and upload.user_id is None
+        for upload in matched_uploads
+    )
+
+    if engineer_submission_uploads:
+        for upload in matched_uploads:
+            upload.image_type = ImageTypeEnum.SUBMISSION_AFTER
+
+    if only_submission_uploads or engineer_submission_uploads:
+        return
+
+    report.photos = incoming_photos
+
+
+def _append_unique(target: List[str], value: str) -> None:
+    if value and value not in target:
+        target.append(value)
+
+
+def _split_report_photo_groups(report: Report, db: Session) -> Tuple[List[str], List[str], List[str]]:
+    report_photos: List[str] = []
+    submission_before_photos: List[str] = []
+    submission_after_photos: List[str] = []
+
+    stored_photo_refs = list(report.photos or [])
+    stored_upload_ids = [_extract_upload_id(photo_ref) for photo_ref in stored_photo_refs]
+    stored_upload_ids = [upload_id for upload_id in stored_upload_ids if upload_id]
+
+    uploads_by_id = {}
+    if stored_upload_ids:
+        uploads = db.query(ImageUpload).filter(ImageUpload.id.in_(stored_upload_ids)).all()
+        uploads_by_id = {upload.id: upload for upload in uploads}
+
+    for photo_ref in stored_photo_refs:
+        upload_id = _extract_upload_id(photo_ref)
+        upload = uploads_by_id.get(upload_id) if upload_id else None
+
+        if not upload:
+            _append_unique(report_photos, photo_ref)
+            continue
+
+        image_type = upload.image_type.value if hasattr(upload.image_type, "value") else upload.image_type
+        if image_type == "submission_before":
+            _append_unique(submission_before_photos, photo_ref)
+        elif image_type == "submission_after":
+            _append_unique(submission_after_photos, photo_ref)
+        elif upload.engineer_id and not upload.user_id:
+            _append_unique(submission_after_photos, photo_ref)
+        else:
+            _append_unique(report_photos, photo_ref)
+
+    for image in report.images or []:
+        download_url = f"/api/uploads/{image.id}"
+        image_type = image.image_type.value if hasattr(image.image_type, "value") else image.image_type
+
+        if image_type == "submission_before":
+            _append_unique(submission_before_photos, download_url)
+        elif image_type == "submission_after":
+            _append_unique(submission_after_photos, download_url)
+        elif image.engineer_id and not image.user_id:
+            _append_unique(submission_after_photos, download_url)
+        else:
+            _append_unique(report_photos, download_url)
+
+    return report_photos, submission_before_photos, submission_after_photos
+
+
 @reports_router.get("", response_model=ReportListResponse)
 async def list_reports(
-    branch_id: str = Query(None),
     dma_id: str = Query(None),
     utility_id: str = Query(None),
     status_filter: str = Query(None, alias="status"),
+    user_id: str = Query(None, alias="user_id"),  # Add user_id filter for engineers
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
     current_user: CurrentUser = Depends(get_current_user),
@@ -157,17 +282,21 @@ async def list_reports(
     elif current_user.user_type == "dma_manager" and current_user.dma_id:
         # DMA managers see reports from their DMA only
         query = query.filter(Report.dma_id == current_user.dma_id)
+    elif current_user.user_type == "engineer":
+        # Engineers see only reports assigned to them
+        query = query.filter(Report.assigned_engineer_id == current_user.id)
     # Admins see all reports
     
     # Apply additional filters
-    if branch_id:
-        query = query.filter(Report.branch_id == branch_id)
-    
     if dma_id:
         query = query.filter(Report.dma_id == dma_id)
         
     if utility_id:
         query = query.filter(Report.utility_id == utility_id)
+    
+    if user_id:
+        # Allow filtering by specific user_id (for admin/manager views)
+        query = query.filter(Report.assigned_engineer_id == user_id)
     
     if status_filter:
         query = query.filter(Report.status == status_filter)
@@ -250,19 +379,24 @@ async def create_report(
             detail="Report with this tracking ID already exists",
         )
     
-    # Get branch info to determine DMA and utility
-    branch = db.query(Branch).filter(Branch.id == report_data.branch_id).first()
-    if not branch:
+    dma = None
+    if report_data.dma_id:
+        dma = db.query(DMA).filter(DMA.id == report_data.dma_id).first()
+        if not dma:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="DMA not found",
+            )
+    else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Branch not found",
+            detail="DMA is required",
         )
-    
+
     new_report = Report(
         tracking_id=report_data.tracking_id,
-        branch_id=report_data.branch_id,
-        dma_id=branch.dma_id,
-        utility_id=branch.utility_id,
+        dma_id=dma.id if dma else None,
+        utility_id=dma.utility_id if dma else None,
         description=report_data.description,
         priority=report_data.priority,
         photos=report_data.photos or [],
@@ -275,6 +409,13 @@ async def create_report(
     )
     
     db.add(new_report)
+    log_report_activity(
+        db,
+        report=new_report,
+        action="report_created",
+        details=f"Report {new_report.tracking_id} was created from the authenticated workflow.",
+        actor=current_user,
+    )
     db.commit()
     db.refresh(new_report)
     
@@ -294,16 +435,15 @@ async def create_anonymous_report(
     # Generate unique tracking ID
     tracking_id = f"ANON-{uuid.uuid4().hex[:8].upper()}"
     
-    # Use geospatial lookup to find the appropriate branch
-    # This assigns the report to the utility/DMA/branch based on coordinates
-    branch, distance = find_nearest_branch(report_data.latitude, report_data.longitude, db)
-    
-    if not branch:
+    # Assign the report to the nearest DMA based on coordinates.
+    dma, distance = find_nearest_dma(report_data.latitude, report_data.longitude, db)
+
+    if not dma:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No branches configured in system",
+            detail="No DMAs configured in system",
         )
-    
+
     # Map priority string to enum
     priority_map = {
         "Low": ReportPriorityEnum.LOW,
@@ -320,9 +460,8 @@ async def create_anonymous_report(
 
     new_report = Report(
         tracking_id=tracking_id,
-        branch_id=branch.id,
-        dma_id=branch.dma_id,
-        utility_id=branch.utility_id,
+        dma_id=dma.id,
+        utility_id=dma.utility_id,
         description=report_data.description,
         priority=priority,
         photos=report_data.images or [],
@@ -335,10 +474,61 @@ async def create_anonymous_report(
     )
     
     db.add(new_report)
+    db.flush()
+    _attach_upload_refs_to_report(new_report, report_data.images or [], db)
+    queued_notification = _queue_dma_manager_notification(
+        db,
+        new_report,
+        title="New leakage report received",
+        message=f"{new_report.tracking_id} was reported in {dma.name} and needs assignment.",
+        notification_type=NotificationTypeEnum.WARNING,
+    )
+    log_report_activity(
+        db,
+        report=new_report,
+        action="report_created",
+        details=f"Anonymous report {tracking_id} was created and routed to {dma.name}.",
+        actor_name=report_data.reported_by or "Anonymous",
+        actor_role="anonymous_reporter",
+    )
     db.commit()
     db.refresh(new_report)
+    if queued_notification:
+        deliver_notifications_push([queued_notification], db)
     
     return _build_report_with_details(new_report, db)
+
+
+@reports_router.get("/public/by-location", response_model=ReportListResponse)
+async def get_reports_by_location(
+    utility_id: str = Query(None),
+    dma_id: str = Query(None),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    """
+    Get reports by utility/DMA (public, no auth needed)
+    Useful for viewing anonymous/public reports submitted from mobile app
+    Returns all reports including anonymous ones for a given location
+    """
+    query = db.query(Report)
+    
+    if utility_id:
+        query = query.filter(Report.utility_id == utility_id)
+    
+    if dma_id:
+        query = query.filter(Report.dma_id == dma_id)
+    
+    total = query.count()
+    reports = query.order_by(Report.created_at.desc()).offset(skip).limit(limit).all()
+    
+    # Build response with details
+    items = []
+    for report in reports:
+        items.append(_build_report_with_details(report, db))
+    
+    return ReportListResponse(total=total, items=items)
 
 
 @reports_router.put("/{report_id}", response_model=ReportWithDetails)
@@ -366,8 +556,25 @@ async def update_report(
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     
     update_data = report_data.dict(exclude_unset=True)
+    incoming_photos = update_data.pop("photos", None)
+    queued_notifications = []
+    changed_fields: list[str] = []
     for field, value in update_data.items():
         setattr(report, field, value)
+        changed_fields.append(field)
+
+    if incoming_photos is not None:
+        _apply_report_photo_update(report, incoming_photos, db)
+        changed_fields.append("photos")
+
+    if changed_fields:
+        log_report_activity(
+            db,
+            report=report,
+            action="report_updated",
+            details=f"Updated report fields: {', '.join(sorted(set(changed_fields)))}.",
+            actor=current_user,
+        )
     
     db.commit()
     db.refresh(report)
@@ -413,12 +620,55 @@ async def update_report_status(
     report.status = status_update.status
     if status_update.notes:
         report.notes = status_update.notes
+    queued_notifications = []
     
     if status_update.status == ReportStatusEnum.APPROVED:
         report.resolved_at = datetime.utcnow()
+    elif status_update.status == ReportStatusEnum.PENDING_APPROVAL:
+        if current_user.user_type == "engineer" and current_user.role == "team_leader":
+            notification = _queue_dma_manager_notification(
+                db,
+                report,
+                title="Team leader approved field repair",
+                message=f"{report.tracking_id} is awaiting DMA approval.",
+                notification_type=NotificationTypeEnum.INFO,
+            )
+            if notification:
+                queued_notifications.append(notification)
+        elif current_user.user_type == "engineer":
+            notification = _queue_team_leader_notification(
+                db,
+                report,
+                title="Repair submitted for review",
+                message=f"{report.tracking_id} has been submitted by the field engineer.",
+                notification_type=NotificationTypeEnum.INFO,
+            )
+            if notification:
+                queued_notifications.append(notification)
+    elif status_update.status == ReportStatusEnum.ASSIGNED and current_user.user_type == "engineer" and current_user.role == "team_leader":
+        notification = _queue_engineer_notification(
+            db,
+            report,
+            title="Repair sent back for rework",
+            message=status_update.notes or f"{report.tracking_id} was returned by the team leader for more work.",
+            notification_type=NotificationTypeEnum.WARNING,
+        )
+        if notification:
+            queued_notifications.append(notification)
+
+    log_report_activity(
+        db,
+        report=report,
+        action="report_status_changed",
+        details=f"Status changed to {getattr(status_update.status, 'value', status_update.status)}."
+        + (f" Notes: {status_update.notes}" if status_update.notes else ""),
+        actor=current_user,
+    )
     
     db.commit()
     db.refresh(report)
+    if queued_notifications:
+        deliver_notifications_push(queued_notifications, db)
     
     return _build_report_with_details(report, db)
 
@@ -481,9 +731,38 @@ async def assign_report(
     report.team_id = assign_data.team_id
     report.assigned_engineer_id = assign_data.engineer_id
     report.status = ReportStatusEnum.ASSIGNED
-    
+    queued_notifications = []
+    log_report_activity(
+        db,
+        report=report,
+        action="report_assigned",
+        details=f"Assigned to team {team.name} and engineer {engineer.name}.",
+        actor=current_user,
+    )
+    notification = _queue_engineer_notification(
+        db,
+        report,
+        title="New field task assigned",
+        message=f"{report.tracking_id} has been assigned to you.",
+        notification_type=NotificationTypeEnum.INFO,
+    )
+    if notification:
+        queued_notifications.append(notification)
+    if team.leader_id and team.leader_id != report.assigned_engineer_id:
+        leader_notification = _queue_team_leader_notification(
+            db,
+            report,
+            title="New team task assigned",
+            message=f"{report.tracking_id} has been assigned to {engineer.name}.",
+            notification_type=NotificationTypeEnum.INFO,
+        )
+        if leader_notification:
+            queued_notifications.append(leader_notification)
+
     db.commit()
     db.refresh(report)
+    if queued_notifications:
+        deliver_notifications_push(queued_notifications, db)
     
     return _build_report_with_details(report, db)
 
@@ -521,9 +800,37 @@ async def approve_report(
     
     report.status = ReportStatusEnum.APPROVED
     report.resolved_at = datetime.utcnow()
-    
+    queued_notifications = []
+    log_report_activity(
+        db,
+        report=report,
+        action="report_approved",
+        details="Report approved by DMA and marked as resolved.",
+        actor=current_user,
+    )
+    engineer_notification = _queue_engineer_notification(
+        db,
+        report,
+        title="Repair approved by DMA",
+        message=f"{report.tracking_id} has been approved and closed.",
+        notification_type=NotificationTypeEnum.SUCCESS,
+    )
+    if engineer_notification:
+        queued_notifications.append(engineer_notification)
+    leader_notification = _queue_team_leader_notification(
+        db,
+        report,
+        title="DMA approved resolved report",
+        message=f"{report.tracking_id} has been approved and closed.",
+        notification_type=NotificationTypeEnum.SUCCESS,
+    )
+    if leader_notification and (not engineer_notification or leader_notification.engineer_id != engineer_notification.engineer_id):
+        queued_notifications.append(leader_notification)
+
     db.commit()
     db.refresh(report)
+    if queued_notifications:
+        deliver_notifications_push(queued_notifications, db)
     
     return _build_report_with_details(report, db)
 
@@ -560,9 +867,37 @@ async def reject_report(
         )
     
     report.status = ReportStatusEnum.REJECTED
-    
+    queued_notifications = []
+    log_report_activity(
+        db,
+        report=report,
+        action="report_rejected",
+        details="Report rejected by DMA and returned for follow-up work.",
+        actor=current_user,
+    )
+    engineer_notification = _queue_engineer_notification(
+        db,
+        report,
+        title="Repair rejected by DMA",
+        message=f"{report.tracking_id} needs more work before it can be closed.",
+        notification_type=NotificationTypeEnum.ERROR,
+    )
+    if engineer_notification:
+        queued_notifications.append(engineer_notification)
+    leader_notification = _queue_team_leader_notification(
+        db,
+        report,
+        title="DMA rejected repair",
+        message=f"{report.tracking_id} needs follow-up before resubmission.",
+        notification_type=NotificationTypeEnum.ERROR,
+    )
+    if leader_notification and (not engineer_notification or leader_notification.engineer_id != engineer_notification.engineer_id):
+        queued_notifications.append(leader_notification)
+
     db.commit()
     db.refresh(report)
+    if queued_notifications:
+        deliver_notifications_push(queued_notifications, db)
     
     return _build_report_with_details(report, db)
 
@@ -596,12 +931,6 @@ async def delete_report(
 
 def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails:
     """Helper to build report response with all related details"""
-    # Get branch name
-    branch_name = None
-    if report.branch_id:
-        branch = db.query(Branch).filter(Branch.id == report.branch_id).first()
-        branch_name = branch.name if branch else None
-    
     # Get DMA name
     dma_name = None
     if report.dma_id:
@@ -625,6 +954,8 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
     if report.assigned_engineer_id:
         engineer = db.query(Engineer).filter(Engineer.id == report.assigned_engineer_id).first()
         assigned_engineer_name = engineer.name if engineer else None
+
+    report_photos, submission_before_photos, submission_after_photos = _split_report_photo_groups(report, db)
     
     return ReportWithDetails(
         id=report.id,
@@ -634,14 +965,15 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         longitude=report.longitude,
         address=report.address,
         photos=report.photos or [],
+        report_photos=report_photos,
+        submission_before_photos=submission_before_photos,
+        submission_after_photos=submission_after_photos,
         priority=report.priority.value if hasattr(report.priority, 'value') else report.priority,
         status=report.status.value if hasattr(report.status, 'value') else report.status,
         utility_id=report.utility_id,
         utility_name=utility_name,
         dma_id=report.dma_id,
         dma_name=dma_name,
-        branch_id=report.branch_id,
-        branch_name=branch_name,
         team_id=report.team_id,
         team_name=team_name,
         assigned_engineer_id=report.assigned_engineer_id,

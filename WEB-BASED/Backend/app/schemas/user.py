@@ -48,6 +48,8 @@ class UserResponse(UserBase):
     utility_name: Optional[str] = None
     dma_id: Optional[str] = None
     dma_name: Optional[str] = None
+    team_id: Optional[str] = None
+    team_name: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -142,6 +144,8 @@ class DMABase(BaseModel):
     utility_id: str
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = Field(None, max_length=1000)
+    center_latitude: Optional[float] = Field(None, ge=-90, le=90)
+    center_longitude: Optional[float] = Field(None, ge=-180, le=180)
     status: EntityStatus = EntityStatus.ACTIVE
 
 
@@ -154,6 +158,8 @@ class DMAUpdate(BaseModel):
     """Schema for updating DMA"""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = Field(None, max_length=1000)
+    center_latitude: Optional[float] = Field(None, ge=-90, le=90)
+    center_longitude: Optional[float] = Field(None, ge=-180, le=180)
     status: Optional[EntityStatus] = None
 
 
@@ -163,7 +169,7 @@ class DMAResponse(DMABase):
     utility_name: Optional[str] = None
     manager_id: Optional[str] = None
     manager_name: Optional[str] = None
-    branches_count: int = 0
+    teams_count: int = 0
     reports_count: int = 0
     engineers_count: int = 0
     created_at: datetime
@@ -229,58 +235,12 @@ class DMAManagerListResponse(BaseModel):
 
 
 # ============================================================================
-# Branch Schemas
-# ============================================================================
-
-class BranchBase(BaseModel):
-    """Base schema for Branch"""
-    dma_id: str
-    name: str = Field(..., min_length=1, max_length=255)
-    description: Optional[str] = Field(None, max_length=1000)
-    status: EntityStatus = EntityStatus.ACTIVE
-
-
-class BranchCreate(BranchBase):
-    """Schema for creating a branch"""
-    pass
-
-
-class BranchUpdate(BaseModel):
-    """Schema for updating branch"""
-    name: Optional[str] = Field(None, min_length=1, max_length=255)
-    description: Optional[str] = Field(None, max_length=1000)
-    status: Optional[EntityStatus] = None
-
-
-class BranchResponse(BranchBase):
-    """Schema for branch response"""
-    id: str
-    dma_name: Optional[str] = None
-    utility_id: Optional[str] = None
-    utility_name: Optional[str] = None
-    engineer_count: int = 0
-    team_count: int = 0
-    report_count: int = 0
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-class BranchListResponse(BaseModel):
-    """Schema for list of branches"""
-    total: int
-    items: List[BranchResponse]
-
-
-# ============================================================================
 # Team Schemas
 # ============================================================================
 
 class TeamBase(BaseModel):
     """Base schema for Team"""
-    branch_id: str
+    dma_id: str
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = Field(None, max_length=1000)
     status: EntityStatus = EntityStatus.ACTIVE
@@ -288,14 +248,14 @@ class TeamBase(BaseModel):
 
 class TeamCreate(TeamBase):
     """Schema for creating a team"""
-    dma_id: Optional[str] = None  # Optional - will be derived from branch if not provided
+    pass
 
 
 class TeamUpdate(BaseModel):
     """Schema for updating team"""
+    dma_id: Optional[str] = None
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = Field(None, max_length=1000)
-    branch_id: Optional[str] = None  # Allow changing the branch
     status: Optional[EntityStatus] = None
 
 
@@ -324,9 +284,8 @@ class EngineerBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     email: EmailStr
     phone: Optional[str] = Field(None, max_length=20)
-    branch_id: str
-    dma_id: str
-    team_id: Optional[str] = None
+    team_id: str
+    dma_id: Optional[str] = None
     role: str = Field(default="engineer", pattern="^(engineer|team_leader)$")
     status: EntityStatus = EntityStatus.ACTIVE
     specialization: Optional[str] = Field(None, max_length=255)
@@ -338,9 +297,8 @@ class EngineerCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=255)
     phone: Optional[str] = Field(None, max_length=20)
-    branch_id: str
-    dma_id: str
-    team_id: Optional[str] = None
+    team_id: str
+    dma_id: Optional[str] = None
     role: str = Field(default="engineer", pattern="^(engineer|team_leader)$")
     status: EntityStatus = EntityStatus.ACTIVE
 
@@ -351,7 +309,7 @@ class EngineerUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     email: Optional[EmailStr] = None
     phone: Optional[str] = Field(None, max_length=20)
-    branch_id: Optional[str] = None
+    dma_id: Optional[str] = None
     team_id: Optional[str] = None
     role: Optional[str] = Field(None, pattern="^(engineer|team_leader)$")
     status: Optional[EntityStatus] = None
@@ -364,9 +322,9 @@ class EngineerResponse(BaseModel):
     name: str
     email: str
     phone: Optional[str]
-    branch_id: str
     dma_id: str
     team_id: Optional[str]
+    team_name: Optional[str] = None
     status: str
     role: str
     created_at: datetime
@@ -395,14 +353,15 @@ class ReportResponse(BaseModel):
     longitude: float
     address: Optional[str] = None
     photos: List[str] = []
+    report_photos: List[str] = []
+    submission_before_photos: List[str] = []
+    submission_after_photos: List[str] = []
     priority: str
     status: str
     utility_id: str
     utility_name: Optional[str] = None
     dma_id: Optional[str] = None
     dma_name: Optional[str] = None
-    branch_id: Optional[str] = None
-    branch_name: Optional[str] = None
     team_id: Optional[str] = None
     team_name: Optional[str] = None
     assigned_engineer_id: Optional[str] = None

@@ -7,7 +7,7 @@ Includes manager and utility info for proper frontend integration
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from app.database.session import get_db
-from app.models import DMA, DMAManager, Branch, Engineer, Report
+from app.models import DMA, DMAManager, Engineer, Report, Team
 from app.schemas.user import (
     DMACreate,
     DMAUpdate,
@@ -32,7 +32,7 @@ def transform_dma(dma: DMA) -> dict:
     utility_name = dma.utility.name if dma.utility else None
     
     # Count related entities
-    branches_count = len(dma.branches) if dma.branches else 0
+    teams_count = len(dma.teams) if dma.teams else 0
     engineers_count = len(dma.engineers) if dma.engineers else 0
     reports_count = len(dma.reports) if dma.reports else 0
     
@@ -42,10 +42,12 @@ def transform_dma(dma: DMA) -> dict:
         "utility_name": utility_name,
         "name": dma.name,
         "description": dma.description,
+        "center_latitude": dma.center_latitude,
+        "center_longitude": dma.center_longitude,
         "status": dma.status.value if hasattr(dma.status, 'value') else dma.status,
         "manager_id": manager_id,
         "manager_name": manager_name,
-        "branches_count": branches_count,
+        "teams_count": teams_count,
         "engineers_count": engineers_count,
         "reports_count": reports_count,
         "created_at": dma.created_at,
@@ -135,6 +137,8 @@ async def create_dma(
         utility_id=dma_data.utility_id,
         name=dma_data.name,
         description=dma_data.description,
+        center_latitude=dma_data.center_latitude,
+        center_longitude=dma_data.center_longitude,
         status=dma_data.status,
     )
     

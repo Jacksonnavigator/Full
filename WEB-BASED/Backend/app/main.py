@@ -8,23 +8,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.config import settings
+from app.database.session import engine
 from app.middleware import LoggingMiddleware, RequestIDMiddleware, RateLimitMiddleware, register_exception_handlers
+from app.models import Base
 from app.api import (
     auth_router,
     users_router,
     utilities_router,
     dmas_router,
-    branches_router,
     teams_router,
     engineers_router,
     reports_router,
     utility_managers_router,
     dma_managers_router,
     notifications_router,
+    push_tokens_router,
     logs_router,
     health_router,
     uploads_router,
 )
+from app.services.database_migrations import run_startup_migrations
 
 # ============================================================
 # Lifecycle Events
@@ -41,6 +44,8 @@ async def lifespan(app: FastAPI):
     print(f"   Backend URL: http://{settings.host}:{settings.port}")
     print(f"   Frontend URL: {settings.frontend_url}")
     print("=" * 60)
+    run_startup_migrations(engine)
+    Base.metadata.create_all(bind=engine)
     yield
     print("=" * 60)
     print(f"🛑 {settings.app_name} Shutting Down...")
@@ -98,13 +103,13 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(utilities_router)
 app.include_router(dmas_router)
-app.include_router(branches_router)
 app.include_router(teams_router)
 app.include_router(engineers_router)
 app.include_router(reports_router)
 app.include_router(utility_managers_router)
 app.include_router(dma_managers_router)
 app.include_router(notifications_router)
+app.include_router(push_tokens_router)
 app.include_router(logs_router)
 app.include_router(health_router)
 app.include_router(uploads_router)
@@ -144,13 +149,13 @@ async def api_root():
             "users": f"{settings.api_prefix}/users",
             "utilities": f"{settings.api_prefix}/utilities",
             "dmas": f"{settings.api_prefix}/dmas",
-            "branches": f"{settings.api_prefix}/branches",
             "teams": f"{settings.api_prefix}/teams",
             "engineers": f"{settings.api_prefix}/engineers",
             "reports": f"{settings.api_prefix}/reports",
             "dma_managers": f"{settings.api_prefix}/dma-managers",
             "utility_managers": f"{settings.api_prefix}/utility-managers",
             "notifications": f"{settings.api_prefix}/notifications",
+            "push_tokens": f"{settings.api_prefix}/push-tokens",
             "logs": f"{settings.api_prefix}/logs",
         },
         "documentation": "/docs",

@@ -170,6 +170,11 @@ async def login(
         engineer = db.query(Engineer).filter(Engineer.email == request.email).first()
         if engineer:
             if verify_password(request.password, engineer.password):
+                dma_name = engineer.dma.name if engineer.dma else None
+                utility_id = engineer.dma.utility_id if engineer.dma else None
+                utility_name = engineer.dma.utility.name if engineer.dma and engineer.dma.utility else None
+                team_id = engineer.team_id
+                team_name = engineer.team.name if engineer.team else None
                 user_data = {
                     'id': engineer.id,
                     'email': engineer.email,
@@ -181,10 +186,12 @@ async def login(
                     'updated_at': engineer.updated_at,
                     'user_type': 'engineer',
                     'role': engineer.role,  # "engineer" or "team_leader"
-                    'utility_id': None,
-                    'utility_name': None,
+                    'utility_id': utility_id,
+                    'utility_name': utility_name,
                     'dma_id': engineer.dma_id,
-                    'dma_name': None,
+                    'dma_name': dma_name,
+                    'team_id': team_id,
+                    'team_name': team_name,
                 }
                 user_type = 'engineer'
     

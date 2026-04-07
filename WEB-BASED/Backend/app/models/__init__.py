@@ -10,7 +10,6 @@ from app.models.user import (
     UtilityManager,
     DMA,
     DMAManager,
-    Branch,
     Team,
     Engineer,
     EntityStatusEnum,
@@ -19,6 +18,7 @@ from app.models.business import (
     Report,
     ActivityLog,
     Notification,
+    PushDeviceToken,
     ReportStatusEnum,
     ReportPriorityEnum,
     NotificationTypeEnum,
@@ -36,13 +36,13 @@ __all__ = [
     "UtilityManager",
     "DMA",
     "DMAManager",
-    "Branch",
     "Team",
     "Engineer",
     # Business models
     "Report",
     "ActivityLog",
     "Notification",
+    "PushDeviceToken",
     # Upload models
     "ImageUpload",
     # Enums

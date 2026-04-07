@@ -16,7 +16,7 @@ from app.constants.enums import ReportStatus, ReportPriority, NotificationType
 class ReportBase(BaseModel):
     """Base schema for Report"""
     tracking_id: str = Field(..., min_length=1, max_length=50)
-    branch_id: str
+    dma_id: Optional[str] = None
     description: Optional[str] = Field(None, max_length=2000)
     priority: ReportPriority = ReportPriority.MEDIUM
     photos: Optional[List[str]] = []
@@ -78,11 +78,18 @@ class ReportStatusUpdateRequest(BaseModel):
 
 class ActivityLogBase(BaseModel):
     """Base schema for ActivityLog"""
-    user_id: str
+    user_id: Optional[str] = None
+    utility_mgr_id: Optional[str] = None
+    dma_mgr_id: Optional[str] = None
+    engineer_id: Optional[str] = None
+    user_name: str = Field(..., min_length=1, max_length=255)
+    user_role: str = Field(..., min_length=1, max_length=50)
     action: str = Field(..., min_length=1, max_length=255)
-    entity_type: str = Field(..., min_length=1, max_length=100)
+    entity: str = Field(..., min_length=1, max_length=100)
     entity_id: str
-    description: Optional[str] = Field(None, max_length=1000)
+    details: Optional[str] = Field(None, max_length=2000)
+    utility_id: Optional[str] = None
+    dma_id: Optional[str] = None
 
 
 class ActivityLogCreate(ActivityLogBase):
@@ -109,7 +116,10 @@ class ActivityLogFilterRequest(BaseModel):
     """Schema for filtering activity logs"""
     user_id: Optional[str] = None
     action: Optional[str] = None
-    entity_type: Optional[str] = None
+    entity: Optional[str] = None
+    entity_id: Optional[str] = None
+    utility_id: Optional[str] = None
+    dma_id: Optional[str] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     limit: int = Field(100, ge=1, le=1000)
@@ -127,6 +137,7 @@ class NotificationBase(BaseModel):
     message: str = Field(..., min_length=1, max_length=2000)
     is_read: bool = False
     data: Optional[Dict[str, Any]] = None
+    link: Optional[str] = None
 
 
 class NotificationCreate(NotificationBase):
@@ -146,6 +157,8 @@ class NotificationUpdate(BaseModel):
     is_read: Optional[bool] = None
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     message: Optional[str] = Field(None, min_length=1, max_length=2000)
+    data: Optional[Dict[str, Any]] = None
+    link: Optional[str] = None
 
 
 class NotificationResponse(NotificationBase):
@@ -178,3 +191,28 @@ class NotificationBulkCreate(BaseModel):
     dma_manager_ids: Optional[List[str]] = []
     engineer_ids: Optional[List[str]] = []
     data: Optional[Dict[str, Any]] = None
+    link: Optional[str] = None
+
+
+class PushTokenRegisterRequest(BaseModel):
+    expo_push_token: str = Field(..., min_length=1, max_length=255)
+    platform: Optional[str] = Field(None, max_length=32)
+    device_name: Optional[str] = Field(None, max_length=255)
+    device_id: Optional[str] = Field(None, max_length=255)
+    app_role: Optional[str] = Field(None, max_length=50)
+
+
+class PushTokenResponse(BaseModel):
+    id: str
+    expo_push_token: str
+    platform: Optional[str] = None
+    device_name: Optional[str] = None
+    device_id: Optional[str] = None
+    app_role: Optional[str] = None
+    active: bool
+    created_at: datetime
+    updated_at: datetime
+    last_registered_at: datetime
+
+    class Config:
+        from_attributes = True

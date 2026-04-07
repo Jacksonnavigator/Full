@@ -3,8 +3,8 @@ User Routes
 CRUD operations for users
 """
 
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Header
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models import User
@@ -50,6 +50,96 @@ async def list_users(
     )
 
 
+@users_router.get("/me", response_model=UserResponse)
+async def get_current_user_profile(
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
+    """
+    Get current user profile from Authorization header token.
+    
+    Works for all user types: User (admin), UtilityManager, DMAManager, Engineer
+
+    Requires:
+    - Authorization: Bearer <token> header
+
+    Args:
+        authorization: Bearer token from Authorization header
+        db: Database session
+
+    Returns:
+        UserResponse with current user info
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    if not authorization:
+        logger.error("[/api/users/me] Authorization header missing")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication token",
+        )
+
+    # Extract token from "Bearer <token>" format
+    if authorization.startswith("Bearer "):
+        token = authorization.split(" ", 1)[1]
+    else:
+        logger.error(f"[/api/users/me] Invalid auth header format: {authorization}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization header format",
+        )
+
+    user_info = extract_user_from_token(token)
+    logger.info(f"[/api/users/me] Decoded token: {user_info}")
+    
+    if not user_info:
+        logger.error("[/api/users/me] Invalid or expired token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
+    
+    user_id = user_info['user_id']
+    
+    # Check User table (admin)
+    user = db.query(User).filter(User.id == user_id).first()
+    logger.info(f"[/api/users/me] User table lookup for id={user_id}: {user}")
+    if user:
+        logger.info(f"[/api/users/me] Returning User: {user.email}")
+        return UserResponse.from_orm(user)
+    
+    # Check Engineer table
+    from app.models.user import Engineer
+    engineer = db.query(Engineer).filter(Engineer.id == user_id).first()
+    logger.info(f"[/api/users/me] Engineer table lookup for id={user_id}: {engineer}")
+    if engineer:
+        logger.info(f"[/api/users/me] Returning Engineer: {engineer.email}")
+        return UserResponse.from_orm(engineer)
+    
+    # Check UtilityManager table
+    from app.models.user import UtilityManager
+    util_mgr = db.query(UtilityManager).filter(UtilityManager.id == user_id).first()
+    logger.info(f"[/api/users/me] UtilityManager table lookup for id={user_id}: {util_mgr}")
+    if util_mgr:
+        logger.info(f"[/api/users/me] Returning UtilityManager: {util_mgr.email}")
+        return UserResponse.from_orm(util_mgr)
+    
+    # Check DMAManager table
+    from app.models.user import DMAManager
+    dma_mgr = db.query(DMAManager).filter(DMAManager.id == user_id).first()
+    logger.info(f"[/api/users/me] DMAManager table lookup for id={user_id}: {dma_mgr}")
+    if dma_mgr:
+        logger.info(f"[/api/users/me] Returning DMAManager: {dma_mgr.email}")
+        return UserResponse.from_orm(dma_mgr)
+    
+    logger.error(f"[/api/users/me] User not found in any table for id={user_id}")
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="User not found",
+    )
+
+
 @users_router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: str,
@@ -66,40 +156,6 @@ async def get_user(
         UserResponse
     """
     user = db.query(User).filter(User.id == user_id).first()
-    
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
-    
-    return UserResponse.from_orm(user)
-
-
-@users_router.get("/me", response_model=UserResponse)
-async def get_current_user_profile(
-    token: str,
-    db: Session = Depends(get_db),
-):
-    """
-    Get current user profile from token
-    
-    Args:
-        token: JWT token
-        db: Database session
-        
-    Returns:
-        UserResponse with current user info
-    """
-    user_info = extract_user_from_token(token)
-    
-    if not user_info:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
-        )
-    
-    user = db.query(User).filter(User.id == user_info['user_id']).first()
     
     if not user:
         raise HTTPException(
