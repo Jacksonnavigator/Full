@@ -235,14 +235,15 @@ def _migrate_account_invitation_columns(engine: Engine) -> None:
 
         columns = {column["name"] for column in inspector.get_columns(table_name)}
         statements = []
+        quoted_table_name = f'"{table_name}"' if engine.dialect.name.startswith("postgresql") else table_name
         if "invite_token_hash" not in columns:
-            statements.append(f'ALTER TABLE {table_name} ADD COLUMN invite_token_hash VARCHAR(255)')
+            statements.append(f'ALTER TABLE {quoted_table_name} ADD COLUMN invite_token_hash VARCHAR(255)')
         if "invite_sent_at" not in columns:
-            statements.append(f'ALTER TABLE {table_name} ADD COLUMN invite_sent_at {"DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"}')
+            statements.append(f'ALTER TABLE {quoted_table_name} ADD COLUMN invite_sent_at {"DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"}')
         if "invite_expires_at" not in columns:
-            statements.append(f'ALTER TABLE {table_name} ADD COLUMN invite_expires_at {"DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"}')
+            statements.append(f'ALTER TABLE {quoted_table_name} ADD COLUMN invite_expires_at {"DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"}')
         if "setup_completed_at" not in columns:
-            statements.append(f'ALTER TABLE {table_name} ADD COLUMN setup_completed_at {"DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"}')
+            statements.append(f'ALTER TABLE {quoted_table_name} ADD COLUMN setup_completed_at {"DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"}')
 
         with engine.begin() as connection:
             for statement in statements:
@@ -260,7 +261,7 @@ def _migrate_account_invitation_columns(engine: Engine) -> None:
             placeholders = "', '".join(placeholder_names)
             connection.exec_driver_sql(
                 f"""
-                UPDATE {table_name}
+                UPDATE {quoted_table_name}
                 SET setup_completed_at = created_at
                 WHERE setup_completed_at IS NULL
                   AND COALESCE(name, '') NOT IN ('{placeholders}')
@@ -276,13 +277,14 @@ def _migrate_account_password_reset_columns(engine: Engine) -> None:
 
         columns = {column["name"] for column in inspector.get_columns(table_name)}
         statements = []
+        quoted_table_name = f'"{table_name}"' if engine.dialect.name.startswith("postgresql") else table_name
         timestamp_type = "DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"
         if "password_reset_token_hash" not in columns:
-            statements.append(f'ALTER TABLE {table_name} ADD COLUMN password_reset_token_hash VARCHAR(255)')
+            statements.append(f'ALTER TABLE {quoted_table_name} ADD COLUMN password_reset_token_hash VARCHAR(255)')
         if "password_reset_sent_at" not in columns:
-            statements.append(f'ALTER TABLE {table_name} ADD COLUMN password_reset_sent_at {timestamp_type}')
+            statements.append(f'ALTER TABLE {quoted_table_name} ADD COLUMN password_reset_sent_at {timestamp_type}')
         if "password_reset_expires_at" not in columns:
-            statements.append(f'ALTER TABLE {table_name} ADD COLUMN password_reset_expires_at {timestamp_type}')
+            statements.append(f'ALTER TABLE {quoted_table_name} ADD COLUMN password_reset_expires_at {timestamp_type}')
 
         with engine.begin() as connection:
             for statement in statements:
