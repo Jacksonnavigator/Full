@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -23,7 +23,7 @@ interface InviteValidation {
   expires_at?: string
 }
 
-export default function SetupAccountPage() {
+function SetupAccountPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token") ?? ""
@@ -183,5 +183,25 @@ export default function SetupAccountPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+function SetupAccountFallback() {
+  return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800 px-4 py-10">
+      <Card className="relative z-10 w-full max-w-xl border-white/10 bg-white/95 shadow-2xl">
+        <CardContent className="flex items-center justify-center p-8">
+          <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default function SetupAccountPage() {
+  return (
+    <Suspense fallback={<SetupAccountFallback />}>
+      <SetupAccountPageContent />
+    </Suspense>
   )
 }
