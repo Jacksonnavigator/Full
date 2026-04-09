@@ -21,6 +21,12 @@ interface ResetValidation {
   expires_at?: string
 }
 
+interface ResetRequestFeedback {
+  message: string
+  deliveryMessage?: string
+  resetUrl?: string | null
+}
+
 function ResetPasswordPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -29,6 +35,7 @@ function ResetPasswordPageContent() {
   const [loading, setLoading] = useState(Boolean(token))
   const [submitting, setSubmitting] = useState(false)
   const [validation, setValidation] = useState<ResetValidation | null>(null)
+  const [requestFeedback, setRequestFeedback] = useState<ResetRequestFeedback | null>(null)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -73,6 +80,7 @@ function ResetPasswordPageContent() {
 
     try {
       setSubmitting(true)
+      setRequestFeedback(null)
       const response = await fetch(`${CONFIG.backend.fullUrl}${CONFIG.auth.requestPasswordResetEndpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -85,6 +93,11 @@ function ResetPasswordPageContent() {
       }
 
       const successMessage = (data as { message?: string }).message || "If an account exists for this email, a reset link has been sent."
+      setRequestFeedback({
+        message: successMessage,
+        deliveryMessage: (data as { delivery_message?: string }).delivery_message,
+        resetUrl: (data as { reset_url?: string | null }).reset_url ?? null,
+      })
       toast.success(successMessage)
     } catch (error) {
       console.error("Error requesting password reset:", error)
@@ -220,6 +233,31 @@ function ResetPasswordPageContent() {
                   If the account has not finished onboarding yet, the user should use the original invitation email instead of password reset.
                 </AlertDescription>
               </Alert>
+
+              {requestFeedback ? (
+                <Alert className={requestFeedback.resetUrl ? "border-amber-200 bg-amber-50 text-amber-950" : "border-emerald-200 bg-emerald-50 text-emerald-950"}>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <span className="block">{requestFeedback.message}</span>
+                    {requestFeedback.deliveryMessage ? (
+                      <span className="mt-2 block text-sm">{requestFeedback.deliveryMessage}</span>
+                    ) : null}
+                    {requestFeedback.resetUrl ? (
+                      <span className="mt-3 block break-all text-sm font-medium">
+                        Manual reset link:{" "}
+                        <a
+                          href={requestFeedback.resetUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-cyan-700 underline hover:text-cyan-800"
+                        >
+                          Open reset page
+                        </a>
+                      </span>
+                    ) : null}
+                  </AlertDescription>
+                </Alert>
+              ) : null}
 
               <Button type="submit" disabled={submitting} className="h-11 w-full bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700">
                 {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

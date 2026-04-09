@@ -4,6 +4,7 @@ Login, logout, token refresh, and token verification endpoints
 """
 
 from datetime import timedelta
+import logging
 from typing import Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -114,6 +115,7 @@ class CompletePasswordResetRequest(BaseModel):
 # ============================================================================
 
 auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+logger = logging.getLogger(__name__)
 
 ACCOUNT_MODELS = (
     (User, "user"),
@@ -420,9 +422,11 @@ async def request_password_reset(payload: PasswordResetRequest, db: Session = De
 
     account, account_type = _find_account_by_email(payload.email, db)
     if not account:
+        logger.info("Password reset requested for non-existent email; returning generic success response.")
         return {"message": success_message}
 
     if not getattr(account, "setup_completed_at", None):
+        logger.info("Password reset requested for account pending setup; returning generic success response.")
         return {"message": success_message}
 
     now = _utcnow()
@@ -437,6 +441,11 @@ async def request_password_reset(payload: PasswordResetRequest, db: Session = De
         reset_url=build_password_reset_url(raw_token),
     )
     db.commit()
+    logger.info(
+        "Password reset prepared for %s account via %s delivery.",
+        account_type,
+        delivery.method,
+    )
 
     return {
         "message": success_message,
