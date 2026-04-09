@@ -6,11 +6,17 @@ Centralized environment and application settings
 import os
 from typing import Any, List
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore",
+    )
     
     # ===== Application Settings =====
     app_name: str = "HydraNet Backend"
@@ -55,6 +61,20 @@ class Settings(BaseSettings):
     cors_allow_methods: List[str] = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
     cors_allow_headers: List[str] = ["*"]
 
+    # ===== Invitation & Email Settings =====
+    invite_token_expiry_hours: int = int(os.getenv("INVITE_TOKEN_EXPIRY_HOURS", "72"))
+    password_reset_token_expiry_hours: int = int(os.getenv("PASSWORD_RESET_TOKEN_EXPIRY_HOURS", "2"))
+    resend_api_key: str = os.getenv("RESEND_API_KEY", "")
+    resend_from_email: str = os.getenv("RESEND_FROM_EMAIL", "")
+    resend_from_name: str = os.getenv("RESEND_FROM_NAME", "HydraNet")
+    smtp_host: str = os.getenv("SMTP_HOST", "")
+    smtp_port: int = int(os.getenv("SMTP_PORT", "587"))
+    smtp_username: str = os.getenv("SMTP_USERNAME", "")
+    smtp_password: str = os.getenv("SMTP_PASSWORD", "")
+    smtp_from_email: str = os.getenv("SMTP_FROM_EMAIL", "")
+    smtp_from_name: str = os.getenv("SMTP_FROM_NAME", "HydraNet")
+    smtp_use_tls: bool = os.getenv("SMTP_USE_TLS", "true").strip().lower() in {"1", "true", "yes", "on"}
+
     # ===== Password Hashing =====
     password_hash_algorithm: str = "bcrypt"
     password_bcrypt_rounds: int = 12
@@ -78,11 +98,6 @@ class Settings(BaseSettings):
             if normalized in {"0", "false", "no", "off", "release", "production"}:
                 return False
         return bool(value)
-
-    class Config:
-        """Pydantic config"""
-        env_file = ".env"
-        case_sensitive = False
 
     def get_cors_origins(self) -> List[str]:
         """

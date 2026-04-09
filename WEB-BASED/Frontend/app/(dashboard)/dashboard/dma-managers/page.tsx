@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useDataStore, type DMAManager, type DMA } from "@/store/data-store"
+import { useDataStore, type DMAManager } from "@/store/data-store"
 import { useAuthStore } from "@/store/auth-store"
 import { usePageAccess } from "@/hooks/use-page-access"
+import { CONFIG } from "@/lib/config"
 import { PageHeader } from "@/components/shared/page-header"
 import { EntityStatusBadge } from "@/components/shared/status-badge"
 import type { EntityStatus } from "@/lib/types"
@@ -65,6 +66,7 @@ import {
   User,
   Layers,
   FileText,
+  Send,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -91,6 +93,7 @@ export default function DMAManagersPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [unassignId, setUnassignId] = useState<string | null>(null)
   const [viewingManager, setViewingManager] = useState<DMAManager | null>(null)
+  const [resendingInviteId, setResendingInviteId] = useState<string | null>(null)
 
   const [formName, setFormName] = useState("")
   const [formEmail, setFormEmail] = useState("")
@@ -98,6 +101,7 @@ export default function DMAManagersPage() {
   const [formPassword, setFormPassword] = useState("")
   const [formConfirmPassword, setFormConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [formUtilityId, setFormUtilityId] = useState("")
   const [formDMAId, setFormDMAId] = useState("unassigned")
   const [formStatus, setFormStatus] = useState<EntityStatus>("active")
 
@@ -112,6 +116,8 @@ export default function DMAManagersPage() {
   const myUtilityId = currentUser?.utilityId
   const myUtility = isUtilityManager ? utilities.find((u) => u.id === myUtilityId) : null
   const myUtilityDisplayName = myUtility?.name || currentUser?.utilityName || "Your Utility"
+  const selectedUtilityId = isUtilityManager ? (myUtilityId || "") : formUtilityId
+  const selectedUtility = utilities.find((u) => u.id === selectedUtilityId)
 
   let visibleManagers = dmaManagers
   if (isUtilityManager && myUtilityId) {
@@ -123,13 +129,15 @@ export default function DMAManagersPage() {
   }
 
   const availableDMAs = dmas.filter((d) => {
-    if (d.utilityId !== myUtilityId) return false
+    if (!selectedUtilityId || d.utilityId !== selectedUtilityId) return false
     if (d.status !== "active") return false
     if (editingManager) {
       return !d.managerId || d.managerId === editingManager.id
     }
     return !d.managerId
   })
+
+  const availableUtilities = utilities.filter((utility) => utility.status === "active")
 
   const filteredManagers = visibleManagers.filter((m) => {
     const searchLower = search.toLowerCase().trim()
@@ -157,6 +165,7 @@ export default function DMAManagersPage() {
     setFormPhone("")
     setFormPassword("")
     setFormConfirmPassword("")
+    setFormUtilityId(isUtilityManager ? (myUtilityId || "") : "")
     setFormDMAId("unassigned")
     setFormStatus("active")
     setShowPassword(false)
@@ -170,6 +179,7 @@ export default function DMAManagersPage() {
     setFormPhone(manager.phone || "")
     setFormPassword("")
     setFormConfirmPassword("")
+    setFormUtilityId(manager.utilityId || (myUtilityId || ""))
     setFormDMAId(manager.dmaId || "unassigned")
     setFormStatus(manager.status)
     setShowPassword(false)
@@ -177,12 +187,12 @@ export default function DMAManagersPage() {
   }
 
   async function handleSubmit() {
-    if (!formName.trim()) { toast.error("Manager name is required"); return }
     if (!formEmail.trim()) { toast.error("Email is required"); return }
-    if (!editingManager && !formPassword.trim()) { toast.error("Password is required for new managers"); return }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formEmail)) { toast.error("Invalid email format"); return }
-    if (formPassword.trim() && formPassword.length < 6) { toast.error("Password must be at least 6 characters"); return }
-    if (formPassword.trim() && formPassword !== formConfirmPassword) { toast.error("Passwords do not match"); return }
+    if (!selectedUtilityId) { toast.error("Please select a utility"); return }
+    if (editingManager && !formName.trim()) { toast.error("Manager name is required"); return }
+    if (editingManager && formPassword.trim() && formPassword.length < 6) { toast.error("Password must be at least 6 characters"); return }
+    if (editingManager && formPassword.trim() && formPassword !== formConfirmPassword) { toast.error("Passwords do not match"); return }
 
     try {
       if (editingManager) {
@@ -191,22 +201,40 @@ export default function DMAManagersPage() {
           email: formEmail,
           phone: formPhone || null,
           status: formStatus,
+          utilityId: selectedUtilityId,
           dmaId: formDMAId === "unassigned" ? null : formDMAId,
         }
         if (formPassword) updateData.password = formPassword
         await updateDMAManager(editingManager.id, updateData)
         toast.success("DMA Manager updated successfully")
       } else {
-        await addDMAManager({
-          name: formName,
-          email: formEmail,
-          phone: formPhone || null,
-          password: formPassword,
-          status: formStatus,
-          utilityId: myUtilityId || "",
-          dmaId: formDMAId === "unassigned" ? null : formDMAId,
+        const response = await fetch(`${CONFIG.backend.fullUrl}/dma-managers/invitations`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem('access_token')}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formEmail,
+            status: formStatus,
+            utility_id: selectedUtilityId,
+            dma_id: formDMAId === "unassigned" ? null : formDMAId,
+          }),
         })
-        toast.success("DMA Manager created successfully")
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok) {
+          throw new Error((data as any).detail || (data as any).error || "Failed to invite DMA manager")
+        }
+        if ((data as any).invite_url && navigator?.clipboard) {
+          await navigator.clipboard.writeText((data as any).invite_url)
+          toast.success("DMA manager invited and invite link copied")
+        } else {
+          toast.success("DMA manager invited successfully")
+        }
+        if ((data as any).delivery_message) {
+          toast.message((data as any).delivery_message)
+        }
+        await Promise.all([fetchDMAManagers(), fetchDMAs()])
       }
       setDialogOpen(false)
     } catch (error) {
@@ -238,7 +266,43 @@ export default function DMAManagersPage() {
     }
   }
 
+  async function handleResendInvite(managerId: string) {
+    try {
+      setResendingInviteId(managerId)
+      const response = await fetch(`${CONFIG.backend.fullUrl}/dma-managers/${managerId}/resend-invite`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('access_token')}`,
+          "Content-Type": "application/json",
+        },
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error((data as any).detail || (data as any).error || "Failed to resend invite")
+      }
+      if ((data as any).invite_url && navigator?.clipboard) {
+        await navigator.clipboard.writeText((data as any).invite_url)
+        toast.success("Invite resent and copied to clipboard")
+      } else {
+        toast.success("Invite resent successfully")
+      }
+      if ((data as any).delivery_message) {
+        toast.message((data as any).delivery_message)
+      }
+      await Promise.all([fetchDMAManagers(), fetchDMAs()])
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to resend invite")
+    } finally {
+      setResendingInviteId(null)
+    }
+  }
+
   const getInitials = (name: string) => name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+  const renderOnboardingBadge = (status?: DMAManager["onboardingStatus"]) => {
+    if (status === "expired") return <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100">Expired Invite</Badge>
+    if (status === "pending_setup") return <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Pending Setup</Badge>
+    return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Ready</Badge>
+  }
 
   if (!isAdmin && !isUtilityManager) {
     return (
@@ -278,7 +342,7 @@ export default function DMAManagersPage() {
           </div>
           <Button onClick={openCreateDialog} className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 rounded-xl h-11 px-6">
             <Plus className="h-4 w-4 mr-2" />
-            Add Manager
+            Invite Manager
           </Button>
         </div>
 
@@ -371,9 +435,9 @@ export default function DMAManagersPage() {
                         <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center"><UserCog className="h-8 w-8 text-slate-400" /></div>
                         <div>
                           <p className="text-lg font-semibold text-slate-800">No managers found</p>
-                          <p className="text-sm text-slate-500 mt-1">{search ? "Try adjusting your search terms" : "Get started by creating your first DMA manager"}</p>
+                          <p className="text-sm text-slate-500 mt-1">{search ? "Try adjusting your search terms" : "Get started by inviting your first DMA manager"}</p>
                         </div>
-                        {!search && <Button onClick={openCreateDialog} className="mt-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl"><Plus className="h-4 w-4 mr-2" />Add DMA Manager</Button>}
+                        {!search && <Button onClick={openCreateDialog} className="mt-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl"><Plus className="h-4 w-4 mr-2" />Invite DMA Manager</Button>}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -410,7 +474,7 @@ export default function DMAManagersPage() {
                             <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50 hover:bg-orange-100"><MapPin className="h-3 w-3 mr-1" />Unassigned</Badge>
                           )}
                         </TableCell>
-                        <TableCell className="py-4 px-6"><EntityStatusBadge status={manager.status} /></TableCell>
+                        <TableCell className="py-4 px-6"><div className="flex flex-col items-start gap-2"><EntityStatusBadge status={manager.status} />{renderOnboardingBadge(manager.onboardingStatus)}</div></TableCell>
                         <TableCell className="py-4 px-6 text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -419,6 +483,7 @@ export default function DMAManagersPage() {
                             <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-lg shadow-slate-200/50 border-slate-200/60">
                               <DropdownMenuItem onClick={() => setViewingManager(manager)} className="rounded-lg gap-2 cursor-pointer"><Eye className="h-4 w-4 text-blue-500" />View Details</DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openEditDialog(manager)} className="rounded-lg gap-2 cursor-pointer"><Pencil className="h-4 w-4 text-violet-500" />Edit Manager</DropdownMenuItem>
+                              {manager.onboardingStatus !== "completed" && <DropdownMenuItem onClick={() => handleResendInvite(manager.id)} className="rounded-lg gap-2 cursor-pointer"><Send className="h-4 w-4 text-cyan-500" />{resendingInviteId === manager.id ? "Sending..." : "Resend Invite"}</DropdownMenuItem>}
                               {manager.dmaId && <DropdownMenuItem onClick={() => setUnassignId(manager.id)} className="text-orange-600 focus:text-orange-600 focus:bg-orange-50 rounded-lg gap-2 cursor-pointer"><Unlink className="h-4 w-4" />Unassign from DMA</DropdownMenuItem>}
                               <DropdownMenuItem onClick={() => setDeleteId(manager.id)} className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg gap-2 cursor-pointer"><Trash2 className="h-4 w-4" />Delete Manager</DropdownMenuItem>
                             </DropdownMenuContent>
@@ -439,27 +504,58 @@ export default function DMAManagersPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">{editingManager ? <Pencil className="h-4 w-4 text-white" /> : <Plus className="h-4 w-4 text-white" />}</div>
-              {editingManager ? "Edit DMA Manager" : "Add DMA Manager"}
+              {editingManager ? "Edit DMA Manager" : "Invite DMA Manager"}
             </DialogTitle>
             {editingManager && <DialogDescription>Currently assigned to: <span className="font-semibold">{dmas.find(d => d.id === editingManager.dmaId)?.name || editingManager?.dmaName || "Unassigned"}</span></DialogDescription>}
           </DialogHeader>
           <div className="flex flex-col gap-5 py-4 max-h-[60vh] overflow-y-auto">
             <div className="rounded-xl border border-violet-200/80 bg-gradient-to-r from-violet-50/50 to-purple-50/50 p-4">
-              <div className="flex items-center gap-2 text-sm"><Building2 className="h-4 w-4 text-violet-600" /><span className="font-semibold text-violet-700">{myUtilityDisplayName}</span></div>
-              <p className="text-xs text-violet-500/80 mt-2">This DMA manager will be associated with above utility.</p>
+              <div className="flex items-center gap-2 text-sm"><Building2 className="h-4 w-4 text-violet-600" /><span className="font-semibold text-violet-700">{selectedUtility?.name || myUtilityDisplayName}</span></div>
+              <p className="text-xs text-violet-500/80 mt-2">
+                {isUtilityManager
+                  ? "This DMA manager will be associated with your utility."
+                  : "Select the utility first, then optionally assign a DMA under it."}
+              </p>
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="manager-name" className="text-sm font-medium text-slate-700">Manager Name <span className="text-red-500">*</span></Label>
-              <Input id="manager-name" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="e.g., John Mwangi" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
-            </div>
+            {!isUtilityManager && (
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium text-slate-700">Utility <span className="text-red-500">*</span></Label>
+                <Select
+                  value={formUtilityId}
+                  onValueChange={(value) => {
+                    setFormUtilityId(value)
+                    setFormDMAId("unassigned")
+                  }}
+                >
+                  <SelectTrigger className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl">
+                    <SelectValue placeholder="Select a utility" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
+                    {availableUtilities.map((utility) => (
+                      <SelectItem key={utility.id} value={utility.id} className="rounded-lg">
+                        {utility.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="flex flex-col gap-2">
               <Label htmlFor="manager-email" className="text-sm font-medium text-slate-700">Email <span className="text-red-500">*</span></Label>
               <Input id="manager-email" type="email" value={formEmail} onChange={(e) => setFormEmail(e.target.value)} placeholder="john@example.com" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="manager-phone" className="text-sm font-medium text-slate-700">Phone Number</Label>
-              <Input id="manager-phone" type="tel" value={formPhone} onChange={(e) => setFormPhone(e.target.value)} placeholder="+254 712 345 678" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
-            </div>
+            {editingManager && (
+              <>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="manager-name" className="text-sm font-medium text-slate-700">Manager Name <span className="text-red-500">*</span></Label>
+                  <Input id="manager-name" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="e.g., John Mwangi" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="manager-phone" className="text-sm font-medium text-slate-700">Phone Number</Label>
+                  <Input id="manager-phone" type="tel" value={formPhone} onChange={(e) => setFormPhone(e.target.value)} placeholder="+254 712 345 678" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
+                </div>
+              </>
+            )}
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium text-slate-700">Assign DMA</Label>
               <Select value={formDMAId} onValueChange={setFormDMAId}>
@@ -480,19 +576,25 @@ export default function DMAManagersPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="border-t border-slate-200 pt-4 flex flex-col gap-3">
-              <Label className="flex items-center gap-2 text-sm font-medium text-slate-700"><Lock className="h-4 w-4" />{editingManager ? "Change Password (optional)" : "Account Password"}</Label>
-              <div className="relative">
-                <Input type={showPassword ? "text" : "password"} value={formPassword} onChange={(e) => setFormPassword(e.target.value)} placeholder={editingManager ? "Enter new password (optional)" : "Min 6 characters"} className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl pr-10 focus:border-violet-400 focus:ring-violet-400/20" />
-                <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</Button>
+            {editingManager ? (
+              <div className="border-t border-slate-200 pt-4 flex flex-col gap-3">
+                <Label className="flex items-center gap-2 text-sm font-medium text-slate-700"><Lock className="h-4 w-4" />Change Password (optional)</Label>
+                <div className="relative">
+                  <Input type={showPassword ? "text" : "password"} value={formPassword} onChange={(e) => setFormPassword(e.target.value)} placeholder="Enter new password (optional)" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl pr-10 focus:border-violet-400 focus:ring-violet-400/20" />
+                  <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</Button>
+                </div>
+                <Input type={showPassword ? "text" : "password"} value={formConfirmPassword} onChange={(e) => setFormConfirmPassword(e.target.value)} placeholder="Confirm password" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
               </div>
-              <Input type={showPassword ? "text" : "password"} value={formConfirmPassword} onChange={(e) => setFormConfirmPassword(e.target.value)} placeholder="Confirm password" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
-            </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-4 text-sm text-slate-600">
+                The system will send this DMA manager a secure setup link so they can finish their own profile and password.
+              </div>
+            )}
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">Cancel</Button>
             <Button onClick={handleSubmit} className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl">
-              {editingManager ? <><Sparkles className="h-4 w-4 mr-2" />Save Changes</> : <><Plus className="h-4 w-4 mr-2" />Create Manager</>}
+              {editingManager ? <><Sparkles className="h-4 w-4 mr-2" />Save Changes</> : <><Plus className="h-4 w-4 mr-2" />Invite Manager</>}
             </Button>
           </DialogFooter>
         </DialogContent>

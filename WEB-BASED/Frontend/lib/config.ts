@@ -51,6 +51,9 @@ export const CONFIG = {
     logoutEndpoint: '/auth/logout',
     refreshEndpoint: '/auth/refresh',
     verifyEndpoint: '/auth/verify',
+    requestPasswordResetEndpoint: '/auth/password-reset/request',
+    validatePasswordResetEndpoint: '/auth/password-reset/validate',
+    completePasswordResetEndpoint: '/auth/password-reset/complete',
   },
 
   // ===== Local Storage Keys =====

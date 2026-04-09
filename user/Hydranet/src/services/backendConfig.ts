@@ -5,13 +5,12 @@
 
 import { Platform } from 'react-native';
 
-const defaultHost = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-const rawBaseUrl = process.env.EXPO_PUBLIC_API_URL || `http://${defaultHost}:8000`;
-const sanitizedBaseUrl = rawBaseUrl.replace(/\/api\/?$/, '');
+const productionBaseUrl = 'https://full-nfjr.onrender.com';
 
-if (!process.env.EXPO_PUBLIC_API_URL && !__DEV__) {
-  throw new Error('[BackendConfig] EXPO_PUBLIC_API_URL must be set outside development.');
-}
+const defaultHost = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+const rawBaseUrl =
+  process.env.EXPO_PUBLIC_API_URL || (__DEV__ ? `http://${defaultHost}:8000` : productionBaseUrl);
+const sanitizedBaseUrl = rawBaseUrl.replace(/\/api\/?$/, '');
 
 export const BACKEND_CONFIG = {
   // NOTE: Use your machine IP, not localhost (localhost doesn't work in React Native)
@@ -33,7 +32,9 @@ export const BACKEND_CONFIG = {
 
 if (!process.env.EXPO_PUBLIC_API_URL) {
   const platformHint =
-    Platform.OS === 'android'
+    !__DEV__
+      ? `Using production fallback backend: ${sanitizedBaseUrl}`
+      : Platform.OS === 'android'
       ? 'Android physical devices cannot use 10.0.2.2. Set EXPO_PUBLIC_API_URL to your backend LAN IP.'
       : 'Set EXPO_PUBLIC_API_URL to avoid relying on localhost-only fallback.';
   console.warn('[BackendConfig] No EXPO_PUBLIC_API_URL set. Falling back to:', BACKEND_CONFIG.baseUrl);

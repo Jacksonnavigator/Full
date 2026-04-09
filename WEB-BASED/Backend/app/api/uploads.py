@@ -1,20 +1,25 @@
 """
-Image Upload Routes
-API endpoints for image upload and retrieval
+Media Upload Routes
+API endpoints for image and video upload and retrieval.
 """
 
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, status
+import logging
+from typing import Optional, Tuple
+
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
+
 from app.database.session import get_db
 from app.models import ImageUpload, Report
 from app.models.uploads import ImageTypeEnum
-from app.security.dependencies import get_current_user, CurrentUser
-from app.services.image_service import validate_image, compress_image_if_needed
-import logging
+from app.security.dependencies import CurrentUser, get_current_user
+from app.services.image_service import compress_image_if_needed, validate_image
 
 logger = logging.getLogger(__name__)
 
 uploads_router = APIRouter(prefix="/api/uploads", tags=["uploads"])
+
+MAX_VIDEO_SIZE = 25 * 1024 * 1024  # 25MB
 
 
 def _build_upload_response(image_upload: ImageUpload):
@@ -31,6 +36,44 @@ def _build_upload_response(image_upload: ImageUpload):
     }
 
 
+def _validate_media_upload(file: UploadFile, file_data: bytes) -> Tuple[bytes, str, Optional[int], Optional[int]]:
+    if not file.content_type:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is missing a content type",
+        )
+
+    if file.content_type.startswith("image/"):
+        try:
+            validate_image(file_data, file.content_type)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Image validation failed: {str(exc)}",
+            )
+
+        compressed_data, mime_type, final_width, final_height = compress_image_if_needed(
+            file_data,
+            file.content_type,
+            max_width=1920,
+            max_height=1920,
+        )
+        return compressed_data, mime_type, final_width, final_height
+
+    if file.content_type.startswith("video/"):
+        if len(file_data) > MAX_VIDEO_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Video too large: {len(file_data) / 1024 / 1024:.1f}MB (max {MAX_VIDEO_SIZE / 1024 / 1024:.1f}MB)",
+            )
+        return file_data, file.content_type, None, None
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="File must be an image or video",
+    )
+
+
 @uploads_router.post("", status_code=status.HTTP_201_CREATED)
 async def upload_image(
     file: UploadFile = File(...),
@@ -40,85 +83,48 @@ async def upload_image(
     db: Session = Depends(get_db),
 ):
     """
-    Upload an image file and store in PostgreSQL
-    
-    Args:
-        file: Image file (JPEG, PNG, WebP)
-        report_id: Associated report ID (optional)
-        image_type: Type of image (report, submission_before, submission_after, profile)
-        current_user: Authenticated user
-        db: Database session
-    
-    Returns:
-        Uploaded image metadata with download URL
+    Upload an image or video file and store it in PostgreSQL.
     """
     try:
-        # Validate file type
-        if not file.content_type or not file.content_type.startswith('image/'):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="File must be an image"
-            )
-        
-        # Read file data
         file_data = await file.read()
-        
-        # Validate image
-        try:
-            width, height = validate_image(file_data, file.content_type)
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Image validation failed: {str(e)}"
-            )
-        
-        # Compress if needed
-        compressed_data, mime_type, final_width, final_height = compress_image_if_needed(
-            file_data,
-            file.content_type,
-            max_width=1920,
-            max_height=1920,
-        )
-        
-        # Verify report exists if report_id provided
+        stored_data, mime_type, final_width, final_height = _validate_media_upload(file, file_data)
+
         if report_id:
             report = db.query(Report).filter(Report.id == report_id).first()
             if not report:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Report not found"
+                    detail="Report not found",
                 )
-        
-        # Create image upload record
+
         image_upload = ImageUpload(
-            file_data=compressed_data,
+            file_data=stored_data,
             file_name=file.filename,
             file_type=file.content_type,
-            file_size=len(compressed_data),
+            file_size=len(stored_data),
             mime_type=mime_type,
             image_type=image_type,
             report_id=report_id,
-            user_id=current_user.id if current_user.user_type == 'user' else None,
-            engineer_id=current_user.id if current_user.user_type == 'engineer' else None,
+            user_id=current_user.id if current_user.user_type == "user" else None,
+            engineer_id=current_user.id if current_user.user_type == "engineer" else None,
             width=final_width,
             height=final_height,
         )
-        
+
         db.add(image_upload)
         db.commit()
         db.refresh(image_upload)
-        
-        logger.info(f"✅ Image uploaded: {image_upload.id}, {len(compressed_data) / 1024:.1f}KB")
-        
+
+        logger.info("Media uploaded: %s (%s)", image_upload.id, mime_type)
         return _build_upload_response(image_upload)
-        
+
     except HTTPException:
         raise
-    except Exception as e:
-        logger.error(f"❌ Image upload error: {str(e)}")
+    except Exception as exc:
+        logger.error("Media upload error: %s", str(exc))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Image upload failed"
+            detail="Media upload failed",
         )
 
 
@@ -128,39 +134,16 @@ async def upload_public_image(
     image_type: str = Form("report"),
     db: Session = Depends(get_db),
 ):
-    """
-    Anonymous/public image upload for the public reporting app.
-    The report endpoint later links the upload to the created report.
-    """
+    """Anonymous/public image or video upload for the public reporting app."""
     try:
-        if not file.content_type or not file.content_type.startswith('image/'):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="File must be an image"
-            )
-
         file_data = await file.read()
-
-        try:
-            width, height = validate_image(file_data, file.content_type)
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Image validation failed: {str(e)}"
-            )
-
-        compressed_data, mime_type, final_width, final_height = compress_image_if_needed(
-            file_data,
-            file.content_type,
-            max_width=1920,
-            max_height=1920,
-        )
+        stored_data, mime_type, final_width, final_height = _validate_media_upload(file, file_data)
 
         image_upload = ImageUpload(
-            file_data=compressed_data,
+            file_data=stored_data,
             file_name=file.filename,
             file_type=file.content_type,
-            file_size=len(compressed_data),
+            file_size=len(stored_data),
             mime_type=mime_type,
             image_type=image_type,
             report_id=None,
@@ -174,60 +157,49 @@ async def upload_public_image(
         db.commit()
         db.refresh(image_upload)
 
-        logger.info(f"✅ Public image uploaded: {image_upload.id}, {len(compressed_data) / 1024:.1f}KB")
+        logger.info("Public media uploaded: %s (%s)", image_upload.id, mime_type)
         return _build_upload_response(image_upload)
 
     except HTTPException:
         raise
-    except Exception as e:
-        logger.error(f"❌ Public image upload error: {str(e)}")
+    except Exception as exc:
+        logger.error("Public media upload error: %s", str(exc))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Public image upload failed"
+            detail="Public media upload failed",
         )
 
 
 @uploads_router.get("/{image_id}")
-async def download_image(
-    image_id: str,
-    db: Session = Depends(get_db),
-):
+async def download_image(image_id: str, db: Session = Depends(get_db)):
     """
-    Download/retrieve an image file
-    
-    Args:
-        image_id: Image upload ID
-        db: Database session
-    
-    Returns:
-        Image file with proper content-type header
+    Download/retrieve a stored media payload.
     """
     try:
         image = db.query(ImageUpload).filter(ImageUpload.id == image_id).first()
-        
+
         if not image:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Image not found"
+                detail="Image not found",
             )
-        
-        # Return image with proper headers
+
         return {
             "id": image.id,
             "fileName": image.file_name,
             "mimeType": image.mime_type,
-            "data": image.file_data.hex(),  # Convert binary to hex string for JSON response
+            "data": image.file_data.hex(),
             "width": image.width,
             "height": image.height,
         }
-        
+
     except HTTPException:
         raise
-    except Exception as e:
-        logger.error(f"❌ Image download error: {str(e)}")
+    except Exception as exc:
+        logger.error("Media download error: %s", str(exc))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Image download failed"
+            detail="Image download failed",
         )
 
 
@@ -238,41 +210,34 @@ async def delete_image(
     db: Session = Depends(get_db),
 ):
     """
-    Delete an uploaded image (auth required)
-    
-    Args:
-        image_id: Image upload ID
-        current_user: Authenticated user
-        db: Database session
+    Delete an uploaded media file (auth required).
     """
     try:
         image = db.query(ImageUpload).filter(ImageUpload.id == image_id).first()
-        
+
         if not image:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Image not found"
+                detail="Image not found",
             )
-        
-        # Check ownership/permissions
-        if current_user.user_type == 'engineer' and image.engineer_id != current_user.id:
+
+        if current_user.user_type == "engineer" and image.engineer_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not authorized to delete this image"
+                detail="Not authorized to delete this image",
             )
-        
+
         db.delete(image)
         db.commit()
-        
-        logger.info(f"✅ Image deleted: {image_id}")
-        
+
+        logger.info("Media deleted: %s", image_id)
         return {"message": "Image deleted successfully"}
-        
+
     except HTTPException:
         raise
-    except Exception as e:
-        logger.error(f"❌ Image deletion error: {str(e)}")
+    except Exception as exc:
+        logger.error("Media deletion error: %s", str(exc))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Image deletion failed"
+            detail="Image deletion failed",
         )

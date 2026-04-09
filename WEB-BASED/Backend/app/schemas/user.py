@@ -34,6 +34,7 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = Field(None, max_length=20)
     avatar: Optional[str] = Field(None, max_length=255)
     status: Optional[EntityStatus] = None
+    password: Optional[str] = Field(None, min_length=8, max_length=255)
 
 
 class UserResponse(UserBase):
@@ -50,6 +51,9 @@ class UserResponse(UserBase):
     dma_name: Optional[str] = None
     team_id: Optional[str] = None
     team_name: Optional[str] = None
+    onboarding_status: str = "completed"
+    invite_expires_at: Optional[datetime] = None
+    setup_completed_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -59,6 +63,12 @@ class UserListResponse(BaseModel):
     """Schema for list of users"""
     total: int
     items: List[UserResponse]
+
+
+class UserInvitationCreate(BaseModel):
+    """Schema for inviting a public-report user."""
+    email: EmailStr
+    status: EntityStatus = EntityStatus.ACTIVE
 
 
 # ============================================================================
@@ -118,10 +128,23 @@ class UtilityManagerCreate(UtilityManagerBase):
     password: str
 
 
+class UtilityManagerUpdate(BaseModel):
+    """Schema for updating a utility manager."""
+    name: str
+    email: str
+    phone: Optional[str] = None
+    status: str = "active"
+    utility_id: Optional[str] = None
+    password: Optional[str] = None
+
+
 class UtilityManagerResponse(UtilityManagerBase):
     """Schema for utility manager response"""
     id: str
     avatar: Optional[str] = None
+    onboarding_status: str = "completed"
+    invite_expires_at: Optional[datetime] = None
+    setup_completed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
@@ -133,6 +156,13 @@ class UtilityManagerListResponse(BaseModel):
     """Schema for list of utility managers"""
     total: int
     items: List[UtilityManagerResponse]
+
+
+class UtilityManagerInvitationCreate(BaseModel):
+    """Schema for inviting a utility manager."""
+    email: EmailStr
+    utility_id: str
+    status: EntityStatus = EntityStatus.ACTIVE
 
 
 # ============================================================================
@@ -221,6 +251,9 @@ class DMAManagerResponse(DMAManagerBase):
     avatar: Optional[str] = None
     utility_name: Optional[str] = None
     dma_name: Optional[str] = None
+    onboarding_status: str = "completed"
+    invite_expires_at: Optional[datetime] = None
+    setup_completed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
@@ -232,6 +265,14 @@ class DMAManagerListResponse(BaseModel):
     """Schema for list of DMA managers"""
     total: int
     items: List[DMAManagerResponse]
+
+
+class DMAManagerInvitationCreate(BaseModel):
+    """Schema for inviting a DMA manager."""
+    email: EmailStr
+    utility_id: str
+    dma_id: Optional[str] = None
+    status: EntityStatus = EntityStatus.ACTIVE
 
 
 # ============================================================================
@@ -327,6 +368,9 @@ class EngineerResponse(BaseModel):
     team_name: Optional[str] = None
     status: str
     role: str
+    onboarding_status: str = "completed"
+    invite_expires_at: Optional[datetime] = None
+    setup_completed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
     
@@ -338,6 +382,50 @@ class EngineerListResponse(BaseModel):
     """Schema for list of engineers"""
     total: int
     items: List[EngineerResponse]
+
+
+class EngineerInvitationCreate(BaseModel):
+    """Schema for inviting an engineer or team leader."""
+    email: EmailStr
+    team_id: str
+    role: str = Field(default="engineer", pattern="^(engineer|team_leader)$")
+    status: EntityStatus = EntityStatus.ACTIVE
+
+
+class EngineerInvitationBulkCreate(BaseModel):
+    """Schema for bulk engineer invitations."""
+    invitations: List[EngineerInvitationCreate]
+
+
+class EngineerInvitationValidateResponse(BaseModel):
+    """Schema for validating an invitation token."""
+    valid: bool
+    message: str
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None
+    team_id: Optional[str] = None
+    team_name: Optional[str] = None
+    dma_id: Optional[str] = None
+    dma_name: Optional[str] = None
+    expires_at: Optional[datetime] = None
+
+
+class EngineerInvitationComplete(BaseModel):
+    """Schema for finishing invite-based account setup."""
+    token: str = Field(..., min_length=20)
+    name: str = Field(..., min_length=1, max_length=255)
+    phone: Optional[str] = Field(None, max_length=20)
+    password: str = Field(..., min_length=8, max_length=255)
+    confirm_password: str = Field(..., min_length=8, max_length=255)
+
+
+class EngineerInvitationResponse(BaseModel):
+    """Schema returned after creating or resending an invitation."""
+    engineer: EngineerResponse
+    delivery_method: str
+    delivery_message: str
+    invite_url: Optional[str] = None
+    expires_at: datetime
 
 
 # ============================================================================

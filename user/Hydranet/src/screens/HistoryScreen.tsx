@@ -55,11 +55,21 @@ export default function HistoryScreen() {
     const renderItem = ({ item }: { item: ReportResponse }) => {
         const coverPhoto = item.photos?.[0];
         const progress = getUserProgressState(item.status);
+        const showVideoPlaceholder =
+            item.primary_media_type === 'video' ||
+            (coverPhoto ? coverPhoto.startsWith('data:video/') : false);
 
         return (
             <View style={[styles.card, { backgroundColor: colors.card, shadowColor: colors.text }]}>
-                {coverPhoto ? (
+                {coverPhoto && !showVideoPlaceholder ? (
                     <Image source={{ uri: coverPhoto }} style={styles.image} />
+                ) : showVideoPlaceholder ? (
+                    <View style={[styles.imagePlaceholder, styles.videoPlaceholder, { backgroundColor: colors.surface }]}>
+                        <Text style={styles.videoPlaceholderIcon}>VIDEO</Text>
+                        <Text style={[styles.imagePlaceholderText, { color: colors.textSecondary }]}>
+                            Video evidence submitted
+                        </Text>
+                    </View>
                 ) : (
                     <View style={[styles.imagePlaceholder, { backgroundColor: colors.surface }]}>
                         <Text style={[styles.imagePlaceholderText, { color: colors.textSecondary }]}>
@@ -268,6 +278,19 @@ const styles = StyleSheet.create({
         height: 140,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    videoPlaceholder: {
+        gap: 8,
+    },
+    videoPlaceholderIcon: {
+        fontSize: 13,
+        fontWeight: '800',
+        letterSpacing: 1.5,
+        color: '#1d4ed8',
+        backgroundColor: '#dbeafe',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 999,
     },
     imagePlaceholderText: {
         fontSize: 14,

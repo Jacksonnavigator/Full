@@ -32,6 +32,8 @@ def run_startup_migrations(engine: Engine) -> None:
         elif dialect.startswith("postgresql"):
             _migrate_postgres_branchless_schema(engine, inspector)
 
+    _migrate_account_invitation_columns(engine)
+    _migrate_account_password_reset_columns(engine)
     _migrate_notification_columns(engine)
     _migrate_activity_log_constraints(engine)
 
@@ -218,6 +220,82 @@ def _migrate_notification_columns(engine: Engine) -> None:
     with engine.begin() as connection:
         for statement in statements:
             connection.exec_driver_sql(statement)
+
+
+def _migrate_account_invitation_columns(engine: Engine) -> None:
+    inspector = inspect(engine)
+    for table_name, placeholder_names in (
+        ("user", ("Pending Setup", "Invited User")),
+        ("engineer", ("Pending Setup", "Invited User")),
+        ("utility_manager", ("Pending Setup", "Invited User")),
+        ("dma_manager", ("Pending Setup", "Invited User")),
+    ):
+        if table_name not in inspector.get_table_names():
+            continue
+
+        columns = {column["name"] for column in inspector.get_columns(table_name)}
+        statements = []
+        if "invite_token_hash" not in columns:
+            statements.append(f'ALTER TABLE {table_name} ADD COLUMN invite_token_hash VARCHAR(255)')
+        if "invite_sent_at" not in columns:
+            statements.append(f'ALTER TABLE {table_name} ADD COLUMN invite_sent_at {"DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"}')
+        if "invite_expires_at" not in columns:
+            statements.append(f'ALTER TABLE {table_name} ADD COLUMN invite_expires_at {"DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"}')
+        if "setup_completed_at" not in columns:
+            statements.append(f'ALTER TABLE {table_name} ADD COLUMN setup_completed_at {"DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"}')
+
+        with engine.begin() as connection:
+            for statement in statements:
+                connection.exec_driver_sql(statement)
+
+            if engine.dialect.name == "sqlite":
+                connection.exec_driver_sql(
+                    f"CREATE INDEX IF NOT EXISTS ix_{table_name}_invite_token_hash ON {table_name} (invite_token_hash)"
+                )
+            else:
+                connection.exec_driver_sql(
+                    f'CREATE INDEX IF NOT EXISTS ix_{table_name}_invite_token_hash ON "{table_name}" (invite_token_hash)'
+                )
+
+            placeholders = "', '".join(placeholder_names)
+            connection.exec_driver_sql(
+                f"""
+                UPDATE {table_name}
+                SET setup_completed_at = created_at
+                WHERE setup_completed_at IS NULL
+                  AND COALESCE(name, '') NOT IN ('{placeholders}')
+                """
+            )
+
+
+def _migrate_account_password_reset_columns(engine: Engine) -> None:
+    inspector = inspect(engine)
+    for table_name in ("user", "engineer", "utility_manager", "dma_manager"):
+        if table_name not in inspector.get_table_names():
+            continue
+
+        columns = {column["name"] for column in inspector.get_columns(table_name)}
+        statements = []
+        timestamp_type = "DATETIME" if engine.dialect.name == "sqlite" else "TIMESTAMP"
+        if "password_reset_token_hash" not in columns:
+            statements.append(f'ALTER TABLE {table_name} ADD COLUMN password_reset_token_hash VARCHAR(255)')
+        if "password_reset_sent_at" not in columns:
+            statements.append(f'ALTER TABLE {table_name} ADD COLUMN password_reset_sent_at {timestamp_type}')
+        if "password_reset_expires_at" not in columns:
+            statements.append(f'ALTER TABLE {table_name} ADD COLUMN password_reset_expires_at {timestamp_type}')
+
+        with engine.begin() as connection:
+            for statement in statements:
+                connection.exec_driver_sql(statement)
+
+            if engine.dialect.name == "sqlite":
+                connection.exec_driver_sql(
+                    f"CREATE INDEX IF NOT EXISTS ix_{table_name}_password_reset_token_hash ON {table_name} (password_reset_token_hash)"
+                )
+            else:
+                connection.exec_driver_sql(
+                    f'CREATE INDEX IF NOT EXISTS ix_{table_name}_password_reset_token_hash ON "{table_name}" (password_reset_token_hash)'
+                )
 
 
 def _migrate_activity_log_constraints(engine: Engine) -> None:

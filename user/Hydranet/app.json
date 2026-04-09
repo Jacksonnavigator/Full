@@ -3,6 +3,7 @@
     "name": "HydraNet User App",
     "slug": "hydranet-user-app",
     "version": "1.0.0",
+    "newArchEnabled": false,
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,7 +20,22 @@
       "bundleIdentifier": "com.hydratech.hydranetuser"
     },
     "android": {
-      "package": "com.hydratech.hydranetuser"
-    }
+      "package": "com.hydratech.hydranetuser",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-location",
+      "expo-image-picker"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "03004c16-7bad-4c6a-90ed-f3dea1d340f2"
+      }
+    },
+    "owner": "jacksonnavigator7"
   }
 }

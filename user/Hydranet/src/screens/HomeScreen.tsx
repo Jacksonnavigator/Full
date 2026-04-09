@@ -109,7 +109,7 @@ export default function HomeScreen({ navigation }: any) {
                         <Text style={styles.infoBannerIcon}>💡</Text>
                         <View style={styles.infoBannerContent}>
                             <Text style={styles.infoBannerTitle}>Pro Tip</Text>
-                            <Text style={styles.infoBannerText}>Location capture is required before adding photos to ensure accurate tracking</Text>
+                            <Text style={styles.infoBannerText}>Location capture is required before adding media to ensure accurate tracking</Text>
                         </View>
                     </View>
 

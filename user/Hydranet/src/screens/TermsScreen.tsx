@@ -18,7 +18,7 @@ export default function TermsScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Location & Photos</Text>
                     <Text style={styles.paragraph}>
-                        To effectively report water problems, you must capture your GPS location before taking photos. This ensures we can accurately identify the exact location of the problem. Photos help authorities understand the situation better and respond more effectively. Both your location data and photos are shared only with relevant authorities to facilitate quick resolution.
+                        To effectively report water problems, you must capture your GPS location before attaching media. This ensures we can accurately identify the exact location of the problem. Photos and short videos help authorities understand the situation better and respond more effectively. Both your location data and attached media are shared only with relevant authorities to facilitate quick resolution.
                     </Text>
                 </View>
 
@@ -32,7 +32,7 @@ export default function TermsScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Data Privacy</Text>
                     <Text style={styles.paragraph}>
-                        Your privacy is important to us. Your location and photos are used exclusively for water problem reporting and resolution. We never sell your data to third parties or use it for any other purposes. Your information is retained only as long as necessary to help resolve the reported problem, after which it is securely deleted.
+                        Your privacy is important to us. Your location and attached media are used exclusively for water problem reporting and resolution. We never sell your data to third parties or use it for any other purposes. Your information is retained only as long as necessary to help resolve the reported problem, after which it is securely deleted.
                     </Text>
                 </View>
 

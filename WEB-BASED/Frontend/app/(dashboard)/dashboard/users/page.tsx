@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useDataStore } from "@/store/data-store"
 import { useAuthStore } from "@/store/auth-store"
 import { usePageAccess } from "@/hooks/use-page-access"
 import { CONFIG } from "@/lib/config"
@@ -57,6 +56,7 @@ import {
   User,
   Lock,
   UserPlus,
+  Send,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -69,6 +69,9 @@ interface AppUser {
   phone: string | null
   status: string
   avatar?: string | null
+  onboardingStatus?: "completed" | "pending_setup" | "expired"
+  inviteExpiresAt?: string | null
+  setupCompletedAt?: string | null
 }
 
 export default function UsersPage() {
@@ -81,6 +84,7 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState<AppUser | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [viewingUser, setViewingUser] = useState<AppUser | null>(null)
+  const [resendingInviteId, setResendingInviteId] = useState<string | null>(null)
 
   // Form state
   const [formName, setFormName] = useState("")
@@ -176,10 +180,6 @@ export default function UsersPage() {
   }
 
   async function handleSubmit() {
-    if (!formName.trim()) {
-      toast.error("User name is required")
-      return
-    }
     if (!formEmail.trim()) {
       toast.error("Email is required")
       return
@@ -192,21 +192,11 @@ export default function UsersPage() {
       return
     }
 
-    // Password validation
-    if (!editingUser) {
-      if (!formPassword.trim()) {
-        toast.error("Password is required")
+    if (editingUser) {
+      if (!formName.trim()) {
+        toast.error("User name is required")
         return
       }
-      if (formPassword.length < 6) {
-        toast.error("Password must be at least 6 characters")
-        return
-      }
-      if (formPassword !== formConfirmPassword) {
-        toast.error("Passwords do not match")
-        return
-      }
-    } else {
       if (formPassword && formPassword.length < 6) {
         toast.error("Password must be at least 6 characters")
         return
@@ -244,25 +234,31 @@ export default function UsersPage() {
         }
         toast.success("User updated successfully")
       } else {
-        const response = await fetch(`${CONFIG.backend.fullUrl}/api/users`, {
+        const response = await fetch(`${CONFIG.backend.fullUrl}/api/users/invitations`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${localStorage.getItem('access_token')}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            name: formName,
             email: formEmail,
-            phone: formPhone || null,
-            password: formPassword,
             status: formStatus,
           }),
         })
         if (!response.ok) {
           const data = await response.json()
-          throw new Error(data.detail || data.error || "Failed to create user")
+          throw new Error(data.detail || data.error || "Failed to invite user")
         }
-        toast.success("User created successfully")
+        const data = await response.json()
+        if (data.invite_url && navigator?.clipboard) {
+          await navigator.clipboard.writeText(data.invite_url)
+          toast.success("User invited and invite link copied")
+        } else {
+          toast.success("User invitation created successfully")
+        }
+        if (data.delivery_message) {
+          toast.message(data.delivery_message)
+        }
       }
       setDialogOpen(false)
       fetchUsers()
@@ -271,6 +267,38 @@ export default function UsersPage() {
       toast.error(error instanceof Error ? error.message : "Failed to save user")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  async function handleResendInvite(userId: string) {
+    try {
+      setResendingInviteId(userId)
+      const response = await fetch(`${CONFIG.backend.fullUrl}/api/users/${userId}/resend-invite`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('access_token')}`,
+          "Content-Type": "application/json"
+        },
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error((data as any).detail || (data as any).error || "Failed to resend invite")
+      }
+      if ((data as any).invite_url && navigator?.clipboard) {
+        await navigator.clipboard.writeText((data as any).invite_url)
+        toast.success("Invite resent and copied to clipboard")
+      } else {
+        toast.success("Invite resent successfully")
+      }
+      if ((data as any).delivery_message) {
+        toast.message((data as any).delivery_message)
+      }
+      fetchUsers()
+    } catch (error) {
+      console.error("Error resending invite:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to resend invite")
+    } finally {
+      setResendingInviteId(null)
     }
   }
 
@@ -285,7 +313,7 @@ export default function UsersPage() {
             "Content-Type": "application/json"
           },
         })
-        const data = await response.json()
+        const data = await response.json().catch(() => ({}))
         if (!response.ok) {
           throw new Error(data.detail || data.error || "Failed to delete user")
         }
@@ -316,6 +344,12 @@ export default function UsersPage() {
       .slice(0, 2)
   }
 
+  const renderOnboardingBadge = (status?: AppUser["onboardingStatus"]) => {
+    if (status === "expired") return <div className="inline-flex rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700">Expired Invite</div>
+    if (status === "pending_setup") return <div className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Pending Setup</div>
+    return <div className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Ready</div>
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Modern Header with Stats */}
@@ -328,14 +362,14 @@ export default function UsersPage() {
               </div>
               Users
             </h1>
-            <p className="text-slate-500 mt-1">Create and manage user accounts for public reporting</p>
+            <p className="text-slate-500 mt-1">Invite and manage public reporting user accounts</p>
           </div>
           <Button 
             onClick={openCreateDialog}
             className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 rounded-xl h-11 px-6"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add User
+            Invite User
           </Button>
         </div>
 
@@ -442,7 +476,7 @@ export default function UsersPage() {
                         <div>
                           <p className="text-lg font-semibold text-slate-800">No users found</p>
                           <p className="text-sm text-slate-500 mt-1">
-                            {search ? "Try adjusting your search terms" : "Get started by creating your first user"}
+                            {search ? "Try adjusting your search terms" : "Get started by inviting your first user"}
                           </p>
                         </div>
                         {!search && (
@@ -451,7 +485,7 @@ export default function UsersPage() {
                             className="mt-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 rounded-xl"
                           >
                             <Plus className="h-4 w-4 mr-2" />
-                            Add User
+                            Invite User
                           </Button>
                         )}
                       </div>
@@ -514,7 +548,10 @@ export default function UsersPage() {
 
                         {/* Status */}
                         <TableCell className="py-4 px-6">
-                          <EntityStatusBadge status={(user.status as EntityStatus) ?? "active"} />
+                          <div className="flex flex-col items-start gap-2">
+                            <EntityStatusBadge status={(user.status as EntityStatus) ?? "active"} />
+                            {renderOnboardingBadge(user.onboardingStatus)}
+                          </div>
                         </TableCell>
 
                         {/* Actions */}
@@ -548,6 +585,15 @@ export default function UsersPage() {
                                 <Pencil className="h-4 w-4 text-blue-500" />
                                 Edit User
                               </DropdownMenuItem>
+                              {user.onboardingStatus !== "completed" && (
+                                <DropdownMenuItem
+                                  onClick={() => handleResendInvite(user.id)}
+                                  className="rounded-lg gap-2 cursor-pointer"
+                                >
+                                  <Send className="h-4 w-4 text-cyan-500" />
+                                  {resendingInviteId === user.id ? "Sending..." : "Resend Invite"}
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem
                                 onClick={() => setDeleteId(user.id)}
                                 className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg gap-2 cursor-pointer"
@@ -580,21 +626,10 @@ export default function UsersPage() {
                   <Plus className="h-4 w-4 text-white" />
                 )}
               </div>
-              {editingUser ? "Edit User" : "Add User"}
+              {editingUser ? "Edit User" : "Invite User"}
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-5 py-4 overflow-y-auto flex-1 min-h-0">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="user-name" className="text-sm font-medium text-slate-700">Full Name</Label>
-              <Input
-                id="user-name"
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                placeholder="e.g., John Smith"
-                className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
-                disabled={isLoading}
-              />
-            </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="user-email" className="text-sm font-medium text-slate-700">Email</Label>
               <Input
@@ -607,18 +642,33 @@ export default function UsersPage() {
                 disabled={isLoading}
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="user-phone" className="text-sm font-medium text-slate-700">Phone (Optional)</Label>
-              <Input
-                id="user-phone"
-                type="tel"
-                value={formPhone}
-                onChange={(e) => setFormPhone(e.target.value)}
-                placeholder="e.g., +255 22 211 0001"
-                className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
-                disabled={isLoading}
-              />
-            </div>
+            {editingUser && (
+              <>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="user-name" className="text-sm font-medium text-slate-700">Full Name</Label>
+                  <Input
+                    id="user-name"
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    placeholder="e.g., John Smith"
+                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="user-phone" className="text-sm font-medium text-slate-700">Phone (Optional)</Label>
+                  <Input
+                    id="user-phone"
+                    type="tel"
+                    value={formPhone}
+                    onChange={(e) => setFormPhone(e.target.value)}
+                    placeholder="e.g., +255 22 211 0001"
+                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
+                    disabled={isLoading}
+                  />
+                </div>
+              </>
+            )}
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium text-slate-700">Status</Label>
               <Select value={formStatus} onValueChange={setFormStatus} disabled={isLoading}>
@@ -642,47 +692,52 @@ export default function UsersPage() {
               </Select>
             </div>
             
-            {/* Password Section */}
-            <div className="border-t border-slate-200 pt-4">
-              <Label className="flex items-center gap-2 mb-3 text-sm font-medium text-slate-700">
-                <Lock className="h-4 w-4" />
-                {editingUser ? "Change Password (leave blank to keep current)" : "Account Password"}
-              </Label>
-              <div className="flex flex-col gap-3">
-                <div className="relative">
+            {editingUser ? (
+              <div className="border-t border-slate-200 pt-4">
+                <Label className="flex items-center gap-2 mb-3 text-sm font-medium text-slate-700">
+                  <Lock className="h-4 w-4" />
+                  Change Password (leave blank to keep current)
+                </Label>
+                <div className="flex flex-col gap-3">
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={formPassword}
+                      onChange={(e) => setFormPassword(e.target.value)}
+                      placeholder="Enter new password (optional)"
+                      className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20 pr-10"
+                      disabled={isLoading}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                      disabled={isLoading}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
                   <Input
                     type={showPassword ? "text" : "password"}
-                    value={formPassword}
-                    onChange={(e) => setFormPassword(e.target.value)}
-                    placeholder={editingUser ? "Enter new password (optional)" : "Enter password (min 6 characters)"}
-                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20 pr-10"
+                    value={formConfirmPassword}
+                    onChange={(e) => setFormConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
                     disabled={isLoading}
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
                 </div>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={formConfirmPassword}
-                  onChange={(e) => setFormConfirmPassword(e.target.value)}
-                  placeholder="Confirm password"
-                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
-                  disabled={isLoading}
-                />
               </div>
-            </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-blue-200 bg-blue-50/60 p-4 text-sm text-slate-600">
+                The system will send this user a secure setup link so they can finish their own profile and password.
+              </div>
+            )}
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl" disabled={isLoading}>
@@ -701,7 +756,7 @@ export default function UsersPage() {
               ) : (
                 <>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add User
+                  Invite User
                 </>
               )}
             </Button>

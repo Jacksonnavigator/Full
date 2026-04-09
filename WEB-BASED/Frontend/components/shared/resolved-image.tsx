@@ -28,6 +28,17 @@ const hexToBase64 = (hex: string) => {
 
 const getUploadId = (uri: string) => uri.match(UPLOAD_URL_PATTERN)?.[1] ?? null
 
+const isVideoUri = (uri: string) => {
+  const normalized = uri.toLowerCase()
+  return (
+    normalized.startsWith("data:video/") ||
+    normalized.endsWith(".mp4") ||
+    normalized.endsWith(".mov") ||
+    normalized.endsWith(".webm") ||
+    normalized.endsWith(".m4v")
+  )
+}
+
 const resolveUploadUrl = async (uri: string) => {
   const uploadId = getUploadId(uri)
   if (!uploadId) {
@@ -77,7 +88,7 @@ export function ResolvedImage({ uri, alt, className, fallbackClassName, onClick 
         const resolved = await resolveUploadUrl(uri)
         if (active) setResolvedUri(resolved)
       } catch (error) {
-        console.error("Unable to resolve image:", error)
+        console.error("Unable to resolve media:", error)
         if (active) setFailed(true)
       }
     }
@@ -99,7 +110,7 @@ export function ResolvedImage({ uri, alt, className, fallbackClassName, onClick 
           fallbackClassName
         )}
       >
-        Image unavailable
+        Media unavailable
       </div>
     )
   }
@@ -118,9 +129,17 @@ export function ResolvedImage({ uri, alt, className, fallbackClassName, onClick 
   if (onClick) {
     return (
       <button type="button" onClick={() => onClick(resolvedUri)} className="block w-full text-left">
-        <img src={resolvedUri} alt={alt} className={className} />
+        {isVideoUri(resolvedUri) ? (
+          <video src={resolvedUri} className={className} muted playsInline />
+        ) : (
+          <img src={resolvedUri} alt={alt} className={className} />
+        )}
       </button>
     )
+  }
+
+  if (isVideoUri(resolvedUri)) {
+    return <video src={resolvedUri} className={className} muted playsInline />
   }
 
   return <img src={resolvedUri} alt={alt} className={className} />

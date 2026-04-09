@@ -2,8 +2,8 @@
  * Public media helpers for the HydraNet user app.
  *
  * The public reporting flow is anonymous, so it cannot rely on the backend's
- * authenticated upload endpoint. Instead, we serialize photos into portable
- * data URIs that the anonymous report API can store directly on the report.
+ * authenticated upload endpoint. Instead, we upload media directly to the
+ * public upload endpoint and only fall back to portable data URIs when needed.
  */
 
 import * as FileSystem from 'expo-file-system/legacy';
@@ -22,18 +22,18 @@ export interface UploadedImage {
   downloadUrl: string;
 }
 
-export async function uploadAnonymousImage(imagePath: string): Promise<UploadedImage> {
-  const fileInfo = await FileSystem.getInfoAsync(imagePath);
+export async function uploadAnonymousMedia(mediaPath: string, mimeTypeHint?: string): Promise<UploadedImage> {
+  const fileInfo = await FileSystem.getInfoAsync(mediaPath);
   if (!fileInfo.exists) {
-    throw new Error('Selected photo could not be found on this device.');
+    throw new Error('Selected media could not be found on this device.');
   }
 
-  const fileName = imagePath.split('/').pop() || 'image.jpg';
-  const mimeType = getMimeType(fileName);
+  const fileName = mediaPath.split('/').pop() || 'attachment';
+  const mimeType = mimeTypeHint || getMimeType(fileName);
 
   const formData = new FormData();
   formData.append('file', {
-    uri: imagePath,
+    uri: mediaPath,
     type: mimeType,
     name: fileName,
   } as any);
@@ -52,20 +52,20 @@ export async function uploadAnonymousImage(imagePath: string): Promise<UploadedI
   return (await response.json()) as UploadedImage;
 }
 
-export async function encodeImageAsDataUri(
-  imagePath: string,
+export async function encodeMediaAsDataUri(
+  mediaPath: string,
   mimeType?: string
 ): Promise<string> {
-  const fileInfo = await FileSystem.getInfoAsync(imagePath);
+  const fileInfo = await FileSystem.getInfoAsync(mediaPath);
   if (!fileInfo.exists) {
-    throw new Error('Selected photo could not be found on this device.');
+    throw new Error('Selected media could not be found on this device.');
   }
 
-  const base64 = await FileSystem.readAsStringAsync(imagePath, {
+  const base64 = await FileSystem.readAsStringAsync(mediaPath, {
     encoding: 'base64',
   });
 
-  const resolvedMimeType = mimeType || getMimeType(imagePath);
+  const resolvedMimeType = mimeType || getMimeType(mediaPath);
   return `data:${resolvedMimeType};base64,${base64}`;
 }
 
@@ -74,12 +74,13 @@ export async function encodeImageAsDataUri(
  * The current public user app does not depend on this path.
  */
 export async function uploadImage(
-  imagePath: string,
-  reportId?: string
+  mediaPath: string,
+  reportId?: string,
+  mimeTypeHint?: string
 ): Promise<UploadedImage> {
-  const fileInfo = await FileSystem.getInfoAsync(imagePath);
+  const fileInfo = await FileSystem.getInfoAsync(mediaPath);
   if (!fileInfo.exists) {
-    throw new Error('Selected photo could not be found on this device.');
+    throw new Error('Selected media could not be found on this device.');
   }
 
   const token = await getAccessToken();
@@ -87,12 +88,12 @@ export async function uploadImage(
     throw new Error('Signed-in upload is unavailable without a valid account session.');
   }
 
-  const fileName = imagePath.split('/').pop() || 'image.jpg';
-  const mimeType = getMimeType(fileName);
+  const fileName = mediaPath.split('/').pop() || 'attachment';
+  const mimeType = mimeTypeHint || getMimeType(fileName);
 
   const formData = new FormData();
   formData.append('file', {
-    uri: imagePath,
+    uri: mediaPath,
     type: mimeType,
     name: fileName,
   } as any);
@@ -141,7 +142,12 @@ function getMimeType(fileName: string): string {
     gif: 'image/gif',
     heic: 'image/heic',
     heif: 'image/heif',
+    mp4: 'video/mp4',
+    mov: 'video/quicktime',
+    webm: 'video/webm',
+    m4v: 'video/x-m4v',
+    '3gp': 'video/3gpp',
   };
 
-  return mimeTypes[extension || ''] || 'image/jpeg';
+  return mimeTypes[extension || ''] || 'application/octet-stream';
 }

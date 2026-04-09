@@ -7,9 +7,9 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiGet, apiPost } from './apiClient';
-import { getReportsEndpoint } from './backendConfig';
+import { getEndpointUrl, getReportsEndpoint } from './backendConfig';
 import { ImageResult } from '../types';
-import { encodeImageAsDataUri, uploadAnonymousImage } from './imageUploadService_v2';
+import { encodeMediaAsDataUri, uploadAnonymousMedia } from './imageUploadService_v2';
 
 const LOCAL_HISTORY_KEY = 'hydranet_public_report_history_v1';
 
@@ -45,6 +45,7 @@ export interface ReportResponse {
   created_at: string;
   updated_at: string;
   resolved_at?: string | null;
+  primary_media_type?: 'photo' | 'video';
 }
 
 interface ReportListResponse {
@@ -76,6 +77,10 @@ export async function submitWaterProblem(payload: ReportPayload): Promise<Report
         requiresAuth: false,
       })
     );
+
+    if (payload.image?.mediaType) {
+      response.primary_media_type = payload.image.mediaType;
+    }
 
     await storeSubmittedReport(response);
     console.log('[ReportService] Report submitted successfully:', response.tracking_id);
@@ -118,37 +123,33 @@ async function resolvePayloadImages(payload: ReportPayload): Promise<string[]> {
   }
 
   if (payload.image_url) {
-    if (isPortableImageReference(payload.image_url)) {
+    if (isPortableMediaReference(payload.image_url)) {
       return [payload.image_url];
     }
 
-    throw new Error('Please attach a photo from this device before submitting your report.');
+    throw new Error('Please attach media from this device before submitting your report.');
   }
 
   return [];
 }
 
 async function serializeImage(image: ImageResult): Promise<string> {
-  if (image.mediaType === 'video') {
-    throw new Error('Public reporting currently supports photo evidence only. Please attach a photo.');
-  }
-
-  if (isPortableImageReference(image.uri)) {
+  if (isPortableMediaReference(image.uri)) {
     return image.uri;
   }
 
   try {
-    const uploaded = await uploadAnonymousImage(image.uri);
+    const uploaded = await uploadAnonymousMedia(image.uri, image.type);
     return uploaded.downloadUrl;
   } catch (error) {
-    console.warn('[ReportService] Anonymous upload failed, falling back to data URI payload:', error);
+    console.warn('[ReportService] Anonymous media upload failed, falling back to data URI payload:', error);
   }
 
-  return encodeImageAsDataUri(image.uri, image.type);
+  return encodeMediaAsDataUri(image.uri, image.type);
 }
 
-function isPortableImageReference(value: string): boolean {
-  return value.startsWith('data:image/') || value.startsWith('http://') || value.startsWith('https://');
+function isPortableMediaReference(value: string): boolean {
+  return value.startsWith('data:image/') || value.startsWith('data:video/') || value.startsWith('http://') || value.startsWith('https://');
 }
 
 function mapPriority(priority: ReportPayload['priority']): string {
@@ -163,6 +164,14 @@ function mapPriority(priority: ReportPayload['priority']): string {
 }
 
 function normalizeReport(report: Partial<ReportResponse> & Record<string, any>): ReportResponse {
+  const normalizedPhotos = Array.isArray(report.report_photos)
+    ? report.report_photos
+    : Array.isArray(report.photos)
+    ? report.photos
+    : Array.isArray(report.images)
+      ? report.images
+      : [];
+
   return {
     id: String(report.id || ''),
     tracking_id: String(report.tracking_id || report.trackingId || ''),
@@ -170,18 +179,8 @@ function normalizeReport(report: Partial<ReportResponse> & Record<string, any>):
     latitude: Number(report.latitude ?? report.location?.latitude ?? 0),
     longitude: Number(report.longitude ?? report.location?.longitude ?? 0),
     address: report.address ?? null,
-    photos: Array.isArray(report.report_photos)
-      ? report.report_photos
-      : Array.isArray(report.photos)
-      ? report.photos
-      : Array.isArray(report.images)
-        ? report.images
-        : [],
-    report_photos: Array.isArray(report.report_photos)
-      ? report.report_photos
-      : Array.isArray(report.photos)
-      ? report.photos
-      : [],
+    photos: normalizedPhotos.map(toAbsoluteMediaReference),
+    report_photos: normalizedPhotos.map(toAbsoluteMediaReference),
     priority: String(report.priority || 'Medium'),
     status: String(report.status || 'new'),
     utility_id: report.utility_id ? String(report.utility_id) : '',
@@ -194,6 +193,7 @@ function normalizeReport(report: Partial<ReportResponse> & Record<string, any>):
     created_at: String(report.created_at || new Date().toISOString()),
     updated_at: String(report.updated_at || report.created_at || new Date().toISOString()),
     resolved_at: report.resolved_at ?? null,
+    primary_media_type: report.primary_media_type === 'video' ? 'video' : report.primary_media_type === 'photo' ? 'photo' : undefined,
   };
 }
 
@@ -263,6 +263,10 @@ async function refreshStoredReports(storedReports: StoredReportReference[]): Pro
       for (const rawReport of response.items || []) {
         const report = normalizeReport(rawReport);
         if (group.ids.has(report.id)) {
+          const existing = refreshedMap.get(report.id);
+          if (existing?.primary_media_type && !report.primary_media_type) {
+            report.primary_media_type = existing.primary_media_type;
+          }
           refreshedMap.set(report.id, report);
         }
       }
@@ -284,4 +288,15 @@ async function refreshStoredReports(storedReports: StoredReportReference[]): Pro
   ));
 
   return refreshedReports;
+}
+
+function toAbsoluteMediaReference(value: string): string {
+  if (!value) return value;
+  if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:')) {
+    return value;
+  }
+  if (value.startsWith('/')) {
+    return getEndpointUrl(value);
+  }
+  return value;
 }

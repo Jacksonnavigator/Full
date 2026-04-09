@@ -1,68 +1,72 @@
 #!/usr/bin/env python
 """
-Database Seeding Script
-Populate database with initial data including admin user
-Usage: python seed_db.py
+Database seeding script for the current HydraNet hierarchy.
+
+Hierarchy:
+    Admin -> Utility -> DMA -> Team -> Engineer
 """
 
 import sys
 from datetime import datetime
-from sqlalchemy.orm import Session
 
 from app.database.session import SessionLocal
 from app.models import (
-    User, Utility, UtilityManager, DMA, DMAManager, 
-    Branch, Team, Engineer, EntityStatusEnum
+    DMA,
+    DMAManager,
+    Engineer,
+    EntityStatusEnum,
+    Team,
+    User,
+    Utility,
+    UtilityManager,
 )
 from app.security.auth import hash_password
 
-def seed_db():
-    """Seed database with initial data"""
+
+def seed_db() -> bool:
+    """Seed database with initial data."""
     db = SessionLocal()
-    
+
     print("=" * 60)
-    print("🌱 HydraNet Database Seeding")
+    print("HydraNet Database Seeding")
     print("=" * 60)
-    
+
     try:
-        # Check if admin user already exists
         admin = db.query(User).filter(User.email == "admin@hydranet.com").first()
         if admin:
-            print("\n⚠️  Admin user already exists. Skipping seed.")
+            print("\nAdmin user already exists. Skipping seed.")
             return True
-        
-        print("\n📝 Creating admin user...")
-        
-        # Create admin user
+
+        now = datetime.utcnow()
+
+        print("\nCreating admin user...")
         admin_user = User(
             email="admin@hydranet.com",
-            password=hash_password("admin123"),  # Change this!
+            password=hash_password("admin123"),
             name="Admin User",
             phone="+1234567890",
             avatar="https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
             status=EntityStatusEnum.ACTIVE,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=now,
+            updated_at=now,
         )
         db.add(admin_user)
-        db.flush()  # Get the ID without committing
-        
-        print(f"✅ Created admin user: {admin_user.email}")
-        
-        print("\n📝 Creating test utility...")
+        db.flush()
+        print(f"Created admin user: {admin_user.email}")
+
+        print("\nCreating utility...")
         utility = Utility(
             name="City Water Department",
             description="Municipal water supply utility",
             status=EntityStatusEnum.ACTIVE,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=now,
+            updated_at=now,
         )
         db.add(utility)
         db.flush()
-        
-        print(f"✅ Created utility: {utility.name}")
-        
-        print("\n📝 Creating test utility manager...")
+        print(f"Created utility: {utility.name}")
+
+        print("\nCreating utility manager...")
         utility_mgr = UtilityManager(
             utility_id=utility.id,
             email="manager@utility.com",
@@ -70,29 +74,29 @@ def seed_db():
             name="John Manager",
             phone="+1111111111",
             status=EntityStatusEnum.ACTIVE,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=now,
+            updated_at=now,
         )
         db.add(utility_mgr)
         db.flush()
-        
-        print(f"✅ Created utility manager: {utility_mgr.name}")
-        
-        print("\n📝 Creating test DMA...")
+        print(f"Created utility manager: {utility_mgr.email}")
+
+        print("\nCreating DMA...")
         dma = DMA(
             utility_id=utility.id,
             name="Downtown DMA",
             description="Downtown water distribution area",
+            center_latitude=-3.386,
+            center_longitude=36.717,
             status=EntityStatusEnum.ACTIVE,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=now,
+            updated_at=now,
         )
         db.add(dma)
         db.flush()
-        
-        print(f"✅ Created DMA: {dma.name}")
-        
-        print("\n📝 Creating test DMA manager...")
+        print(f"Created DMA: {dma.name}")
+
+        print("\nCreating DMA manager...")
         dma_mgr = DMAManager(
             dma_id=dma.id,
             utility_id=utility.id,
@@ -101,47 +105,28 @@ def seed_db():
             name="Jane DMA Manager",
             phone="+2222222222",
             status=EntityStatusEnum.ACTIVE,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=now,
+            updated_at=now,
         )
         db.add(dma_mgr)
         db.flush()
-        
-        print(f"✅ Created DMA manager: {dma_mgr.name}")
-        
-        print("\n📝 Creating test branch...")
-        branch = Branch(
-            utility_id=utility.id,
-            dma_id=dma.id,
-            name="Downtown Branch",
-            description="Downtown service branch",
-            status=EntityStatusEnum.ACTIVE,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
-        )
-        db.add(branch)
-        db.flush()
-        
-        print(f"✅ Created branch: {branch.name}")
-        
-        print("\n📝 Creating test team...")
+        print(f"Created DMA manager: {dma_mgr.email}")
+
+        print("\nCreating team...")
         team = Team(
-            branch_id=branch.id,
             dma_id=dma.id,
             name="Alpha Team",
             description="Field operations team",
             status=EntityStatusEnum.ACTIVE,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            created_at=now,
+            updated_at=now,
         )
         db.add(team)
         db.flush()
-        
-        print(f"✅ Created team: {team.name}")
-        
-        print("\n📝 Creating test engineer...")
-        engineer = Engineer(
-            branch_id=branch.id,
+        print(f"Created team: {team.name}")
+
+        print("\nCreating team leader...")
+        team_leader = Engineer(
             dma_id=dma.id,
             team_id=team.id,
             name="Bob Engineer",
@@ -149,36 +134,37 @@ def seed_db():
             password=hash_password("engineer123"),
             phone="+3333333333",
             status=EntityStatusEnum.ACTIVE,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow(),
+            role="team_leader",
+            created_at=now,
+            updated_at=now,
         )
-        db.add(engineer)
-        
-        # Update team leader
-        team.leader_id = engineer.id
-        
-        # Commit all changes
+        db.add(team_leader)
+        db.flush()
+
+        team.leader_id = team_leader.id
+        print(f"Created team leader: {team_leader.email}")
+
         db.commit()
-        
-        print(f"✅ Created engineer: {engineer.name}")
-        
+
         print("\n" + "=" * 60)
-        print("✅ Database seeding completed successfully!")
-        print("\n📖 Test Credentials:")
-        print("   Email: admin@hydranet.com")
-        print("   Password: admin123")
-        print("\n" + "=" * 60)
-        
+        print("Database seeding completed successfully.")
+        print("\nTest Credentials:")
+        print("  admin@hydranet.com / admin123")
+        print("  manager@utility.com / manager123")
+        print("  dma.manager@utility.com / dmamanager123")
+        print("  engineer@utility.com / engineer123")
+        print("=" * 60)
         return True
-        
-    except Exception as e:
+    except Exception as exc:
         db.rollback()
-        print(f"\n❌ Error seeding database: {e}")
+        print(f"\nError seeding database: {exc}")
         import traceback
+
         traceback.print_exc()
         return False
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     success = seed_db()

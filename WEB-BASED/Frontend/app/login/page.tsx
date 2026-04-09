@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { Button } from "@/components/ui/button"
@@ -199,6 +200,11 @@ export default function LoginPage() {
                     <Eye className="h-4 w-4" />
                   )}
                 </button>
+              </div>
+              <div className="flex justify-end">
+                <Link href="/reset-password" className="text-xs font-medium text-cyan-700 transition hover:text-cyan-800">
+                  Forgot password?
+                </Link>
               </div>
             </div>
 

@@ -51,15 +51,7 @@ export default function ReportScreen({ navigation }: any) {
         if (!location) {
             Alert.alert(
                 'Location Required',
-                'Please capture your GPS location first before adding a photo.'
-            );
-            return;
-        }
-
-        if (selectedImage.mediaType === 'video') {
-            Alert.alert(
-                'Photo Required',
-                'The public HydraNet app currently accepts photo evidence only. Please attach a photo.'
+                'Please capture your GPS location first before adding media.'
             );
             return;
         }
@@ -94,7 +86,7 @@ export default function ReportScreen({ navigation }: any) {
         }
 
         if (!image) {
-            Alert.alert('Validation Error', 'Please add a photo of the water problem.');
+            Alert.alert('Validation Error', 'Please add a photo or video of the water problem.');
             return;
         }
 
@@ -148,13 +140,13 @@ export default function ReportScreen({ navigation }: any) {
                     <View style={styles.content}>
                         <Text style={[styles.title, { color: colors.primary }]}>Report Water Leakage</Text>
                         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                            Capture the location, attach a clear photo, and send the issue to the utility team.
+                            Capture the location, attach a clear photo or short video, and send the issue to the utility team.
                         </Text>
 
                         <View style={styles.stepIndicator}>
                             {renderStep(1, 'Location', !!location, colors.primary)}
                             <View style={[styles.stepLine, { backgroundColor: colors.border }]} />
-                            {renderStep(2, 'Photo', !!image, colors.primary)}
+                            {renderStep(2, 'Media', !!image, colors.primary)}
                             <View style={[styles.stepLine, { backgroundColor: colors.border }]} />
                             {renderStep(3, 'Priority', !!priority, colors.primary)}
                             <View style={[styles.stepLine, { backgroundColor: colors.border }]} />
@@ -200,7 +192,7 @@ export default function ReportScreen({ navigation }: any) {
                         <View style={[styles.section, !location && styles.sectionDisabled, { backgroundColor: colors.card }]}>
                             <View style={styles.labelContainer}>
                                 <Text style={[styles.label, { color: colors.text }, !location && styles.labelDisabled]}>
-                                    Step 2: Add Photo of Problem
+                                    Step 2: Add Photo or Video
                                 </Text>
                                 {!location && (
                                     <View style={styles.lockedBadge}>
@@ -210,14 +202,14 @@ export default function ReportScreen({ navigation }: any) {
                             </View>
                             {!location && (
                                 <Text style={styles.warningText}>
-                                    Capture GPS location first to unlock photo selection.
+                                    Capture GPS location first to unlock media selection.
                                 </Text>
                             )}
                             <ImagePicker
                                 image={image}
                                 onImageSelected={handleImageSelected}
                                 disabled={!location}
-                                allowVideo={false}
+                                allowVideo={true}
                             />
                         </View>
 
@@ -241,7 +233,7 @@ export default function ReportScreen({ navigation }: any) {
                             </View>
                             {!image && (
                                 <Text style={styles.warningText}>
-                                    Add a photo first to choose the report priority.
+                                    Add media first to choose the report priority.
                                 </Text>
                             )}
                             {image && (

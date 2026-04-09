@@ -150,6 +150,9 @@ export interface DMAManager {
   utilityName?: string
   dmaId?: string | null
   dmaName?: string | null
+  onboardingStatus?: "completed" | "pending_setup" | "expired"
+  inviteExpiresAt?: string | null
+  setupCompletedAt?: string | null
   password?: string // Used when creating a new manager
   createdAt: string
   updatedAt: string

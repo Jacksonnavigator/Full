@@ -62,6 +62,63 @@ export async function registerUser(data: {
   }
 }
 
+export async function requestPasswordReset(email: string): Promise<{ message: string; deliveryMessage?: string; resetUrl?: string | null }> {
+  try {
+    const response = await apiPost<{
+      message?: string;
+      delivery_message?: string;
+      reset_url?: string | null;
+    }>('/api/auth/password-reset/request', {
+      email: email.trim().toLowerCase(),
+    });
+
+    return {
+      message: response.message || 'If your account exists, a reset link has been sent.',
+      deliveryMessage: response.delivery_message,
+      resetUrl: response.reset_url ?? null,
+    };
+  } catch (error) {
+    console.error('[authService] Password reset request error:', error);
+    throw error;
+  }
+}
+
+export async function validatePasswordResetToken(token: string): Promise<{
+  valid: boolean;
+  message: string;
+  account_type?: string;
+  email?: string;
+  role?: string;
+  expires_at?: string;
+}> {
+  try {
+    return await apiGet('/api/auth/password-reset/validate', {
+      requiresAuth: false,
+      params: { token },
+    });
+  } catch (error) {
+    console.error('[authService] Password reset validation error:', error);
+    throw error;
+  }
+}
+
+export async function completePasswordReset(data: {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}): Promise<{ message: string; email?: string; account_type?: string }> {
+  try {
+    return await apiPost('/api/auth/password-reset/complete', {
+      token: data.token,
+      password: data.password,
+      confirm_password: data.confirmPassword,
+    });
+  } catch (error) {
+    console.error('[authService] Password reset completion error:', error);
+    throw error;
+  }
+}
+
 export async function getCurrentUser(): Promise<User | null> {
   try {
     const stored = await AsyncStorage.getItem('hydranet_user');

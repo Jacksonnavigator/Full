@@ -68,6 +68,7 @@ import {
   Calendar,
   Clock,
   XCircle,
+  Send,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -81,6 +82,9 @@ interface Manager {
   role: string
   status: string
   utilityId?: string
+  onboardingStatus?: "completed" | "pending_setup" | "expired"
+  inviteExpiresAt?: string | null
+  setupCompletedAt?: string | null
 }
 
 export default function UtilityManagersPage() {
@@ -94,6 +98,7 @@ export default function UtilityManagersPage() {
   const [editingManager, setEditingManager] = useState<Manager | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [viewingManager, setViewingManager] = useState<Manager | null>(null)
+  const [resendingInviteId, setResendingInviteId] = useState<string | null>(null)
 
   // Form state
   const [formName, setFormName] = useState("")
@@ -221,11 +226,11 @@ export default function UtilityManagersPage() {
 
   function openCreateDialog() {
     setEditingManager(null)
-    setFormName("")
     setFormEmail("")
-    setFormPhone("")
     setFormUtilityId("")
     setFormStatus("active")
+    setFormName("")
+    setFormPhone("")
     setFormPassword("")
     setFormConfirmPassword("")
     setShowPassword(false)
@@ -234,11 +239,11 @@ export default function UtilityManagersPage() {
 
   function openEditDialog(manager: Manager) {
     setEditingManager(manager)
-    setFormName(manager.name)
     setFormEmail(manager.email)
-    setFormPhone(manager.phone ?? "")
     setFormUtilityId(manager.utilityId ?? "")
     setFormStatus(manager.status ?? "active")
+    setFormName(manager.name)
+    setFormPhone(manager.phone ?? "")
     setFormPassword("")
     setFormConfirmPassword("")
     setShowPassword(false)
@@ -246,10 +251,6 @@ export default function UtilityManagersPage() {
   }
 
   async function handleSubmit() {
-    if (!formName.trim()) {
-      toast.error("Manager name is required")
-      return
-    }
     if (!formEmail.trim()) {
       toast.error("Email is required")
       return
@@ -259,21 +260,11 @@ export default function UtilityManagersPage() {
       return
     }
 
-    // Password validation
-    if (!editingManager) {
-      if (!formPassword.trim()) {
-        toast.error("Password is required")
+    if (editingManager) {
+      if (!formName.trim()) {
+        toast.error("Manager name is required")
         return
       }
-      if (formPassword.length < 6) {
-        toast.error("Password must be at least 6 characters")
-        return
-      }
-      if (formPassword !== formConfirmPassword) {
-        toast.error("Passwords do not match")
-        return
-      }
-    } else {
       if (formPassword && formPassword.length < 6) {
         toast.error("Password must be at least 6 characters")
         return
@@ -308,24 +299,30 @@ export default function UtilityManagersPage() {
         }
         toast.success("Manager updated successfully")
       } else {
-        const response = await fetch(`${CONFIG.backend.fullUrl}/utility-managers`, {
+        const response = await fetch(`${CONFIG.backend.fullUrl}/utility-managers/invitations`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${localStorage.getItem('access_token')}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: formName,
             email: formEmail,
-            phone: formPhone,
-            password: formPassword,
             status: formStatus,
             utility_id: formUtilityId,
           }),
         })
         if (!response.ok) {
           const data = await response.json()
-          throw new Error(data.error || "Failed to create manager")
+          throw new Error(data.detail || data.error || "Failed to invite manager")
         }
-        toast.success("Manager created successfully")
+        const data = await response.json()
+        if (data.invite_url && navigator?.clipboard) {
+          await navigator.clipboard.writeText(data.invite_url)
+          toast.success("Manager invited and invite link copied")
+        } else {
+          toast.success("Manager invitation created successfully")
+        }
+        if (data.delivery_message) {
+          toast.message(data.delivery_message)
+        }
       }
       setDialogOpen(false)
       fetchManagers()
@@ -333,6 +330,38 @@ export default function UtilityManagersPage() {
     } catch (error) {
       console.error("Error saving manager:", error)
       toast.error(error instanceof Error ? error.message : "Failed to save manager")
+    }
+  }
+
+  async function handleResendInvite(managerId: string) {
+    try {
+      setResendingInviteId(managerId)
+      const response = await fetch(`${CONFIG.backend.fullUrl}/utility-managers/${managerId}/resend-invite`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem('access_token')}`,
+          "Content-Type": "application/json",
+        },
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error((data as any).detail || (data as any).error || "Failed to resend invite")
+      }
+      if ((data as any).invite_url && navigator?.clipboard) {
+        await navigator.clipboard.writeText((data as any).invite_url)
+        toast.success("Invite resent and copied to clipboard")
+      } else {
+        toast.success("Invite resent successfully")
+      }
+      if ((data as any).delivery_message) {
+        toast.message((data as any).delivery_message)
+      }
+      fetchManagers()
+    } catch (error) {
+      console.error("Error resending invite:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to resend invite")
+    } finally {
+      setResendingInviteId(null)
     }
   }
 
@@ -373,6 +402,12 @@ export default function UtilityManagersPage() {
       .slice(0, 2)
   }
 
+  const renderOnboardingBadge = (status?: Manager["onboardingStatus"]) => {
+    if (status === "expired") return <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100">Expired Invite</Badge>
+    if (status === "pending_setup") return <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Pending Setup</Badge>
+    return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Ready</Badge>
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Modern Header with Stats */}
@@ -392,7 +427,7 @@ export default function UtilityManagersPage() {
             className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 rounded-xl h-11 px-6"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Manager
+            Invite Manager
           </Button>
         </div>
 
@@ -505,7 +540,7 @@ export default function UtilityManagersPage() {
                         <div>
                           <p className="text-lg font-semibold text-slate-800">No managers found</p>
                           <p className="text-sm text-slate-500 mt-1">
-                            {search ? "Try adjusting your search terms" : "Get started by creating your first utility manager"}
+                            {search ? "Try adjusting your search terms" : "Get started by inviting your first utility manager"}
                           </p>
                         </div>
                         {!search && (
@@ -514,7 +549,7 @@ export default function UtilityManagersPage() {
                             className="mt-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl"
                           >
                             <Plus className="h-4 w-4 mr-2" />
-                            Add Manager
+                            Invite Manager
                           </Button>
                         )}
                       </div>
@@ -595,7 +630,10 @@ export default function UtilityManagersPage() {
 
                         {/* Status */}
                         <TableCell className="py-4 px-6">
-                          <EntityStatusBadge status={(manager.status as EntityStatus) ?? "active"} />
+                          <div className="flex flex-col items-start gap-2">
+                            <EntityStatusBadge status={(manager.status as EntityStatus) ?? "active"} />
+                            {renderOnboardingBadge(manager.onboardingStatus)}
+                          </div>
                         </TableCell>
 
                         {/* Actions */}
@@ -629,6 +667,15 @@ export default function UtilityManagersPage() {
                                 <Pencil className="h-4 w-4 text-violet-500" />
                                 Edit Manager
                               </DropdownMenuItem>
+                              {manager.onboardingStatus !== "completed" && (
+                                <DropdownMenuItem
+                                  onClick={() => handleResendInvite(manager.id)}
+                                  className="rounded-lg gap-2 cursor-pointer"
+                                >
+                                  <Send className="h-4 w-4 text-cyan-500" />
+                                  {resendingInviteId === manager.id ? "Sending..." : "Resend Invite"}
+                                </DropdownMenuItem>
+                              )}
                               {manager.utilityId && (
                                 <DropdownMenuItem
                                   onClick={() => handleUnassign(manager.id)}
@@ -670,20 +717,10 @@ export default function UtilityManagersPage() {
                   <Plus className="h-4 w-4 text-white" />
                 )}
               </div>
-              {editingManager ? "Edit Utility Manager" : "Add Utility Manager"}
+              {editingManager ? "Edit Utility Manager" : "Invite Utility Manager"}
             </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-5 py-4 overflow-y-auto flex-1 min-h-0">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="manager-name" className="text-sm font-medium text-slate-700">Full Name</Label>
-              <Input
-                id="manager-name"
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                placeholder="e.g., John Smith"
-                className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
-              />
-            </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="manager-email" className="text-sm font-medium text-slate-700">Email</Label>
               <Input
@@ -695,17 +732,31 @@ export default function UtilityManagersPage() {
                 className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="manager-phone" className="text-sm font-medium text-slate-700">Phone</Label>
-              <Input
-                id="manager-phone"
-                type="tel"
-                value={formPhone}
-                onChange={(e) => setFormPhone(e.target.value)}
-                placeholder="e.g., +255 22 211 0001"
-                className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
-              />
-            </div>
+            {editingManager && (
+              <>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="manager-name" className="text-sm font-medium text-slate-700">Full Name</Label>
+                  <Input
+                    id="manager-name"
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    placeholder="e.g., John Smith"
+                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="manager-phone" className="text-sm font-medium text-slate-700">Phone</Label>
+                  <Input
+                    id="manager-phone"
+                    type="tel"
+                    value={formPhone}
+                    onChange={(e) => setFormPhone(e.target.value)}
+                    placeholder="e.g., +255 22 211 0001"
+                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
+                  />
+                </div>
+              </>
+            )}
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium text-slate-700">Assigned Utility</Label>
               <Select value={formUtilityId} onValueChange={setFormUtilityId}>
@@ -755,44 +806,45 @@ export default function UtilityManagersPage() {
               </Select>
             </div>
             
-            {/* Password Section */}
-            <div className="border-t border-slate-200 pt-4">
-              <Label className="flex items-center gap-2 mb-3 text-sm font-medium text-slate-700">
-                <Lock className="h-4 w-4" />
-                {editingManager ? "Change Password (leave blank to keep current)" : "Account Password"}
-              </Label>
-              <div className="flex flex-col gap-3">
-                <div className="relative">
+            {editingManager ? (
+              <div className="border-t border-slate-200 pt-4">
+                <Label className="flex items-center gap-2 mb-3 text-sm font-medium text-slate-700">
+                  <Lock className="h-4 w-4" />
+                  Change Password (leave blank to keep current)
+                </Label>
+                <div className="flex flex-col gap-3">
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={formPassword}
+                      onChange={(e) => setFormPassword(e.target.value)}
+                      placeholder="Enter new password (optional)"
+                      className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20 pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
+                    </Button>
+                  </div>
                   <Input
                     type={showPassword ? "text" : "password"}
-                    value={formPassword}
-                    onChange={(e) => setFormPassword(e.target.value)}
-                    placeholder={editingManager ? "Enter new password (optional)" : "Enter password (min 6 characters)"}
-                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20 pr-10"
+                    value={formConfirmPassword}
+                    onChange={(e) => setFormConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
                 </div>
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={formConfirmPassword}
-                  onChange={(e) => setFormConfirmPassword(e.target.value)}
-                  placeholder="Confirm password"
-                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
-                />
               </div>
-            </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-4 text-sm text-slate-600">
+                The system will send this manager a secure setup link so they can finish their own profile and password.
+              </div>
+            )}
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">
@@ -810,7 +862,7 @@ export default function UtilityManagersPage() {
               ) : (
                 <>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Manager
+                  Invite Manager
                 </>
               )}
             </Button>

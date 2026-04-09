@@ -18,7 +18,14 @@ from app.security.auth import (
     verify_token,
     extract_user_from_token,
 )
+from app.config import settings
 from pydantic import BaseModel, EmailStr, Field
+from app.services.engineer_invites import (
+    build_password_reset_url,
+    generate_invite_token,
+    hash_invite_token,
+    send_password_reset_email,
+)
 
 
 # ============================================================================
@@ -63,11 +70,57 @@ class ChangePasswordRequest(BaseModel):
     new_password: str = Field(..., min_length=6, max_length=255)
 
 
+class InvitationValidationResponse(BaseModel):
+    valid: bool
+    message: str
+    account_type: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None
+    utility_name: Optional[str] = None
+    dma_name: Optional[str] = None
+    team_name: Optional[str] = None
+    expires_at: Optional[str] = None
+
+
+class CompleteInvitationRequest(BaseModel):
+    token: str = Field(..., min_length=20)
+    name: str = Field(..., min_length=1, max_length=255)
+    phone: Optional[str] = Field(None, max_length=20)
+    password: str = Field(..., min_length=8, max_length=255)
+    confirm_password: str = Field(..., min_length=8, max_length=255)
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetValidationResponse(BaseModel):
+    valid: bool
+    message: str
+    account_type: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None
+    expires_at: Optional[str] = None
+
+
+class CompletePasswordResetRequest(BaseModel):
+    token: str = Field(..., min_length=20)
+    password: str = Field(..., min_length=8, max_length=255)
+    confirm_password: str = Field(..., min_length=8, max_length=255)
+
+
 # ============================================================================
 # Router Setup
 # ============================================================================
 
 auth_router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+
+ACCOUNT_MODELS = (
+    (User, "user"),
+    (UtilityManager, "utility_manager"),
+    (DMAManager, "dma_manager"),
+    (Engineer, "engineer"),
+)
 
 
 # ============================================================================
@@ -100,6 +153,11 @@ async def login(
     # 1. Check User table (Admin users)
     user_obj = db.query(User).filter(User.email == request.email).first()
     if user_obj:
+        if not user_obj.setup_completed_at:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Complete your account setup from the invitation email before signing in.",
+            )
         if verify_password(request.password, user_obj.password):
             user_data = {
                 'id': user_obj.id,
@@ -116,6 +174,11 @@ async def login(
                 'utility_name': None,
                 'dma_id': None,
                 'dma_name': None,
+                'team_id': None,
+                'team_name': None,
+                'onboarding_status': 'completed',
+                'invite_expires_at': user_obj.invite_expires_at,
+                'setup_completed_at': user_obj.setup_completed_at,
             }
             user_type = 'user'
     
@@ -123,6 +186,11 @@ async def login(
     if not user_data:
         util_mgr = db.query(UtilityManager).filter(UtilityManager.email == request.email).first()
         if util_mgr:
+            if not util_mgr.setup_completed_at:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Complete your account setup from the invitation email before signing in.",
+                )
             if verify_password(request.password, util_mgr.password):
                 user_data = {
                     'id': util_mgr.id,
@@ -146,6 +214,11 @@ async def login(
     if not user_data:
         dma_mgr = db.query(DMAManager).filter(DMAManager.email == request.email).first()
         if dma_mgr:
+            if not dma_mgr.setup_completed_at:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Complete your account setup from the invitation email before signing in.",
+                )
             if verify_password(request.password, dma_mgr.password):
                 user_data = {
                     'id': dma_mgr.id,
@@ -169,6 +242,11 @@ async def login(
     if not user_data:
         engineer = db.query(Engineer).filter(Engineer.email == request.email).first()
         if engineer:
+            if not engineer.setup_completed_at:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Complete your account setup from the invitation email before signing in.",
+                )
             if verify_password(request.password, engineer.password):
                 dma_name = engineer.dma.name if engineer.dma else None
                 utility_id = engineer.dma.utility_id if engineer.dma else None
@@ -215,6 +293,198 @@ async def login(
         token_type='bearer',
         user=user_response,
     )
+
+
+def _utcnow():
+    from datetime import datetime
+    return datetime.utcnow()
+
+
+def _find_pending_account_by_token(token: str, db: Session):
+    token_hash = hash_invite_token(token)
+    for model, account_type in ACCOUNT_MODELS:
+        account = db.query(model).filter(model.invite_token_hash == token_hash).first()
+        if account:
+            return account, account_type
+    return None, None
+
+
+def _find_account_by_reset_token(token: str, db: Session):
+    token_hash = hash_invite_token(token)
+    for model, account_type in ACCOUNT_MODELS:
+        account = db.query(model).filter(model.password_reset_token_hash == token_hash).first()
+        if account:
+            return account, account_type
+    return None, None
+
+
+def _find_account_by_email(email: str, db: Session):
+    normalized = email.strip().lower()
+    for model, account_type in ACCOUNT_MODELS:
+        account = db.query(model).filter(model.email == normalized).first()
+        if account:
+            return account, account_type
+    return None, None
+
+
+def _role_label_for_account(account, account_type: str) -> str:
+    if account_type == "engineer":
+        role = getattr(account, "role", "engineer")
+        return "Team Leader" if role == "team_leader" else "Engineer"
+    if account_type == "dma_manager":
+        return "DMA Manager"
+    if account_type == "utility_manager":
+        return "Utility Manager"
+    return "Admin User"
+
+
+def _api_account_role(account, account_type: str) -> str:
+    if account_type == "engineer":
+        return getattr(account, "role", "engineer")
+    if account_type == "dma_manager":
+        return "dma_manager"
+    if account_type == "utility_manager":
+        return "utility_manager"
+    return "user"
+
+
+@auth_router.get("/invitations/validate", response_model=InvitationValidationResponse)
+async def validate_invitation(token: str, db: Session = Depends(get_db)):
+    account, account_type = _find_pending_account_by_token(token, db)
+    if not account:
+        return InvitationValidationResponse(valid=False, message="This invitation link is invalid or has already been replaced.")
+    if account.setup_completed_at:
+        return InvitationValidationResponse(valid=False, message="This invitation has already been completed. Please sign in instead.")
+    if account.invite_expires_at and account.invite_expires_at < _utcnow():
+        return InvitationValidationResponse(valid=False, message="This invitation has expired. Ask your manager to resend it.")
+
+    utility_name = getattr(account.utility, "name", None) if hasattr(account, "utility") else None
+    dma_name = getattr(account.dma, "name", None) if hasattr(account, "dma") else None
+    team_name = getattr(account.team, "name", None) if hasattr(account, "team") else None
+    role = getattr(account, "role", account_type)
+    if account_type == "user":
+        role = "user"
+    elif account_type == "utility_manager":
+        role = "utility_manager"
+    elif account_type == "dma_manager":
+        role = "dma_manager"
+
+    return InvitationValidationResponse(
+        valid=True,
+        message="Invitation is valid.",
+        account_type=account_type,
+        email=account.email,
+        role=role,
+        utility_name=utility_name,
+        dma_name=dma_name,
+        team_name=team_name,
+        expires_at=account.invite_expires_at.isoformat() if account.invite_expires_at else None,
+    )
+
+
+@auth_router.post("/invitations/complete")
+async def complete_invitation(payload: CompleteInvitationRequest, db: Session = Depends(get_db)):
+    if payload.password != payload.confirm_password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Passwords do not match")
+
+    account, account_type = _find_pending_account_by_token(payload.token, db)
+    if not account:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invitation is invalid or has already been used")
+    if account.setup_completed_at:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This invitation has already been completed")
+    if account.invite_expires_at and account.invite_expires_at < _utcnow():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This invitation has expired. Ask your manager to resend it.")
+
+    account.name = payload.name.strip()
+    account.phone = payload.phone.strip() if payload.phone else None
+    account.password = hash_password(payload.password)
+    account.setup_completed_at = _utcnow()
+    account.invite_token_hash = None
+    account.invite_expires_at = None
+    db.commit()
+    db.refresh(account)
+
+    return {
+        "message": "Account setup completed successfully. You can now sign in.",
+        "account_type": account_type,
+        "email": account.email,
+    }
+
+
+@auth_router.post("/password-reset/request")
+async def request_password_reset(payload: PasswordResetRequest, db: Session = Depends(get_db)):
+    success_message = (
+        "If an account exists for this email, a password reset link has been sent. "
+        "If the account has not finished setup yet, use the invitation email instead."
+    )
+
+    account, account_type = _find_account_by_email(payload.email, db)
+    if not account:
+        return {"message": success_message}
+
+    if not getattr(account, "setup_completed_at", None):
+        return {"message": success_message}
+
+    now = _utcnow()
+    raw_token = generate_invite_token()
+    account.password_reset_token_hash = hash_invite_token(raw_token)
+    account.password_reset_sent_at = now
+    account.password_reset_expires_at = now + timedelta(hours=settings.password_reset_token_expiry_hours)
+
+    delivery = send_password_reset_email(
+        recipient_email=account.email,
+        role_label=_role_label_for_account(account, account_type),
+        reset_url=build_password_reset_url(raw_token),
+    )
+    db.commit()
+
+    return {
+        "message": success_message,
+        "delivery_message": delivery.message,
+        "reset_url": delivery.invite_url if delivery.method == "manual_link" else None,
+    }
+
+
+@auth_router.get("/password-reset/validate", response_model=PasswordResetValidationResponse)
+async def validate_password_reset(token: str, db: Session = Depends(get_db)):
+    account, account_type = _find_account_by_reset_token(token, db)
+    if not account:
+        return PasswordResetValidationResponse(valid=False, message="This reset link is invalid or has already been used.")
+    if account.password_reset_expires_at and account.password_reset_expires_at < _utcnow():
+        return PasswordResetValidationResponse(valid=False, message="This reset link has expired. Request a new one.")
+
+    return PasswordResetValidationResponse(
+        valid=True,
+        message="Password reset link is valid.",
+        account_type=account_type,
+        email=account.email,
+        role=_api_account_role(account, account_type),
+        expires_at=account.password_reset_expires_at.isoformat() if account.password_reset_expires_at else None,
+    )
+
+
+@auth_router.post("/password-reset/complete")
+async def complete_password_reset(payload: CompletePasswordResetRequest, db: Session = Depends(get_db)):
+    if payload.password != payload.confirm_password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Passwords do not match")
+
+    account, account_type = _find_account_by_reset_token(payload.token, db)
+    if not account:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reset link is invalid or has already been used")
+    if account.password_reset_expires_at and account.password_reset_expires_at < _utcnow():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This reset link has expired. Request a new one.")
+
+    account.password = hash_password(payload.password)
+    account.password_reset_token_hash = None
+    account.password_reset_sent_at = None
+    account.password_reset_expires_at = None
+    db.commit()
+
+    return {
+        "message": "Password reset completed successfully. You can now sign in.",
+        "account_type": account_type,
+        "email": account.email,
+    }
 
 
 @auth_router.post("/refresh")

@@ -1,10 +1,7 @@
 import type { Metadata, Viewport } from "next"
-import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/sonner"
 
 import "./globals.css"
-
-const _inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "HydraNet - Water Leakage Management System",
