@@ -291,12 +291,17 @@ export function TopNavbar() {
                 {/* Avatar with Glow */}
                 <div className="relative">
                   <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-50 blur-sm" />
-                  <Avatar className="relative h-8 w-8 ring-2 ring-white/20">
-                    <AvatarImage src={currentUser?.avatar || ""} />
-                    <AvatarFallback className="bg-gradient-to-br from-cyan-600 to-blue-600 text-sm font-semibold text-white">
-                      {currentUser?.name?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
+                  
+                  <Avatar className="relative h-12 w-12 ring-2 ring-white/20">
+                           <AvatarFallback className="bg-gradient-to-br from-cyan-600 to-blue-600 text-lg font-semibold text-white">
+                           {currentUser?.name
+                       ?.split(" ")
+                       .map((n) => n[0])
+                         .join("")
+                             .toUpperCase() || "U"}
+                           </AvatarFallback>
                   </Avatar>
+                  
                   {/* Online Indicator */}
                   <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-slate-900 bg-emerald-500">
                     <span className="h-1.5 w-1.5 rounded-full bg-white" />
@@ -333,11 +338,16 @@ export function TopNavbar() {
                 <div className="relative flex items-center gap-3">
                   <div className="relative">
                     <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-50 blur" />
-                    <Avatar className="relative h-12 w-12 ring-2 ring-white/20">
-                      <AvatarImage src={currentUser?.avatar || ""} />
-                      <AvatarFallback className="bg-gradient-to-br from-cyan-600 to-blue-600 text-lg font-semibold text-white">
-                        {currentUser?.name?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
+                
+                    
+                    <Avatar className="relative h-8 w-8 ring-2 ring-white/20">
+                       <AvatarFallback className="bg-gradient-to-br from-cyan-600 to-blue-600 text-sm font-semibold text-white">
+                          {currentUser?.name
+                                       ?.split(" ")
+                                .map((n) => n[0])
+                                     .join("")
+                                   .toUpperCase() || "U"}
+                                 </AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="flex flex-col">
