@@ -134,6 +134,23 @@ export interface Notification {
   createdAt: string
 }
 
+function normalizeNotification(raw: Record<string, any>): Notification {
+  const transformed = transformKeys(raw) as Record<string, any>
+
+  return {
+    id: String(transformed.id ?? ""),
+    title: String(transformed.title ?? ""),
+    message: String(transformed.message ?? ""),
+    type: String(transformed.type ?? transformed.notificationType ?? "info"),
+    read: Boolean(transformed.read ?? transformed.isRead ?? false),
+    link: transformed.link ?? null,
+    data: (transformed.data as Record<string, unknown> | null | undefined) ?? null,
+    updatedAt: transformed.updatedAt ?? null,
+    userId: String(transformed.userId ?? ""),
+    createdAt: String(transformed.createdAt ?? new Date().toISOString()),
+  }
+}
+
 export interface User {
   id: string
   email: string
@@ -376,7 +393,7 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.get(`/notifications?userId=${userId}`)
       if (response.success && response.data) {
-        const transformed = (response.data.items || []).map(transformKeys)
+        const transformed = (response.data.items || []).map((item: Record<string, any>) => normalizeNotification(item))
         set({ notifications: transformed })
       } else {
         console.error("Error fetching notifications:", response.error)
@@ -398,7 +415,7 @@ export const useDataStore = create<DataState>((set, get) => ({
         throw new Error(response.error || "Failed to mark notification as read")
       }
 
-      const transformed = transformKeys(response.data) as Notification
+      const transformed = normalizeNotification(response.data as Record<string, any>)
       set((state) => ({
         notifications: state.notifications.map((notification) =>
           notification.id === id ? transformed : notification
