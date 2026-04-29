@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { Button } from "@/components/ui/button"
@@ -9,27 +8,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
+import Image from "next/image"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-const ROLE_PRESETS = [
-  {
-    label: "Admin",
-    email: "admin@majiscope.com",
-    password: "admin123",
-    description: "System Administrator"
-  },
-  {
-    label: "Utility Mgr",
-    email: "manager@utility.com",
-    password: "manager123",
-    description: "Utility Manager"
-  },
-  {
-    label: "DMA Mgr",
-    email: "dma.manager@utility.com",
-    password: "dmamanager123",
-    description: "DMA Manager"
-  },
+// Background images for the slideshow - using local images
+const BACKGROUND_IMAGES = [
+  "/login-backgrounds/majiscopebackgrd-1.jpg",
+  "/login-backgrounds/majiscopebackgrd-2.jpg",
+  "/login-backgrounds/majiscopebackgrd-3.jpg",
+  "/login-backgrounds/majiscopebackgrd-4.jpg",
+  "/login-backgrounds/majiscopebackgrd-5.jpg",
 ]
 
 export default function LoginPage() {
@@ -38,15 +26,21 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [selectedPreset, setSelectedPreset] = useState<number | null>(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
-  const handlePresetSelect = (index: number) => {
-    const preset = ROLE_PRESETS[index]
-    setEmail(preset.email)
-    setPassword(preset.password)
-    setSelectedPreset(index)
-    clearError?.()
-  }
+  // Dynamic background slideshow
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true)
+      setTimeout(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % BACKGROUND_IMAGES.length)
+        setIsTransitioning(false)
+      }, 1000)
+    }, 6000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,7 +54,7 @@ export default function LoginPage() {
     try {
       const success = await login(email, password)
       if (success) {
-        toast.success("Karibu Majiscope!")
+        toast.success("Karibu MajiScope!")
         router.push("/dashboard")
       }
     } catch (err) {
@@ -69,170 +63,200 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800">
-      {/* Background decoration */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/4 top-1/4 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-400/5 blur-2xl" />
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black">
+      {/* Dynamic Background Images */}
+      {BACKGROUND_IMAGES.map((img, index) => (
+        <div
+          key={img}
+          className={cn(
+            "absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000",
+            index === currentImageIndex && !isTransitioning ? "opacity-100" : "opacity-0"
+          )}
+          style={{ backgroundImage: `url(${img})` }}
+        />
+      ))}
+
+      {/* Dark Overlay with gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/80" />
+      
+      {/* Animated gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-cyan-950/50 via-transparent to-blue-950/30" />
+
+      {/* Subtle animated particles/dots */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -left-4 top-1/4 h-72 w-72 animate-pulse rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute -right-4 bottom-1/4 h-72 w-72 animate-pulse rounded-full bg-blue-500/10 blur-3xl" style={{ animationDelay: "1s" }} />
+        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-teal-500/5 blur-3xl" style={{ animationDelay: "2s" }} />
       </div>
 
-      {/* Grid overlay */}
+      {/* Grid pattern overlay */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        className="pointer-events-none absolute inset-0 opacity-[0.02]"
         style={{
           backgroundImage:
             "linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)",
-          backgroundSize: "64px 64px",
+          backgroundSize: "50px 50px",
         }}
       />
 
-      <div className="relative z-10 w-full max-w-md px-4" style={{ marginTop: "70px" }}>
-        {/* Logo */}
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-white/5 shadow-xl backdrop-blur-lg">
-            <img 
-              src="/logo1.png" 
-              alt="Majiscope Logo" 
-              className="h-full w-full object-contain rounded-3xl"
-            />
+      {/* Main Content */}
+      <div className="relative z-10 w-full max-w-md px-6 py-12">
+        {/* Logo and Brand */}
+        <div className="mb-10 flex flex-col items-center text-center">
+          {/* Original Logo */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 animate-ping rounded-full bg-cyan-400/20" style={{ animationDuration: "3s" }} />
+            <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-3xl bg-white/10 shadow-2xl shadow-cyan-500/30 backdrop-blur-sm">
+              <Image
+                src="/logo1.png"
+                alt="MajiScope Logo"
+                width={96}
+                height={96}
+                className="object-contain rounded-3xl"
+                priority
+              />
+            </div>
           </div>
 
-          <h1 className="text-3xl font-bold tracking-tight text-white">
-            Majiscope
+          {/* Stylized MajiScope Brand Name */}
+          <h1 className="relative mb-2">
+            <span className="block text-5xl font-black tracking-tight">
+              <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-teal-300 bg-clip-text text-transparent drop-shadow-lg">
+                Maji
+              </span>
+              <span className="bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent">
+                Scope
+              </span>
+            </span>
+            {/* Decorative underline */}
+            <span className="absolute -bottom-1 left-1/2 h-1 w-24 -translate-x-1/2 rounded-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
           </h1>
-          <p className="mt-1 text-sm text-blue-200/70">
-            Water Infrastructure Management System - Tanzania
+
+          {/* Tagline */}
+          <p className="mt-4 text-sm font-medium tracking-widest text-cyan-200/70 uppercase">
+            Water Infrastructure Intelligence
           </p>
         </div>
 
-        {/* Login card */}
-        <div className="glass-card rounded-2xl p-8 shadow-2xl">
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-foreground">
-              Sign in to your account
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Enter your credentials to access the dashboard
-            </p>
-          </div>
-
-          {/* Error Alert */}
-          {error && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Role quick-selector */}
-          <div className="mb-6">
-            <Label className="mb-2 block text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Quick Access (Demo)
-            </Label>
-            <div className="grid grid-cols-3 gap-2">
-              {ROLE_PRESETS.map((preset, i) => (
-                <button
-                  key={preset.label}
-                  type="button"
-                  onClick={() => handlePresetSelect(i)}
-                  className={cn(
-                    "flex flex-col items-center gap-0.5 rounded-lg border p-3 text-center transition-all duration-200 hover:bg-primary/5",
-                    selectedPreset === i
-                      ? "border-primary bg-primary/5 shadow-sm"
-                      : "border-border"
-                  )}
-                >
-                  <span className="text-xs font-medium leading-tight">
-                    {preset.label}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground leading-tight">
-                    {preset.description}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="user@majiscope.go.tz"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value)
-                  setSelectedPreset(null)
-                  clearError?.()
-                }}
-                className="h-10"
-                autoComplete="email"
-              />
+        {/* Login Card with Glassmorphism */}
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
+          {/* Card shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent" />
+          
+          <div className="relative">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-white">
+                Welcome back
+              </h2>
+              <p className="mt-1 text-sm text-white/50">
+                Sign in to access your dashboard
+              </p>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
+            {/* Error Alert */}
+            {error && (
+              <Alert variant="destructive" className="mb-6 border-red-500/30 bg-red-500/10">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-red-200">{error}</AlertDescription>
+              </Alert>
+            )}
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="email" className="text-sm font-medium text-white/70">
+                  Email address
+                </Label>
                 <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={password}
+                  id="email"
+                  type="email"
+                  placeholder="user@majiscope.go.tz"
+                  value={email}
                   onChange={(e) => {
-                    setPassword(e.target.value)
-                    setSelectedPreset(null)
+                    setEmail(e.target.value)
                     clearError?.()
                   }}
-                  className="h-10 pr-10"
-                  autoComplete="current-password"
+                  className="h-12 rounded-xl border-white/10 bg-white/5 text-white placeholder:text-white/30 focus:border-cyan-400/50 focus:ring-cyan-400/20"
+                  autoComplete="email"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
               </div>
-              <div className="flex justify-end">
-                <Link
-                  href={email.trim() ? `/reset-password?email=${encodeURIComponent(email.trim())}` : "/reset-password"}
-                  className="text-xs font-medium text-cyan-700 transition hover:text-cyan-800"
-                >
-                  Forgot password?
-                </Link>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="password" className="text-sm font-medium text-white/70">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value)
+                      clearError?.()
+                    }}
+                    className="h-12 rounded-xl border-white/10 bg-white/5 pr-12 text-white placeholder:text-white/30 focus:border-cyan-400/50 focus:ring-cyan-400/20"
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 transition-colors hover:text-white/70"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <Button
-              type="submit"
-              className="mt-2 h-11 w-full text-sm font-semibold"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </form>
-
+              <Button
+                type="submit"
+                className="mt-2 h-12 w-full rounded-xl bg-gradient-to-r from-cyan-500 via-blue-500 to-teal-500 text-sm font-semibold text-white shadow-lg shadow-cyan-500/25 transition-all duration-300 hover:shadow-cyan-500/40 hover:brightness-110 disabled:opacity-50"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </form>
+          </div>
         </div>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-xs text-blue-200/40">
-          Majiscope &middot; Water Infrastructure Management - Tanzania
-        </p>
+        <div className="mt-8 text-center">
+          <p className="text-xs text-white/30">
+            MajiScope &middot; Water Infrastructure Intelligence &middot; Tanzania
+          </p>
+          <div className="mt-3 flex items-center justify-center gap-1">
+            {BACKGROUND_IMAGES.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setIsTransitioning(true)
+                  setTimeout(() => {
+                    setCurrentImageIndex(index)
+                    setIsTransitioning(false)
+                  }, 500)
+                }}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-300",
+                  index === currentImageIndex
+                    ? "w-6 bg-cyan-400"
+                    : "w-1.5 bg-white/30 hover:bg-white/50"
+                )}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

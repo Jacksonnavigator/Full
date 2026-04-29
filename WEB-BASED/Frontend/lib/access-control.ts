@@ -44,8 +44,8 @@ export const PAGE_ACCESS_MAP: Record<string, UserRole[]> = {
   // Activity Logs - admin and utility managers
   '/logs': ['admin', 'utility_manager'],
 
-  // Settings - all authenticated users
-  '/settings': ['admin', 'utility_manager', 'dma_manager'],
+  // Profile - all authenticated users
+  '/profile': ['admin', 'utility_manager', 'dma_manager'],
 }
 
 /**

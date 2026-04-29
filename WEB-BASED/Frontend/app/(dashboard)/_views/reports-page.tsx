@@ -292,8 +292,8 @@ export default function ReportsPage() {
       {/* Modern Table */}
       <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="w-full overflow-x-auto max-w-full">
+            <Table className="w-full">
               <TableHeader>
                 <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/80 hover:from-slate-50 hover:to-slate-100/80 border-b border-slate-200/60">
                   <TableHead className="font-semibold text-slate-600 py-4 px-6">

@@ -27,7 +27,8 @@ interface UserRecord {
   createdAt?: string
 }
 
-export default function SettingsPage() {
+// Deprecated: use ProfilePage instead
+export default function ProfilePage() {
   const { currentUser } = useAuthStore()
   const { utilities, dmas } = useDataStore()
   const [userRecord, setUserRecord] = useState<UserRecord | null>(null)
