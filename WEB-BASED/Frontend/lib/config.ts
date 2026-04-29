@@ -1,5 +1,5 @@
 /**
- * MajiScope Frontend - Global Configuration
+ * Majiscope Frontend - Global Configuration
  * Centralized URL management for all API calls
  * 
  * This file is the single source of truth for backend communication
@@ -29,6 +29,18 @@ if (usingFallbackBackendUrl) {
 
 if (usingFallbackBackendUrl && process.env.NODE_ENV === "production") {
   throw new Error("[FrontendConfig] NEXT_PUBLIC_BACKEND_URL must be set in production.");
+}
+
+function normalizeBackendOrigin(candidate: string): string | null {
+  const trimmed = candidate.trim();
+  if (!trimmed || !/^https?:\/\//i.test(trimmed)) {
+    return null;
+  }
+
+  const withoutTrailingSlash = trimmed.replace(/\/+$/, "");
+  return withoutTrailingSlash.endsWith(BACKEND_API_PREFIX)
+    ? withoutTrailingSlash.slice(0, -BACKEND_API_PREFIX.length)
+    : withoutTrailingSlash;
 }
 
 /**
@@ -75,5 +87,12 @@ export const CONFIG = {
     retryDelay: 1000, // 1 second
   },
 };
+
+export function resolveApiBaseUrl(backendOriginOverride?: string | null): string {
+  const normalizedOrigin = normalizeBackendOrigin(backendOriginOverride || "");
+  return normalizedOrigin
+    ? `${normalizedOrigin}${BACKEND_API_PREFIX}`
+    : CONFIG.backend.fullUrl;
+}
 
 export default CONFIG;

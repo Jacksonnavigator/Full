@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     # ===== Frontend Configuration =====
     # IMPORTANT: This is used for CORS and rendering frontend URLs
     frontend_url: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    public_backend_url: str = os.getenv("PUBLIC_BACKEND_URL", "").rstrip("/")
     cors_origins_raw: str = Field(default="", alias="CORS_ORIGINS")
     cors_origin_regex: str = os.getenv(
         "CORS_ORIGIN_REGEX",

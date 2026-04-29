@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { CONFIG } from "@/lib/config"
+import { resolveApiBaseUrl } from "@/lib/config"
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -27,6 +27,8 @@ function SetupAccountPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token") ?? ""
+  const apiOriginParam = searchParams.get("api_origin") ?? searchParams.get("api") ?? ""
+  const apiBaseUrl = resolveApiBaseUrl(apiOriginParam)
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -45,7 +47,7 @@ function SetupAccountPageContent() {
       }
 
       try {
-        const response = await fetch(`${CONFIG.backend.fullUrl}/auth/invitations/validate?token=${encodeURIComponent(token)}`)
+        const response = await fetch(`${apiBaseUrl}/auth/invitations/validate?token=${encodeURIComponent(token)}`)
         const data = await response.json().catch(() => ({ valid: false, message: "Unable to validate invite." }))
         setInvite(data as InviteValidation)
       } catch (error) {
@@ -57,7 +59,7 @@ function SetupAccountPageContent() {
     }
 
     void validateInvite()
-  }, [token])
+  }, [apiBaseUrl, token])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -69,7 +71,7 @@ function SetupAccountPageContent() {
 
     try {
       setSubmitting(true)
-      const response = await fetch(`${CONFIG.backend.fullUrl}/auth/invitations/complete`, {
+      const response = await fetch(`${apiBaseUrl}/auth/invitations/complete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -109,7 +111,7 @@ function SetupAccountPageContent() {
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600">
               <CheckCircle2 className="h-7 w-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">Complete your MajiScope setup</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Complete your Majiscope setup</h1>
             <p className="mt-2 text-sm text-slate-500">Finish your profile and create your password to activate this account.</p>
           </div>
 
@@ -178,6 +180,10 @@ function SetupAccountPageContent() {
                 {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Complete Account Setup
               </Button>
+
+              <p className="text-center text-xs text-slate-400">
+                Secure verification via {apiBaseUrl.replace(/\/api$/, "")}
+              </p>
             </form>
           )}
         </CardContent>
