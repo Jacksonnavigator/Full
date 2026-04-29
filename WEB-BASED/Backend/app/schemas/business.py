@@ -32,6 +32,7 @@ class AnonymousReportCreate(BaseModel):
     description: str = Field(..., max_length=2000)
     latitude: float
     longitude: float
+    address: Optional[str] = Field(None, max_length=500)
     priority: str = "Medium"  # Accept string priority from mobile app
     images: Optional[List[str]] = []
     reported_by: Optional[str] = "Anonymous"

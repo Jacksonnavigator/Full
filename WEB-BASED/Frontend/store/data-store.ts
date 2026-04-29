@@ -1,5 +1,5 @@
 // ============================================================
-// HydraNet - Data Store (Zustand)
+// Majiscope - Data Store (Zustand)
 // Fetches data from API - No mock data
 // Uses global API client for backend communication
 // ============================================================
@@ -94,6 +94,8 @@ export interface Report {
   dmaName: string
   teamId: string | null
   teamName: string | null
+  teamLeaderId?: string | null
+  teamLeaderName?: string | null
   assignedEngineerId: string | null
   assignedEngineerName: string | null
   reporterName: string
@@ -126,6 +128,8 @@ export interface Notification {
   type: string
   read: boolean
   link: string | null
+  data?: Record<string, unknown> | null
+  updatedAt?: string
   userId: string
   createdAt: string
 }
@@ -184,6 +188,8 @@ interface DataState {
   fetchLogs: (utilityId?: string, dmaId?: string) => Promise<void>
   fetchNotifications: (userId: string) => Promise<void>
   getUnreadNotificationCount: () => number
+  markNotificationRead: (id: string) => Promise<Notification | null>
+  markAllNotificationsRead: () => Promise<number>
   
   // CRUD: Utilities
   addUtility: (data: Partial<Utility>) => Promise<void>
@@ -223,7 +229,7 @@ interface DataState {
   getTeamsByDMA: (dmaId: string) => Team[]
   getEngineersByDMA: (dmaId: string) => Engineer[]
   updateReportStatus: (id: string, status: string) => Promise<void>
-  assignReport: (id: string, teamId: string, engineerId: string) => Promise<void>
+  assignReport: (id: string, teamId: string) => Promise<void>
 }
 
 export const useDataStore = create<DataState>((set, get) => ({
@@ -383,6 +389,47 @@ export const useDataStore = create<DataState>((set, get) => ({
   // Get unread notification count
   getUnreadNotificationCount: () => {
     return get().notifications.filter((n) => !n.read).length
+  },
+
+  markNotificationRead: async (id: string) => {
+    try {
+      const response = await apiClient.post(`/notifications/${id}/mark-as-read`, {})
+      if (!response.success || !response.data) {
+        throw new Error(response.error || "Failed to mark notification as read")
+      }
+
+      const transformed = transformKeys(response.data) as Notification
+      set((state) => ({
+        notifications: state.notifications.map((notification) =>
+          notification.id === id ? transformed : notification
+        ),
+      }))
+      return transformed
+    } catch (error) {
+      console.error("Error marking notification as read:", error)
+      return null
+    }
+  },
+
+  markAllNotificationsRead: async () => {
+    try {
+      const response = await apiClient.post("/notifications/mark-all-read", {})
+      if (!response.success) {
+        throw new Error(response.error || "Failed to mark all notifications as read")
+      }
+
+      set((state) => ({
+        notifications: state.notifications.map((notification) => ({
+          ...notification,
+          read: true,
+        })),
+      }))
+
+      return Number((response.data as { updated?: number } | undefined)?.updated || 0)
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error)
+      return 0
+    }
   },
 
   // CRUD: Utilities
@@ -642,19 +689,10 @@ export const useDataStore = create<DataState>((set, get) => ({
     }
   },
 
-  assignReport: async (id: string, teamId: string, engineerId: string) => {
+  assignReport: async (id: string, teamId: string) => {
     try {
-      const teams = get().teams
-      const engineers = get().engineers
-      const team = teams.find((t) => t.id === teamId)
-      const engineer = engineers.find((e) => e.id === engineerId)
-      
-      const response = await apiClient.put(`/reports/${id}`, {
-        teamId,
-        assignedEngineerId: engineerId,
-        teamName: team?.name,
-        assignedEngineerName: engineer?.name,
-        status: "assigned",
+      const response = await apiClient.put(`/reports/${id}/assign`, {
+        team_id: teamId,
       })
       if (!response.success) throw new Error(response.error || "Failed to assign report")
       await get().fetchReports()

@@ -43,6 +43,18 @@ const getRepairPhotos = (report: Report) => [
   ...(report.submissionAfterPhotos ?? []).map((uri) => ({ uri, label: "After Repair" })),
 ]
 
+const getReportLocationLabel = (report: Pick<Report, "address" | "latitude" | "longitude">) => {
+  if (report.address?.trim()) {
+    return report.address
+  }
+
+  if (Number.isFinite(report.latitude) && Number.isFinite(report.longitude)) {
+    return `${report.latitude.toFixed(5)}, ${report.longitude.toFixed(5)}`
+  }
+
+  return "Location not available"
+}
+
 const isVideoMedia = (uri: string) => {
   const normalized = uri.toLowerCase()
   return (
@@ -134,13 +146,12 @@ export default function ReportDetailPage() {
   const reportId = Array.isArray(params?.reportId) ? params.reportId[0] : params?.reportId
 
   const { currentUser } = useAuthStore()
-  const { reports, teams, engineers, fetchReports, fetchTeams, fetchEngineers } = useDataStore()
+  const { reports, teams, fetchReports, fetchTeams } = useDataStore()
   const [loading, setLoading] = useState(true)
   const [assignOpen, setAssignOpen] = useState(false)
   const [approveDialogOpen, setApproveDialogOpen] = useState(false)
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [assignTeamId, setAssignTeamId] = useState("")
-  const [assignEngineerId, setAssignEngineerId] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [viewerOpen, setViewerOpen] = useState(false)
   const [activeMedia, setActiveMedia] = useState<MediaItem | null>(null)
@@ -164,13 +175,12 @@ export default function ReportDetailPage() {
       await Promise.all([
         fetchReports(isDMA ? { dmaId } : isUtility ? { utilityId } : undefined),
         fetchTeams(dmaId),
-        fetchEngineers(dmaId),
       ])
       setLoading(false)
     }
 
     void loadData()
-  }, [currentUser, fetchReports, fetchTeams, fetchEngineers, isDMA, isUtility])
+  }, [currentUser, fetchReports, fetchTeams, isDMA, isUtility])
 
   const scopedReports = useMemo(() => {
     if (!currentUser) return []
@@ -192,21 +202,6 @@ export default function ReportDetailPage() {
     }
     return []
   }, [teams, isDMA, isUtility, currentUser])
-
-  const districtEngineers = useMemo(() => {
-    if (isDMA && currentUser?.dmaId) {
-      return engineers.filter((engineer) => engineer.dmaId === currentUser.dmaId)
-    }
-    if (isUtility && currentUser?.utilityId) {
-      return engineers.filter((engineer) => districtTeams.some((team) => team.id === engineer.teamId))
-    }
-    return []
-  }, [engineers, districtTeams, isDMA, isUtility, currentUser])
-
-  const availableEngineers = useMemo(() => {
-    if (!assignTeamId) return []
-    return districtEngineers.filter((engineer) => engineer.teamId === assignTeamId)
-  }, [districtEngineers, assignTeamId])
 
   const loadActivityLogs = async () => {
     if (!currentUser || !reportId) {
@@ -240,7 +235,6 @@ export default function ReportDetailPage() {
   const openAssign = () => {
     if (!report) return
     setAssignTeamId(report.teamId ?? "")
-    setAssignEngineerId(report.assignedEngineerId ?? "")
     setAssignOpen(true)
   }
 
@@ -250,8 +244,8 @@ export default function ReportDetailPage() {
   }
 
   const handleAssign = async () => {
-    if (!report || !assignTeamId || !assignEngineerId) {
-      toast.error("Please select both team and engineer.")
+    if (!report || !assignTeamId) {
+      toast.error("Please select a team.")
       return
     }
 
@@ -259,7 +253,6 @@ export default function ReportDetailPage() {
     try {
       const response = await apiClient.put(`/reports/${report.id}/assign`, {
         team_id: assignTeamId,
-        engineer_id: assignEngineerId,
       })
 
       if (!response.success) {
@@ -400,7 +393,7 @@ export default function ReportDetailPage() {
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
           <HeroMetric label="Tracking ID" value={report.trackingId} accent="from-rose-500 to-pink-600" />
           <HeroMetric label="Reporter" value={report.reporterName || "Unknown"} accent="from-teal-500 to-cyan-600" />
-          <HeroMetric label="Leak Location" value={report.dmaName || report.address || "Unmapped"} accent="from-indigo-500 to-violet-600" />
+          <HeroMetric label="Leak Location" value={getReportLocationLabel(report)} accent="from-indigo-500 to-violet-600" />
         </div>
       </div>
 
@@ -455,10 +448,10 @@ export default function ReportDetailPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <DetailCard icon={<MapPin className="h-5 w-5 text-emerald-600" />} label="Location" value={report.address || "No address"} tone="bg-emerald-100" />
+            <DetailCard icon={<MapPin className="h-5 w-5 text-emerald-600" />} label="Location" value={getReportLocationLabel(report)} tone="bg-emerald-100" />
             <DetailCard icon={<Users className="h-5 w-5 text-indigo-600" />} label="DMA" value={report.dmaName || "N/A"} tone="bg-indigo-100" />
             <DetailCard icon={<UserCog className="h-5 w-5 text-violet-600" />} label="Assigned Team" value={report.teamName || "Not assigned"} tone="bg-violet-100" />
-            <DetailCard icon={<Users className="h-5 w-5 text-amber-600" />} label="Lead Engineer" value={report.assignedEngineerName || "Not assigned"} tone="bg-amber-100" />
+            <DetailCard icon={<Users className="h-5 w-5 text-amber-600" />} label="Team Leader" value={report.teamLeaderName || "Not assigned"} tone="bg-amber-100" />
             <DetailCard icon={<Clock className="h-5 w-5 text-blue-600" />} label="Created" value={report.createdAt ? new Date(report.createdAt).toLocaleString("en-ZA") : "N/A"} tone="bg-blue-100" />
             <DetailCard icon={<CheckCircle2 className="h-5 w-5 text-cyan-600" />} label="SLA Deadline" value={report.slaDeadline ? new Date(report.slaDeadline).toLocaleString("en-ZA") : "N/A"} tone="bg-cyan-100" />
           </div>
@@ -568,7 +561,7 @@ export default function ReportDetailPage() {
               </div>
               Assign Report to Team
             </DialogTitle>
-            <DialogDescription>Select a team and lead engineer to handle this leakage report.</DialogDescription>
+            <DialogDescription>Select the team that should handle this leakage report.</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-5 py-4">
             <div className="rounded-xl border border-rose-200/80 bg-gradient-to-r from-rose-50/50 to-pink-50/50 p-4">
@@ -580,10 +573,7 @@ export default function ReportDetailPage() {
               <Label className="text-sm font-medium text-slate-700">Select Team</Label>
               <Select
                 value={assignTeamId}
-                onValueChange={(value) => {
-                  setAssignTeamId(value)
-                  setAssignEngineerId("")
-                }}
+                onValueChange={setAssignTeamId}
               >
                 <SelectTrigger className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80">
                   <SelectValue placeholder="Select team" />
@@ -597,31 +587,12 @@ export default function ReportDetailPage() {
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-slate-700">Select Lead Engineer</Label>
-              <Select value={assignEngineerId} onValueChange={setAssignEngineerId} disabled={!assignTeamId}>
-                <SelectTrigger className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80">
-                  <SelectValue placeholder="Select engineer" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
-                  {availableEngineers.map((engineer) => (
-                    <SelectItem key={engineer.id} value={engineer.id} className="rounded-lg">
-                      {engineer.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {assignTeamId && availableEngineers.length === 0 ? (
-                <p className="text-xs text-amber-600">No engineers available in this team. Add engineers first.</p>
-              ) : null}
-            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAssignOpen(false)} className="rounded-xl">Cancel</Button>
             <Button
               onClick={handleAssign}
-              disabled={isSubmitting || !assignTeamId || !assignEngineerId}
+              disabled={isSubmitting || !assignTeamId}
               className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
             >
               {isSubmitting ? (

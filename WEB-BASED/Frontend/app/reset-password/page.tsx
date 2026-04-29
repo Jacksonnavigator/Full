@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CONFIG, resolveApiBaseUrl } from "@/lib/config"
-import { AlertCircle, CheckCircle2, Loader2, Mail } from "lucide-react"
+import { AlertCircle, ArrowRight, CheckCircle2, Loader2, Mail, Smartphone } from "lucide-react"
 import { toast } from "sonner"
 
 interface ResetValidation {
@@ -31,14 +31,17 @@ function ResetPasswordPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get("token") ?? ""
+  const emailParam = searchParams.get("email") ?? ""
   const apiOriginParam = searchParams.get("api_origin") ?? searchParams.get("api") ?? ""
   const apiBaseUrl = resolveApiBaseUrl(apiOriginParam)
+  const mobileAppDownloadUrl = (process.env.NEXT_PUBLIC_MOBILE_APP_DOWNLOAD_URL || "").trim()
 
   const [loading, setLoading] = useState(Boolean(token))
   const [submitting, setSubmitting] = useState(false)
+  const [completedReset, setCompletedReset] = useState(false)
   const [validation, setValidation] = useState<ResetValidation | null>(null)
   const [requestFeedback, setRequestFeedback] = useState<ResetRequestFeedback | null>(null)
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState(emailParam)
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
 
@@ -140,7 +143,7 @@ function ResetPasswordPageContent() {
       }
 
       toast.success("Password reset completed. You can now sign in.")
-      router.push("/login")
+      setCompletedReset(true)
     } catch (error) {
       console.error("Error completing password reset:", error)
       toast.error("Unable to reset password")
@@ -185,6 +188,42 @@ function ResetPasswordPageContent() {
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{validation?.message || "This reset link is not valid."}</AlertDescription>
               </Alert>
+            ) : completedReset ? (
+              <div className="space-y-5">
+                <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-center">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500">
+                    <CheckCircle2 className="h-8 w-8 text-white" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-slate-900">Password reset completed</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Your Majiscope password has been updated for <span className="font-medium text-slate-900">{validation.email}</span>.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                  <p className="font-medium text-slate-800">What to do next</p>
+                  <p className="mt-2">1. Open the Majiscope mobile app or the web sign-in page.</p>
+                  <p className="mt-1">2. Use this email and your new password.</p>
+                  <p className="mt-1">3. If an old session is open elsewhere, sign in again with the new password.</p>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  {mobileAppDownloadUrl ? (
+                    <Button
+                      type="button"
+                      onClick={() => window.open(mobileAppDownloadUrl, "_blank", "noopener,noreferrer")}
+                      className="h-11 flex-1 bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700"
+                    >
+                      <Smartphone className="mr-2 h-4 w-4" />
+                      Download Mobile App
+                    </Button>
+                  ) : null}
+                  <Button type="button" variant="outline" onClick={() => router.push("/login")} className="h-11 flex-1">
+                    Go to Sign In
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             ) : (
               <form onSubmit={handleCompleteReset} className="space-y-5">
                 <div className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 sm:grid-cols-2">
@@ -249,15 +288,15 @@ function ResetPasswordPageContent() {
                       <span className="mt-2 block text-sm">{requestFeedback.deliveryMessage}</span>
                     ) : null}
                     {requestFeedback.resetUrl ? (
-                      <span className="mt-3 block break-all text-sm font-medium">
-                        Manual reset link:{" "}
+                      <span className="mt-3 block text-sm font-medium">
                         <a
                           href={requestFeedback.resetUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-cyan-700 underline hover:text-cyan-800"
+                          className="inline-flex items-center rounded-lg bg-cyan-700 px-3 py-2 text-white no-underline transition hover:bg-cyan-800"
                         >
-                          Open reset page
+                          Open Reset Page
+                          <ArrowRight className="ml-2 h-4 w-4" />
                         </a>
                       </span>
                     ) : null}

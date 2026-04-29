@@ -56,6 +56,8 @@ class ReportWithDetails(BaseModel):
     dma_name: Optional[str] = None
     team_id: Optional[str] = None
     team_name: Optional[str] = None
+    team_leader_id: Optional[str] = None
+    team_leader_name: Optional[str] = None
     assigned_engineer_id: Optional[str] = None
     assigned_engineer_name: Optional[str] = None
     reporter_name: str
@@ -68,9 +70,8 @@ class ReportWithDetails(BaseModel):
 
 
 class AssignReportRequest(BaseModel):
-    """Request for assigning report to team and engineer"""
+    """Request for assigning report to a team"""
     team_id: str = Field(..., description="Team ID to assign")
-    engineer_id: str = Field(..., description="Engineer ID to assign")
 
 
 def _report_link(report_id: str) -> str:
@@ -283,8 +284,11 @@ async def list_reports(
         # DMA managers see reports from their DMA only
         query = query.filter(Report.dma_id == current_user.dma_id)
     elif current_user.user_type == "engineer":
-        # Engineers see only reports assigned to them
-        query = query.filter(Report.assigned_engineer_id == current_user.id)
+        # Engineers see reports assigned to their team.
+        if current_user.team_id:
+            query = query.filter(Report.team_id == current_user.team_id)
+        else:
+            query = query.filter(Report.team_id == "__unassigned_team__")
     # Admins see all reports
     
     # Apply additional filters
@@ -334,6 +338,9 @@ async def get_report(
     elif current_user.user_type == "dma_manager" and current_user.dma_id:
         if report.dma_id != current_user.dma_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    elif current_user.user_type == "engineer":
+        if not current_user.team_id or report.team_id != current_user.team_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     
     return _build_report_with_details(report, db)
 
@@ -359,6 +366,9 @@ async def get_report_by_tracking_id(
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     elif current_user.user_type == "dma_manager" and current_user.dma_id:
         if report.dma_id != current_user.dma_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    elif current_user.user_type == "engineer":
+        if not current_user.team_id or report.team_id != current_user.team_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     
     return _build_report_with_details(report, db)
@@ -463,6 +473,7 @@ async def create_anonymous_report(
         dma_id=dma.id,
         utility_id=dma.utility_id,
         description=report_data.description,
+        address=report_data.address,
         priority=priority,
         photos=report_data.images or [],
         status=ReportStatusEnum.NEW,
@@ -680,7 +691,7 @@ async def assign_report(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Assign report to team and engineer (DMA Manager only)"""
+    """Assign report to a team (DMA Manager only)"""
     if current_user.user_type != "dma_manager":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -713,51 +724,27 @@ async def assign_report(
             detail="Team must be from the same DMA as the report",
         )
     
-    # Verify engineer exists and belongs to the team
-    engineer = db.query(Engineer).filter(Engineer.id == assign_data.engineer_id).first()
-    if not engineer:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Engineer not found",
-        )
-    
-    if engineer.team_id != assign_data.team_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Engineer must be a member of the selected team",
-        )
-    
     # Assign report
     report.team_id = assign_data.team_id
-    report.assigned_engineer_id = assign_data.engineer_id
+    report.assigned_engineer_id = None
     report.status = ReportStatusEnum.ASSIGNED
     queued_notifications = []
     log_report_activity(
         db,
         report=report,
         action="report_assigned",
-        details=f"Assigned to team {team.name} and engineer {engineer.name}.",
+        details=f"Assigned to team {team.name}.",
         actor=current_user,
     )
-    notification = _queue_engineer_notification(
+    leader_notification = _queue_team_leader_notification(
         db,
         report,
-        title="New field task assigned",
-        message=f"{report.tracking_id} has been assigned to you.",
+        title="New team task assigned",
+        message=f"{report.tracking_id} has been assigned to your team.",
         notification_type=NotificationTypeEnum.INFO,
     )
-    if notification:
-        queued_notifications.append(notification)
-    if team.leader_id and team.leader_id != report.assigned_engineer_id:
-        leader_notification = _queue_team_leader_notification(
-            db,
-            report,
-            title="New team task assigned",
-            message=f"{report.tracking_id} has been assigned to {engineer.name}.",
-            notification_type=NotificationTypeEnum.INFO,
-        )
-        if leader_notification:
-            queued_notifications.append(leader_notification)
+    if leader_notification:
+        queued_notifications.append(leader_notification)
 
     db.commit()
     db.refresh(report)
@@ -944,10 +931,17 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         utility_name = utility.name if utility else None
     
     # Get team name
+    team = None
     team_name = None
+    team_leader_id = None
+    team_leader_name = None
     if report.team_id:
         team = db.query(Team).filter(Team.id == report.team_id).first()
         team_name = team.name if team else None
+        team_leader_id = team.leader_id if team else None
+        if team and team.leader_id:
+            team_leader = db.query(Engineer).filter(Engineer.id == team.leader_id).first()
+            team_leader_name = team_leader.name if team_leader else None
     
     # Get assigned engineer name
     assigned_engineer_name = None
@@ -976,6 +970,8 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         dma_name=dma_name,
         team_id=report.team_id,
         team_name=team_name,
+        team_leader_id=team_leader_id,
+        team_leader_name=team_leader_name,
         assigned_engineer_id=report.assigned_engineer_id,
         assigned_engineer_name=assigned_engineer_name,
         reporter_name=report.reporter_name,

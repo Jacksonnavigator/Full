@@ -1,5 +1,5 @@
 // ============================================================
-// MajiScope - Constants & Configuration
+// Majiscope - Constants & Configuration
 // Navigation config, role permissions, status mappings
 // ============================================================
 
@@ -10,6 +10,7 @@ import {
   Users,
   UserCog,
   FileText,
+  Bell,
   BarChart3,
   ScrollText,
   Settings,
@@ -79,6 +80,12 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Reports",
     href: "/dashboard/reports",
     icon: FileText,
+    roles: ["admin", "utility_manager", "dma_manager"],
+  },
+  {
+    title: "Notifications",
+    href: "/dashboard/notifications",
+    icon: Bell,
     roles: ["admin", "utility_manager", "dma_manager"],
   },
   {

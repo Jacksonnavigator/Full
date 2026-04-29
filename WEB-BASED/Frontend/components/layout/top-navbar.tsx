@@ -1,445 +1,294 @@
 "use client"
 
-import { useState } from "react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import {
-  Bell,
-  Search,
-  ChevronDown,
-  User,
-  Settings,
-  LogOut,
-  Shield,
-  Sparkles,
-  Command,
-  Moon,
-  Sun,
-  HelpCircle,
-  Zap,
-  Activity,
-  CheckCircle2,
-  Clock,
-  TrendingUp,
-} from "lucide-react"
-
+import { useEffect } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { Bell, Search, ChevronRight, Sparkles, Settings, Zap, Command } from "lucide-react"
+import { useDataStore } from "@/store/data-store"
 import { useAuthStore } from "@/store/auth-store"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { ROLE_SHORT_LABELS } from "@/lib/constants"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
+import { getNotificationTag, resolveNotificationDestination } from "@/lib/notifications"
+import { toast } from "sonner"
+
+function getBreadcrumb(pathname: string): string[] {
+  const segments = pathname.split("/").filter(Boolean)
+  return segments.map((s) => {
+    // Check if segment looks like a UUID (8-4-4-4-12 format or long alphanumeric)
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s) ||
+                   /^[a-z0-9]{20,}$/i.test(s)
+    // If it's a UUID, show "Details" instead
+    if (isUUID) return "Details"
+    return s.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+  })
+}
 
 export function TopNavbar() {
   const router = useRouter()
-  const { currentUser, logout } = useAuthStore()
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const pathname = usePathname()
+  const { currentUser } = useAuthStore()
+  const {
+    notifications,
+    fetchNotifications,
+    getUnreadNotificationCount,
+    markNotificationRead,
+    markAllNotificationsRead,
+  } =
+    useDataStore()
+  const breadcrumb = getBreadcrumb(pathname)
+  const unreadCount = getUnreadNotificationCount()
 
-  const handleLogout = () => {
-    logout()
-    router.push("/login")
-  }
+  useEffect(() => {
+    if (!currentUser?.id) return
 
-  const handleProfile = () => {
-    router.push("/settings")
-  }
+    void fetchNotifications(currentUser.id)
+    const interval = window.setInterval(() => {
+      void fetchNotifications(currentUser.id)
+    }, 30000)
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "from-amber-500 to-orange-600"
-      case "utility_manager":
-        return "from-cyan-500 to-blue-600"
-      case "dma_manager":
-        return "from-emerald-500 to-teal-600"
-      default:
-        return "from-slate-500 to-slate-600"
+    return () => window.clearInterval(interval)
+  }, [currentUser?.id, fetchNotifications])
+
+  const handleNotificationOpen = async (notificationId: string, link: string | null) => {
+    await markNotificationRead(notificationId)
+
+    const destination = resolveNotificationDestination(link)
+    if (destination) {
+      router.push(destination)
+      return
     }
+
+    toast.info("This notification has no destination page yet.")
   }
 
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "Administrator"
-      case "utility_manager":
-        return "Utility Manager"
-      case "dma_manager":
-        return "DMA Manager"
-      default:
-        return "User"
-    }
+  const handleMarkAllRead = async () => {
+    await markAllNotificationsRead()
   }
 
   return (
-    <header className="sticky top-0 z-30 overflow-hidden">
-      {/* Gradient Background with Glass Effect */}
-     <div className="relative flex h-16 items-center gap-4 border-b border-gray-300 bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 px-4 backdrop-blur-xl sm:px-6">
-        {/* Animated Background Patterns */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {/* Gradient Orbs */}
-          <div className="absolute -left-20 -top-20 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl" />
-          <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-blue-500/10 blur-3xl" />
-          <div className="absolute left-1/2 top-0 h-px w-1/2 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
-          
-          {/* Subtle Grid Pattern */}
-          <div 
-            className="absolute inset-0 opacity-[0.02]"
-            style={{
-              backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px),
-                               linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
-              backgroundSize: "20px 20px",
-            }}
-          />
-        </div>
+    <header className="sticky top-0 z-50 flex h-24 items-center gap-5 border-b border-slate-200/60 bg-white/95 backdrop-blur-2xl px-8 relative overflow-hidden">
+      {/* Premium gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-cyan-50/60 via-white to-blue-50/40 pointer-events-none" />
+      
+      {/* Top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400" />
+      
+      {/* Ambient glow effects */}
+      <div className="absolute top-0 left-1/4 w-40 h-40 bg-cyan-400/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-1/4 w-40 h-40 bg-blue-400/5 rounded-full blur-3xl pointer-events-none" />
+      
+      {/* Bottom subtle gradient line */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-200/50 to-transparent" />
 
-        {/* Sidebar Trigger with Glow */}
-        <div className="relative">
-          <SidebarTrigger className="-ml-1 text-white/70 transition-all duration-300 hover:text-cyan-400 hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
-        </div>
+      <SidebarTrigger className="-ml-1 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 transition-all duration-300 rounded-xl p-2.5 relative z-10 border border-transparent hover:border-cyan-200" />
+      <Separator orientation="vertical" className="h-10 bg-gradient-to-b from-transparent via-slate-200 to-transparent" />
 
-        {/* Styled MajiScope Name - Mobile Only */}
-        <div className="flex items-center gap-2.5 md:hidden">
-          <div className="relative">
-            <div className="absolute inset-0 animate-pulse rounded-lg bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-md" />
-            <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-slate-800 to-slate-700 ring-1 ring-white/10">
-              <Image
-                src="/logo1.png"
-                alt="MajiScope Logo"
-                width={28}
-                height={28}
-                className="object-contain"
-              />
-            </div>
-          </div>
-          <span className="text-lg font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-teal-400 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]">
-              Maji
-            </span>
-            <span className="bg-gradient-to-r from-white via-slate-200 to-slate-300 bg-clip-text text-transparent">
-              Scope
+      {/* Modern Breadcrumb */}
+      <nav className="flex items-center gap-2.5 text-sm relative z-10" aria-label="Breadcrumb">
+        {breadcrumb.map((segment, i) => (
+          <span key={i} className="flex items-center gap-2.5">
+            {i > 0 && (
+              <div className="flex items-center justify-center h-6 w-6 rounded-lg bg-gradient-to-r from-slate-100 to-slate-50 border border-slate-200/50">
+                <ChevronRight className="h-3.5 w-3.5 text-cyan-500" />
+              </div>
+            )}
+            <span
+              className={cn(
+                "transition-all duration-300 rounded-lg px-3 py-1.5",
+                i === breadcrumb.length - 1
+                  ? "font-semibold text-slate-800 bg-gradient-to-r from-cyan-100/70 to-blue-100/70 border border-cyan-200/60 shadow-sm shadow-cyan-500/5"
+                  : "text-slate-500 hover:text-cyan-600 cursor-pointer hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 rounded-lg"
+              )}
+            >
+              {segment}
             </span>
           </span>
-        </div>
+        ))}
+      </nav>
 
-        {/* Search Bar with Premium Styling */}
-        <div className="flex-1 md:max-w-lg">
-          <div className="relative hidden md:block">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="h-4 w-4 text-slate-400" />
+      <div className="ml-auto flex items-center gap-5 relative z-10">
+        {/* Modern Search */}
+        <div className="relative hidden lg:block group">
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-400/10 to-blue-500/10 opacity-0 group-focus-within:opacity-100 blur-xl transition-opacity duration-500" />
+          <div className="relative flex items-center">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-cyan-500 transition-colors">
+              <Search className="h-4.5 w-4.5" />
             </div>
             <Input
-              type="search"
-              placeholder="Search reports, teams, engineers..."
-              className="h-10 w-full rounded-xl border-white/10 bg-white/5 pl-10 pr-12 text-sm text-white placeholder:text-slate-400 transition-all duration-300 focus:border-cyan-500/50 focus:bg-white/10 focus:ring-2 focus:ring-cyan-500/20"
+              placeholder="Search anything..."
+              className="h-12 w-80 bg-slate-50/80 border-slate-200/80 pl-12 pr-16 text-sm text-slate-800 placeholder:text-slate-400 focus:border-cyan-400 focus:bg-white focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300 rounded-xl shadow-sm"
             />
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <div className="flex items-center gap-1 rounded-md bg-white/10 px-1.5 py-0.5">
-                <Command className="h-3 w-3 text-slate-400" />
-                <span className="text-[10px] font-medium text-slate-400">K</span>
-              </div>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+              <kbd className="pointer-events-none h-6 select-none items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 px-2 font-mono text-[10px] font-medium text-slate-500 opacity-100 flex">
+                <Command className="h-3 w-3" />
+                K
+              </kbd>
             </div>
           </div>
         </div>
 
-        {/* Right Side Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          {/* Quick Stats - Desktop Only */}
-          <div className="hidden items-center gap-4 rounded-xl bg-white/5 px-4 py-2 ring-1 ring-white/10 xl:flex">
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Resolved</span>
-                <span className="text-sm font-bold text-white">1,247</span>
-              </div>
-            </div>
-            <div className="h-8 w-px bg-white/10" />
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20">
-                <Clock className="h-3.5 w-3.5 text-amber-400" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Pending</span>
-                <span className="text-sm font-bold text-white">38</span>
-              </div>
-            </div>
-            <div className="h-8 w-px bg-white/10" />
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/20">
-                <TrendingUp className="h-3.5 w-3.5 text-cyan-400" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Efficiency</span>
-                <span className="text-sm font-bold text-emerald-400">94.2%</span>
-              </div>
-            </div>
-          </div>
-          {/* Theme Toggle MORDERN */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="relative h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400"
+        {/* Quick action buttons */}
+        <div className="hidden md:flex items-center gap-2.5">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-11 w-11 rounded-xl bg-slate-50/80 border border-slate-200/50 hover:bg-white hover:border-cyan-200 hover:text-cyan-600 hover:shadow-md hover:shadow-cyan-500/10 transition-all duration-300"
           >
-            {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            <Zap className="h-4.5 w-4.5" />
           </Button>
-
-          {/* Help Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative hidden h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400 sm:flex"
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-11 w-11 rounded-xl bg-slate-50/80 border border-slate-200/50 hover:bg-white hover:border-cyan-200 hover:text-cyan-600 hover:shadow-md hover:shadow-cyan-500/10 transition-all duration-300"
           >
-            <HelpCircle className="h-4 w-4" />
+            <Settings className="h-4.5 w-4.5" />
           </Button>
+        </div>
 
-          {/* Notifications Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400"
-              >
-                <Bell className="h-4 w-4" />
-                {/* Notification Badge with Pulse */}
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
-                  <span className="relative inline-flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 text-[9px] font-bold text-white">
-                    3
-                  </span>
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-80 rounded-xl border-white/10 bg-slate-900/95 p-0 backdrop-blur-xl"
+        {/* Modern Notifications */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative h-12 w-12 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 hover:from-white hover:to-cyan-50 hover:border-cyan-200 transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-cyan-500/10"
             >
-              <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <Bell className="h-4 w-4 text-cyan-400" />
-                  <span className="font-semibold text-white">Notifications</span>
-                </div>
-                <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-medium text-cyan-400">
-                  3 New
+              <Bell className="h-5 w-5 text-slate-500" />
+              {unreadCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5.5 w-5.5 items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-[10px] font-bold text-white shadow-lg shadow-cyan-500/30 animate-pulse">
+                  {unreadCount}
                 </span>
+              )}
+              <span className="sr-only">Notifications</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent 
+            align="end" 
+            className="w-88 p-0 bg-white/95 backdrop-blur-xl border-slate-200/50 shadow-2xl shadow-slate-200/50 rounded-xl overflow-hidden"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 bg-gradient-to-r from-cyan-50 via-blue-50 to-cyan-50">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
+                  <Bell className="h-4.5 w-4.5 text-white" />
+                </div>
+                <h4 className="text-sm font-semibold text-slate-800">
+                  Notifications
+                </h4>
               </div>
-              <div className="max-h-80 overflow-auto p-2">
-                {/* Notification Items */}
-                <div className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-white/5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/20">
-                    <Activity className="h-4 w-4 text-emerald-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">New leak report resolved</p>
-                    <p className="text-xs text-slate-400">Team Alpha completed repair in Sector 4</p>
-                    <p className="mt-1 text-[10px] text-slate-500">2 minutes ago</p>
-                  </div>
-                </div>
-                <div className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-white/5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/20">
-                    <Zap className="h-4 w-4 text-amber-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">Critical leak detected</p>
-                    <p className="text-xs text-slate-400">High priority issue in DMA-7 area</p>
-                    <p className="mt-1 text-[10px] text-slate-500">15 minutes ago</p>
-                  </div>
-                </div>
-                <div className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-white/5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20">
-                    <TrendingUp className="h-4 w-4 text-cyan-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">Weekly report ready</p>
-                    <p className="text-xs text-slate-400">Performance metrics for this week</p>
-                    <p className="mt-1 text-[10px] text-slate-500">1 hour ago</p>
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-white/10 p-2">
+              {unreadCount > 0 && (
+                <Badge className="bg-gradient-to-r from-cyan-100 to-blue-100 text-cyan-700 border-cyan-200 font-medium px-3 py-1">
+                  {unreadCount} new
+                </Badge>
+              )}
+            </div>
+            {unreadCount > 0 ? (
+              <div className="flex items-center justify-between border-b border-slate-100/80 px-5 py-3">
                 <Button
+                  type="button"
                   variant="ghost"
-                  className="w-full justify-center rounded-lg text-sm text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300"
+                  size="sm"
+                  onClick={() => router.push("/dashboard/notifications")}
+                  className="h-8 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800"
                 >
-                  View all notifications
+                  View all
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => void handleMarkAllRead()}
+                  className="h-8 rounded-lg text-xs font-medium text-cyan-700 hover:bg-cyan-50 hover:text-cyan-800"
+                >
+                  Mark all as read
                 </Button>
               </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Divider */}
-          <div className="mx-1 hidden h-8 w-px bg-white/10 sm:block" />
-
-          {/* User Profile Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-white/10 sm:px-3"
-              >
-                {/* Avatar with Glow */}
-                <div className="relative">
-                  <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-50 blur-sm" />
-                  
-                  <Avatar className="relative h-12 w-12 ring-2 ring-white/20">
-                           <AvatarFallback className="bg-gradient-to-br from-cyan-600 to-blue-600 text-lg font-semibold text-white">
-                           {currentUser?.name
-                       ?.split(" ")
-                       .map((n) => n[0])
-                         .join("")
-                             .toUpperCase() || "U"}
-                           </AvatarFallback>
-                  </Avatar>
-                  
-                  {/* Online Indicator */}
-                  <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-slate-900 bg-emerald-500">
-                    <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                  </span>
-                </div>
-
-                {/* User Info - Desktop */}
-                <div className="hidden flex-col items-start sm:flex">
-                  <span className="text-sm font-semibold text-white">
-                    {currentUser?.name || "User"}
-                  </span>
-                  <span className={`inline-flex items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeColor(currentUser?.role || "")} px-1.5 py-0.5 text-[9px] font-medium text-white`}>
-                    <Sparkles className="h-2 w-2" />
-                    {getRoleLabel(currentUser?.role || "")}
-                  </span>
-                </div>
-
-                <ChevronDown className="hidden h-4 w-4 text-slate-400 transition-transform duration-200 group-data-[state=open]:rotate-180 sm:block" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent
-              align="end"
-             className="z-[9999] w-72 rounded-xl border-white/10 bg-slate-900/95 p-0 backdrop-blur-xl"
-              
-              
-              
-            >
-              {/* Profile Header */}
-              <div className="relative overflow-hidden border-b border-white/10 p-4">
-                {/* Background Gradient */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-blue-500/10" />
-                
-                <div className="relative flex items-center gap-3">
-                  <div className="relative">
-                    <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-50 blur" />
-                
-                    
-                    <Avatar className="relative h-8 w-8 ring-2 ring-white/20">
-                       <AvatarFallback className="bg-gradient-to-br from-cyan-600 to-blue-600 text-sm font-semibold text-white">
-                          {currentUser?.name
-                                       ?.split(" ")
-                                .map((n) => n[0])
-                                     .join("")
-                                   .toUpperCase() || "U"}
-                                 </AvatarFallback>
-                    </Avatar>
+            ) : null}
+            <ScrollArea className="h-80">
+              {notifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
+                    <Bell className="h-8 w-8 text-slate-300" />
                   </div>
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-white">
-                      {currentUser?.name || "User"}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      {currentUser?.email || "user@example.com"}
-                    </span>
-                    <span className={`mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeColor(currentUser?.role || "")} px-2 py-0.5 text-[10px] font-medium text-white`}>
-                      <Shield className="h-2.5 w-2.5" />
-                      {getRoleLabel(currentUser?.role || "")}
-                    </span>
-                  </div>
+                  <p className="text-sm text-slate-500 font-medium">No notifications</p>
+                  <p className="text-xs text-slate-400 mt-1">You're all caught up!</p>
                 </div>
-              </div>
-
-              {/* Menu Items */}
-              <div className="p-2">
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    onClick={handleProfile}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5"
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {notifications.map((notif) => (
+                    <button
+                      key={notif.id}
+                      type="button"
+                      onClick={() => void handleNotificationOpen(notif.id, notif.link)}
+                      className={cn(
+                        "flex w-full flex-col gap-2 px-5 py-4 text-left transition-all duration-200 hover:bg-gradient-to-r hover:from-cyan-50/50 hover:to-transparent",
+                        !notif.read && "bg-gradient-to-r from-cyan-50/30 to-transparent border-l-2 border-cyan-500"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        {!notif.read && (
+                          <span className="h-2.5 w-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 animate-pulse" />
+                        )}
+                        <span className="text-sm font-semibold text-slate-800">
+                          {notif.title}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 line-clamp-2 pl-5">
+                        {notif.message}
+                      </p>
+                      <div className="flex items-center justify-between gap-3 pl-5">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                          {getNotificationTag(notif)}
+                        </span>
+                        <time className="text-[10px] text-slate-400 font-medium">
+                          {new Date(notif.createdAt).toLocaleDateString("en-ZA", {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </time>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {unreadCount === 0 ? (
+                <div className="flex items-center justify-start border-b border-slate-100/80 px-5 py-3">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.push("/dashboard/notifications")}
+                    className="h-8 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20">
-                      <User className="h-4 w-4 text-cyan-400" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">View Profile</span>
-                      <span className="text-[10px] text-slate-500">Manage your account details</span>
-                    </div>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={handleProfile}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5"
-                  >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20">
-                      <Settings className="h-4 w-4 text-blue-400" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">Settings</span>
-                      <span className="text-[10px] text-slate-500">System preferences & config</span>
-                    </div>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20">
-                      <Activity className="h-4 w-4 text-emerald-400" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">Activity Log</span>
-                      <span className="text-[10px] text-slate-500">View your recent actions</span>
-                    </div>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-
-                <DropdownMenuSeparator className="my-2 bg-white/10" />
-
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300 focus:bg-red-500/10"
-                >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/20">
-                    <LogOut className="h-4 w-4 text-red-400" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">Sign Out</span>
-                    <span className="text-[10px] text-red-400/70">End your current session</span>
-                  </div>
-                </DropdownMenuItem>
-              </div>
-
-              {/* Footer */}
-              <div className="border-t border-white/10 px-4 py-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-5 w-5 items-center justify-center rounded bg-gradient-to-br from-cyan-500 to-blue-500">
-                      <Zap className="h-3 w-3 text-white" />
-                    </div>
-                    <span className="text-[10px] font-medium text-slate-400">MajiScope v2.0</span>
-                  </div>
-                  <span className="flex items-center gap-1 text-[10px] text-emerald-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    System Online
-                  </span>
+                    View all
+                  </Button>
                 </div>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+              ) : null}
+            </ScrollArea>
+          </PopoverContent>
+        </Popover>
+
+        {/* User badge */}
+        {currentUser && (
+          <div className="hidden sm:flex items-center gap-3 pl-5 border-l border-slate-200">
+            <Badge className="bg-gradient-to-r from-cyan-100 via-blue-100 to-cyan-100 text-cyan-700 border border-cyan-200/50 font-semibold text-xs px-4 py-2 shadow-sm hover:shadow-md hover:shadow-cyan-500/10 transition-all duration-300">
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+              {ROLE_SHORT_LABELS[currentUser.role]}
+            </Badge>
+          </div>
+        )}
       </div>
     </header>
   )
 }
-

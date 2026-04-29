@@ -1,5 +1,5 @@
 // ============================================================
-// MajiScope - TypeScript Type Definitions
+// Majiscope - TypeScript Type Definitions
 // All entity interfaces and enums for the system
 // ============================================================
 
@@ -109,6 +109,8 @@ export interface Report {
   dmaName: string
   teamId?: string
   teamName?: string
+  teamLeaderId?: string
+  teamLeaderName?: string
   assignedEngineerId?: string
   assignedEngineerName?: string
   reporterName: string
@@ -187,7 +189,7 @@ export interface DataState {
 
   // Report actions
   updateReportStatus: (id: string, status: ReportStatus) => void
-  assignReport: (reportId: string, teamId: string, engineerId: string) => void
+  assignReport: (reportId: string, teamId: string) => void
 
   // Notification actions
   markNotificationRead: (id: string) => void

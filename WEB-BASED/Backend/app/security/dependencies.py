@@ -21,6 +21,7 @@ class CurrentUser(BaseModel):
     role: Optional[str] = None  # "engineer", "team_leader", etc.
     utility_id: Optional[str] = None
     dma_id: Optional[str] = None
+    team_id: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -127,7 +128,8 @@ async def get_current_user(
             email=engineer.email,
             user_type="engineer",
             role=engineer.role,
-            dma_id=engineer.dma_id
+            dma_id=engineer.dma_id,
+            team_id=engineer.team_id,
         )
     
     raise HTTPException(

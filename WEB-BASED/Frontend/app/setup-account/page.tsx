@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { resolveApiBaseUrl } from "@/lib/config"
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react"
+import { AlertCircle, ArrowRight, CheckCircle2, Loader2, Smartphone } from "lucide-react"
 import { toast } from "sonner"
 
 interface InviteValidation {
@@ -29,9 +29,11 @@ function SetupAccountPageContent() {
   const token = searchParams.get("token") ?? ""
   const apiOriginParam = searchParams.get("api_origin") ?? searchParams.get("api") ?? ""
   const apiBaseUrl = resolveApiBaseUrl(apiOriginParam)
+  const mobileAppDownloadUrl = (process.env.NEXT_PUBLIC_MOBILE_APP_DOWNLOAD_URL || "").trim()
 
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [completed, setCompleted] = useState(false)
   const [invite, setInvite] = useState<InviteValidation | null>(null)
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
@@ -89,7 +91,7 @@ function SetupAccountPageContent() {
       }
 
       toast.success("Account setup completed. You can now sign in.")
-      router.push("/login")
+      setCompleted(true)
     } catch (error) {
       console.error("Error completing invite:", error)
       toast.error("Failed to complete account setup")
@@ -124,6 +126,48 @@ function SetupAccountPageContent() {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{invite?.message || "This invitation is not valid."}</AlertDescription>
             </Alert>
+          ) : completed ? (
+            <div className="space-y-5">
+              <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500">
+                  <CheckCircle2 className="h-8 w-8 text-white" />
+                </div>
+                <h2 className="text-xl font-semibold text-slate-900">Thank you, your account is ready</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Use <span className="font-medium text-slate-900">{invite.email}</span> and the password you just created to sign in to the Majiscope mobile app.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                <p className="font-medium text-slate-800">What to do next</p>
+                <p className="mt-2">1. Open the Majiscope mobile app.</p>
+                <p className="mt-1">2. Sign in with this email and your new password.</p>
+                <p className="mt-1">3. Start working from your team dashboard.</p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                {mobileAppDownloadUrl ? (
+                  <Button
+                    type="button"
+                    onClick={() => window.open(mobileAppDownloadUrl, "_blank", "noopener,noreferrer")}
+                    className="h-11 flex-1 bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:from-teal-600 hover:to-cyan-700"
+                  >
+                    <Smartphone className="mr-2 h-4 w-4" />
+                    Download Mobile App
+                  </Button>
+                ) : null}
+                <Button type="button" variant="outline" onClick={() => router.push("/login")} className="h-11 flex-1">
+                  Go to Web Sign In
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+
+              {!mobileAppDownloadUrl ? (
+                <p className="text-center text-xs text-slate-400">
+                  Add <code>NEXT_PUBLIC_MOBILE_APP_DOWNLOAD_URL</code> in the frontend environment to show the app download button here.
+                </p>
+              ) : null}
+            </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 sm:grid-cols-2">

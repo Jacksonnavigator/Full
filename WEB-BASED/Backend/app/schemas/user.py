@@ -452,6 +452,8 @@ class ReportResponse(BaseModel):
     dma_name: Optional[str] = None
     team_id: Optional[str] = None
     team_name: Optional[str] = None
+    team_leader_id: Optional[str] = None
+    team_leader_name: Optional[str] = None
     assigned_engineer_id: Optional[str] = None
     assigned_engineer_name: Optional[str] = None
     reporter_name: str
