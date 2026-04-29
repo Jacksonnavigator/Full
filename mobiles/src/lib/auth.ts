@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Authentication Utilities
+ * Majiscope Mobile - Authentication Utilities
  * Token management, user session handling
  */
 
@@ -68,6 +68,37 @@ export class AuthManager {
       return {
         success: false,
         error: error.message || 'Network error',
+      };
+    }
+  }
+
+  /**
+   * Request password reset email
+   */
+  async requestPasswordReset(email: string): Promise<{ success: boolean; error?: string; message?: string; resetUrl?: string | null }> {
+    try {
+      const response = await apiClient.post<{ message?: string; delivery_message?: string; reset_url?: string | null }>(
+        CONFIG.ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET,
+        { email: email.trim().toLowerCase() },
+        { disableAuth: true }
+      );
+
+      if (!response.success) {
+        return {
+          success: false,
+          error: response.error || 'Unable to send reset link',
+        };
+      }
+
+      return {
+        success: true,
+        message: response.data?.delivery_message || response.data?.message || 'If your account exists, a reset link has been sent.',
+        resetUrl: response.data?.reset_url ?? null,
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message || 'Unable to send reset link',
       };
     }
   }

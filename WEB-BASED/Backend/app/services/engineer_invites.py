@@ -54,13 +54,13 @@ def send_account_invitation_email(
     assignment_lines: list[str],
     invite_url: str,
 ) -> InviteDeliveryResult:
-    subject = "Complete your HydraNet account setup"
+    subject = "Complete your Majiscope account setup"
     safe_assignments = "".join(f"<li>{escape(line)}</li>" for line in assignment_lines)
     safe_invite_url = escape(invite_url)
     html_body = f"""
     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
-      <h2 style="margin-bottom: 8px;">Finish your HydraNet account setup</h2>
-      <p>You have been invited to join HydraNet as a <strong>{role_label}</strong>.</p>
+      <h2 style="margin-bottom: 8px;">Finish your Majiscope account setup</h2>
+      <p>You have been invited to join Majiscope as a <strong>{role_label}</strong>.</p>
       <ul>{safe_assignments}</ul>
       <p>Use the secure link below to complete your profile, set your password, and activate your login:</p>
       <p style="margin: 20px 0;">
@@ -74,7 +74,7 @@ def send_account_invitation_email(
     </div>
     """
     text_body = (
-        f"You have been invited to HydraNet as a {role_label}.\n"
+        f"You have been invited to Majiscope as a {role_label}.\n"
         + ("\n".join(assignment_lines) + "\n\n" if assignment_lines else "\n")
         +
         f"Complete your account setup here:\n{invite_url}\n"
@@ -133,11 +133,11 @@ def send_password_reset_email(
     role_label: str,
     reset_url: str,
 ) -> InviteDeliveryResult:
-    subject = "Reset your HydraNet password"
+    subject = "Reset your Majiscope password"
     safe_reset_url = escape(reset_url)
     html_body = f"""
     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
-      <h2 style="margin-bottom: 8px;">Reset your HydraNet password</h2>
+      <h2 style="margin-bottom: 8px;">Reset your Majiscope password</h2>
       <p>We received a password reset request for your <strong>{escape(role_label)}</strong> account.</p>
       <p>Use the secure link below to choose a new password:</p>
       <p style="margin: 20px 0;">
@@ -151,7 +151,7 @@ def send_password_reset_email(
     </div>
     """
     text_body = (
-        f"We received a password reset request for your HydraNet {role_label} account.\n\n"
+        f"We received a password reset request for your Majiscope {role_label} account.\n\n"
         f"Reset your password here:\n{reset_url}\n\n"
         "If you did not request this, you can ignore this email.\n"
     )

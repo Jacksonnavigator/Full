@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - TypeScript Type Definitions
+ * Majiscope Mobile - TypeScript Type Definitions
  * All entity interfaces and enums for the system
  */
 

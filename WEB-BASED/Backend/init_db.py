@@ -12,7 +12,7 @@ from app.models import Base
 def init_db():
     """Create all database tables"""
     print("=" * 60)
-    print("🗄️  HydraNet Database Initialization")
+    print("🗄️  Majiscope Database Initialization")
     print("=" * 60)
     
     try:

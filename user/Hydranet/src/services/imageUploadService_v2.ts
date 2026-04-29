@@ -1,5 +1,5 @@
 /**
- * Public media helpers for the HydraNet user app.
+ * Public media helpers for the Majiscope user app.
  *
  * The public reporting flow is anonymous, so it cannot rely on the backend's
  * authenticated upload endpoint. Instead, we upload media directly to the

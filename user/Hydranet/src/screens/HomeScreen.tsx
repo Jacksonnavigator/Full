@@ -33,7 +33,7 @@ export default function HomeScreen({ navigation }: any) {
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Header Banner */}
                 <View style={styles.headerBanner}>
-                    <Text style={styles.bannerTitle}>🌊 HydraNet</Text>
+                    <Text style={styles.bannerTitle}>🌊 Majiscope</Text>
                     <Text style={styles.bannerSubtitle}>Water Problem Reporting System</Text>
                     <View style={styles.bannerUnderline} />
                 </View>

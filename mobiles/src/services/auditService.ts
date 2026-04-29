@@ -1,7 +1,7 @@
 /**
- * HydraNet Audit Service
+ * Majiscope Audit Service
  * Handles activity logging and audit trails
- * Uses HydraNet Backend API (FastAPI)
+ * Uses Majiscope Backend API (FastAPI)
  */
 
 import { apiPost, apiGet } from './apiClient';

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "HydraNet User App",
-    "slug": "hydranet-user-app",
+    "name": "Majiscope User App",
+    "slug": "majiscope-user-app",
     "version": "1.0.0",
     "newArchEnabled": false,
     "orientation": "portrait",
@@ -17,10 +17,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hydratech.hydranetuser"
+      "bundleIdentifier": "com.hydratech.majiscopeuser"
     },
     "android": {
-      "package": "com.hydratech.hydranetuser",
+      "package": "com.hydratech.majiscopeuser",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",

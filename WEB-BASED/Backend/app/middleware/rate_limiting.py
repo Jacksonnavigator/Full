@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Tuple
 import asyncio
 
-from app.utils.exceptions import HydraNetException
+from app.utils.exceptions import MajiscopeException
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):

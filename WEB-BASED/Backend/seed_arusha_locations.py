@@ -21,16 +21,16 @@ def seed_arusha_locations():
     db = SessionLocal()
     
     print("=" * 70)
-    print("🌍 HydraNet Arusha Locations Seeding")
+    print("🌍 Majiscope Arusha Locations Seeding")
     print("=" * 70)
     
     try:
         # Check if admin user already exists
-        admin = db.query(User).filter(User.email == "admin@hydranet.com").first()
+        admin = db.query(User).filter(User.email == "admin@majiscope.com").first()
         if not admin:
             print("\n📝 Creating admin user...")
             admin_user = User(
-                email="admin@hydranet.com",
+                email="admin@majiscope.com",
                 password=hash_password("admin123"),
                 name="Admin User",
                 phone="+255700000000",

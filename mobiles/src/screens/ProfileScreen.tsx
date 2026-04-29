@@ -317,7 +317,7 @@ export const ProfileScreen: React.FC = () => {
                   <Text style={styles.roleChipText}>{humanizeRole(currentUser.role)}</Text>
                 </View>
                 <Text style={styles.heroMeta}>
-                  {teamName || dmaName || 'HydraNet'}
+                  {teamName || dmaName || 'Majiscope'}
                 </Text>
               </View>
 

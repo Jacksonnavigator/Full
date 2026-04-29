@@ -17,7 +17,7 @@ function AppContent() {
     // Check if user has seen the tutorial before
     const checkFirstLaunch = async () => {
       try {
-        const hasSeenTutorial = await AsyncStorage.getItem('hydranet_tutorial_seen');
+        const hasSeenTutorial = await AsyncStorage.getItem('majiscope_tutorial_seen');
         if (hasSeenTutorial === null) {
           // First launch - show tutorial after splash screen
           setShowTutorial(true);
@@ -39,7 +39,7 @@ function AppContent() {
 
   const handleTutorialComplete = async () => {
     try {
-      await AsyncStorage.setItem('hydranet_tutorial_seen', 'true');
+      await AsyncStorage.setItem('majiscope_tutorial_seen', 'true');
       setShowTutorial(false);
     } catch (error) {
       console.error('Error saving tutorial status:', error);

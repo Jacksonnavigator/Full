@@ -1,5 +1,5 @@
 """
-HydraNet Backend - Main Entry Point
+Majiscope Backend - Main Entry Point
 FastAPI application initialization and route registration
 """
 
@@ -145,7 +145,7 @@ async def api_root():
     Returns information about available endpoints
     """
     return {
-        "message": "HydraNet API",
+        "message": "Majiscope API",
         "version": settings.app_version,
         "endpoints": {
             "auth": f"{settings.api_prefix}/auth",

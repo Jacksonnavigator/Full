@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Configuration
+ * Majiscope Mobile - Configuration
  * Centralized app configuration
  */
 
@@ -34,6 +34,9 @@ const CONFIG = {
       LOGIN: '/auth/login',
       LOGOUT: '/auth/logout',
       REFRESH: '/auth/refresh',
+      REQUEST_PASSWORD_RESET: '/auth/password-reset/request',
+      VALIDATE_PASSWORD_RESET: '/auth/password-reset/validate',
+      COMPLETE_PASSWORD_RESET: '/auth/password-reset/complete',
     },
     USERS: {
       PROFILE: '/users/profile',

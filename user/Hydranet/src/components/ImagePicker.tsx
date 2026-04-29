@@ -155,7 +155,7 @@ export default function ImagePicker({
                             </>
                         ) : (
                             <View style={styles.placeholderContent}>
-                                {/* Camera Icon with HydraNet Blue Theme */}
+                                {/* Camera Icon with Majiscope Blue Theme */}
                                 <View style={styles.cameraIconWrapper}>
                                     <View style={styles.cameraIconBg}>
                                         <MaterialIcons 

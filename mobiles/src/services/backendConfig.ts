@@ -1,5 +1,5 @@
 /**
- * HydraNet Backend Configuration
+ * Majiscope Backend Configuration
  * Central configuration for backend API URLs and settings
  * 
  * To change the backend URL:
@@ -9,6 +9,8 @@
  */
 
 import { Platform } from 'react-native';
+
+const productionBaseUrl = 'https://full-nfjr.onrender.com';
 
 // Detect platform-appropriate default
 const defaultHost = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
@@ -21,20 +23,16 @@ const configuredBaseUrl =
   '';
 
 const usingFallbackBaseUrl = !configuredBaseUrl;
-const rawBaseUrl = configuredBaseUrl || defaultBaseUrl;
+const rawBaseUrl = configuredBaseUrl || (__DEV__ ? defaultBaseUrl : productionBaseUrl);
 
 // Clean up the URL (remove trailing /api if present)
 const sanitizedBaseUrl = rawBaseUrl.replace(/\/api\/?$/, '');
 
-if (usingFallbackBaseUrl && !__DEV__) {
-  throw new Error(
-    '[BackendConfig] EXPO_PUBLIC_API_URL or EXPO_PUBLIC_BACKEND_URL must be set outside development.'
-  );
-}
-
 if (usingFallbackBaseUrl) {
   const platformHint =
-    Platform.OS === 'android'
+    !__DEV__
+      ? `Using production fallback backend: ${sanitizedBaseUrl}`
+      : Platform.OS === 'android'
       ? 'Android physical devices cannot use 10.0.2.2. Set EXPO_PUBLIC_API_URL to your backend LAN IP.'
       : 'Set EXPO_PUBLIC_API_URL to avoid relying on localhost-only fallback.';
   console.warn('[BackendConfig] No EXPO_PUBLIC_API_URL/EXPO_PUBLIC_BACKEND_URL set. Falling back to:', sanitizedBaseUrl);

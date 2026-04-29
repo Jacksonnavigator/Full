@@ -11,7 +11,7 @@ from app.utils.response_models import (
     HealthResponse,
 )
 from app.utils.exceptions import (
-    HydraNetException,
+    MajiscopeException,
     AuthenticationError,
     AuthorizationError,
     ValidationError,
@@ -35,7 +35,7 @@ __all__ = [
     "APIError",
     "PaginatedResponse",
     "HealthResponse",
-    "HydraNetException",
+    "MajiscopeException",
     "AuthenticationError",
     "AuthorizationError",
     "ValidationError",

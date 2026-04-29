@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Utility Functions
+ * Majiscope Mobile - Utility Functions
  * General helper functions for the app
  */
 

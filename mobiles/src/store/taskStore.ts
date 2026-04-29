@@ -230,7 +230,7 @@ const ensureTimelineStatus = (
   timestamp: string,
   note?: string,
   actorRole: TaskTimelineEntry['actorRole'] = 'System',
-  actorName: string = 'HydraNet'
+  actorName: string = 'Majiscope'
 ) => {
   const found = existing.find((entry) => entry.status === status);
   if (found) {
@@ -255,7 +255,7 @@ const upsertTimelineStatus = (
   timestamp: string,
   note?: string,
   actorRole: TaskTimelineEntry['actorRole'] = 'System',
-  actorName: string = 'HydraNet'
+  actorName: string = 'Majiscope'
 ) => {
   const timeline = [...existing];
   const lastEntry = timeline[timeline.length - 1];
@@ -311,7 +311,7 @@ const inferTimelineActor = (
     default:
       return {
         actorRole: 'System',
-        actorName: report.reporter_name || 'HydraNet',
+        actorName: report.reporter_name || 'Majiscope',
       };
   }
 };
@@ -1063,7 +1063,7 @@ export const useTaskStore = create<TaskStoreState>()(
       };
     },
     {
-      name: 'hydranet-task-store',
+      name: 'majiscope-task-store',
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated();

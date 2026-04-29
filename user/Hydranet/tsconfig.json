@@ -30,5 +30,5 @@
     }
   },
   "include": ["App.tsx", "index.js", "src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "archive", "HydraNet"]
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "archive", "Majiscope"]
 }

@@ -9,7 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from datetime import datetime
 import logging
 
-from app.utils.exceptions import HydraNetException
+from app.utils.exceptions import MajiscopeException
 from app.utils.response_models import APIError
 
 logger = logging.getLogger(__name__)
@@ -36,11 +36,11 @@ def create_error_response(
 def register_exception_handlers(app: FastAPI) -> None:
     """Register all exception handlers with the app"""
     
-    @app.exception_handler(HydraNetException)
-    async def hydranet_exception_handler(request: Request, exc: HydraNetException):
-        """Handle HydraNet custom exceptions"""
+    @app.exception_handler(MajiscopeException)
+    async def majiscope_exception_handler(request: Request, exc: MajiscopeException):
+        """Handle Majiscope custom exceptions"""
         logger.warning(
-            f"HydraNet Exception: {exc.error_code} - {exc.message}",
+            f"Majiscope Exception: {exc.error_code} - {exc.message}",
             extra={
                 "path": str(request.url.path),
                 "error_code": exc.error_code,

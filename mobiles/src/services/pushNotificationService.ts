@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
 
 import { apiPost } from './apiClient';
 
-const PUSH_TOKEN_STORAGE_KEY = 'hydranetPushToken';
+const PUSH_TOKEN_STORAGE_KEY = 'majiscopePushToken';
 
 let listenersConfigured = false;
 let responseSubscription: Notifications.EventSubscription | null = null;

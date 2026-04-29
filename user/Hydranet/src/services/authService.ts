@@ -29,7 +29,7 @@ export async function loginUser(email: string, password: string): Promise<User> 
     });
 
     await saveTokens(response.access_token, response.refresh_token);
-    await AsyncStorage.setItem('hydranet_user', JSON.stringify(response.user));
+    await AsyncStorage.setItem('majiscope_user', JSON.stringify(response.user));
     return response.user;
   } catch (error) {
     console.error('[authService] Login error:', error);
@@ -121,13 +121,13 @@ export async function completePasswordReset(data: {
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
-    const stored = await AsyncStorage.getItem('hydranet_user');
+    const stored = await AsyncStorage.getItem('majiscope_user');
     if (stored) {
       return JSON.parse(stored) as User;
     }
 
     const user = await apiGet<User>('/api/users/me');
-    await AsyncStorage.setItem('hydranet_user', JSON.stringify(user));
+    await AsyncStorage.setItem('majiscope_user', JSON.stringify(user));
     return user;
   } catch (error) {
     console.error('[authService] Error getting current user:', error);
@@ -138,7 +138,7 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function logoutUser(): Promise<void> {
   try {
     await clearTokens();
-    await AsyncStorage.removeItem('hydranet_user');
+    await AsyncStorage.removeItem('majiscope_user');
   } catch (error) {
     console.error('[authService] Error logging out:', error);
   }
@@ -146,7 +146,7 @@ export async function logoutUser(): Promise<void> {
 
 export async function isAuthenticated(): Promise<boolean> {
   try {
-    const token = await AsyncStorage.getItem('hydranet_access_token');
+    const token = await AsyncStorage.getItem('majiscope_access_token');
     return !!token;
   } catch (error) {
     return false;

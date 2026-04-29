@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Shared Button Component
+ * Majiscope Mobile - Shared Button Component
  * Reusable button across all screens - Frontend-synced theme
  */
 

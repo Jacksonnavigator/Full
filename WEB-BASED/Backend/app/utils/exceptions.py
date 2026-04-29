@@ -6,8 +6,8 @@ Application-wide exception definitions with HTTP status codes
 from typing import Any, Optional
 
 
-class HydraNetException(Exception):
-    """Base exception for all HydraNet errors"""
+class MajiscopeException(Exception):
+    """Base exception for all Majiscope errors"""
     
     def __init__(
         self,
@@ -23,7 +23,7 @@ class HydraNetException(Exception):
         super().__init__(self.message)
 
 
-class AuthenticationError(HydraNetException):
+class AuthenticationError(MajiscopeException):
     """Raised when authentication fails"""
     
     def __init__(self, message: str = "Authentication failed"):
@@ -34,7 +34,7 @@ class AuthenticationError(HydraNetException):
         )
 
 
-class AuthorizationError(HydraNetException):
+class AuthorizationError(MajiscopeException):
     """Raised when user doesn't have required permissions"""
     
     def __init__(self, message: str = "Insufficient permissions"):
@@ -45,7 +45,7 @@ class AuthorizationError(HydraNetException):
         )
 
 
-class ValidationError(HydraNetException):
+class ValidationError(MajiscopeException):
     """Raised when data validation fails"""
     
     def __init__(self, message: str, details: Optional[Any] = None):
@@ -57,7 +57,7 @@ class ValidationError(HydraNetException):
         )
 
 
-class NotFoundError(HydraNetException):
+class NotFoundError(MajiscopeException):
     """Raised when a resource is not found"""
     
     def __init__(self, resource_type: str, resource_id: str = None):
@@ -73,7 +73,7 @@ class NotFoundError(HydraNetException):
         )
 
 
-class ConflictError(HydraNetException):
+class ConflictError(MajiscopeException):
     """Raised when there's a conflict (e.g., duplicate email)"""
     
     def __init__(self, message: str, details: Optional[Any] = None):
@@ -85,7 +85,7 @@ class ConflictError(HydraNetException):
         )
 
 
-class InternalServerError(HydraNetException):
+class InternalServerError(MajiscopeException):
     """Raised for internal server errors"""
     
     def __init__(self, message: str, details: Optional[Any] = None):

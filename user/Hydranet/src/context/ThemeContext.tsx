@@ -53,7 +53,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const loadThemePreference = async () => {
       try {
-        const savedThemeMode = await AsyncStorage.getItem('hydranet_theme_mode');
+        const savedThemeMode = await AsyncStorage.getItem('majiscope_theme_mode');
         if (savedThemeMode === 'light' || savedThemeMode === 'dark') {
           setThemeModeState(savedThemeMode);
         } else {
@@ -75,7 +75,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const newMode: Theme = prevMode === 'light' ? 'dark' : 'light';
       
       // Save preference
-      AsyncStorage.setItem('hydranet_theme_mode', newMode).catch((error) => {
+      AsyncStorage.setItem('majiscope_theme_mode', newMode).catch((error) => {
         console.error('Error saving theme preference:', error);
       });
 
@@ -85,7 +85,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setThemeModeHandler = (mode: Theme) => {
     setThemeModeState(mode);
-    AsyncStorage.setItem('hydranet_theme_mode', mode).catch((error) => {
+    AsyncStorage.setItem('majiscope_theme_mode', mode).catch((error) => {
       console.error('Error saving theme preference:', error);
     });
   };

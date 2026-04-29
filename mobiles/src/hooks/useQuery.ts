@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - useQuery Hook
+ * Majiscope Mobile - useQuery Hook
  * Hook for fetching and managing cached data
  */
 

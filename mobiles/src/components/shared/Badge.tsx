@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Shared Badge Component
+ * Majiscope Mobile - Shared Badge Component
  * Status and label badges - Frontend-synced theme
  */
 

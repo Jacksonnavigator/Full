@@ -1,5 +1,5 @@
 /**
- * Report Service for the public HydraNet app.
+ * Report Service for the public Majiscope app.
  *
  * The live user flow is anonymous, so report history is tracked locally and
  * refreshed from the backend's public report listing when possible.
@@ -11,7 +11,7 @@ import { getEndpointUrl, getReportsEndpoint } from './backendConfig';
 import { ImageResult } from '../types';
 import { encodeMediaAsDataUri, uploadAnonymousMedia } from './imageUploadService_v2';
 
-const LOCAL_HISTORY_KEY = 'hydranet_public_report_history_v1';
+const LOCAL_HISTORY_KEY = 'majiscope_public_report_history_v1';
 
 export interface ReportPayload {
   description: string;

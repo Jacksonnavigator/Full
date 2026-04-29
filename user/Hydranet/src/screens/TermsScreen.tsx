@@ -9,9 +9,9 @@ export default function TermsScreen() {
                 <Text style={styles.lastUpdated}>Last Updated: February 2026</Text>
 
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>About HydraNet</Text>
+                    <Text style={styles.sectionTitle}>About Majiscope</Text>
                     <Text style={styles.paragraph}>
-                        HydraNet helps you report water problems like leaks, contamination, and supply issues. Your reports help authorities respond quickly.
+                        Majiscope helps you report water problems like leaks, contamination, and supply issues. Your reports help authorities respond quickly.
                     </Text>
                 </View>
 
@@ -25,7 +25,7 @@ export default function TermsScreen() {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Your Responsibilities</Text>
                     <Text style={styles.paragraph}>
-                        As a user of HydraNet, you are responsible for reporting genuine water problems only. Please provide accurate and truthful information in your reports. Do not misuse the system by submitting false reports or uploading inappropriate or offensive content. Using this platform responsibly helps authorities focus their resources on real problems.
+                        As a user of Majiscope, you are responsible for reporting genuine water problems only. Please provide accurate and truthful information in your reports. Do not misuse the system by submitting false reports or uploading inappropriate or offensive content. Using this platform responsibly helps authorities focus their resources on real problems.
                     </Text>
                 </View>
 
@@ -45,7 +45,7 @@ export default function TermsScreen() {
 
                 <View style={styles.footer}>
                     <Text style={styles.footerText}>
-                        By using HydraNet, you agree to these terms.
+                        By using Majiscope, you agree to these terms.
                     </Text>
                 </View>
             </View>

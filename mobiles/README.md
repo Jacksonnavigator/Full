@@ -1,11 +1,11 @@
 # Engineer Mobile App
 
-This folder is fully self-contained for the HydraNet engineer/team-leader mobile app.
+This folder is fully self-contained for the Majiscope engineer/team-leader mobile app.
 
 ## Run
 
 ```bash
-cd mobile-app
+cd majiscope
 npm install
 npm run start:clean
 ```

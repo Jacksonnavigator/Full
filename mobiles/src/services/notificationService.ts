@@ -1,5 +1,5 @@
 /**
- * HydraNet Notification Service
+ * Majiscope Notification Service
  * Normalizes backend notifications for the mobile app.
  */
 

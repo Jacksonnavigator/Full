@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     )
     
     # ===== Application Settings =====
-    app_name: str = "HydraNet Backend"
+    app_name: str = "Majiscope Backend"
     app_version: str = "1.0.0"
     environment: str = os.getenv("ENVIRONMENT", "development")
     debug: bool = environment == "development"
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # ===== Database Settings =====
     database_url: str = os.getenv(
         "DATABASE_URL",
-        "postgresql+psycopg://user:password@localhost:5432/hydranet"
+        "postgresql+psycopg://user:password@localhost:5432/majiscope"
     )
 
     # ===== Security Settings =====
@@ -66,13 +66,13 @@ class Settings(BaseSettings):
     password_reset_token_expiry_hours: int = int(os.getenv("PASSWORD_RESET_TOKEN_EXPIRY_HOURS", "2"))
     resend_api_key: str = os.getenv("RESEND_API_KEY", "")
     resend_from_email: str = os.getenv("RESEND_FROM_EMAIL", "")
-    resend_from_name: str = os.getenv("RESEND_FROM_NAME", "HydraNet")
+    resend_from_name: str = os.getenv("RESEND_FROM_NAME", "Majiscope")
     smtp_host: str = os.getenv("SMTP_HOST", "")
     smtp_port: int = int(os.getenv("SMTP_PORT", "587"))
     smtp_username: str = os.getenv("SMTP_USERNAME", "")
     smtp_password: str = os.getenv("SMTP_PASSWORD", "")
     smtp_from_email: str = os.getenv("SMTP_FROM_EMAIL", "")
-    smtp_from_name: str = os.getenv("SMTP_FROM_NAME", "HydraNet")
+    smtp_from_name: str = os.getenv("SMTP_FROM_NAME", "Majiscope")
     smtp_use_tls: bool = os.getenv("SMTP_USE_TLS", "true").strip().lower() in {"1", "true", "yes", "on"}
 
     # ===== Password Hashing =====

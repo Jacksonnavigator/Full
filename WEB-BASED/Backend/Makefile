@@ -2,7 +2,7 @@
 
 # Default target
 help:
-	@echo "🚀 HydraNet Backend - Common Commands"
+	@echo "🚀 Majiscope Backend - Common Commands"
 	@echo "======================================"
 	@echo ""
 	@echo "Setup & Dependencies:"

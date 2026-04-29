@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Database seeding script for the current HydraNet hierarchy.
+Database seeding script for the current Majiscope hierarchy.
 
 Hierarchy:
     Admin -> Utility -> DMA -> Team -> Engineer
@@ -28,11 +28,11 @@ def seed_db() -> bool:
     db = SessionLocal()
 
     print("=" * 60)
-    print("HydraNet Database Seeding")
+    print("Majiscope Database Seeding")
     print("=" * 60)
 
     try:
-        admin = db.query(User).filter(User.email == "admin@hydranet.com").first()
+        admin = db.query(User).filter(User.email == "admin@majiscope.com").first()
         if admin:
             print("\nAdmin user already exists. Skipping seed.")
             return True
@@ -41,7 +41,7 @@ def seed_db() -> bool:
 
         print("\nCreating admin user...")
         admin_user = User(
-            email="admin@hydranet.com",
+            email="admin@majiscope.com",
             password=hash_password("admin123"),
             name="Admin User",
             phone="+1234567890",
@@ -149,7 +149,7 @@ def seed_db() -> bool:
         print("\n" + "=" * 60)
         print("Database seeding completed successfully.")
         print("\nTest Credentials:")
-        print("  admin@hydranet.com / admin123")
+        print("  admin@majiscope.com / admin123")
         print("  manager@utility.com / manager123")
         print("  dma.manager@utility.com / dmamanager123")
         print("  engineer@utility.com / engineer123")

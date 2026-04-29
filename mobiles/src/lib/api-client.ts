@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Global API Client
+ * Majiscope Mobile - Global API Client
  * Handles all HTTP requests to the backend
  * 
  * Features:

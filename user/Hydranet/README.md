@@ -1,11 +1,11 @@
 # Public User Mobile App
 
-This folder is fully self-contained for the HydraNet public leak-report mobile app.
+This folder is fully self-contained for the Majiscope public leak-report mobile app.
 
 ## Run
 
 ```bash
-cd user/HydraNet-app
+cd user/Majiscope-app
 npm install
 npm run start:clean
 ```

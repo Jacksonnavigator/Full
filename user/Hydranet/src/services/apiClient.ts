@@ -1,5 +1,5 @@
 /**
- * API Client for HydraNet
+ * API Client for Majiscope
  * Handles HTTP requests with JWT authentication and auto-refresh
  */
 
@@ -17,7 +17,7 @@ interface ApiRequestOptions {
  */
 export async function getAccessToken(): Promise<string | null> {
   try {
-    return await AsyncStorage.getItem('hydranet_access_token');
+    return await AsyncStorage.getItem('majiscope_access_token');
   } catch (error) {
     console.error('Error getting access token:', error);
     return null;
@@ -29,7 +29,7 @@ export async function getAccessToken(): Promise<string | null> {
  */
 export async function getRefreshToken(): Promise<string | null> {
   try {
-    return await AsyncStorage.getItem('hydranet_refresh_token');
+    return await AsyncStorage.getItem('majiscope_refresh_token');
   } catch (error) {
     console.error('Error getting refresh token:', error);
     return null;
@@ -42,8 +42,8 @@ export async function getRefreshToken(): Promise<string | null> {
 export async function saveTokens(accessToken: string, refreshToken: string): Promise<void> {
   try {
     await AsyncStorage.multiSet([
-      ['hydranet_access_token', accessToken],
-      ['hydranet_refresh_token', refreshToken],
+      ['majiscope_access_token', accessToken],
+      ['majiscope_refresh_token', refreshToken],
     ]);
   } catch (error) {
     console.error('Error saving tokens:', error);
@@ -55,7 +55,7 @@ export async function saveTokens(accessToken: string, refreshToken: string): Pro
  */
 export async function clearTokens(): Promise<void> {
   try {
-    await AsyncStorage.multiRemove(['hydranet_access_token', 'hydranet_refresh_token']);
+    await AsyncStorage.multiRemove(['majiscope_access_token', 'majiscope_refresh_token']);
   } catch (error) {
     console.error('Error clearing tokens:', error);
   }

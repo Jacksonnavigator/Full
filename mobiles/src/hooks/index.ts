@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Hooks Index
+ * Majiscope Mobile - Hooks Index
  * Unified export for all custom hooks
  */
 

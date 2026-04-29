@@ -10,6 +10,7 @@ import {
   Alert,
   ScrollView,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -26,7 +27,10 @@ export const LoginScreen: React.FC<Props> = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading, error } = useAuth();
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isRequestingReset, setIsRequestingReset] = useState(false);
+  const { login, isLoading, error, requestPasswordReset } = useAuth();
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -49,6 +53,50 @@ export const LoginScreen: React.FC<Props> = () => {
   };
 
   const canSubmit = email.trim().length > 0 && password.trim().length > 0 && !isLoading;
+
+  const handleForgotPassword = async () => {
+    const targetEmail = (resetEmail || email).trim().toLowerCase();
+    if (!targetEmail) {
+      Alert.alert('Missing Email', 'Enter your account email so we can send the reset link.');
+      return;
+    }
+
+    try {
+      setIsRequestingReset(true);
+      const result = await requestPasswordReset(targetEmail);
+
+      if (!result.success) {
+        Alert.alert('Reset Failed', result.error || 'Unable to send the reset link right now.');
+        return;
+      }
+
+      if (result.resetUrl) {
+        Alert.alert(
+          'Reset Link Ready',
+          `${result.message || 'A reset link is ready.'}\n\nIf email delivery is delayed, you can open the reset page directly now.`,
+          [
+            { text: 'Later', style: 'cancel' },
+            {
+              text: 'Open Link',
+              onPress: () => {
+                void Linking.openURL(result.resetUrl as string);
+              },
+            },
+          ],
+        );
+        return;
+      }
+
+      Alert.alert(
+        'Check Your Email',
+        result.message || 'If your account exists, a password reset email has been sent.',
+      );
+    } catch (resetError: any) {
+      Alert.alert('Reset Failed', resetError?.message || 'Unable to send the reset link right now.');
+    } finally {
+      setIsRequestingReset(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -81,7 +129,7 @@ export const LoginScreen: React.FC<Props> = () => {
                 </View>
               </View>
 
-              <Text style={styles.title}>HydraNet Engineer</Text>
+              <Text style={styles.title}>Majiscope Engineer</Text>
               <Text style={styles.subtitle}>Sign in to access field tasks and repair updates.</Text>
 
               <Text style={styles.label}>Email</Text>
@@ -125,6 +173,48 @@ export const LoginScreen: React.FC<Props> = () => {
                   />
                 </TouchableOpacity>
               </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setShowResetForm((current) => !current);
+                  setResetEmail((current) => current || email);
+                }}
+                activeOpacity={0.7}
+                style={styles.forgotPasswordButton}
+              >
+                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+              </TouchableOpacity>
+
+              {showResetForm ? (
+                <View style={styles.resetCard}>
+                  <Text style={styles.resetTitle}>Send password reset email</Text>
+                  <Text style={styles.resetDescription}>
+                    Enter the engineer or team leader email and Majiscope will send a secure reset link.
+                  </Text>
+                  <View style={styles.inputWrap}>
+                    <Ionicons name="mail-outline" size={18} color={colors.brandPrimary} />
+                    <TextInput
+                      placeholder="Enter your email"
+                      placeholderTextColor={colors.textMuted}
+                      value={resetEmail}
+                      onChangeText={setResetEmail}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      editable={!isRequestingReset}
+                      style={styles.input}
+                    />
+                  </View>
+                  <Button
+                    label={isRequestingReset ? 'Sending...' : 'Send Reset Link'}
+                    onPress={handleForgotPassword}
+                    loading={isRequestingReset}
+                    disabled={isRequestingReset}
+                    fullWidth
+                    style={styles.resetButton}
+                  />
+                </View>
+              ) : null}
 
               <Button
                 label="Sign In"
@@ -249,6 +339,37 @@ const styles = StyleSheet.create({
   visibilityButton: {
     marginLeft: spacing.sm,
     padding: 4,
+  },
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    marginTop: spacing.sm,
+  },
+  forgotPasswordText: {
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.brandPrimary,
+  },
+  resetCard: {
+    marginTop: spacing.md,
+    padding: spacing.md,
+    backgroundColor: '#f2f9ff',
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: '#d6e8ff',
+    gap: spacing.sm,
+  },
+  resetTitle: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.brandDark,
+  },
+  resetDescription: {
+    fontSize: typography.fontSize.xs,
+    color: colors.textMedium,
+    lineHeight: 18,
+  },
+  resetButton: {
+    marginTop: spacing.xs,
   },
   loginButton: {
     marginTop: spacing.xl,

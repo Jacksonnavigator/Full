@@ -184,7 +184,7 @@ async def invite_user(payload: UserInvitationCreate, db: Session = Depends(get_d
 
     delivery = send_account_invitation_email(
         recipient_email=user.email,
-        role_label="HydraNet User",
+        role_label="Majiscope User",
         assignment_lines=["Access: Public reporting account"],
         invite_url=build_invite_url(raw_token),
     )
@@ -219,7 +219,7 @@ async def resend_user_invite(user_id: str, db: Session = Depends(get_db)):
 
     delivery = send_account_invitation_email(
         recipient_email=user.email,
-        role_label="HydraNet User",
+        role_label="Majiscope User",
         assignment_lines=["Access: Public reporting account"],
         invite_url=build_invite_url(raw_token),
     )

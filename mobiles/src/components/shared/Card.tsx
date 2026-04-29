@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Shared Card Component
+ * Majiscope Mobile - Shared Card Component
  * Reusable card container across all screens - Frontend-synced theme
  */
 

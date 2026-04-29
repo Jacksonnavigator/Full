@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - useAuth Hook
+ * Majiscope Mobile - useAuth Hook
  * Authentication state and methods (uses global Zustand store)
  */
 
@@ -177,6 +177,10 @@ export function useAuth() {
     setError(null);
   }, [setError]);
 
+  const requestPasswordReset = useCallback(async (email: string) => {
+    return authManager.requestPasswordReset(email);
+  }, []);
+
   return {
     currentUser,
     isAuthenticated,
@@ -185,6 +189,7 @@ export function useAuth() {
     login,
     logout,
     refreshToken,
+    requestPasswordReset,
     clearError,
   };
 }

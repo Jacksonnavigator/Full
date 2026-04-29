@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-HydraNet Backend - Entry Point
+Majiscope Backend - Entry Point
 Run this file to start the FastAPI server
 """
 

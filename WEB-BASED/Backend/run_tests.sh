@@ -3,7 +3,7 @@
 
 set -e
 
-echo "🧪 HydraNet Backend Test Runner"
+echo "🧪 Majiscope Backend Test Runner"
 echo "================================"
 
 # Load environment

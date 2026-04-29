@@ -1,4 +1,4 @@
-// HydraNet Mobile Theme - Synced with Frontend
+// Majiscope Mobile Theme - Synced with Frontend
 // This theme exports the same keys used by Web + the existing mobile UI (for compatibility).
 
 import { colors as baseColors } from './colors';

@@ -1,5 +1,5 @@
 /**
- * Backend Configuration for HydraNet
+ * Backend Configuration for Majiscope
  * Centralized configuration for API endpoints
  */
 

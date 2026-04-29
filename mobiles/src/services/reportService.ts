@@ -1,7 +1,7 @@
 /**
- * HydraNet Report Service
+ * Majiscope Report Service
  * Handles leakage report submission, retrieval, and status updates
- * Uses HydraNet Backend API (FastAPI)
+ * Uses Majiscope Backend API (FastAPI)
  */
 
 import {

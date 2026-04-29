@@ -1,5 +1,5 @@
 /**
- * HydraNet API Client
+ * Majiscope API Client
  * Handles all HTTP communication with the backend API
  * Includes authentication, error handling, and token management
  */

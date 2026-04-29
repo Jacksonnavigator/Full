@@ -1,7 +1,7 @@
 /**
- * HydraNet Authentication Service
+ * Majiscope Authentication Service
  * Handles user login, registration, and role-based authentication
- * Uses HydraNet Backend API (FastAPI)
+ * Uses Majiscope Backend API (FastAPI)
  */
 
 import {

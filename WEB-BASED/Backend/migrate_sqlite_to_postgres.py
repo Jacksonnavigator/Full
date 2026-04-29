@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
-Migrate the local HydraNet SQLite database into a PostgreSQL database.
+Migrate the local Majiscope SQLite database into a PostgreSQL database.
 
 Usage:
-    python migrate_sqlite_to_postgres.py --source ./hydranet.db --target <postgres-url> --replace
+    python migrate_sqlite_to_postgres.py --source ./majiscope.db --target <postgres-url> --replace
 """
 
 from __future__ import annotations
@@ -133,7 +133,7 @@ def _migrate(source: Path, target_url: str, replace: bool) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Migrate HydraNet SQLite data to PostgreSQL.")
+    parser = argparse.ArgumentParser(description="Migrate Majiscope SQLite data to PostgreSQL.")
     parser.add_argument("--source", required=True, help="Path to the SQLite database file.")
     parser.add_argument("--target", required=True, help="PostgreSQL database URL.")
     parser.add_argument(

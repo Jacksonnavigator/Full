@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Shared Components Index
+ * Majiscope Mobile - Shared Components Index
  * Unified export for all reusable components
  */
 

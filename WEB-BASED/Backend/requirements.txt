@@ -1,4 +1,4 @@
-# HydraNet Backend - Python Dependencies
+# Majiscope Backend - Python Dependencies
 # FastAPI, SQLAlchemy, PostgreSQL, and utilities
 
 # Web Framework

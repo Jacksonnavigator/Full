@@ -1,6 +1,6 @@
-# HydraNet Backend
+# Majiscope Backend
 
-HydraNet Backend is the FastAPI service for the live HydraNet platform.
+Majiscope Backend is the FastAPI service for the live Majiscope platform.
 
 ## Live hierarchy
 
@@ -37,7 +37,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ```env
 ENVIRONMENT=development
-DATABASE_URL=sqlite:///./hydranet.db
+DATABASE_URL=sqlite:///./majiscope.db
 FRONTEND_URL=http://localhost:3000
 SECRET_KEY=change-me
 HOST=0.0.0.0

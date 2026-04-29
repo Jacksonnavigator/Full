@@ -1,5 +1,5 @@
 /**
- * HydraNet Mobile - Design System
+ * Majiscope Mobile - Design System
  * Unified color palette matching frontend
  */
 
