@@ -1,5 +1,5 @@
 /**
- * HydraNet - Access Control Utilities
+ * MajiScope - Access Control Utilities
  * Defines which roles can access which pages
  */
 

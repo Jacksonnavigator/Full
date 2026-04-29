@@ -1,27 +1,19 @@
-## 🔐 HydraNet Login Credentials
+## 🔐 MajiScope Login Credentials
 
 ### Admin Access
 | Email | Password |
 |-------|----------|
-| `admin@hydranet.go.tz` | `admin123` |
+| `admin@majiscope.com` | `admin123` |
 
 ### Utility Manager Access
 | Email | Password |
 |-------|----------|
 | `manager@dawasa.go.tz` | `utility123` |
-| `manager@auwssa.go.tz` | `utility123` |
-| `manager@mwauwasa.go.tz` | `utility123` |
-| `manager@dowasa.go.tz` | `utility123` |
 
 ### DMA Manager Access
 | Email | Password |
 |-------|----------|
-| `dma.ilala@dawasa.go.tz` | `dma123` |
-| `dma.kinondoni@dawasa.go.tz` | `dma123` |
-| `dma.temeke@dawasa.go.tz` | `dma123` |
-| `dma.city@auwssa.go.tz` | `dma123` |
-| `dma.city@mwauwasa.go.tz` | `dma123` |
-| `dma.urban@dowasa.go.tz` | `dma123` |
+| `ilala@dawasa.go.tz` | `dma123` |
 
 ### Engineer / Team Leader Access
 Engineers and Team Leaders are created by DMA Managers through the Engineers Management page. Their credentials are set during creation.
@@ -36,11 +28,11 @@ Engineers and Team Leaders are created by DMA Managers through the Engineers Man
 ---
 
 ### Quick Test Credentials:
-**Admin**: `admin@hydranet.go.tz` / `admin123`
+**Admin**: `admin@majiscope.com` / `admin123`
 
 **Utility Manager (DAWASA)**: `manager@dawasa.go.tz` / `utility123`
 
-**DMA Manager (Ilala)**: `dma.ilala@dawasa.go.tz` / `dma123`
+**DMA Manager (Ilala)**: `ilala@dawasa.go.tz` / `dma123`
 
 ---
 

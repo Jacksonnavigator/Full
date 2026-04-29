@@ -29,7 +29,7 @@ export default function RootPage() {
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md">
         <Droplets className="h-7 w-7 text-cyan-300" />
       </div>
-      <p className="mt-4 text-sm text-blue-200/60">Loading HydraNet...</p>
+      <p className="mt-4 text-sm text-blue-200/60">Loading MajiScope...</p>
     </div>
   )
 }

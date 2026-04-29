@@ -1,5 +1,5 @@
 // ============================================================
-// HydraNet - Authentication Utilities
+// MajiScope - Authentication Utilities
 // Password hashing and verification using bcrypt
 // ============================================================
 

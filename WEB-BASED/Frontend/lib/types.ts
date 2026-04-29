@@ -1,5 +1,5 @@
 // ============================================================
-// HydraNet - TypeScript Type Definitions
+// MajiScope - TypeScript Type Definitions
 // All entity interfaces and enums for the system
 // ============================================================
 

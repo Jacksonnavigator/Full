@@ -1,5 +1,5 @@
 // ============================================================
-// HydraNet - Constants & Configuration
+// MajiScope - Constants & Configuration
 // Navigation config, role permissions, status mappings
 // ============================================================
 

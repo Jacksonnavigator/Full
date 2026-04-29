@@ -96,7 +96,7 @@ export default function SettingsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Settings"
-        description="Profile information and environment details for your HydraNet session"
+        description="Profile information and environment details for your MajiScope session"
       />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -240,7 +240,7 @@ export default function SettingsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>HydraNet uses role-scoped access: one utility should not interact with another, and one DMA should not operate outside its assigned utility hierarchy.</p>
+              <p>MajiScope uses role-scoped access: one utility should not interact with another, and one DMA should not operate outside its assigned utility hierarchy.</p>
               <p>Use admin and manager assignment pages to correct inactive accounts, unassigned DMAs, and missing leaders before they become operational gaps.</p>
             </CardContent>
           </Card>

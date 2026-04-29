@@ -1,5 +1,5 @@
 // ============================================================
-// HydraNet - Optional Prisma Client Helper
+// MajiScope - Optional Prisma Client Helper
 // Keeps TypeScript/builds working even when Prisma packages are
 // not installed for this frontend workspace.
 // ============================================================

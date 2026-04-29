@@ -1,5 +1,5 @@
 /**
- * HydraNet Frontend - Global Configuration
+ * MajiScope Frontend - Global Configuration
  * Centralized URL management for all API calls
  * 
  * This file is the single source of truth for backend communication

@@ -66,7 +66,7 @@ export function AppSidebar() {
       )}
 
       <SidebarHeader className={cn(
-        "border-b border-slate-100 relative",
+        "border-b border-slate-100 relative bg-slate-900/5 backdrop-blur-sm",
         isCollapsed ? "px-2 py-4" : "px-5 py-6"
       )}>
         <Link href="/dashboard" className={cn(
@@ -91,9 +91,9 @@ export function AppSidebar() {
             )}>
               <img 
                 src="/logo1.png" 
-                alt="HydraNet Logo" 
+                alt="MajiScope Logo" 
                 className={cn(
-                  "object-contain",
+                  "object-contain rounded-lg",
                   isCollapsed ? "h-6 w-6" : "h-9 w-9"
                 )}
               />
@@ -102,10 +102,18 @@ export function AppSidebar() {
 
           {!isCollapsed && (
             <div className="flex flex-col gap-0.5">
-              <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                HydraNet
-              </span>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-600/60">
+              <div className="relative">
+                <span className="block text-lg font-black tracking-tight">
+                  <span className="bg-gradient-to-r from-cyan-500 via-blue-500 to-teal-400 bg-clip-text text-transparent">
+                    Maji
+                  </span>
+                  <span className="bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
+                    Scope
+                  </span>
+                </span>
+                <span className="absolute -bottom-1 left-0 h-0.5 w-12 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-transparent" />
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-cyan-600/60 mt-2">
                 Water Intelligence
               </span>
               <div className="flex items-center gap-1 mt-1">
@@ -281,7 +289,7 @@ export function AppSidebar() {
                     logout()
                     window.location.href = "/login"
                   }}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50 m-1 rounded-lg"
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50 m-1 rounded-lg cursor-pointer"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
@@ -294,3 +302,4 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
+

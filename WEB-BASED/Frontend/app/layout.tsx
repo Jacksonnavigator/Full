@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "HydraNet - Water Leakage Management System",
+  title: "MajiScope - Water Infrastructure Intelligence System",
   description:
     "Government-grade water leakage reporting and management platform for South African municipalities",
   icons: {

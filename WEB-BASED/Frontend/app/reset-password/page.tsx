@@ -168,7 +168,7 @@ function ResetPasswordPageContent() {
             </h1>
             <p className="mt-2 text-sm text-slate-500">
               {token
-                ? "Set a new password for your HydraNet account using the secure link from your email."
+                ? "Set a new password for your MajiScope account using the secure link from your email."
                 : "Enter your account email and we will send you a secure password reset link."}
             </p>
           </div>
@@ -222,7 +222,7 @@ function ResetPasswordPageContent() {
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  placeholder="user@hydranet.go.tz"
+                  placeholder="user@majiscope.go.tz"
                   autoComplete="email"
                 />
               </div>

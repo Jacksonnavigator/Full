@@ -109,7 +109,7 @@ function SetupAccountPageContent() {
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-600">
               <CheckCircle2 className="h-7 w-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">Complete your HydraNet setup</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Complete your MajiScope setup</h1>
             <p className="mt-2 text-sm text-slate-500">Finish your profile and create your password to activate this account.</p>
           </div>
 

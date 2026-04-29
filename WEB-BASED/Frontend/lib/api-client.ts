@@ -1,5 +1,5 @@
 /**
- * HydraNet Frontend - Global API Client
+ * MajiScope Frontend - Global API Client
  * Handles all HTTP requests to the backend
  * 
  * Features:

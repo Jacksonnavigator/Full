@@ -230,7 +230,7 @@ export default function AnalyticsPage() {
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
-    link.download = isAdmin ? "hydranet-national-analytics.csv" : "hydranet-regional-analytics.csv"
+    link.download = isAdmin ? "majiscope-national-analytics.csv" : "majiscope-regional-analytics.csv"
     link.click()
     URL.revokeObjectURL(link.href)
   }
