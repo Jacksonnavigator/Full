@@ -81,7 +81,7 @@ export function TopNavbar() {
   return (
     <header className="sticky top-0 z-30 overflow-hidden">
       {/* Gradient Background with Glass Effect */}
-      <div className="relative flex h-16 items-center gap-4 border-b border-white/10 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-4 backdrop-blur-xl sm:px-6">
+     <div className="relative flex h-16 items-center gap-4 border-b border-gray-300 bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 px-4 backdrop-blur-xl sm:px-6">
         {/* Animated Background Patterns */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {/* Gradient Orbs */}
@@ -320,7 +320,10 @@ export function TopNavbar() {
 
             <DropdownMenuContent
               align="end"
-              className="w-72 rounded-xl border-white/10 bg-slate-900/95 p-0 backdrop-blur-xl"
+             className="z-[9999] w-72 rounded-xl border-white/10 bg-slate-900/95 p-0 backdrop-blur-xl"
+              
+              
+              
             >
               {/* Profile Header */}
               <div className="relative overflow-hidden border-b border-white/10 p-4">
