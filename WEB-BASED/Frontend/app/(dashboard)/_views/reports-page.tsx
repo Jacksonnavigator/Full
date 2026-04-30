@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
 import { ReportStatusBadge, PriorityBadge } from "@/components/shared/status-badge"
+import { ConfirmDialog } from "@/components/shared/confirm-dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -36,8 +37,10 @@ import {
   Clock,
   Sparkles,
   Eye,
+  Trash2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 type ReportStatus = "new" | "assigned" | "in_progress" | "pending_approval" | "approved" | "rejected" | "closed"
 type ReportPriority = "low" | "medium" | "high" | "critical"
@@ -71,12 +74,15 @@ export default function ReportsPage() {
     fetchReports, 
     fetchTeams, 
     fetchEngineers,
+    deleteReport,
   } = useDataStore()
 
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | ReportStatus>("all")
   const [priorityFilter, setPriorityFilter] = useState<"all" | ReportPriority>("all")
   const [loading, setLoading] = useState(true)
+  const [reportToDelete, setReportToDelete] = useState<{ id: string; trackingId: string } | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const isAdmin = currentUser?.role === "admin"
   const isUtility = currentUser?.role === "utility_manager"
@@ -136,6 +142,22 @@ export default function ReportsPage() {
 
   function openDetail(report: { id: string }) {
     router.push(`/dashboard/reports/${report.id}`)
+  }
+
+  const handleDeleteReport = async () => {
+    if (!reportToDelete) return
+
+    setIsDeleting(true)
+    try {
+      await deleteReport(reportToDelete.id)
+      toast.success(`Report ${reportToDelete.trackingId} deleted successfully`)
+      setReportToDelete(null)
+    } catch (error) {
+      console.error("Error deleting report:", error)
+      toast.error("Failed to delete report")
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   // Stats
@@ -445,14 +467,26 @@ export default function ReportsPage() {
 
                         {/* Actions */}
                         <TableCell className="py-4 px-6 text-right">
-                          <Button
-                            variant="outline"
-                            onClick={() => openDetail(report)}
-                            className="rounded-xl border-slate-200 bg-white"
-                          >
-                            <Eye className="mr-2 h-4 w-4 text-blue-500" />
-                            View Details
-                          </Button>
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              onClick={() => openDetail(report)}
+                              className="rounded-xl border-slate-200 bg-white"
+                            >
+                              <Eye className="mr-2 h-4 w-4 text-blue-500" />
+                              View Details
+                            </Button>
+                            {isAdmin && (
+                              <Button
+                                variant="outline"
+                                onClick={() => setReportToDelete({ id: report.id, trackingId: report.trackingId })}
+                                className="rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </Button>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     )
@@ -463,6 +497,24 @@ export default function ReportsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={Boolean(reportToDelete)}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setReportToDelete(null)
+          }
+        }}
+        title="Delete Report"
+        description={
+          reportToDelete
+            ? `Delete report ${reportToDelete.trackingId}? This action cannot be undone.`
+            : "Delete this report? This action cannot be undone."
+        }
+        confirmLabel={isDeleting ? "Deleting..." : "Delete Report"}
+        onConfirm={handleDeleteReport}
+        variant="destructive"
+      />
     </div>
   )
 }

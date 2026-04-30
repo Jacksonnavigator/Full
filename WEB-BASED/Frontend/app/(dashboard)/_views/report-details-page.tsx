@@ -19,6 +19,7 @@ import {
   UserCog,
   Users,
   X,
+  Trash2,
 } from "lucide-react"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore, type Report } from "@/store/data-store"
@@ -146,11 +147,12 @@ export default function ReportDetailPage() {
   const reportId = Array.isArray(params?.reportId) ? params.reportId[0] : params?.reportId
 
   const { currentUser } = useAuthStore()
-  const { reports, teams, fetchReports, fetchTeams } = useDataStore()
+  const { reports, teams, fetchReports, fetchTeams, deleteReport } = useDataStore()
   const [loading, setLoading] = useState(true)
   const [assignOpen, setAssignOpen] = useState(false)
   const [approveDialogOpen, setApproveDialogOpen] = useState(false)
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [assignTeamId, setAssignTeamId] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [viewerOpen, setViewerOpen] = useState(false)
@@ -316,6 +318,22 @@ export default function ReportDetailPage() {
     }
   }
 
+  const handleDelete = async () => {
+    if (!report) return
+    setIsSubmitting(true)
+    try {
+      await deleteReport(report.id)
+      toast.success("Report deleted successfully")
+      setDeleteDialogOpen(false)
+      router.push("/dashboard/reports")
+    } catch (error) {
+      console.error("Error deleting report:", error)
+      toast.error("Failed to delete report")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   if (loading) {
     return (
       <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
@@ -398,6 +416,16 @@ export default function ReportDetailPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
+        {isAdmin && (
+          <Button
+            variant="outline"
+            onClick={() => setDeleteDialogOpen(true)}
+            className="rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete Report
+          </Button>
+        )}
         {isDMA && !report.teamName && (
           <Button
             onClick={openAssign}
@@ -628,6 +656,16 @@ export default function ReportDetailPage() {
         description="Reject this repair submission? The report will be returned to the team for rework."
         confirmLabel="Reject Report"
         onConfirm={handleReject}
+        variant="destructive"
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Report"
+        description={`Delete report ${report.trackingId}? This action cannot be undone.`}
+        confirmLabel={isSubmitting ? "Deleting..." : "Delete Report"}
+        onConfirm={handleDelete}
         variant="destructive"
       />
 

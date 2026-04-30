@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
   Bell,
+  CheckCheck,
   ChevronDown,
   User,
   LogOut,
@@ -18,9 +19,11 @@ import {
   CheckCircle2,
   Clock,
   TrendingUp,
+  Loader2,
 } from "lucide-react"
 
 import { useAuthStore } from "@/store/auth-store"
+import { useDataStore } from "@/store/data-store"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -32,11 +35,52 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { getNotificationTag, resolveNotificationDestination } from "@/lib/notifications"
 
 export function TopNavbar() {
   const router = useRouter()
   const { currentUser, logout } = useAuthStore()
+  const {
+    notifications,
+    fetchNotifications,
+    getUnreadNotificationCount,
+    markNotificationRead,
+    markAllNotificationsRead,
+  } = useDataStore()
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
+  const [markingAllRead, setMarkingAllRead] = useState(false)
+
+  const unreadCount = getUnreadNotificationCount()
+  const recentNotifications = useMemo(() => notifications.slice(0, 5), [notifications])
+
+  useEffect(() => {
+    if (!currentUser?.id) return
+
+    let active = true
+    const loadNotifications = async () => {
+      if (!active) return
+      setNotificationsLoading(true)
+      try {
+        await fetchNotifications(currentUser.id)
+      } finally {
+        if (active) {
+          setNotificationsLoading(false)
+        }
+      }
+    }
+
+    void loadNotifications()
+    const intervalId = window.setInterval(() => {
+      void fetchNotifications(currentUser.id)
+    }, 60000)
+
+    return () => {
+      active = false
+      window.clearInterval(intervalId)
+    }
+  }, [currentUser?.id, fetchNotifications])
 
   const handleLogout = () => {
     logout()
@@ -45,6 +89,41 @@ export function TopNavbar() {
 
   const handleProfile = () => {
     router.push("/dashboard/profile")
+  }
+
+  const handleOpenNotificationsPage = () => {
+    setNotificationsOpen(false)
+    router.push("/dashboard/notifications")
+  }
+
+  const handleOpenNotification = async (notificationId: string, link: string | null) => {
+    await markNotificationRead(notificationId)
+    setNotificationsOpen(false)
+
+    const destination = resolveNotificationDestination(link)
+    router.push(destination || "/dashboard/notifications")
+  }
+
+  const handleMarkAllRead = async () => {
+    setMarkingAllRead(true)
+    try {
+      await markAllNotificationsRead()
+    } finally {
+      setMarkingAllRead(false)
+    }
+  }
+
+  const formatNotificationTime = (timestamp: string) => {
+    const date = new Date(timestamp)
+    const diffMs = Date.now() - date.getTime()
+    const diffMinutes = Math.max(1, Math.floor(diffMs / 60000))
+
+    if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes === 1 ? "" : "s"} ago`
+    const diffHours = Math.floor(diffMinutes / 60)
+    if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`
+    const diffDays = Math.floor(diffHours / 24)
+    if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`
+    return date.toLocaleDateString("en-ZA", { day: "numeric", month: "short" })
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -180,7 +259,7 @@ export function TopNavbar() {
           </Button>
 
           {/* Notifications Dropdown */}
-          <DropdownMenu>
+          <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
@@ -188,13 +267,14 @@ export function TopNavbar() {
                 className="relative h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400"
               >
                 <Bell className="h-4 w-4" />
-                {/* Notification Badge with Pulse */}
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
-                  <span className="relative inline-flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 text-[9px] font-bold text-white">
-                    3
+                {unreadCount > 0 ? (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
+                    <span className="relative inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-1 text-[9px] font-bold text-white">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
                   </span>
-                </span>
+                ) : null}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -206,46 +286,81 @@ export function TopNavbar() {
                   <Bell className="h-4 w-4 text-cyan-400" />
                   <span className="font-semibold text-white">Notifications</span>
                 </div>
-                <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-medium text-cyan-400">
-                  3 New
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-medium text-cyan-400">
+                    {unreadCount} unread
+                  </span>
+                  {unreadCount > 0 ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => void handleMarkAllRead()}
+                      disabled={markingAllRead}
+                      className="h-7 rounded-lg px-2 text-xs text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300"
+                    >
+                      {markingAllRead ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCheck className="h-3.5 w-3.5" />}
+                    </Button>
+                  ) : null}
+                </div>
               </div>
               <div className="max-h-80 overflow-auto p-2">
-                {/* Notification Items */}
-                <div className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-white/5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/20">
-                    <Activity className="h-4 w-4 text-emerald-400" />
+                {notificationsLoading ? (
+                  <div className="flex items-center justify-center gap-2 rounded-lg px-3 py-8 text-sm text-slate-400">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading notifications...
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">New leak report resolved</p>
-                    <p className="text-xs text-slate-400">Team Alpha completed repair in Sector 4</p>
-                    <p className="mt-1 text-[10px] text-slate-500">2 minutes ago</p>
+                ) : recentNotifications.length > 0 ? (
+                  recentNotifications.map((notification) => (
+                    <button
+                      key={notification.id}
+                      type="button"
+                      onClick={() => void handleOpenNotification(notification.id, notification.link)}
+                      className={`flex w-full gap-3 rounded-lg p-3 text-left transition-colors hover:bg-white/5 ${
+                        notification.read ? "" : "bg-cyan-500/5"
+                      }`}
+                    >
+                      <div
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                          notification.read ? "bg-slate-500/20" : "bg-cyan-500/20"
+                        }`}
+                      >
+                        {notification.read ? (
+                          <Clock className="h-4 w-4 text-slate-300" />
+                        ) : (
+                          <Bell className="h-4 w-4 text-cyan-400" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate text-sm font-medium text-white">{notification.title}</p>
+                          {!notification.read ? (
+                            <span className="rounded-full bg-cyan-500/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-cyan-300">
+                              New
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-xs text-slate-400">{notification.message}</p>
+                        <div className="mt-2 flex items-center justify-between gap-2">
+                          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-300">
+                            {getNotificationTag(notification)}
+                          </span>
+                          <p className="text-[10px] text-slate-500">{formatNotificationTime(notification.createdAt)}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="rounded-lg px-3 py-8 text-center">
+                    <Bell className="mx-auto h-8 w-8 text-slate-500" />
+                    <p className="mt-3 text-sm font-medium text-white">No notifications yet</p>
+                    <p className="mt-1 text-xs text-slate-400">Assignments, approvals, and alerts will appear here.</p>
                   </div>
-                </div>
-                <div className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-white/5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/20">
-                    <Zap className="h-4 w-4 text-amber-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">Critical leak detected</p>
-                    <p className="text-xs text-slate-400">High priority issue in DMA-7 area</p>
-                    <p className="mt-1 text-[10px] text-slate-500">15 minutes ago</p>
-                  </div>
-                </div>
-                <div className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-white/5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20">
-                    <TrendingUp className="h-4 w-4 text-cyan-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">Weekly report ready</p>
-                    <p className="text-xs text-slate-400">Performance metrics for this week</p>
-                    <p className="mt-1 text-[10px] text-slate-500">1 hour ago</p>
-                  </div>
-                </div>
+                )}
               </div>
               <div className="border-t border-white/10 p-2">
                 <Button
                   variant="ghost"
+                  onClick={handleOpenNotificationsPage}
                   className="w-full justify-center rounded-lg text-sm text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300"
                 >
                   View all notifications
