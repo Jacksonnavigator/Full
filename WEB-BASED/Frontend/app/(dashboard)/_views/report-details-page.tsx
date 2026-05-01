@@ -262,7 +262,7 @@ export default function ReportDetailPage() {
         return
       }
 
-      toast.success("Report assigned successfully")
+      toast.success("Reported leakage assigned successfully")
       setAssignOpen(false)
       await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
       await loadActivityLogs()
@@ -284,7 +284,7 @@ export default function ReportDetailPage() {
         return
       }
 
-      toast.success("Report approved and marked as resolved")
+      toast.success("Reported leakage approved and marked as resolved")
       setApproveDialogOpen(false)
       await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
       await loadActivityLogs()
@@ -306,7 +306,7 @@ export default function ReportDetailPage() {
         return
       }
 
-      toast.success("Report rejected")
+      toast.success("Reported leakage returned for rework")
       setRejectDialogOpen(false)
       await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
       await loadActivityLogs()
@@ -323,7 +323,7 @@ export default function ReportDetailPage() {
     setIsSubmitting(true)
     try {
       await deleteReport(report.id)
-      toast.success("Report deleted successfully")
+      toast.success("Reported leakage deleted successfully")
       setDeleteDialogOpen(false)
       router.push("/dashboard/reports")
     } catch (error) {
@@ -349,12 +349,12 @@ export default function ReportDetailPage() {
       <div className="flex flex-col gap-6">
         <Button variant="outline" onClick={() => router.push("/dashboard/reports")} className="w-fit rounded-xl">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Reports
+          Back to Reported Leakage
         </Button>
         <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
           <CardContent className="py-16 text-center">
-            <p className="text-lg font-semibold text-slate-800">Report not found</p>
-            <p className="mt-1 text-sm text-slate-500">This report may be outside your current access scope.</p>
+            <p className="text-lg font-semibold text-slate-800">Reported leakage not found</p>
+            <p className="mt-1 text-sm text-slate-500">This reported leakage item may be outside your current access scope.</p>
           </CardContent>
         </Card>
       </div>
@@ -383,16 +383,16 @@ export default function ReportDetailPage() {
           <div className="max-w-3xl">
             <Button variant="outline" onClick={() => router.push("/dashboard/reports")} className="mb-4 w-fit rounded-xl border-white/80 bg-white/80">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Reports
+              Back to Reported Leakage
             </Button>
             <div className="flex items-start gap-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-lg shadow-rose-500/20">
                 <FileText className="h-7 w-7 text-white" />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-500">DMA Report Review</p>
-                <h1 className="mt-1 text-3xl font-bold text-slate-800">Report Details</h1>
-                <p className="mt-2 text-slate-500">Full report context, richer media handling, and working field actions on one page.</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-500">DMA Reported Leakage Review</p>
+                <h1 className="mt-1 text-3xl font-bold text-slate-800">Reported Leakage Details</h1>
+                <p className="mt-2 text-slate-500">Full reported leakage context, richer media handling, and working field actions on one page.</p>
               </div>
             </div>
           </div>
@@ -423,7 +423,7 @@ export default function ReportDetailPage() {
             className="rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete Report
+            Delete Reported Leakage
           </Button>
         )}
         {isDMA && !report.teamName && (
@@ -432,7 +432,7 @@ export default function ReportDetailPage() {
             className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
           >
             <ClipboardCheck className="mr-2 h-4 w-4" />
-            Assign Report
+            Assign Reported Leakage
           </Button>
         )}
         {isDMA && report.status === "pending_approval" && (
@@ -513,7 +513,7 @@ export default function ReportDetailPage() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-slate-800">Activity Timeline</p>
-                <p className="text-xs text-slate-500">Every assignment, review, and approval event for this report.</p>
+                <p className="text-xs text-slate-500">Every assignment, review, and approval event for this reported leakage item.</p>
               </div>
             </div>
 
@@ -546,7 +546,7 @@ export default function ReportDetailPage() {
                 ))
               ) : (
                 <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
-                  No activity history has been recorded for this report yet.
+                  No activity history has been recorded for this reported leakage item yet.
                 </div>
               )}
             </div>
@@ -554,14 +554,14 @@ export default function ReportDetailPage() {
 
           <div className="grid grid-cols-1 gap-4">
             <MediaSection
-              title="Original Report Photos"
+              title="Original Reported Leakage Photos"
               description="Reporter evidence from the first submission. Click any tile to open it."
               icon={<ImageIcon className="h-4 w-4 text-blue-600" />}
               iconTone="bg-blue-100"
               emptyMessage={
                 repairMediaItems.length > 0
-                  ? "No original reporter media is currently stored for this report. Only repair evidence is available on this record."
-                  : "No original report photos are currently stored for this report."
+                  ? "No original reporter media is currently stored for this reported leakage item. Only repair evidence is available on this record."
+                  : "No original reported leakage photos are currently stored for this item."
               }
               items={originalMediaItems}
               onOpen={openMediaViewer}
@@ -587,9 +587,9 @@ export default function ReportDetailPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
                 <ClipboardCheck className="h-4 w-4 text-white" />
               </div>
-              Assign Report to Team
+              Assign Reported Leakage to Team
             </DialogTitle>
-            <DialogDescription>Select the team that should handle this leakage report.</DialogDescription>
+            <DialogDescription>Select the team that should handle this reported leakage item.</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-5 py-4">
             <div className="rounded-xl border border-rose-200/80 bg-gradient-to-r from-rose-50/50 to-pink-50/50 p-4">
@@ -631,7 +631,7 @@ export default function ReportDetailPage() {
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Assign Report
+                  Assign Reported Leakage
                 </>
               )}
             </Button>
@@ -643,8 +643,8 @@ export default function ReportDetailPage() {
         open={approveDialogOpen}
         onOpenChange={setApproveDialogOpen}
         title="Approve Repair"
-        description="Approve this repair and mark the report as resolved? This will mark the work as complete."
-        confirmLabel="Approve Report"
+        description="Approve this repair and mark the reported leakage item as resolved? This will mark the work as complete."
+        confirmLabel="Approve Reported Leakage"
         onConfirm={handleApprove}
         variant="default"
       />
@@ -653,8 +653,8 @@ export default function ReportDetailPage() {
         open={rejectDialogOpen}
         onOpenChange={setRejectDialogOpen}
         title="Reject Repair"
-        description="Reject this repair submission? The report will be returned to the team for rework."
-        confirmLabel="Reject Report"
+        description="Reject this repair submission? The reported leakage item will be returned to the team for rework."
+        confirmLabel="Reject Reported Leakage"
         onConfirm={handleReject}
         variant="destructive"
       />
@@ -662,9 +662,9 @@ export default function ReportDetailPage() {
       <ConfirmDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        title="Delete Report"
-        description={`Delete report ${report.trackingId}? This action cannot be undone.`}
-        confirmLabel={isSubmitting ? "Deleting..." : "Delete Report"}
+        title="Delete Reported Leakage"
+        description={`Delete reported leakage ${report.trackingId}? This action cannot be undone.`}
+        confirmLabel={isSubmitting ? "Deleting..." : "Delete Reported Leakage"}
         onConfirm={handleDelete}
         variant="destructive"
       />
@@ -678,7 +678,7 @@ export default function ReportDetailPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
                 <div>
-                  <p className="text-sm font-semibold text-white">{activeMedia.label || "Report Media"}</p>
+                  <p className="text-sm font-semibold text-white">{activeMedia.label || "Reported Leakage Media"}</p>
                   <p className="text-xs text-slate-300">{activeMedia.alt}</p>
                 </div>
                 <Button variant="ghost" onClick={() => setViewerOpen(false)} className="rounded-xl text-slate-200 hover:bg-white/10 hover:text-white">

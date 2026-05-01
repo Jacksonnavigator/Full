@@ -59,7 +59,7 @@ const STATUS_FILTERS: { value: "all" | ReportStatus; label: string }[] = [
 const PRIORITY_FILTERS: { value: "all" | ReportPriority; label: string }[] = [
   { value: "all", label: "All Priority" },
   { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
+  { value: "medium", label: "Moderate" },
   { value: "high", label: "High" },
   { value: "critical", label: "Critical" },
 ]
@@ -150,7 +150,7 @@ export default function ReportsPage() {
     setIsDeleting(true)
     try {
       await deleteReport(reportToDelete.id)
-      toast.success(`Report ${reportToDelete.trackingId} deleted successfully`)
+      toast.success(`Reported leakage ${reportToDelete.trackingId} deleted successfully`)
       setReportToDelete(null)
     } catch (error) {
       console.error("Error deleting report:", error)
@@ -188,14 +188,14 @@ export default function ReportsPage() {
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
                 <FileText className="h-5 w-5 text-white" />
               </div>
-              Reports
+              Reported Leakage
             </h1>
             <p className="text-slate-500 mt-1">
               {isDMA
-                ? "Assign and manage leakage reports in your DMA"
+                ? "Assign and manage reported leakage items in your DMA"
                 : isUtility
-                  ? "Monitor reports across your utility"
-                  : "National view of all leakage reports"}
+                  ? "Monitor reported leakage items across your utility"
+                  : "National view of all reported leakage items"}
             </p>
           </div>
         </div>
@@ -209,7 +209,7 @@ export default function ReportsPage() {
                   <FileText className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-500">Total Reports</p>
+                  <p className="text-sm font-medium text-slate-500">Total Reported Leakage</p>
                   <p className="text-2xl font-bold text-slate-800">{totalReports}</p>
                 </div>
               </div>
@@ -223,7 +223,7 @@ export default function ReportsPage() {
                   <Sparkles className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-500">New Reports</p>
+                  <p className="text-sm font-medium text-slate-500">New Reported Leakage</p>
                   <p className="text-2xl font-bold text-slate-800">{newReports}</p>
                 </div>
               </div>
@@ -307,7 +307,7 @@ export default function ReportsPage() {
         
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <FileText className="h-4 w-4" />
-          <span>{filteredReports.length} report{filteredReports.length !== 1 ? 's' : ''}</span>
+          <span>{filteredReports.length} reported leakage item{filteredReports.length !== 1 ? 's' : ''}</span>
         </div>
       </div>
 
@@ -358,11 +358,11 @@ export default function ReportsPage() {
                           <FileText className="h-8 w-8 text-slate-400" />
                         </div>
                         <div>
-                          <p className="text-lg font-semibold text-slate-800">No reports found</p>
+                          <p className="text-lg font-semibold text-slate-800">No reported leakage found</p>
                           <p className="text-sm text-slate-500 mt-1">
                             {search || statusFilter !== "all" || priorityFilter !== "all" 
                               ? "Try adjusting your filters" 
-                              : "Reports will appear here when available"}
+                              : "Reported leakage items will appear here when available"}
                           </p>
                         </div>
                       </div>
@@ -505,13 +505,13 @@ export default function ReportsPage() {
             setReportToDelete(null)
           }
         }}
-        title="Delete Report"
+        title="Delete Reported Leakage"
         description={
           reportToDelete
-            ? `Delete report ${reportToDelete.trackingId}? This action cannot be undone.`
-            : "Delete this report? This action cannot be undone."
+            ? `Delete reported leakage ${reportToDelete.trackingId}? This action cannot be undone.`
+            : "Delete this reported leakage item? This action cannot be undone."
         }
-        confirmLabel={isDeleting ? "Deleting..." : "Delete Report"}
+        confirmLabel={isDeleting ? "Deleting..." : "Delete Reported Leakage"}
         onConfirm={handleDeleteReport}
         variant="destructive"
       />

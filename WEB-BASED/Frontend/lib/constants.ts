@@ -76,7 +76,7 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ["dma_manager"],
   },
   {
-    title: "Reports",
+    title: "Reported Leakage",
     href: "/dashboard/reports",
     icon: FileText,
     roles: ["admin", "utility_manager", "dma_manager"],
@@ -147,7 +147,7 @@ export const PRIORITY_CONFIG: Record<
   { label: string; color: string; bgColor: string }
 > = {
   low: { label: "Low", color: "text-blue-700", bgColor: "bg-blue-50 border-blue-200" },
-  medium: { label: "Medium", color: "text-amber-700", bgColor: "bg-amber-50 border-amber-200" },
+  medium: { label: "Moderate", color: "text-amber-700", bgColor: "bg-amber-50 border-amber-200" },
   high: { label: "High", color: "text-red-700", bgColor: "bg-red-50 border-red-200" },
   critical: {
     label: "Critical",

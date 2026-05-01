@@ -78,6 +78,16 @@ def _report_link(report_id: str) -> str:
     return f"/dashboard/reports/{report_id}"
 
 
+def _priority_label(priority: str | ReportPriorityEnum | None) -> str:
+    raw = priority.value if hasattr(priority, "value") else priority
+    normalized = str(raw or "").strip().lower()
+    if normalized == "medium":
+        return "Moderate"
+    if not normalized:
+        return "Unspecified"
+    return normalized.capitalize()
+
+
 def _queue_dma_manager_notification(
     db: Session,
     report: Report,
@@ -99,6 +109,7 @@ def _queue_dma_manager_notification(
             "reportId": report.id,
             "trackingId": report.tracking_id,
             "status": report.status.value if hasattr(report.status, "value") else report.status,
+            "priority": report.priority.value if hasattr(report.priority, "value") else report.priority,
             "notificationKind": "dma_action",
         },
         link=_report_link(report.id),
@@ -125,6 +136,7 @@ def _queue_engineer_notification(
             "reportId": report.id,
             "trackingId": report.tracking_id,
             "status": report.status.value if hasattr(report.status, "value") else report.status,
+            "priority": report.priority.value if hasattr(report.priority, "value") else report.priority,
             "notificationKind": "engineer_action",
         },
         link=_report_link(report.id),
@@ -154,6 +166,7 @@ def _queue_team_leader_notification(
             "reportId": report.id,
             "trackingId": report.tracking_id,
             "status": report.status.value if hasattr(report.status, "value") else report.status,
+            "priority": report.priority.value if hasattr(report.priority, "value") else report.priority,
             "notificationKind": "team_leader_action",
         },
         link=_report_link(report.id),
@@ -505,8 +518,8 @@ async def create_anonymous_report(
     queued_notification = _queue_dma_manager_notification(
         db,
         new_report,
-        title="New leakage report needs assignment",
-        message=f"{new_report.tracking_id} was reported in {dma.name}. Review it and assign a team.",
+        title="New reported leakage needs assignment",
+        message=f"{_priority_label(new_report.priority)} priority reported leakage {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
         notification_type=NotificationTypeEnum.WARNING,
     )
     log_report_activity(
@@ -655,8 +668,8 @@ async def update_report_status(
             notification = _queue_dma_manager_notification(
                 db,
                 report,
-                title="Repair ready for DMA approval",
-                message=f"{report.tracking_id} was approved by the team leader and is ready for DMA review.",
+                title="Reported leakage ready for DMA approval",
+                message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was approved by the team leader and is ready for DMA review.",
                 notification_type=NotificationTypeEnum.INFO,
             )
             if notification:
@@ -665,8 +678,8 @@ async def update_report_status(
             notification = _queue_team_leader_notification(
                 db,
                 report,
-                title="Engineer submitted repair for review",
-                message=f"{report.tracking_id} has new repair evidence waiting for your review.",
+                title="Engineer submitted reported leakage repair for review",
+                message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} has new repair evidence waiting for your review.",
                 notification_type=NotificationTypeEnum.INFO,
             )
             if notification:
@@ -675,8 +688,8 @@ async def update_report_status(
         notification = _queue_engineer_notification(
             db,
             report,
-            title="Repair returned for rework",
-            message=status_update.notes or f"{report.tracking_id} was returned by the team leader for follow-up work.",
+            title="Reported leakage returned for rework",
+            message=status_update.notes or f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was returned by the team leader for follow-up work.",
             notification_type=NotificationTypeEnum.WARNING,
         )
         if notification:
@@ -754,8 +767,8 @@ async def assign_report(
     leader_notification = _queue_team_leader_notification(
         db,
         report,
-        title="New report assigned to your team",
-        message=f"{report.tracking_id} is now assigned to your team for field action.",
+        title="New reported leakage assigned to your team",
+        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} is now assigned to your team for field action.",
         notification_type=NotificationTypeEnum.INFO,
     )
     if leader_notification:
@@ -813,8 +826,8 @@ async def approve_report(
     engineer_notification = _queue_engineer_notification(
         db,
         report,
-        title="Repair approved and closed",
-        message=f"{report.tracking_id} was approved by DMA and marked as closed.",
+        title="Reported leakage approved and closed",
+        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was approved by DMA and marked as closed.",
         notification_type=NotificationTypeEnum.SUCCESS,
     )
     if engineer_notification:
@@ -822,8 +835,8 @@ async def approve_report(
     leader_notification = _queue_team_leader_notification(
         db,
         report,
-        title="DMA approved your team repair",
-        message=f"{report.tracking_id} was approved by DMA and marked as closed.",
+        title="DMA approved your reported leakage repair",
+        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was approved by DMA and marked as closed.",
         notification_type=NotificationTypeEnum.SUCCESS,
     )
     if leader_notification and (not engineer_notification or leader_notification.engineer_id != engineer_notification.engineer_id):
@@ -880,8 +893,8 @@ async def reject_report(
     engineer_notification = _queue_engineer_notification(
         db,
         report,
-        title="Repair needs follow-up work",
-        message=f"{report.tracking_id} was not approved by DMA and needs more work before closure.",
+        title="Reported leakage needs follow-up work",
+        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was not approved by DMA and needs more work before closure.",
         notification_type=NotificationTypeEnum.ERROR,
     )
     if engineer_notification:
@@ -889,8 +902,8 @@ async def reject_report(
     leader_notification = _queue_team_leader_notification(
         db,
         report,
-        title="DMA requested follow-up work",
-        message=f"{report.tracking_id} needs follow-up work before you resubmit it to DMA.",
+        title="DMA requested reported leakage follow-up work",
+        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} needs follow-up work before you resubmit it to DMA.",
         notification_type=NotificationTypeEnum.ERROR,
     )
     if leader_notification and (not engineer_notification or leader_notification.engineer_id != engineer_notification.engineer_id):
