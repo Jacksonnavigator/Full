@@ -56,7 +56,7 @@ export default function DashboardLayout({
         <div className="flex flex-col flex-1">
           <TopNavbar />
           <SidebarInset className="relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none">
-            <main className="flex-1 overflow-auto p-6">
+            <main className="flex-1 overflow-y-auto overflow-x-hidden p-6">
               {children}
             </main>
           </SidebarInset>

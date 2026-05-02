@@ -222,7 +222,7 @@ export default function ReportsPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-4">
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-300 bg-gradient-to-br from-rose-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
@@ -335,39 +335,48 @@ export default function ReportsPage() {
       {/* Modern Table */}
       <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden">
         <CardContent className="p-0">
-          <div className="w-full overflow-x-auto max-w-full">
-            <Table className="w-full">
+            <Table className="w-full table-fixed">
+              <colgroup>
+                <col style={{ width: isDMA ? "16%" : "14%" }} />
+                <col style={{ width: isDMA ? "21%" : "23%" }} />
+                <col style={{ width: isDMA ? "18%" : "18%" }} />
+                {!isDMA && <col style={{ width: "11%" }} />}
+                <col style={{ width: isDMA ? "10%" : "9%" }} />
+                <col style={{ width: isDMA ? "12%" : "11%" }} />
+                {isDMA && <col style={{ width: "13%" }} />}
+                <col style={{ width: isDMA ? "10%" : "14%" }} />
+              </colgroup>
               <TableHeader>
                 <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/80 hover:from-slate-50 hover:to-slate-100/80 border-b border-slate-200/60">
-                  <TableHead className="font-semibold text-slate-600 py-4 px-6">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       Tracking ID
                     </div>
                   </TableHead>
-                  <TableHead className="font-semibold text-slate-600 py-4 px-6">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600">
                     Description
                   </TableHead>
-                  <TableHead className="font-semibold text-slate-600 py-4 px-6">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
                       Location
                     </div>
                   </TableHead>
                   {!isDMA && (
-                    <TableHead className="font-semibold text-slate-600 py-4 px-6">DMA</TableHead>
+                    <TableHead className="px-4 py-4 font-semibold text-slate-600">DMA</TableHead>
                   )}
-                  <TableHead className="font-semibold text-slate-600 py-4 px-6">Priority</TableHead>
-                  <TableHead className="font-semibold text-slate-600 py-4 px-6">Status</TableHead>
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600">Priority</TableHead>
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600">Status</TableHead>
                   {isDMA && (
-                    <TableHead className="font-semibold text-slate-600 py-4 px-6">
+                    <TableHead className="px-4 py-4 font-semibold text-slate-600">
                       <div className="flex items-center gap-2">
                         <UserCog className="h-4 w-4" />
                         Assigned To
                       </div>
                     </TableHead>
                   )}
-                  <TableHead className="font-semibold text-slate-600 py-4 px-6 text-right">Actions</TableHead>
+                  <TableHead className="px-4 py-4 text-right font-semibold text-slate-600">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -407,10 +416,10 @@ export default function ReportsPage() {
                         )}
                       >
                         {/* Tracking ID */}
-                        <TableCell className="py-4 px-6">
-                          <div className="flex items-center gap-3">
+                        <TableCell className="px-4 py-4 align-top">
+                          <div className="flex items-start gap-3">
                             <div className={cn(
-                              "h-10 w-10 rounded-xl flex items-center justify-center shadow-lg",
+                              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-lg",
                               isNew
                                 ? "bg-gradient-to-br from-blue-500 to-cyan-600"
                                 : isPending
@@ -419,24 +428,26 @@ export default function ReportsPage() {
                             )}>
                               <FileText className="h-5 w-5 text-white" />
                             </div>
-                            <span className="font-mono text-xs font-semibold text-slate-700">
+                            <span className="break-words font-mono text-xs font-semibold leading-snug text-slate-700">
                               {report.trackingId}
                             </span>
                           </div>
                         </TableCell>
 
                         {/* Description */}
-                        <TableCell className="py-4 px-6 max-w-xs">
-                          <p className="text-sm text-slate-600 truncate">{report.description || "No description"}</p>
+                        <TableCell className="px-4 py-4 align-top">
+                          <p className="line-clamp-3 break-words text-sm leading-snug text-slate-600">
+                            {report.description || "No description"}
+                          </p>
                         </TableCell>
 
                         {/* Location */}
-                        <TableCell className="py-4 px-6">
-                          <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
+                        <TableCell className="px-4 py-4 align-top">
+                          <div className="flex items-start gap-2">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100">
                               <MapPin className="h-4 w-4 text-emerald-600" />
                             </div>
-                            <span className="max-w-[220px] whitespace-normal break-words text-sm leading-snug text-slate-600">
+                            <span className="break-words text-sm leading-snug text-slate-600">
                               {getReportLocationLabel(report)}
                             </span>
                           </div>
@@ -444,24 +455,24 @@ export default function ReportsPage() {
 
                         {/* DMA (for non-DMA users) */}
                         {!isDMA && (
-                          <TableCell className="py-4 px-6">
-                            <span className="text-sm font-medium text-slate-700">{report.dmaName || "-"}</span>
+                          <TableCell className="px-4 py-4 align-top">
+                            <span className="break-words text-sm font-medium leading-snug text-slate-700">{report.dmaName || "-"}</span>
                           </TableCell>
                         )}
 
                         {/* Priority */}
-                        <TableCell className="py-4 px-6">
+                        <TableCell className="px-4 py-4 align-top">
                           <PriorityBadge priority={report.priority} />
                         </TableCell>
 
                         {/* Status */}
-                        <TableCell className="py-4 px-6">
+                        <TableCell className="px-4 py-4 align-top">
                           <ReportStatusBadge status={report.status} />
                         </TableCell>
 
                         {/* Assigned To (for DMA managers) */}
                         {isDMA && (
-                          <TableCell className="py-4 px-6">
+                          <TableCell className="px-4 py-4 align-top">
                             {report.teamName ? (
                               <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2">
@@ -487,21 +498,21 @@ export default function ReportsPage() {
                         )}
 
                         {/* Actions */}
-                        <TableCell className="py-4 px-6 text-right">
-                          <div className="flex justify-end gap-2">
+                        <TableCell className="px-4 py-4 align-top text-right">
+                          <div className="flex flex-col items-stretch gap-2 2xl:flex-row 2xl:justify-end">
                             <Button
                               variant="outline"
                               onClick={() => openDetail(report)}
-                              className="rounded-xl border-slate-200 bg-white"
+                              className="w-full rounded-xl border-slate-200 bg-white 2xl:w-auto"
                             >
                               <Eye className="mr-2 h-4 w-4 text-blue-500" />
-                              View Details
+                              Details
                             </Button>
                             {isAdmin && (
                               <Button
                                 variant="outline"
                                 onClick={() => setReportToDelete({ id: report.id, trackingId: report.trackingId })}
-                                className="rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+                                className="w-full rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 2xl:w-auto"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Delete
@@ -515,7 +526,6 @@ export default function ReportsPage() {
                 )}
               </TableBody>
             </Table>
-          </div>
         </CardContent>
       </Card>
 
