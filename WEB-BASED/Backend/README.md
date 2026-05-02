@@ -88,6 +88,38 @@ Key flow:
 - use a real ASGI process manager for production
 - if you deploy on Postgres, let the startup migrator run once on the updated code before traffic
 
+## Historical DUWASA import on deploy
+
+The backend includes a deployment-safe importer for the committed backend-local
+CSV file `Leakage_Reporting_Excel_Up_to_January_2026_DUWASA.csv`.
+
+You can run it manually:
+
+```bash
+python import_legacy_duwasa_reports.py --database-url "$DATABASE_URL"
+python import_legacy_duwasa_reports.py --database-url "$DATABASE_URL" --execute
+```
+
+Or let Render run it automatically on app startup:
+
+```env
+LEGACY_DUWASA_IMPORT_ON_STARTUP=true
+# Optional override. Leave blank to use the CSV inside WEB-BASED/Backend.
+LEGACY_DUWASA_IMPORT_CSV_PATH=
+LEGACY_DUWASA_IMPORT_STRICT=false
+```
+
+Recommended deploy flow:
+
+1. Commit and push the backend changes together with the CSV file in `WEB-BASED/Backend`.
+2. In Render, set `LEGACY_DUWASA_IMPORT_ON_STARTUP=true`.
+3. Redeploy the backend service once.
+4. Check logs for the importer summary.
+5. Set `LEGACY_DUWASA_IMPORT_ON_STARTUP=false` after the import is complete.
+
+The importer is idempotent for the imported tracking IDs, so if startup runs it
+again later it will skip rows that already exist instead of duplicating them.
+
 ## Verification
 
 - Swagger: `/docs`

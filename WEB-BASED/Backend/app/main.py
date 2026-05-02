@@ -28,6 +28,7 @@ from app.api import (
     uploads_router,
 )
 from app.services.database_migrations import run_startup_migrations
+from import_legacy_duwasa_reports import DEFAULT_CSV_PATH, import_legacy_duwasa_data
 
 # ============================================================
 # Lifecycle Events
@@ -45,9 +46,26 @@ async def lifespan(app: FastAPI):
     print(f"   Frontend URL: {settings.frontend_url}")
     print(f"   CORS Origins: {settings.get_cors_origins()}")
     print(f"   CORS Origin Regex: {settings.cors_origin_regex}")
+    print(f"   Legacy DUWASA Startup Import: {settings.legacy_duwasa_import_on_startup}")
     print("=" * 60)
     run_startup_migrations(engine)
     Base.metadata.create_all(bind=engine)
+    if settings.legacy_duwasa_import_on_startup:
+        csv_path = (
+            settings.legacy_duwasa_import_csv_path.strip()
+            or str(DEFAULT_CSV_PATH)
+        )
+        try:
+            import_legacy_duwasa_data(
+                database_url=settings.database_url,
+                csv_path=csv_path,
+                limit=settings.legacy_duwasa_import_limit,
+                execute=True,
+            )
+        except Exception as exc:
+            print(f"Legacy DUWASA startup import failed: {exc}")
+            if settings.legacy_duwasa_import_strict:
+                raise
     yield
     print("=" * 60)
     print(f"🛑 {settings.app_name} Shutting Down...")

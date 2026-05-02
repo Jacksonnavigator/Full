@@ -87,6 +87,16 @@ class Settings(BaseSettings):
     host: str = os.getenv("HOST", "0.0.0.0")
     port: int = int(os.getenv("PORT", "8000"))
 
+    # ===== Optional startup import =====
+    legacy_duwasa_import_on_startup: bool = os.getenv("LEGACY_DUWASA_IMPORT_ON_STARTUP", "false").strip().lower() in {"1", "true", "yes", "on"}
+    legacy_duwasa_import_csv_path: str = os.getenv("LEGACY_DUWASA_IMPORT_CSV_PATH", "")
+    legacy_duwasa_import_strict: bool = os.getenv("LEGACY_DUWASA_IMPORT_STRICT", "false").strip().lower() in {"1", "true", "yes", "on"}
+    legacy_duwasa_import_limit: int | None = (
+        int(os.getenv("LEGACY_DUWASA_IMPORT_LIMIT", "").strip())
+        if os.getenv("LEGACY_DUWASA_IMPORT_LIMIT", "").strip()
+        else None
+    )
+
     @field_validator("debug", mode="before")
     @classmethod
     def parse_debug_value(cls, value: Any) -> bool:
