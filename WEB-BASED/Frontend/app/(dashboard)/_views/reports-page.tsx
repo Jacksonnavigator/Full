@@ -64,6 +64,27 @@ const PRIORITY_FILTERS: { value: "all" | ReportPriority; label: string }[] = [
   { value: "critical", label: "Critical" },
 ]
 
+const getReportLocationLabel = (report: {
+  address?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  dmaName?: string | null
+}) => {
+  if (report.address?.trim()) {
+    return report.address
+  }
+
+  if (Number.isFinite(report.latitude) && Number.isFinite(report.longitude)) {
+    return `${report.latitude!.toFixed(5)}, ${report.longitude!.toFixed(5)}`
+  }
+
+  if (report.dmaName?.trim()) {
+    return report.dmaName
+  }
+
+  return "Location not available"
+}
+
 export default function ReportsPage() {
   const router = useRouter()
   const { currentUser } = useAuthStore()
@@ -415,8 +436,8 @@ export default function ReportsPage() {
                             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
                               <MapPin className="h-4 w-4 text-emerald-600" />
                             </div>
-                            <span className="text-sm text-slate-600 truncate max-w-[180px]">
-                              {report.address || "No address"}
+                            <span className="max-w-[220px] whitespace-normal break-words text-sm leading-snug text-slate-600">
+                              {getReportLocationLabel(report)}
                             </span>
                           </div>
                         </TableCell>

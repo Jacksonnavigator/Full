@@ -711,7 +711,7 @@ function HeroMetric({ label, value, accent }: { label: string; value: string; ac
     <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm">
       <div className={cn("h-1.5 w-20 rounded-full bg-gradient-to-r", accent)} />
       <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">{label}</p>
-      <p className="mt-2 text-base font-semibold text-slate-800">{value}</p>
+      <p className="mt-2 break-words text-base font-semibold leading-snug text-slate-800">{value}</p>
     </div>
   )
 }
@@ -739,9 +739,9 @@ function DetailCard({
   return (
     <div className="flex items-center gap-3 rounded-xl border border-slate-200/60 bg-slate-50/80 p-3">
       <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${tone}`}>{icon}</div>
-      <div>
+      <div className="min-w-0 flex-1">
         <p className="text-xs text-slate-500">{label}</p>
-        <p className="text-sm font-medium text-slate-700">{value}</p>
+        <p className="break-words text-sm font-medium leading-snug text-slate-700">{value}</p>
       </div>
     </div>
   )
