@@ -14,8 +14,8 @@ export const PAGE_ACCESS_MAP: Record<string, UserRole[]> = {
   '': ['admin', 'utility_manager', 'dma_manager'],
   '/': ['admin', 'utility_manager', 'dma_manager'],
 
-  // Utilities - admin only (admin can create/edit)
-  '/utilities': ['admin'],
+  // Utilities - admin and utility managers
+  '/utilities': ['admin', 'utility_manager'],
 
   // Utility Managers - admin only (admin can create/edit)
   '/managers': ['admin'],
@@ -111,7 +111,7 @@ export const ROLE_PERMISSIONS = {
   },
   utility_manager: {
     canCreateUtility: false,
-    canEditUtility: false,
+    canEditUtility: true,
     canDeleteUtility: false,
     canCreateUtilityManager: false,
     canEditUtilityManager: false,

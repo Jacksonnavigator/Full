@@ -21,6 +21,12 @@ export interface Utility {
   status: EntityStatus
   dmasCount?: number
   reportsCount?: number
+  pipeNetworkFileName?: string | null
+  pipeNetworkFileSize?: number | null
+  pipeNetworkMimeType?: string | null
+  pipeNetworkDownloadUrl?: string | null
+  pipeNetworkPreviewUrl?: string | null
+  pipeNetworkUploadedAt?: string | null
   createdAt: string
   updatedAt: string
 }

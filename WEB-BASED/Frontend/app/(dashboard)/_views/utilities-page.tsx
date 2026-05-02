@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, type ChangeEvent } from "react"
 import { useDataStore, type Utility } from "@/store/data-store"
 import { useAuthStore } from "@/store/auth-store"
 import { usePageAccess } from "@/hooks/use-page-access"
@@ -8,6 +8,7 @@ import { CONFIG } from "@/lib/config"
 import { PageHeader } from "@/components/shared/page-header"
 import { EntityStatusBadge } from "@/components/shared/status-badge"
 import { ConfirmDialog } from "@/components/shared/confirm-dialog"
+import { UtilityPipeNetworkMap } from "@/components/maps/utility-pipe-network-map"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -47,7 +48,10 @@ import {
   Sparkles,
   AlertTriangle,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Upload,
+  Download,
+  Network,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -70,6 +74,9 @@ export default function UtilitiesPage() {
   const [editingUtility, setEditingUtility] = useState<Utility | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [utilityManagers, setUtilityManagers] = useState<User[]>([])
+  const [uploadTargetUtility, setUploadTargetUtility] = useState<Utility | null>(null)
+  const [busyUtilityId, setBusyUtilityId] = useState<string | null>(null)
+  const uploadInputRef = useRef<HTMLInputElement | null>(null)
 
   // Form state
   const [formName, setFormName] = useState("")
@@ -77,12 +84,14 @@ export default function UtilitiesPage() {
   const [formStatus, setFormStatus] = useState<EntityStatus>("active")
 
   const isAdmin = currentUser?.role === "admin"
+  const isUtilityManager = currentUser?.role === "utility_manager"
 
   // Fetch data on mount
   useEffect(() => {
     fetchUtilities()
+    fetchDMAs()
     fetchManagers()
-  }, [fetchUtilities])
+  }, [fetchUtilities, fetchDMAs])
 
   async function fetchManagers() {
     try {
@@ -100,13 +109,13 @@ export default function UtilitiesPage() {
     }
   }
 
-  // Only Admins can create and manage utilities
-  if (!isAdmin) {
+  // Only Admins and Utility Managers can access utilities
+  if (!isAdmin && !isUtilityManager) {
     return (
       <div className="flex flex-col gap-6">
         <PageHeader
           title="Utility Management"
-          description="Only Admins can manage utilities"
+          description="Only Admins and Utility Managers can manage utilities"
         />
         <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
           <CardContent className="py-16 text-center">
@@ -116,7 +125,7 @@ export default function UtilitiesPage() {
               </div>
               <div>
                 <p className="text-lg font-semibold text-slate-800">Access Restricted</p>
-                <p className="text-sm text-slate-500 mt-1">Only Admins can manage utilities</p>
+                <p className="text-sm text-slate-500 mt-1">Only Admins and Utility Managers can manage utilities</p>
               </div>
             </div>
           </CardContent>
@@ -125,7 +134,11 @@ export default function UtilitiesPage() {
     )
   }
 
-  const filteredUtilities = utilities.filter((u) => {
+  const scopedUtilities = isUtilityManager
+    ? utilities.filter((u) => u.id === currentUser?.utilityId)
+    : utilities
+
+  const filteredUtilities = scopedUtilities.filter((u) => {
     const searchLower = search.toLowerCase().trim()
     if (!searchLower) return true
     
@@ -140,6 +153,7 @@ export default function UtilitiesPage() {
   })
 
   function openCreateDialog() {
+    if (!isAdmin) return
     setEditingUtility(null)
     setFormName("")
     setFormDescription("")
@@ -170,6 +184,10 @@ export default function UtilitiesPage() {
         })
         toast.success("Utility updated successfully")
       } else {
+        if (!isAdmin) {
+          toast.error("Only admins can create utilities")
+          return
+        }
         await addUtility({
           name: formName,
           description: formDescription,
@@ -180,6 +198,126 @@ export default function UtilitiesPage() {
       setDialogOpen(false)
     } catch {
       toast.error("Operation failed")
+    }
+  }
+
+  function requestPipeNetworkUpload(utility: Utility) {
+    setUploadTargetUtility(utility)
+    uploadInputRef.current?.click()
+  }
+
+  async function handlePipeNetworkUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    const utility = uploadTargetUtility
+    event.target.value = ""
+
+    if (!file || !utility) {
+      return
+    }
+
+    const token = localStorage.getItem("access_token")
+    if (!token) {
+      toast.error("You are not authenticated.")
+      return
+    }
+
+    const formData = new FormData()
+    formData.append("file", file)
+    setBusyUtilityId(utility.id)
+
+    try {
+      const response = await fetch(`${CONFIG.backend.fullUrl}/utilities/${utility.id}/pipe-network`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      })
+
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        toast.error(payload.detail || payload.error || "Failed to upload pipe network")
+        return
+      }
+
+      toast.success("Utility pipe network uploaded successfully")
+      await fetchUtilities()
+    } catch (error) {
+      console.error("Error uploading utility pipe network:", error)
+      toast.error("Failed to upload pipe network")
+    } finally {
+      setBusyUtilityId(null)
+      setUploadTargetUtility(null)
+    }
+  }
+
+  async function handlePipeNetworkDownload(utility: Utility) {
+    const token = localStorage.getItem("access_token")
+    if (!token) {
+      toast.error("You are not authenticated.")
+      return
+    }
+
+    setBusyUtilityId(utility.id)
+    try {
+      const response = await fetch(`${CONFIG.backend.fullUrl}/utilities/${utility.id}/pipe-network/download`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}))
+        toast.error(payload.detail || payload.error || "Failed to download pipe network")
+        return
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const anchor = document.createElement("a")
+      anchor.href = url
+      anchor.download = utility.pipeNetworkFileName || `${utility.name}-pipe-network`
+      document.body.appendChild(anchor)
+      anchor.click()
+      anchor.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Error downloading utility pipe network:", error)
+      toast.error("Failed to download pipe network")
+    } finally {
+      setBusyUtilityId(null)
+    }
+  }
+
+  async function handlePipeNetworkDelete(utility: Utility) {
+    const token = localStorage.getItem("access_token")
+    if (!token) {
+      toast.error("You are not authenticated.")
+      return
+    }
+
+    setBusyUtilityId(utility.id)
+    try {
+      const response = await fetch(`${CONFIG.backend.fullUrl}/utilities/${utility.id}/pipe-network`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        toast.error(payload.detail || payload.error || "Failed to remove pipe network")
+        return
+      }
+
+      toast.success("Utility pipe network removed successfully")
+      await fetchUtilities()
+    } catch (error) {
+      console.error("Error removing utility pipe network:", error)
+      toast.error("Failed to remove pipe network")
+    } finally {
+      setBusyUtilityId(null)
     }
   }
 
@@ -211,9 +349,11 @@ export default function UtilitiesPage() {
   }
 
   // Stats
-  const totalUtilities = utilities?.length || 0
-  const activeUtilities = utilities?.filter(u => u.status === "active").length || 0
-  const totalDmas = dmas?.length || 0
+  const totalUtilities = scopedUtilities?.length || 0
+  const activeUtilities = scopedUtilities?.filter(u => u.status === "active").length || 0
+  const totalDmas = isUtilityManager
+    ? dmas.filter((dma) => dma.utilityId === currentUser?.utilityId).length
+    : dmas?.length || 0
 
   return (
     <div className="flex flex-col gap-6">
@@ -227,15 +367,19 @@ export default function UtilitiesPage() {
               </div>
               Utility Management
             </h1>
-            <p className="text-slate-500 mt-1">Manage all utilities in the water infrastructure system</p>
+            <p className="text-slate-500 mt-1">
+              {isAdmin ? "Manage all utilities in the water infrastructure system" : "Manage your utility profile and upload its pipe network"}
+            </p>
           </div>
-          <Button 
-            onClick={openCreateDialog}
-            className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 rounded-xl h-11 px-6"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Utility
-          </Button>
+          {isAdmin ? (
+            <Button 
+              onClick={openCreateDialog}
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 rounded-xl h-11 px-6"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Utility
+            </Button>
+          ) : null}
         </div>
 
         {/* Stats Cards */}
@@ -314,13 +458,15 @@ export default function UtilitiesPage() {
                 <p className="text-lg font-semibold text-slate-800">No utilities found</p>
                 <p className="text-sm text-slate-500 mt-1">Get started by creating your first utility</p>
               </div>
-              <Button 
-                onClick={openCreateDialog}
-                className="mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/25 rounded-xl"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Utility
-              </Button>
+              {isAdmin ? (
+                <Button 
+                  onClick={openCreateDialog}
+                  className="mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/25 rounded-xl"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Utility
+                </Button>
+              ) : null}
             </div>
           </CardContent>
         </Card>
@@ -373,13 +519,15 @@ export default function UtilitiesPage() {
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => setDeleteId(utility.id)}
-                        className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
+                      {isAdmin ? (
+                        <DropdownMenuItem
+                          onClick={() => setDeleteId(utility.id)}
+                          className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      ) : null}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -403,11 +551,89 @@ export default function UtilitiesPage() {
                     <span className="font-medium">{utility.reportsCount}</span>
                   </div>
                 </div>
+
+                <div className="mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 shadow-sm shadow-sky-500/20">
+                          <Network className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800">Utility Pipe Network</p>
+                          <p className="text-xs text-slate-500">Upload the latest utility network map or GIS package.</p>
+                        </div>
+                      </div>
+                      {utility.pipeNetworkFileName ? (
+                        <div className="mt-3">
+                          <p className="break-words text-sm font-medium text-slate-700">{utility.pipeNetworkFileName}</p>
+                          <p className="text-xs text-slate-500">
+                            {(utility.pipeNetworkFileSize || 0) > 0 ? `${(utility.pipeNetworkFileSize! / 1024 / 1024).toFixed(2)} MB` : "File size unavailable"}
+                            {utility.pipeNetworkUploadedAt ? ` • Updated ${new Date(utility.pipeNetworkUploadedAt).toLocaleString("en-ZA")}` : ""}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="mt-3 text-sm text-slate-500">No pipe network file uploaded yet.</p>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2 sm:w-44">
+                      <Button
+                        onClick={() => requestPipeNetworkUpload(utility)}
+                        disabled={busyUtilityId === utility.id}
+                        className="rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-lg shadow-sky-500/20 hover:from-sky-600 hover:to-cyan-700"
+                      >
+                        <Upload className="mr-2 h-4 w-4" />
+                        {utility.pipeNetworkFileName ? "Replace File" : "Upload File"}
+                      </Button>
+                      {utility.pipeNetworkFileName ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            onClick={() => handlePipeNetworkDownload(utility)}
+                            disabled={busyUtilityId === utility.id}
+                            className="rounded-xl"
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Download
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => handlePipeNetworkDelete(utility)}
+                            disabled={busyUtilityId === utility.id}
+                            className="rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Remove
+                          </Button>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+
+                {utility.pipeNetworkFileName ? (
+                  <div className="mt-4">
+                    <UtilityPipeNetworkMap
+                      utilityId={utility.id}
+                      previewUrl={utility.pipeNetworkPreviewUrl}
+                      title="Pipe Network Map Preview"
+                      emptyMessage="Upload a GeoJSON utility pipe network to preview it on the map."
+                    />
+                  </div>
+                ) : null}
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      <input
+        ref={uploadInputRef}
+        type="file"
+        className="hidden"
+        accept=".geojson,.json,.kml,.kmz,.zip,.csv,.gpkg,.pdf,.txt"
+        onChange={handlePipeNetworkUpload}
+      />
 
       {/* Modern Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

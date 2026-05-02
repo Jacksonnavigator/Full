@@ -97,6 +97,12 @@ class UtilityUpdate(BaseModel):
 class UtilityResponse(UtilityBase):
     """Schema for utility response"""
     id: str
+    pipe_network_file_name: Optional[str] = None
+    pipe_network_file_size: Optional[int] = None
+    pipe_network_mime_type: Optional[str] = None
+    pipe_network_download_url: Optional[str] = None
+    pipe_network_preview_url: Optional[str] = None
+    pipe_network_uploaded_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 

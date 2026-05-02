@@ -6,7 +6,7 @@ The live operational hierarchy is now:
     Admin -> Utility -> DMA -> Team -> Engineer
 """
 
-from sqlalchemy import Column, String, DateTime, Enum as SQLEnum, ForeignKey, UniqueConstraint, Float
+from sqlalchemy import Column, String, DateTime, Enum as SQLEnum, ForeignKey, UniqueConstraint, Float, LargeBinary, Integer
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -76,6 +76,12 @@ class Utility(Base):
     dmas = relationship("DMA", back_populates="utility")
     reports = relationship("Report", back_populates="utility")
     activity_logs = relationship("ActivityLog", back_populates="utility", foreign_keys="ActivityLog.utility_id")
+    pipe_network_file = relationship(
+        "UtilityPipeNetwork",
+        back_populates="utility",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
 
 
 # ============================================================
@@ -109,6 +115,26 @@ class UtilityManager(Base):
     utility = relationship("Utility", back_populates="manager", foreign_keys=[utility_id])
     activity_logs = relationship("ActivityLog", back_populates="utility_mgr", foreign_keys="ActivityLog.utility_mgr_id")
     notifications = relationship("Notification", back_populates="utility_mgr")
+    uploaded_pipe_networks = relationship("UtilityPipeNetwork", foreign_keys="UtilityPipeNetwork.uploaded_by_manager_id")
+
+
+class UtilityPipeNetwork(Base):
+    """Stored pipe network file for a utility."""
+
+    __tablename__ = "utility_pipe_network"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    utility_id = Column(String(36), ForeignKey("utility.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    uploaded_by_manager_id = Column(String(36), ForeignKey("utility_manager.id", ondelete="SET NULL"), nullable=True, index=True)
+    file_data = Column(LargeBinary, nullable=False)
+    file_name = Column(String(255), nullable=False)
+    mime_type = Column(String(100), nullable=False, default="application/octet-stream")
+    file_size = Column(Integer, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    utility = relationship("Utility", back_populates="pipe_network_file", foreign_keys=[utility_id])
+    uploaded_by_manager = relationship("UtilityManager", foreign_keys=[uploaded_by_manager_id])
 
 
 # ============================================================

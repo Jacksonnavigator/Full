@@ -7,6 +7,7 @@ import { useDataStore } from "@/store/data-store"
 import { StatCard } from "@/components/shared/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ReportStatusMap } from "@/components/maps/report-status-map"
+import { UtilityPipeNetworkMap } from "@/components/maps/utility-pipe-network-map"
 import { EntityStatusBadge, PriorityBadge, ReportStatusBadge } from "@/components/shared/status-badge"
 import {
   MapPin,
@@ -266,6 +267,16 @@ export function UtilityDashboard() {
         onReportSelect={(reportId) => router.push(`/dashboard/reports/${reportId}`)}
         emptyMessage="No geolocated reports are available for this utility yet."
       />
+
+      {utility?.pipeNetworkFileName ? (
+        <UtilityPipeNetworkMap
+          utilityId={utility.id}
+          previewUrl={utility.pipeNetworkPreviewUrl}
+          fallbackCenter={utilityMapCenter}
+          title="Utility Pipe Network Map"
+          emptyMessage="Upload a GeoJSON utility pipe network to overlay it here."
+        />
+      ) : null}
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card>
