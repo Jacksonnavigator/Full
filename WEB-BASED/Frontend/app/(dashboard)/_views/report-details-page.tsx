@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
 import { transformKeys } from "@/lib/transform-data"
 import { cn } from "@/lib/utils"
@@ -154,6 +155,8 @@ export default function ReportDetailPage() {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [assignTeamId, setAssignTeamId] = useState("")
+  const [approveComment, setApproveComment] = useState("")
+  const [rejectReason, setRejectReason] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [viewerOpen, setViewerOpen] = useState(false)
   const [activeMedia, setActiveMedia] = useState<MediaItem | null>(null)
@@ -275,10 +278,15 @@ export default function ReportDetailPage() {
   }
 
   const handleApprove = async () => {
-    if (!report) return
+    if (!report || !approveComment.trim()) {
+      toast.error("Please add a DMA approval comment.")
+      return
+    }
     setIsSubmitting(true)
     try {
-      const response = await apiClient.post(`/reports/${report.id}/approve`, {})
+      const response = await apiClient.post(`/reports/${report.id}/approve`, {
+        notes: approveComment.trim(),
+      })
       if (!response.success) {
         toast.error(response.error || "Failed to approve report")
         return
@@ -286,6 +294,7 @@ export default function ReportDetailPage() {
 
       toast.success("Reported leakage approved and marked as resolved")
       setApproveDialogOpen(false)
+      setApproveComment("")
       await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
       await loadActivityLogs()
     } catch (error) {
@@ -297,17 +306,23 @@ export default function ReportDetailPage() {
   }
 
   const handleReject = async () => {
-    if (!report) return
+    if (!report || !rejectReason.trim()) {
+      toast.error("Please add a DMA rejection reason.")
+      return
+    }
     setIsSubmitting(true)
     try {
-      const response = await apiClient.post(`/reports/${report.id}/reject`, {})
+      const response = await apiClient.post(`/reports/${report.id}/reject`, {
+        notes: rejectReason.trim(),
+      })
       if (!response.success) {
         toast.error(response.error || "Failed to reject report")
         return
       }
 
-      toast.success("Reported leakage returned for rework")
+      toast.success("Reported leakage returned to the assigned team for rework")
       setRejectDialogOpen(false)
+      setRejectReason("")
       await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
       await loadActivityLogs()
     } catch (error) {
@@ -639,25 +654,102 @@ export default function ReportDetailPage() {
         </DialogContent>
       </Dialog>
 
-      <ConfirmDialog
+      <Dialog
         open={approveDialogOpen}
-        onOpenChange={setApproveDialogOpen}
-        title="Approve Repair"
-        description="Approve this repair and mark the reported leakage item as resolved? This will mark the work as complete."
-        confirmLabel="Approve Reported Leakage"
-        onConfirm={handleApprove}
-        variant="default"
-      />
+        onOpenChange={(open) => {
+          setApproveDialogOpen(open)
+          if (!open) setApproveComment("")
+        }}
+      >
+        <DialogContent className="sm:max-w-md rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Approve Repair</DialogTitle>
+            <DialogDescription>
+              Add the DMA approval comment that should stay with this reported leakage resolution.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="approve-comment">DMA Approval Comment</Label>
+            <Textarea
+              id="approve-comment"
+              value={approveComment}
+              onChange={(event) => setApproveComment(event.target.value)}
+              placeholder="Example: Repair evidence verified, site condition matches the submitted resolution, approved for closure."
+              className="min-h-[130px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl"
+              onClick={() => {
+                setApproveDialogOpen(false)
+                setApproveComment("")
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleApprove}
+              disabled={isSubmitting || !approveComment.trim()}
+              className="rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-600 hover:to-green-700"
+            >
+              {isSubmitting ? "Approving..." : "Approve Reported Leakage"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      <ConfirmDialog
+      <Dialog
         open={rejectDialogOpen}
-        onOpenChange={setRejectDialogOpen}
-        title="Reject Repair"
-        description="Reject this repair submission? The reported leakage item will be returned to the team for rework."
-        confirmLabel="Reject Reported Leakage"
-        onConfirm={handleReject}
-        variant="destructive"
-      />
+        onOpenChange={(open) => {
+          setRejectDialogOpen(open)
+          if (!open) setRejectReason("")
+        }}
+      >
+        <DialogContent className="sm:max-w-md rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Reject Repair</DialogTitle>
+            <DialogDescription>
+              Add the DMA rejection reason. This report will return to the assigned team for rework instead of staying rejected.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="reject-reason">DMA Rework Reason</Label>
+            <Textarea
+              id="reject-reason"
+              value={rejectReason}
+              onChange={(event) => setRejectReason(event.target.value)}
+              placeholder="Example: Final images do not clearly prove the leakage was fully fixed. Please revisit the site and resubmit clearer evidence."
+              className="min-h-[130px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl"
+              onClick={() => {
+                setRejectDialogOpen(false)
+                setRejectReason("")
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleReject}
+              disabled={isSubmitting || !rejectReason.trim()}
+              className="rounded-xl"
+            >
+              {isSubmitting ? "Returning..." : "Return For Rework"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         open={deleteDialogOpen}

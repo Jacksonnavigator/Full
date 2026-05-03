@@ -13,6 +13,7 @@ from app.schemas.business import (
     ReportCreate,
     ReportUpdate,
     ReportStatusUpdateRequest,
+    ReportReviewDecisionRequest,
     AnonymousReportCreate,
 )
 from app.schemas.user import (
@@ -785,6 +786,7 @@ async def assign_report(
 @reports_router.post("/{report_id}/approve", response_model=ReportWithDetails)
 async def approve_report(
     report_id: str,
+    decision: ReportReviewDecisionRequest,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -814,20 +816,29 @@ async def approve_report(
         )
     
     report.status = ReportStatusEnum.APPROVED
+    if decision.notes:
+        report.notes = decision.notes
     report.resolved_at = datetime.utcnow()
     queued_notifications = []
+    approval_details = "Report approved by DMA and marked as resolved."
+    if decision.notes:
+        approval_details += f" Comment: {decision.notes}"
     log_report_activity(
         db,
         report=report,
         action="report_approved",
-        details="Report approved by DMA and marked as resolved.",
+        details=approval_details,
         actor=current_user,
     )
     engineer_notification = _queue_engineer_notification(
         db,
         report,
         title="Reported leakage approved and closed",
-        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was approved by DMA and marked as closed.",
+        message=(
+            f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} "
+            f"was approved by DMA and marked as closed."
+            + (f" DMA comment: {decision.notes}" if decision.notes else "")
+        ),
         notification_type=NotificationTypeEnum.SUCCESS,
     )
     if engineer_notification:
@@ -836,7 +847,11 @@ async def approve_report(
         db,
         report,
         title="DMA approved your reported leakage repair",
-        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was approved by DMA and marked as closed.",
+        message=(
+            f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} "
+            f"was approved by DMA and marked as closed."
+            + (f" DMA comment: {decision.notes}" if decision.notes else "")
+        ),
         notification_type=NotificationTypeEnum.SUCCESS,
     )
     if leader_notification and (not engineer_notification or leader_notification.engineer_id != engineer_notification.engineer_id):
@@ -853,6 +868,7 @@ async def approve_report(
 @reports_router.post("/{report_id}/reject", response_model=ReportWithDetails)
 async def reject_report(
     report_id: str,
+    decision: ReportReviewDecisionRequest,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -881,20 +897,30 @@ async def reject_report(
             detail="Report must be in 'pending_approval' status to reject",
         )
     
-    report.status = ReportStatusEnum.REJECTED
+    report.status = ReportStatusEnum.ASSIGNED
+    if decision.notes:
+        report.notes = decision.notes
+    report.resolved_at = None
     queued_notifications = []
+    rejection_details = "Report rejected by DMA and returned to the assigned team for rework."
+    if decision.notes:
+        rejection_details += f" Reason: {decision.notes}"
     log_report_activity(
         db,
         report=report,
         action="report_rejected",
-        details="Report rejected by DMA and returned for follow-up work.",
+        details=rejection_details,
         actor=current_user,
     )
     engineer_notification = _queue_engineer_notification(
         db,
         report,
         title="Reported leakage needs follow-up work",
-        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was not approved by DMA and needs more work before closure.",
+        message=(
+            f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} "
+            f"was returned for rework by DMA."
+            + (f" Reason: {decision.notes}" if decision.notes else "")
+        ),
         notification_type=NotificationTypeEnum.ERROR,
     )
     if engineer_notification:
@@ -903,7 +929,11 @@ async def reject_report(
         db,
         report,
         title="DMA requested reported leakage follow-up work",
-        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} needs follow-up work before you resubmit it to DMA.",
+        message=(
+            f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} "
+            f"needs follow-up work before you resubmit it to DMA."
+            + (f" Reason: {decision.notes}" if decision.notes else "")
+        ),
         notification_type=NotificationTypeEnum.ERROR,
     )
     if leader_notification and (not engineer_notification or leader_notification.engineer_id != engineer_notification.engineer_id):

@@ -73,6 +73,11 @@ class ReportStatusUpdateRequest(BaseModel):
     notes: Optional[str] = Field(None, max_length=500, description="Status update notes")
 
 
+class ReportReviewDecisionRequest(BaseModel):
+    """Schema for DMA approval / rejection decisions"""
+    notes: Optional[str] = Field(None, max_length=500, description="DMA review comment or rejection reason")
+
+
 # ============================================================================
 # Activity Log Schemas
 # ============================================================================
