@@ -515,8 +515,54 @@ export default function EngineersPage() {
 
       <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="space-y-3 p-4 md:hidden">
+            {filteredEngineers.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-10 text-center">
+                <p className="text-lg font-semibold text-slate-800">No engineers found</p>
+                <p className="mt-1 text-sm text-slate-500">Try adjusting your filters or invite a new engineer.</p>
+              </div>
+            ) : filteredEngineers.map((engineer) => (
+              <div key={engineer.id} className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-cyan-600 text-white">{initials(engineer.name)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-semibold text-slate-800">{engineer.name}</p>
+                      <p className="text-xs text-slate-500 break-all">{engineer.email}</p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="capitalize">{engineer.role.replace("_", " ")}</Badge>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-slate-500">Team</p>
+                    <p className="mt-1 font-medium text-slate-700">{engineer.teamName || "Unassigned"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-slate-500">DMA</p>
+                    <p className="mt-1 font-medium text-slate-700">{engineer.dmaName || "Not set"}</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <EntityStatusBadge status={engineer.status} />
+                  <OnboardingBadge status={engineer.onboardingStatus} />
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={() => { setViewingEngineer(engineer); setViewDialogOpen(true) }}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    Details
+                  </Button>
+                  {canManage ? <Button variant="outline" size="sm" onClick={() => openEditDialog(engineer)}><Pencil className="mr-2 h-4 w-4" />Edit</Button> : null}
+                  {canManage && engineer.onboardingStatus !== "completed" ? <Button variant="outline" size="sm" onClick={() => void handleResendInvite(engineer)}><Send className="mr-2 h-4 w-4" />Resend</Button> : null}
+                  {canManage ? <Button variant="outline" size="sm" className="text-red-600" onClick={() => setDeleteId(engineer.id)}><Trash2 className="mr-2 h-4 w-4" />Remove</Button> : null}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block">
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="bg-slate-50">
                   <TableHead className="px-6 py-4">Engineer</TableHead>
@@ -535,11 +581,11 @@ export default function EngineersPage() {
                     <TableCell className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10"><AvatarFallback className="bg-gradient-to-br from-teal-500 to-cyan-600 text-white">{initials(engineer.name)}</AvatarFallback></Avatar>
-                        <div><p className="font-semibold text-slate-800">{engineer.name}</p><p className="text-xs text-slate-500">{engineer.email}</p></div>
+                        <div><p className="font-semibold text-slate-800">{engineer.name}</p><p className="break-all text-xs text-slate-500">{engineer.email}</p></div>
                       </div>
                     </TableCell>
-                    <TableCell className="px-6 py-4">{engineer.teamName ? <span className="font-medium text-slate-700">{engineer.teamName}</span> : <Badge variant="outline">Unassigned</Badge>}</TableCell>
-                    <TableCell className="px-6 py-4">{engineer.dmaName || "Not set"}</TableCell>
+                    <TableCell className="px-6 py-4 break-words">{engineer.teamName ? <span className="font-medium text-slate-700">{engineer.teamName}</span> : <Badge variant="outline">Unassigned</Badge>}</TableCell>
+                    <TableCell className="px-6 py-4 break-words">{engineer.dmaName || "Not set"}</TableCell>
                     <TableCell className="px-6 py-4"><Badge variant="outline" className="capitalize">{engineer.role.replace("_", " ")}</Badge></TableCell>
                     <TableCell className="px-6 py-4"><div className="flex flex-col items-start gap-2"><EntityStatusBadge status={engineer.status} /><OnboardingBadge status={engineer.onboardingStatus} /></div></TableCell>
                     <TableCell className="px-6 py-4 text-right">
@@ -562,12 +608,12 @@ export default function EngineersPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{editingEngineer ? "Edit Engineer Access" : "Invite Engineer"}</DialogTitle>
             <DialogDescription>{editingEngineer ? "Update the assigned team, role, email, or account status." : "Fill only the email, role, and team. The invited person will complete the remaining account setup from their secure link."}</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 overflow-y-auto py-4 pr-1">
             <div className="grid gap-2">
               <Label htmlFor="engineer-email">Email</Label>
               <Input id="engineer-email" type="email" value={formEmail} onChange={(event) => setFormEmail(event.target.value)} />
@@ -615,10 +661,10 @@ export default function EngineersPage() {
       </Dialog>
 
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
           <DialogHeader><DialogTitle>Engineer Details</DialogTitle></DialogHeader>
           {viewingEngineer && (
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 overflow-y-auto py-4 pr-1">
               <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <Avatar className="h-16 w-16"><AvatarFallback className="bg-gradient-to-br from-teal-500 to-cyan-600 text-white">{initials(viewingEngineer.name)}</AvatarFallback></Avatar>
                 <div>

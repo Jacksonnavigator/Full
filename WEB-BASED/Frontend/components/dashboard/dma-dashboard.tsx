@@ -537,8 +537,44 @@ export function DMADashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="space-y-3 md:hidden">
+            {recentReports.length > 0 ? (
+              recentReports.map((report) => (
+                <button
+                  key={report.id}
+                  type="button"
+                  onClick={() => router.push(`/dashboard/reports/${report.id}`)}
+                  className="w-full rounded-2xl border border-border/70 bg-card p-4 text-left transition-all hover:border-primary/30 hover:bg-muted/30"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-mono text-xs font-semibold text-foreground">{report.trackingId}</p>
+                      <p className="mt-2 text-sm font-medium text-foreground">{report.description}</p>
+                    </div>
+                    <PriorityBadge priority={report.priority} />
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-muted-foreground">
+                    <div>
+                      <p className="uppercase tracking-wide">Team</p>
+                      <p className="mt-1 text-sm text-foreground">{report.teamName ?? "Unassigned"}</p>
+                    </div>
+                    <div>
+                      <p className="uppercase tracking-wide">Status</p>
+                      <div className="mt-1">
+                        <ReportStatusBadge status={report.status} />
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+                No reports found in this DMA yet.
+              </div>
+            )}
+          </div>
+          <div className="hidden md:block">
+            <table className="modern-table table-fixed">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
                   <th className="pb-3 pr-4 font-medium">Tracking ID</th>
@@ -554,7 +590,7 @@ export function DMADashboard() {
                     <td className="py-3 pr-4 font-mono text-xs font-medium">
                       {report.trackingId}
                     </td>
-                    <td className="max-w-xs truncate py-3 pr-4 text-muted-foreground">
+                    <td className="max-w-xs break-words py-3 pr-4 text-muted-foreground">
                       {report.description}
                     </td>
                     <td className="py-3 pr-4 text-muted-foreground">

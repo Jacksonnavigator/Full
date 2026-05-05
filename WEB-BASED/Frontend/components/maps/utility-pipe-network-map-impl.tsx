@@ -8,6 +8,51 @@ import CONFIG from "@/lib/config"
 
 const DEFAULT_CENTER: [number, number] = [-6.7924, 39.2083]
 
+function describePreviewIssue(error: string | null, fileName?: string | null) {
+  if (!error) {
+    return {
+      title: "Pipe network preview ready when uploaded",
+      detail: "Upload a supported utility pipe network file to preview it on the map.",
+    }
+  }
+
+  const normalized = error.toLowerCase()
+  const fileLabel = fileName ? `Saved file: ${fileName}. ` : ""
+
+  if (normalized.includes("decoded")) {
+    return {
+      title: "Saved file could not be read",
+      detail: `${fileLabel}Re-export it as UTF-8 GeoJSON, KML, CSV, or TXT, then upload it again.`,
+    }
+  }
+
+  if (normalized.includes("parsed")) {
+    return {
+      title: "Saved file structure is invalid",
+      detail: `${fileLabel}The uploaded network file could not be parsed. Re-export the map file from the source GIS tool and replace it here.`,
+    }
+  }
+
+  if (normalized.includes("did not contain previewable geometry")) {
+    return {
+      title: "No map geometry was found",
+      detail: `${fileLabel}The file is saved, but it does not contain previewable pipe lines or points. Confirm the export includes actual network geometry before uploading again.`,
+    }
+  }
+
+  if (normalized.includes("converted into previewable map features")) {
+    return {
+      title: "Saved file is not map-ready yet",
+      detail: `${fileLabel}The file format was accepted for storage, but its contents could not be turned into map features. Download it to inspect the export or replace it with a cleaner GIS file.`,
+    }
+  }
+
+  return {
+    title: "Uploaded pipe network could not be previewed",
+    detail: `${fileLabel}${error} Download the saved file to inspect it or replace it with a cleaner GIS export.`,
+  }
+}
+
 type GeometryCoordinates =
   | [number, number]
   | number[]
@@ -60,12 +105,14 @@ export function UtilityPipeNetworkMapImpl({
   utilityId,
   previewUrl,
   fallbackCenter,
+  fileName,
   title = "Utility Pipe Network",
-  emptyMessage = "Upload a GeoJSON utility pipe network to preview it on the map.",
+  emptyMessage = "Upload a supported utility pipe network file to preview it on the map.",
 }: {
   utilityId: string
   previewUrl?: string | null
   fallbackCenter?: [number, number] | null
+  fileName?: string | null
   title?: string
   emptyMessage?: string
 }) {
@@ -145,6 +192,17 @@ export function UtilityPipeNetworkMapImpl({
     return DEFAULT_CENTER
   }, [fallbackCenter, previewCoordinates])
 
+  const previewMessage = useMemo(() => {
+    if (error) {
+      return describePreviewIssue(error, fileName)
+    }
+
+    return {
+      title: "Pipe network preview ready when uploaded",
+      detail: emptyMessage,
+    }
+  }, [emptyMessage, error, fileName])
+
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 bg-slate-50/80 px-4 py-3">
@@ -187,9 +245,9 @@ export function UtilityPipeNetworkMapImpl({
           </div>
           <div>
             <p className="text-sm font-semibold text-slate-700">
-              {error ? "Pipe network preview unavailable" : "Pipe network preview ready when uploaded"}
+              {previewMessage.title}
             </p>
-            <p className="mt-1 text-sm text-slate-500">{error || emptyMessage}</p>
+            <p className="mt-1 text-sm text-slate-500">{previewMessage.detail}</p>
           </div>
         </div>
       )}

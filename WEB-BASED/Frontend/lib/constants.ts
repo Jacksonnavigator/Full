@@ -107,12 +107,14 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   admin: "System Administrator",
   utility_manager: "Utility Manager",
   dma_manager: "DMA Manager",
+  user: "Administrator",
 }
 
 export const ROLE_SHORT_LABELS: Record<UserRole, string> = {
   admin: "Admin",
   utility_manager: "Utility Mgr",
   dma_manager: "DMA Mgr",
+  user: "Admin",
 }
 
 // ---------- Status Configurations ----------

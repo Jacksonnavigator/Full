@@ -561,7 +561,7 @@ export default function UtilitiesPage() {
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-slate-800">Utility Pipe Network</p>
-                          <p className="text-xs text-slate-500">Upload the latest utility network map or GIS package.</p>
+                          <p className="text-xs text-slate-500">Upload the latest utility network map in a previewable GIS format.</p>
                         </div>
                       </div>
                       {utility.pipeNetworkFileName ? (
@@ -616,8 +616,9 @@ export default function UtilitiesPage() {
                     <UtilityPipeNetworkMap
                       utilityId={utility.id}
                       previewUrl={utility.pipeNetworkPreviewUrl}
+                      fileName={utility.pipeNetworkFileName}
                       title="Pipe Network Map Preview"
-                      emptyMessage="Upload a GeoJSON utility pipe network to preview it on the map."
+                      emptyMessage="Upload a supported utility pipe network file to preview it on the map. If a saved file cannot be drawn here, replace it with a previewable GIS file or download the stored copy for inspection."
                     />
                   </div>
                 ) : null}
@@ -631,13 +632,13 @@ export default function UtilitiesPage() {
         ref={uploadInputRef}
         type="file"
         className="hidden"
-        accept=".geojson,.json,.kml,.kmz,.zip,.csv,.gpkg,.pdf,.txt"
+        accept=".geojson,.json,.kml,.kmz,.zip,.csv,.txt"
         onChange={handlePipeNetworkUpload}
       />
 
       {/* Modern Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg bg-white/95 backdrop-blur-xl border-slate-200/50 shadow-2xl shadow-slate-200/50 rounded-2xl">
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden bg-white/95 backdrop-blur-xl border-slate-200/50 shadow-2xl shadow-slate-200/50 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
@@ -650,7 +651,7 @@ export default function UtilitiesPage() {
               {editingUtility ? "Edit Utility" : "Add Utility"}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-5 py-4">
+          <div className="flex flex-col gap-5 overflow-y-auto py-4 pr-1">
             <div className="flex flex-col gap-2">
               <Label htmlFor="utility-name" className="text-sm font-medium text-slate-700">Utility Name</Label>
               <Input

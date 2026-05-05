@@ -18,6 +18,9 @@ class ReportBase(BaseModel):
     tracking_id: str = Field(..., min_length=1, max_length=50)
     dma_id: Optional[str] = None
     description: Optional[str] = Field(None, max_length=2000)
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    address: Optional[str] = Field(None, max_length=500)
     priority: ReportPriority = ReportPriority.MEDIUM
     photos: Optional[List[str]] = []
 
@@ -25,6 +28,8 @@ class ReportBase(BaseModel):
 class ReportCreate(ReportBase):
     """Schema for creating a report"""
     assigned_engineer_id: Optional[str] = None
+    reporter_name: Optional[str] = Field(None, max_length=255)
+    reporter_phone: Optional[str] = Field(None, max_length=20)
 
 
 class AnonymousReportCreate(BaseModel):
@@ -36,6 +41,7 @@ class AnonymousReportCreate(BaseModel):
     priority: str = "Medium"  # Accept string priority from mobile app
     images: Optional[List[str]] = []
     reported_by: Optional[str] = "Anonymous"
+    history_key: Optional[str] = Field(None, max_length=64)
 
 
 class ReportUpdate(BaseModel):

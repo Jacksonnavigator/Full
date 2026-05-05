@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database.session import get_db
-from app.models import Engineer, Team
+from app.models import DMA, Engineer, Team
 from app.schemas.user import (
     EngineerCreate,
     EngineerInvitationBulkCreate,
@@ -20,6 +20,7 @@ from app.schemas.user import (
     EngineerUpdate,
 )
 from app.security.auth import hash_password
+from app.security.dependencies import CurrentUser, get_current_user
 from app.services.engineer_invites import (
     build_invite_url,
     generate_invite_token,
@@ -162,11 +163,45 @@ def _find_invited_engineer_by_token(token: str, db: Session) -> Engineer | None:
     return db.query(Engineer).filter(Engineer.invite_token_hash == token_hash).first()
 
 
+def _engineer_utility_id(engineer: Engineer, db: Session) -> str | None:
+    dma = engineer.dma or db.query(DMA).filter(DMA.id == engineer.dma_id).first()
+    return dma.utility_id if dma else None
+
+
+def _ensure_engineer_read_access(current_user: CurrentUser, engineer: Engineer, db: Session) -> None:
+    if current_user.user_type == "user":
+        return
+
+    if current_user.user_type == "dma_manager" and current_user.dma_id == engineer.dma_id:
+        return
+
+    if current_user.user_type == "utility_manager" and current_user.utility_id == _engineer_utility_id(engineer, db):
+        return
+
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
+
+def _ensure_engineer_write_access(current_user: CurrentUser, dma_id: str) -> None:
+    if current_user.user_type == "user":
+        return
+
+    if current_user.user_type == "dma_manager" and current_user.dma_id == dma_id:
+        return
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Only admins and DMA managers for this DMA can manage engineers",
+    )
+
+
 @engineers_router.post("/invitations", status_code=status.HTTP_201_CREATED)
 async def invite_engineer(
     invitation_data: EngineerInvitationCreate,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    team = _get_team_or_400(invitation_data.team_id, db)
+    _ensure_engineer_write_access(current_user, team.dma_id)
     engineer, invitation_result = _create_invitation(invitation_data, db)
     return {
         "engineer": build_engineer_response(engineer),
@@ -177,12 +212,15 @@ async def invite_engineer(
 @engineers_router.post("/invitations/bulk", status_code=status.HTTP_201_CREATED)
 async def invite_engineers_bulk(
     payload: EngineerInvitationBulkCreate,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     items: list[dict[str, Any]] = []
 
     for invitation in payload.invitations:
         try:
+            team = _get_team_or_400(invitation.team_id, db)
+            _ensure_engineer_write_access(current_user, team.dma_id)
             engineer, invitation_result = _create_invitation(invitation, db)
             items.append(
                 {
@@ -296,6 +334,7 @@ async def complete_engineer_invitation(
 @engineers_router.post("/{engineer_id}/resend-invite")
 async def resend_engineer_invitation(
     engineer_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     engineer = db.query(Engineer).filter(Engineer.id == engineer_id).first()
@@ -304,6 +343,8 @@ async def resend_engineer_invitation(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Engineer not found",
         )
+
+    _ensure_engineer_write_access(current_user, engineer.dma_id)
 
     if engineer.setup_completed_at:
         raise HTTPException(
@@ -350,15 +391,20 @@ async def list_engineers(
     dma_id: str = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """List engineers with optional team and DMA filters."""
     query = db.query(Engineer)
 
-    if team_id:
+    if current_user.user_type == "dma_manager" and current_user.dma_id:
+        query = query.filter(Engineer.dma_id == current_user.dma_id)
+    elif current_user.user_type == "utility_manager" and current_user.utility_id:
+        query = query.join(DMA, DMA.id == Engineer.dma_id).filter(DMA.utility_id == current_user.utility_id)
+    elif team_id:
         query = query.filter(Engineer.team_id == team_id)
 
-    if dma_id:
+    if current_user.user_type in {"user", "utility_manager"} and dma_id:
         query = query.filter(Engineer.dma_id == dma_id)
 
     total = query.count()
@@ -373,6 +419,7 @@ async def list_engineers(
 @engineers_router.get("/{engineer_id}")
 async def get_engineer(
     engineer_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     engineer = db.query(Engineer).filter(Engineer.id == engineer_id).first()
@@ -382,12 +429,14 @@ async def get_engineer(
             detail="Engineer not found",
         )
 
+    _ensure_engineer_read_access(current_user, engineer, db)
     return build_engineer_response(engineer)
 
 
 @engineers_router.post("", status_code=status.HTTP_201_CREATED)
 async def create_engineer(
     engineer_data: EngineerCreate,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Create a fully configured engineer directly under a team."""
@@ -399,6 +448,7 @@ async def create_engineer(
         )
 
     team = _get_team_or_400(engineer_data.team_id, db)
+    _ensure_engineer_write_access(current_user, team.dma_id)
 
     new_engineer = Engineer(
         name=engineer_data.name,
@@ -424,6 +474,7 @@ async def create_engineer(
 @engineers_router.put("")
 async def update_engineer(
     engineer_data: EngineerUpdate,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Update engineer details."""
@@ -440,6 +491,8 @@ async def update_engineer(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Engineer not found",
         )
+
+    _ensure_engineer_write_access(current_user, engineer.dma_id)
 
     target_team = engineer.team
     next_role = engineer.role
@@ -468,6 +521,7 @@ async def update_engineer(
             engineer.team_id = None
         else:
             target_team = _get_team_or_400(engineer_data.team_id, db)
+            _ensure_engineer_write_access(current_user, target_team.dma_id)
             engineer.team_id = target_team.id
             engineer.dma_id = target_team.dma_id
 
@@ -493,6 +547,7 @@ async def update_engineer(
 @engineers_router.delete("")
 async def delete_engineer(
     id: str = Query(..., description="Engineer ID to delete"),
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     engineer = db.query(Engineer).filter(Engineer.id == id).first()
@@ -501,6 +556,8 @@ async def delete_engineer(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Engineer not found",
         )
+
+    _ensure_engineer_write_access(current_user, engineer.dma_id)
 
     if engineer.team and engineer.team.leader_id == engineer.id:
         engineer.team.leader_id = None

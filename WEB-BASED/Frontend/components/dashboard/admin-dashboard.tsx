@@ -96,6 +96,29 @@ export function AdminDashboard() {
     { name: "Closed", value: reports.filter((r) => r.status === "closed").length },
   ].filter((s) => s.value > 0)
 
+  const operationsWatchlist = dmas
+    .map((dma) => {
+      const dmaReports = reports.filter((report) => report.dmaId === dma.id)
+      const open = dmaReports.filter((report) => !["approved", "closed", "rejected"].includes(report.status)).length
+      const pending = dmaReports.filter((report) => report.status === "pending_approval").length
+      const resolved = dmaReports.filter((report) => ["approved", "closed"].includes(report.status)).length
+      const resolvedRate = dmaReports.length > 0 ? Math.round((resolved / dmaReports.length) * 100) : 0
+      return {
+        id: dma.id,
+        name: dma.name,
+        utilityName: dma.utilityName,
+        open,
+        pending,
+        resolvedRate,
+      }
+    })
+    .sort((left, right) => {
+      if (right.pending !== left.pending) return right.pending - left.pending
+      if (right.open !== left.open) return right.open - left.open
+      return left.resolvedRate - right.resolvedRate
+    })
+    .slice(0, 6)
+
   return (
     <div className="flex flex-col gap-6">
       {/* Welcome */}
@@ -251,8 +274,37 @@ export function AdminDashboard() {
             <CardTitle className="text-base">National Operations Watchlist</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="space-y-3 md:hidden">
+              {operationsWatchlist.map((dma) => (
+                <div key={dma.id} className="rounded-2xl border border-border/70 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{dma.name}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{dma.utilityName}</p>
+                    </div>
+                    <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                      {dma.pending} pending
+                    </span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Open</p>
+                      <p className="mt-1 font-semibold text-foreground">{dma.open}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Pending</p>
+                      <p className="mt-1 font-semibold text-amber-700">{dma.pending}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Resolved</p>
+                      <p className="mt-1 font-semibold text-emerald-600">{dma.resolvedRate}%</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden md:block">
+              <table className="modern-table table-fixed">
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
                     <th className="pb-3 pr-4 font-medium">DMA</th>
@@ -263,37 +315,15 @@ export function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {dmas
-                    .map((dma) => {
-                      const dmaReports = reports.filter((report) => report.dmaId === dma.id)
-                      const open = dmaReports.filter((report) => !["approved", "closed", "rejected"].includes(report.status)).length
-                      const pending = dmaReports.filter((report) => report.status === "pending_approval").length
-                      const resolved = dmaReports.filter((report) => ["approved", "closed"].includes(report.status)).length
-                      const resolvedRate = dmaReports.length > 0 ? Math.round((resolved / dmaReports.length) * 100) : 0
-                      return {
-                        id: dma.id,
-                        name: dma.name,
-                        utilityName: dma.utilityName,
-                        open,
-                        pending,
-                        resolvedRate,
-                      }
-                    })
-                    .sort((left, right) => {
-                      if (right.pending !== left.pending) return right.pending - left.pending
-                      if (right.open !== left.open) return right.open - left.open
-                      return left.resolvedRate - right.resolvedRate
-                    })
-                    .slice(0, 6)
-                    .map((dma) => (
-                      <tr key={dma.id} className="hover:bg-muted/50">
-                        <td className="py-3 pr-4 font-medium">{dma.name}</td>
-                        <td className="py-3 pr-4 text-muted-foreground">{dma.utilityName}</td>
-                        <td className="py-3 pr-4 text-center">{dma.open}</td>
-                        <td className="py-3 pr-4 text-center">{dma.pending}</td>
-                        <td className="py-3 text-center">{dma.resolvedRate}%</td>
-                      </tr>
-                    ))}
+                  {operationsWatchlist.map((dma) => (
+                    <tr key={dma.id} className="hover:bg-muted/50">
+                      <td className="py-3 pr-4 font-medium">{dma.name}</td>
+                      <td className="break-words py-3 pr-4 text-muted-foreground">{dma.utilityName}</td>
+                      <td className="py-3 pr-4 text-center">{dma.open}</td>
+                      <td className="py-3 pr-4 text-center">{dma.pending}</td>
+                      <td className="py-3 text-center">{dma.resolvedRate}%</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -306,8 +336,39 @@ export function AdminDashboard() {
           <CardTitle className="text-base">Utility Performance</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="space-y-3 md:hidden">
+            {utilities.map((utility) => {
+              const utilityReports = reports.filter((report) => report.utilityId === utility.id)
+              const utilityResolved = utilityReports.filter((report) => report.status === "approved" || report.status === "closed").length
+              return (
+                <div key={utility.id} className="rounded-2xl border border-border/70 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{utility.name}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{utility.managerName || "No manager assigned"}</p>
+                    </div>
+                    <EntityStatusBadge status={utility.status} />
+                  </div>
+                  <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">DMAs</p>
+                      <p className="mt-1 font-semibold text-foreground">{utility.dmasCount}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Reports</p>
+                      <p className="mt-1 font-semibold text-foreground">{utilityReports.length}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Resolved</p>
+                      <p className="mt-1 font-semibold text-emerald-600">{utilityResolved}</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="hidden md:block">
+            <table className="modern-table table-fixed">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
                   <th className="pb-3 pr-4 font-medium">Utility</th>
@@ -327,7 +388,7 @@ export function AdminDashboard() {
                   return (
                     <tr key={utility.id} className="hover:bg-muted/50">
                       <td className="py-3 pr-4 font-medium">{utility.name}</td>
-                      <td className="py-3 pr-4 text-muted-foreground">{utility.managerName}</td>
+                      <td className="break-words py-3 pr-4 text-muted-foreground">{utility.managerName}</td>
                       <td className="py-3 pr-4 text-center">{utility.dmasCount}</td>
                       <td className="py-3 pr-4 text-center">{utilityReports.length}</td>
                       <td className="py-3 pr-4 text-center">{utilityResolved}</td>

@@ -225,8 +225,49 @@ export default function TeamLeadersPage() {
 
       <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="space-y-3 p-4 md:hidden">
+            {filteredTeams.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-10 text-center">
+                <p className="text-lg font-semibold text-slate-800">No teams found</p>
+              </div>
+            ) : filteredTeams.map((team) => (
+              <div key={team.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-slate-800">{team.name}</p>
+                    <p className="mt-1 text-xs text-slate-500">{team.description || "No description"}</p>
+                  </div>
+                  <EntityStatusBadge status={team.status} />
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-slate-500">DMA</p>
+                    <p className="mt-1 font-medium text-slate-700">{team.dmaName}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-slate-500">Leader</p>
+                    <p className="mt-1 font-medium text-slate-700">{team.leaderName || "Not assigned"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wide text-slate-500">Members</p>
+                    <p className="mt-1 font-medium text-slate-700">{team.memberCount}</p>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={() => { setViewingTeam(team); setDetailOpen(true) }}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    Details
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => openEditDialog(team)}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Assign Leader
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="hidden md:block">
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="bg-slate-50">
                   <TableHead className="px-6 py-4">Team</TableHead>
@@ -253,7 +294,7 @@ export default function TeamLeadersPage() {
                           <p className="text-xs text-slate-500">{team.description || "No description"}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4">
+                      <TableCell className="px-6 py-4 break-words">
                         <div className="flex items-center gap-2">
                           <Building2 className="h-4 w-4 text-cyan-600" />
                           <span>{team.dmaName}</span>
@@ -282,12 +323,12 @@ export default function TeamLeadersPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>Assign Team Leader</DialogTitle>
           </DialogHeader>
           {editingTeam && (
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 overflow-y-auto py-4 pr-1">
               <div className="rounded-xl border border-amber-200/80 bg-gradient-to-r from-amber-50/50 to-orange-50/50 p-4">
                 <p className="font-semibold text-slate-800">{editingTeam.name}</p>
                 <p className="text-xs text-slate-500">{editingTeam.dmaName}</p>
@@ -323,12 +364,12 @@ export default function TeamLeadersPage() {
       </Dialog>
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>Team Details</DialogTitle>
           </DialogHeader>
           {viewingTeam && (
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 overflow-y-auto py-4 pr-1">
               <DetailRow label="Team" value={viewingTeam.name} />
               <DetailRow label="DMA" value={viewingTeam.dmaName} />
               <DetailRow label="Leader" value={viewingTeam.leaderName || "Not assigned"} />

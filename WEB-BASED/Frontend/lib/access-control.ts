@@ -11,20 +11,20 @@ import type { UserRole } from './types'
  */
 export const PAGE_ACCESS_MAP: Record<string, UserRole[]> = {
   // Dashboard - accessible to all authenticated users
-  '': ['admin', 'utility_manager', 'dma_manager'],
-  '/': ['admin', 'utility_manager', 'dma_manager'],
+  '': ['admin', 'utility_manager', 'dma_manager', 'user'],
+  '/': ['admin', 'utility_manager', 'dma_manager', 'user'],
 
   // Utilities - admin and utility managers
-  '/utilities': ['admin', 'utility_manager'],
+  '/utilities': ['admin', 'utility_manager', 'user'],
 
   // Utility Managers - admin only (admin can create/edit)
-  '/managers': ['admin'],
+  '/managers': ['admin', 'user'],
 
   // DMAs - admin and utility managers (limited to their utility)
-  '/dmas': ['admin', 'utility_manager'],
+  '/dmas': ['admin', 'utility_manager', 'user'],
 
   // DMA Managers - admin and utility managers (limited to their utility)
-  '/dma-managers': ['admin', 'utility_manager'],
+  '/dma-managers': ['admin', 'utility_manager', 'user'],
 
   // Engineers - DMA managers only (limited to their DMA)
   '/engineers': ['dma_manager'],
@@ -36,16 +36,16 @@ export const PAGE_ACCESS_MAP: Record<string, UserRole[]> = {
   '/team-leaders': ['dma_manager'],
 
   // Reports - all can access (filtered by role)
-  '/reports': ['admin', 'utility_manager', 'dma_manager'],
+  '/reports': ['admin', 'utility_manager', 'dma_manager', 'user'],
 
   // Analytics - admin and utility managers
-  '/analytics': ['admin', 'utility_manager'],
+  '/analytics': ['admin', 'utility_manager', 'user'],
 
   // Activity Logs - admin and utility managers
-  '/logs': ['admin', 'utility_manager'],
+  '/logs': ['admin', 'utility_manager', 'user'],
 
   // Profile - all authenticated users
-  '/profile': ['admin', 'utility_manager', 'dma_manager'],
+  '/profile': ['admin', 'utility_manager', 'dma_manager', 'user'],
 }
 
 /**
@@ -164,6 +164,34 @@ export const ROLE_PERMISSIONS = {
     canDeleteReport: true,
     canAssignReport: true,
     canApproveReport: false,
+  },
+  user: {
+    canCreateUtility: true,
+    canEditUtility: true,
+    canDeleteUtility: true,
+    canCreateUtilityManager: true,
+    canEditUtilityManager: true,
+    canDeleteUtilityManager: true,
+    canCreateDMA: true,
+    canEditDMA: true,
+    canDeleteDMA: true,
+    canCreateDMAManager: true,
+    canEditDMAManager: true,
+    canDeleteDMAManager: true,
+    canCreateEngineer: true,
+    canEditEngineer: true,
+    canDeleteEngineer: true,
+    canCreateTeam: true,
+    canEditTeam: true,
+    canDeleteTeam: true,
+    canCreateTeamLeader: true,
+    canEditTeamLeader: true,
+    canDeleteTeamLeader: true,
+    canCreateReport: true,
+    canEditReport: true,
+    canDeleteReport: true,
+    canAssignReport: true,
+    canApproveReport: true,
   },
 }
 

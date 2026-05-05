@@ -3,13 +3,17 @@ Utility Routes
 CRUD operations for utilities
 """
 
+import csv
+import io
 import json
 from pathlib import Path
-from typing import List
+from typing import Any, List, Optional
+import xml.etree.ElementTree as ET
+import zipfile
 from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Response
 from sqlalchemy.orm import Session
 from app.database.session import get_db
-from app.models import Utility, UtilityPipeNetwork
+from app.models import Utility, UtilityPipeNetwork, DMA
 from app.schemas.user import (
     UtilityCreate,
     UtilityUpdate,
@@ -28,17 +32,26 @@ ALLOWED_PIPE_NETWORK_EXTENSIONS = {
     ".kmz",
     ".zip",
     ".csv",
-    ".gpkg",
-    ".pdf",
     ".txt",
 }
 
 
-def _ensure_utility_access(utility: Utility, current_user: CurrentUser) -> None:
+def _resolve_current_user_utility_id(current_user: CurrentUser, db: Session) -> Optional[str]:
+    if current_user.user_type == "utility_manager":
+        return current_user.utility_id
+
+    if current_user.user_type in {"dma_manager", "engineer"} and current_user.dma_id:
+        dma = db.query(DMA).filter(DMA.id == current_user.dma_id).first()
+        return dma.utility_id if dma else None
+
+    return None
+
+
+def _ensure_utility_access(utility: Utility, current_user: CurrentUser, db: Session) -> None:
     if current_user.user_type == "user":
         return
 
-    if current_user.user_type == "utility_manager" and current_user.utility_id == utility.id:
+    if _resolve_current_user_utility_id(current_user, db) == utility.id:
         return
 
     raise HTTPException(
@@ -65,7 +78,7 @@ def _build_utility_response(utility: Utility) -> UtilityResponse:
     )
 
 
-def _coerce_geojson(payload):
+def _coerce_geojson(payload: Any):
     if isinstance(payload, dict) and payload.get("type") == "FeatureCollection":
         return payload
 
@@ -100,20 +113,401 @@ def _coerce_geojson(payload):
 
     raise HTTPException(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        detail="Pipe network preview currently supports GeoJSON / JSON uploads only.",
+        detail="Pipe network file could not be converted into previewable map features.",
+    )
+
+
+def _decode_text_bytes(data: bytes) -> str:
+    for encoding in ("utf-8-sig", "utf-8", "latin-1"):
+        try:
+            return data.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Pipe network text file could not be decoded.",
+    )
+
+
+def _parse_coordinate_sequence(raw: str) -> list[list[float]]:
+    coordinates: list[list[float]] = []
+    for chunk in raw.replace("\n", " ").split():
+        parts = [part for part in chunk.split(",") if part]
+        if len(parts) < 2:
+            continue
+        try:
+            coordinates.append([float(parts[0]), float(parts[1])])
+        except ValueError:
+            continue
+    return coordinates
+
+
+def _strip_namespace(tag: str) -> str:
+    return tag.split("}", 1)[-1] if "}" in tag else tag
+
+
+def _parse_kml_features(root: ET.Element) -> dict[str, Any]:
+    features: list[dict[str, Any]] = []
+
+    for placemark in root.iter():
+        if _strip_namespace(placemark.tag) != "Placemark":
+            continue
+
+        properties: dict[str, Any] = {}
+        name_node = next((child for child in placemark.iter() if _strip_namespace(child.tag) == "name"), None)
+        if name_node is not None and name_node.text:
+            properties["name"] = name_node.text.strip()
+
+        for node in placemark.iter():
+            tag = _strip_namespace(node.tag)
+            if tag not in {"Point", "LineString", "Polygon"}:
+                continue
+
+            coord_node = next((child for child in node.iter() if _strip_namespace(child.tag) == "coordinates"), None)
+            if coord_node is None or not coord_node.text:
+                continue
+
+            coordinates = _parse_coordinate_sequence(coord_node.text)
+            if not coordinates:
+                continue
+
+            geometry: Optional[dict[str, Any]] = None
+            if tag == "Point":
+                geometry = {"type": "Point", "coordinates": coordinates[0]}
+            elif tag == "LineString":
+                geometry = {"type": "LineString", "coordinates": coordinates}
+            elif tag == "Polygon":
+                geometry = {"type": "Polygon", "coordinates": [coordinates]}
+
+            if geometry:
+                features.append({
+                    "type": "Feature",
+                    "properties": properties.copy(),
+                    "geometry": geometry,
+                })
+
+    return {"type": "FeatureCollection", "features": features}
+
+
+def _merge_feature_collections(collections: list[dict[str, Any]]) -> dict[str, Any]:
+    return {
+        "type": "FeatureCollection",
+        "features": [
+            feature
+            for collection in collections
+            for feature in collection.get("features", [])
+            if isinstance(feature, dict)
+        ],
+    }
+
+
+def _tag_feature_collection_source(collection: dict[str, Any], source_name: str) -> dict[str, Any]:
+    tagged_features: list[dict[str, Any]] = []
+    for feature in collection.get("features", []):
+        if not isinstance(feature, dict):
+            continue
+        properties = feature.get("properties")
+        if not isinstance(properties, dict):
+            properties = {}
+        tagged_features.append({
+            **feature,
+            "properties": {
+                **properties,
+                "source_file": source_name,
+            },
+        })
+
+    return {
+        **collection,
+        "features": tagged_features,
+    }
+
+
+def _load_kml_geojson(data: bytes) -> dict[str, Any]:
+    try:
+        root = ET.fromstring(_decode_text_bytes(data))
+    except ET.ParseError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Pipe network KML file could not be parsed.",
+        ) from exc
+
+    feature_collection = _parse_kml_features(root)
+    if feature_collection["features"]:
+        return feature_collection
+
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Pipe network KML file did not contain previewable geometry.",
+    )
+
+
+def _split_wkt_groups(raw: str) -> list[str]:
+    groups: list[str] = []
+    depth = 0
+    start: Optional[int] = None
+
+    for index, character in enumerate(raw):
+        if character == "(":
+            depth += 1
+            if depth == 1:
+                start = index + 1
+        elif character == ")":
+            if depth == 1 and start is not None:
+                groups.append(raw[start:index])
+                start = None
+            depth -= 1
+
+    return groups
+
+
+def _parse_wkt_coordinate_list(raw: str) -> list[list[float]]:
+    coordinates: list[list[float]] = []
+    for point_text in raw.split(","):
+        parts = [part for part in point_text.strip().split() if part]
+        if len(parts) < 2:
+            continue
+        try:
+            coordinates.append([float(parts[0]), float(parts[1])])
+        except ValueError:
+            continue
+    return coordinates
+
+
+def _parse_wkt_geometry(raw: str) -> Optional[dict[str, Any]]:
+    text = raw.strip()
+    if not text:
+        return None
+
+    geometry_type, _, remainder = text.partition("(")
+    normalized_type = geometry_type.strip().upper()
+    if not remainder:
+        return None
+
+    body = text[len(geometry_type):].strip()
+    while body.startswith("(") and body.endswith(")"):
+        inner = body[1:-1].strip()
+        if not inner:
+            break
+        body = inner
+        if normalized_type in {"POINT", "LINESTRING"}:
+            break
+
+    if normalized_type == "POINT":
+        coordinates = _parse_wkt_coordinate_list(body)
+        return {"type": "Point", "coordinates": coordinates[0]} if coordinates else None
+
+    if normalized_type == "LINESTRING":
+        coordinates = _parse_wkt_coordinate_list(body)
+        return {"type": "LineString", "coordinates": coordinates} if coordinates else None
+
+    if normalized_type == "POLYGON":
+        rings = [_parse_wkt_coordinate_list(group) for group in _split_wkt_groups(f"({body})")]
+        rings = [ring for ring in rings if ring]
+        return {"type": "Polygon", "coordinates": rings} if rings else None
+
+    if normalized_type == "MULTILINESTRING":
+        lines = [_parse_wkt_coordinate_list(group) for group in _split_wkt_groups(f"({body})")]
+        lines = [line for line in lines if line]
+        return {"type": "MultiLineString", "coordinates": lines} if lines else None
+
+    if normalized_type == "MULTIPOLYGON":
+        polygons: list[list[list[float]]] = []
+        for polygon_group in _split_wkt_groups(f"({body})"):
+            rings = [_parse_wkt_coordinate_list(group) for group in _split_wkt_groups(f"({polygon_group})")]
+            rings = [ring for ring in rings if ring]
+            if rings:
+                polygons.append(rings)
+        return {"type": "MultiPolygon", "coordinates": polygons} if polygons else None
+
+    return None
+
+
+def _load_delimited_geojson(data: bytes) -> dict[str, Any]:
+    text = _decode_text_bytes(data)
+    reader = csv.DictReader(io.StringIO(text))
+    if not reader.fieldnames:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Pipe network table file needs column headers for preview.",
+        )
+
+    headers = {header.lower().strip(): header for header in reader.fieldnames if header}
+    geometry_header = next((headers[key] for key in ("wkt", "geometry", "geom", "the_geom", "shape") if key in headers), None)
+    lon_header = next((headers[key] for key in ("longitude", "lon", "lng", "x") if key in headers), None)
+    lat_header = next((headers[key] for key in ("latitude", "lat", "y") if key in headers), None)
+    start_lon_header = next((headers[key] for key in ("start_lon", "from_lon", "x1") if key in headers), None)
+    start_lat_header = next((headers[key] for key in ("start_lat", "from_lat", "y1") if key in headers), None)
+    end_lon_header = next((headers[key] for key in ("end_lon", "to_lon", "x2") if key in headers), None)
+    end_lat_header = next((headers[key] for key in ("end_lat", "to_lat", "y2") if key in headers), None)
+
+    features: list[dict[str, Any]] = []
+    for row in reader:
+        geometry: Optional[dict[str, Any]] = None
+
+        if geometry_header and row.get(geometry_header):
+            geometry = _parse_wkt_geometry(row[geometry_header] or "")
+        elif lon_header and lat_header and row.get(lon_header) and row.get(lat_header):
+            try:
+                geometry = {
+                    "type": "Point",
+                    "coordinates": [float(row[lon_header]), float(row[lat_header])],
+                }
+            except ValueError:
+                geometry = None
+        elif all((start_lon_header, start_lat_header, end_lon_header, end_lat_header)):
+            try:
+                geometry = {
+                    "type": "LineString",
+                    "coordinates": [
+                        [float(row[start_lon_header]), float(row[start_lat_header])],
+                        [float(row[end_lon_header]), float(row[end_lat_header])],
+                    ],
+                }
+            except (TypeError, ValueError):
+                geometry = None
+
+        if not geometry:
+            continue
+
+        properties = {
+            key: value
+            for key, value in row.items()
+            if value not in (None, "") and key not in {geometry_header, lon_header, lat_header, start_lon_header, start_lat_header, end_lon_header, end_lat_header}
+        }
+        features.append({
+            "type": "Feature",
+            "properties": properties,
+            "geometry": geometry,
+        })
+
+    if not features:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Pipe network table file did not contain previewable geometry columns.",
+        )
+
+    return {"type": "FeatureCollection", "features": features}
+
+
+def _load_plain_text_geojson(data: bytes) -> dict[str, Any]:
+    text = _decode_text_bytes(data).strip()
+    if not text:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Pipe network text file is empty.",
+        )
+
+    try:
+        return _coerce_geojson(json.loads(text))
+    except Exception:
+        pass
+
+    geometry = _parse_wkt_geometry(text)
+    if geometry:
+        return {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {}, "geometry": geometry}]}
+
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    coordinates: list[list[float]] = []
+    for line in lines:
+        parts = [part.strip() for part in line.split(",")]
+        if len(parts) < 2:
+            continue
+        try:
+            coordinates.append([float(parts[0]), float(parts[1])])
+        except ValueError:
+            continue
+
+    if len(coordinates) >= 2:
+        return {
+            "type": "FeatureCollection",
+            "features": [{"type": "Feature", "properties": {}, "geometry": {"type": "LineString", "coordinates": coordinates}}],
+        }
+    if len(coordinates) == 1:
+        return {
+            "type": "FeatureCollection",
+            "features": [{"type": "Feature", "properties": {}, "geometry": {"type": "Point", "coordinates": coordinates[0]}}],
+        }
+
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Pipe network text file could not be converted into map geometry.",
+    )
+
+
+def _load_zip_geojson(data: bytes, allow_kml: bool = True) -> dict[str, Any]:
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(data))
+    except zipfile.BadZipFile as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Pipe network archive could not be opened.",
+        ) from exc
+
+    supported_extensions = [".geojson", ".json", ".kml", ".csv", ".txt"] if allow_kml else [".geojson", ".json", ".csv", ".txt"]
+    collections: list[dict[str, Any]] = []
+    for name in archive.namelist():
+        if name.endswith("/"):
+            continue
+        extension = Path(name).suffix.lower()
+        if extension not in supported_extensions:
+            continue
+        with archive.open(name) as member:
+            member_bytes = member.read()
+        try:
+            if extension in {".geojson", ".json"}:
+                collections.append(
+                    _tag_feature_collection_source(
+                        _coerce_geojson(json.loads(_decode_text_bytes(member_bytes))),
+                        name,
+                    )
+                )
+            elif extension == ".kml":
+                collections.append(_tag_feature_collection_source(_load_kml_geojson(member_bytes), name))
+            elif extension == ".csv":
+                collections.append(_tag_feature_collection_source(_load_delimited_geojson(member_bytes), name))
+            elif extension == ".txt":
+                collections.append(_tag_feature_collection_source(_load_plain_text_geojson(member_bytes), name))
+        except HTTPException:
+            continue
+
+    merged = _merge_feature_collections(collections)
+    if merged["features"]:
+        return merged
+
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Pipe network archive did not contain any supported previewable geometry.",
     )
 
 
 def _load_pipe_network_geojson(pipe_network: UtilityPipeNetwork):
+    extension = Path(pipe_network.file_name).suffix.lower()
     try:
-        payload = json.loads(pipe_network.file_data.decode("utf-8"))
+        if extension in {".geojson", ".json"}:
+            return _coerce_geojson(json.loads(_decode_text_bytes(pipe_network.file_data)))
+        if extension == ".kml":
+            return _load_kml_geojson(pipe_network.file_data)
+        if extension == ".kmz":
+            return _load_zip_geojson(pipe_network.file_data, allow_kml=True)
+        if extension == ".zip":
+            return _load_zip_geojson(pipe_network.file_data, allow_kml=True)
+        if extension == ".csv":
+            return _load_delimited_geojson(pipe_network.file_data)
+        if extension == ".txt":
+            return _load_plain_text_geojson(pipe_network.file_data)
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Pipe network file could not be parsed as GeoJSON/JSON for map preview.",
+            detail="Pipe network file could not be parsed for map preview.",
         ) from exc
 
-    return _coerce_geojson(payload)
+    raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Pipe network file type is not previewable on the map.",
+    )
 
 
 @utilities_router.get("", response_model=UtilityListResponse)
@@ -130,6 +524,12 @@ async def list_utilities(
     query = db.query(Utility)
     if current_user.user_type == "utility_manager" and current_user.utility_id:
         query = query.filter(Utility.id == current_user.utility_id)
+    elif current_user.user_type in {"dma_manager", "engineer"}:
+        scoped_utility_id = _resolve_current_user_utility_id(current_user, db)
+        if scoped_utility_id:
+            query = query.filter(Utility.id == scoped_utility_id)
+        else:
+            query = query.filter(Utility.id == "__no_access__")
 
     total = query.count()
     utilities = query.offset(skip).limit(limit).all()
@@ -158,7 +558,7 @@ async def get_utility(
             detail="Utility not found",
         )
 
-    _ensure_utility_access(utility, current_user)
+    _ensure_utility_access(utility, current_user, db)
     return _build_utility_response(utility)
 
 
@@ -204,7 +604,7 @@ async def update_utility(
             detail="Utility not found",
         )
 
-    _ensure_utility_access(utility, current_user)
+    _ensure_utility_access(utility, current_user, db)
     update_data = utility_data.dict(exclude_unset=True)
     for field, value in update_data.items():
         setattr(utility, field, value)
@@ -234,7 +634,7 @@ async def patch_utility(
             detail="Utility not found",
         )
 
-    _ensure_utility_access(utility, current_user)
+    _ensure_utility_access(utility, current_user, db)
     update_data = utility_data.dict(exclude_unset=True)
     for field, value in update_data.items():
         setattr(utility, field, value)
@@ -281,7 +681,7 @@ async def upload_pipe_network(
             detail="Utility not found",
         )
 
-    _ensure_utility_access(utility, current_user)
+    _ensure_utility_access(utility, current_user, db)
 
     if not file.filename:
         raise HTTPException(
@@ -330,7 +730,7 @@ async def upload_pipe_network(
 @utilities_router.get("/{utility_id}/pipe-network/download")
 async def download_pipe_network(
     utility_id: str,
-    current_user: CurrentUser = Depends(require_utility_manager),
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     utility = db.query(Utility).filter(Utility.id == utility_id).first()
@@ -340,7 +740,7 @@ async def download_pipe_network(
             detail="Utility not found",
         )
 
-    _ensure_utility_access(utility, current_user)
+    _ensure_utility_access(utility, current_user, db)
 
     pipe_network = db.query(UtilityPipeNetwork).filter(UtilityPipeNetwork.utility_id == utility.id).first()
     if not pipe_network:
@@ -358,7 +758,7 @@ async def download_pipe_network(
 @utilities_router.get("/{utility_id}/pipe-network/geojson")
 async def preview_pipe_network_geojson(
     utility_id: str,
-    current_user: CurrentUser = Depends(require_utility_manager),
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     utility = db.query(Utility).filter(Utility.id == utility_id).first()
@@ -368,7 +768,7 @@ async def preview_pipe_network_geojson(
             detail="Utility not found",
         )
 
-    _ensure_utility_access(utility, current_user)
+    _ensure_utility_access(utility, current_user, db)
 
     pipe_network = db.query(UtilityPipeNetwork).filter(UtilityPipeNetwork.utility_id == utility.id).first()
     if not pipe_network:
@@ -393,7 +793,7 @@ async def delete_pipe_network(
             detail="Utility not found",
         )
 
-    _ensure_utility_access(utility, current_user)
+    _ensure_utility_access(utility, current_user, db)
 
     pipe_network = db.query(UtilityPipeNetwork).filter(UtilityPipeNetwork.utility_id == utility.id).first()
     if not pipe_network:

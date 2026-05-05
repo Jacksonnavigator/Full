@@ -14,16 +14,17 @@ import {
   Moon,
   Sun,
   HelpCircle,
-  Zap,
   Activity,
   CheckCircle2,
   Clock,
   TrendingUp,
   Loader2,
+  Settings,
 } from "lucide-react"
 
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
+import { useTheme } from "next-themes"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -35,25 +36,67 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { getNotificationTag, resolveNotificationDestination } from "@/lib/notifications"
+import { getNotificationTag, resolveNotificationDestinationWithData } from "@/lib/notifications"
+import { DEFAULT_WEB_UI_PREFERENCES, loadWebUiPreferences, subscribeToWebUiPreferences } from "@/lib/user-preferences"
 
 export function TopNavbar() {
   const router = useRouter()
   const { currentUser, logout } = useAuthStore()
   const {
+    reports,
     notifications,
     fetchNotifications,
     getUnreadNotificationCount,
     markNotificationRead,
     markAllNotificationsRead,
   } = useDataStore()
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const { theme, setTheme } = useTheme()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [notificationsLoading, setNotificationsLoading] = useState(false)
   const [markingAllRead, setMarkingAllRead] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [uiPreferences, setUiPreferences] = useState(DEFAULT_WEB_UI_PREFERENCES)
 
   const unreadCount = getUnreadNotificationCount()
   const recentNotifications = useMemo(() => notifications.slice(0, 5), [notifications])
+  const isDarkMode = mounted && theme === "dark"
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    const syncPreferences = () => {
+      setUiPreferences(loadWebUiPreferences())
+    }
+
+    syncPreferences()
+    return subscribeToWebUiPreferences(syncPreferences)
+  }, [mounted])
+
+  const scopedReports = useMemo(() => {
+    if (!currentUser) return []
+    if (currentUser.role === "admin") return reports
+    if (currentUser.role === "utility_manager") {
+      return reports.filter((report) => report.utilityId === currentUser.utilityId)
+    }
+    if (currentUser.role === "dma_manager") {
+      return reports.filter((report) => report.dmaId === currentUser.dmaId)
+    }
+    return reports
+  }, [currentUser, reports])
+
+  const resolvedCount = useMemo(
+    () => scopedReports.filter((report) => report.status === "approved" || report.status === "closed").length,
+    [scopedReports]
+  )
+  const pendingCount = useMemo(
+    () => scopedReports.filter((report) => ["new", "assigned", "in_progress", "pending_approval"].includes(report.status)).length,
+    [scopedReports]
+  )
+  const efficiency = scopedReports.length > 0 ? Math.round((resolvedCount / scopedReports.length) * 1000) / 10 : 0
 
   useEffect(() => {
     if (!currentUser?.id) return
@@ -74,13 +117,13 @@ export function TopNavbar() {
     void loadNotifications()
     const intervalId = window.setInterval(() => {
       void fetchNotifications(currentUser.id)
-    }, 60000)
+    }, uiPreferences.notificationRefreshSeconds * 1000)
 
     return () => {
       active = false
       window.clearInterval(intervalId)
     }
-  }, [currentUser?.id, fetchNotifications])
+  }, [currentUser?.id, fetchNotifications, uiPreferences.notificationRefreshSeconds])
 
   const handleLogout = () => {
     logout()
@@ -91,17 +134,37 @@ export function TopNavbar() {
     router.push("/dashboard/profile")
   }
 
+  const handleSettings = () => {
+    router.push("/dashboard/settings?section=preferences")
+  }
+
+  const handleHelp = () => {
+    router.push("/dashboard/settings?section=help")
+  }
+
   const handleOpenNotificationsPage = () => {
     setNotificationsOpen(false)
     router.push("/dashboard/notifications")
   }
 
-  const handleOpenNotification = async (notificationId: string, link: string | null) => {
+  const handleOpenNotification = async (
+    notificationId: string,
+    title: string,
+    type: string,
+    link: string | null,
+    data?: Record<string, unknown> | null
+  ) => {
     await markNotificationRead(notificationId)
     setNotificationsOpen(false)
 
-    const destination = resolveNotificationDestination(link)
-    router.push(destination || "/dashboard/notifications")
+    const resolution = resolveNotificationDestinationWithData({
+      id: notificationId,
+      title,
+      type,
+      link,
+      data,
+    })
+    router.push(resolution.destination || "/dashboard/notifications")
   }
 
   const handleMarkAllRead = async () => {
@@ -208,14 +271,15 @@ export function TopNavbar() {
         {/* Center Content - Quick Stats, Theme, Help, Notifications */}
         <div className="relative z-10 flex flex-1 items-center justify-center gap-1.5 sm:gap-3">
           {/* Quick Stats - Desktop Only */}
-          <div className="hidden items-center gap-4 rounded-xl bg-white/5 px-4 py-2 ring-1 ring-white/10 xl:flex">
+          {uiPreferences.showHeaderStats ? (
+            <div className="hidden items-center gap-4 rounded-xl bg-white/5 px-4 py-2 ring-1 ring-white/10 xl:flex">
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Resolved</span>
-                <span className="text-sm font-bold text-white">1,247</span>
+                <span className="text-sm font-bold text-white">{resolvedCount.toLocaleString("en-US")}</span>
               </div>
             </div>
             <div className="h-8 w-px bg-white/10" />
@@ -225,7 +289,7 @@ export function TopNavbar() {
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Pending</span>
-                <span className="text-sm font-bold text-white">38</span>
+                <span className="text-sm font-bold text-white">{pendingCount.toLocaleString("en-US")}</span>
               </div>
             </div>
             <div className="h-8 w-px bg-white/10" />
@@ -235,16 +299,18 @@ export function TopNavbar() {
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Efficiency</span>
-                <span className="text-sm font-bold text-emerald-400">94.2%</span>
+                <span className="text-sm font-bold text-emerald-400">{efficiency.toFixed(1)}%</span>
               </div>
             </div>
-          </div>
+            </div>
+          ) : null}
           {/* Theme Toggle MORDERN */}
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setIsDarkMode(!isDarkMode)}
+            onClick={() => setTheme(isDarkMode ? "light" : "dark")}
             className="relative h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400"
+            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
           >
             {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
@@ -253,7 +319,9 @@ export function TopNavbar() {
           <Button
             variant="ghost"
             size="icon"
+            onClick={handleHelp}
             className="relative hidden h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400 sm:flex"
+            aria-label="Open help and support"
           >
             <HelpCircle className="h-4 w-4" />
           </Button>
@@ -314,7 +382,7 @@ export function TopNavbar() {
                     <button
                       key={notification.id}
                       type="button"
-                      onClick={() => void handleOpenNotification(notification.id, notification.link)}
+                      onClick={() => void handleOpenNotification(notification.id, notification.title, notification.type, notification.link, notification.data)}
                       className={`flex w-full gap-3 rounded-lg p-3 text-left transition-colors hover:bg-white/5 ${
                         notification.read ? "" : "bg-cyan-500/5"
                       }`}
@@ -445,7 +513,7 @@ export function TopNavbar() {
                       {currentUser?.name || "User"}
                     </span>
                     <span className="text-xs text-slate-400">
-                      {currentUser?.email || "user@example.com"}
+                      {currentUser?.email || "Email unavailable"}
                     </span>
                     <span className={`mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeColor(currentUser?.role || "")} px-2 py-0.5 text-[10px] font-medium text-white`}>
                       <Shield className="h-2.5 w-2.5" />
@@ -472,25 +540,28 @@ export function TopNavbar() {
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
-                    onClick={handleProfile}
+                    onClick={handleSettings}
                     className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5"
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20">
-                      <User className="h-4 w-4 text-cyan-400" />
+                      <Settings className="h-4 w-4 text-cyan-400" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">My Profile</span>
-                      <span className="text-[10px] text-slate-500">View and manage account details</span>
+                      <span className="text-sm font-medium">Settings</span>
+                      <span className="text-[10px] text-slate-500">Update preferences and support options</span>
                     </div>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5">
+                  <DropdownMenuItem
+                    onClick={handleOpenNotificationsPage}
+                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5"
+                  >
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20">
                       <Activity className="h-4 w-4 text-emerald-400" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">Activity Log</span>
-                      <span className="text-[10px] text-slate-500">View your recent actions</span>
+                      <span className="text-sm font-medium">Notifications</span>
+                      <span className="text-[10px] text-slate-500">Review your latest assignments and alerts</span>
                     </div>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>

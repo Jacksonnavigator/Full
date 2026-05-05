@@ -2,8 +2,15 @@
   "13009": {
     "id": 13009,
     "files": [
-      "static/chunks/0e7cf97bb1af74e6.js",
-      "static/chunks/27dcaaf34f79fdaa.js"
+      "static/chunks/1866878efe61addd.js",
+      "static/chunks/842401ca3d1f9047.js"
+    ]
+  },
+  "6765": {
+    "id": 6765,
+    "files": [
+      "static/chunks/f7dcb0f0b77ab61d.js",
+      "static/chunks/c8a7b8f2b3513065.js"
     ]
   }
 }

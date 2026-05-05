@@ -5,7 +5,7 @@
 
 // ---------- Enums ----------
 
-export type UserRole = "admin" | "utility_manager" | "dma_manager"
+export type UserRole = "admin" | "utility_manager" | "dma_manager" | "user"
 
 export type EntityStatus = "active" | "inactive"
 
@@ -120,6 +120,9 @@ export interface Report {
   resolvedAt?: string
   slaDeadline: string
   notes?: string
+  engineerSubmissionNotes?: string
+  teamLeaderReviewNotes?: string
+  dmaReviewNotes?: string
 }
 
 export interface ActivityLog {

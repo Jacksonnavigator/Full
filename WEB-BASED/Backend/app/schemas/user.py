@@ -465,6 +465,9 @@ class ReportResponse(BaseModel):
     reporter_name: str
     reporter_phone: str
     notes: Optional[str] = None
+    engineer_submission_notes: Optional[str] = None
+    team_leader_review_notes: Optional[str] = None
+    dma_review_notes: Optional[str] = None
     sla_deadline: Optional[datetime] = None
     resolved_at: Optional[datetime] = None
     created_at: datetime

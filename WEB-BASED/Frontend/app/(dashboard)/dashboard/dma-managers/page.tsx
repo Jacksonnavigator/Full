@@ -416,8 +416,54 @@ export default function DMAManagersPage() {
 
       <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden">
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
+          <div className="space-y-3 p-4 md:hidden">
+            {filteredManagers.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-10 text-center">
+                <p className="text-lg font-semibold text-slate-800">No managers found</p>
+                <p className="mt-1 text-sm text-slate-500">{search ? "Try adjusting your search terms" : "Get started by inviting your first DMA manager"}</p>
+                {!search ? <Button onClick={openCreateDialog} className="mt-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl"><Plus className="h-4 w-4 mr-2" />Invite DMA Manager</Button> : null}
+              </div>
+            ) : filteredManagers.map((manager) => {
+              const dma = dmas.find((d) => d.id === manager.dmaId)
+              const isInactive = manager.status === "inactive"
+              return (
+                <div key={manager.id} className={cn("rounded-2xl border p-4 shadow-sm", isInactive ? "border-red-200 bg-red-50/40" : "border-slate-200 bg-white")}>
+                  <div className="flex items-start gap-3">
+                    <Avatar className={cn("h-10 w-10 shadow-lg", isInactive ? "ring-2 ring-red-200" : "ring-2 ring-violet-200")}>
+                      <AvatarFallback className={cn("text-sm font-semibold", isInactive ? "bg-gradient-to-br from-red-400 to-rose-500 text-white" : "bg-gradient-to-br from-violet-500 to-purple-600 text-white")}>
+                        {getInitials(manager.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-slate-800">{manager.name}</p>
+                      <p className="text-xs text-slate-500">DMA Manager</p>
+                      <p className="mt-2 break-all text-sm text-slate-600">{manager.email}</p>
+                      {manager.phone ? <p className="mt-1 text-sm text-slate-500">{manager.phone}</p> : null}
+                    </div>
+                  </div>
+                  <div className="mt-4 grid grid-cols-1 gap-3 text-sm">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-wide text-slate-500">Assigned DMA</p>
+                      <p className="mt-1 font-medium text-slate-700">{dma?.name || "Unassigned"}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <EntityStatusBadge status={manager.status} />
+                    {renderOnboardingBadge(manager.onboardingStatus)}
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setViewingManager(manager)}><Eye className="mr-2 h-4 w-4" />Details</Button>
+                    <Button variant="outline" size="sm" onClick={() => openEditDialog(manager)}><Pencil className="mr-2 h-4 w-4" />Edit</Button>
+                    {manager.onboardingStatus !== "completed" ? <Button variant="outline" size="sm" onClick={() => handleResendInvite(manager.id)}><Send className="mr-2 h-4 w-4" />Resend</Button> : null}
+                    {manager.dmaId ? <Button variant="outline" size="sm" className="text-orange-600" onClick={() => setUnassignId(manager.id)}><Unlink className="mr-2 h-4 w-4" />Unassign</Button> : null}
+                    <Button variant="outline" size="sm" className="text-red-600" onClick={() => setDeleteId(manager.id)}><Trash2 className="mr-2 h-4 w-4" />Delete</Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="hidden md:block">
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/80 hover:from-slate-50 hover:to-slate-100/80 border-b border-slate-200/60">
                   <TableHead className="font-semibold text-slate-600 py-4 px-6"><div className="flex items-center gap-2"><User className="h-4 w-4" />Manager</div></TableHead>
@@ -460,7 +506,7 @@ export default function DMAManagersPage() {
                         </TableCell>
                         <TableCell className="py-4 px-6">
                           <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2 text-sm text-slate-600"><Mail className="h-3.5 w-3.5 text-slate-400" /><span className="truncate max-w-[200px]">{manager.email}</span></div>
+                            <div className="flex items-center gap-2 text-sm text-slate-600"><Mail className="h-3.5 w-3.5 text-slate-400" /><span className="break-all">{manager.email}</span></div>
                             {manager.phone && <div className="flex items-center gap-2 text-sm text-slate-500"><Phone className="h-3.5 w-3.5 text-slate-400" /><span>{manager.phone}</span></div>}
                           </div>
                         </TableCell>

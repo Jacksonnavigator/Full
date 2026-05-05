@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { getNotificationTag, resolveNotificationDestination } from "@/lib/notifications"
+import { getNotificationTag, resolveNotificationDestinationWithData } from "@/lib/notifications"
 import { toast } from "sonner"
 
 export default function NotificationsPage() {
@@ -45,16 +45,33 @@ export default function NotificationsPage() {
     return showUnreadOnly ? notifications.filter((notification) => !notification.read) : notifications
   }, [notifications, showUnreadOnly])
 
-  const handleOpenNotification = async (notificationId: string, link: string | null) => {
+  const handleOpenNotification = async (
+    notificationId: string,
+    title: string,
+    type: string,
+    link: string | null,
+    data?: Record<string, unknown> | null
+  ) => {
     await markNotificationRead(notificationId)
 
-    const destination = resolveNotificationDestination(link)
-    if (destination) {
-      router.push(destination)
+    const resolution = resolveNotificationDestinationWithData({
+      id: notificationId,
+      title,
+      type,
+      link,
+      data,
+    })
+
+    if (!resolution.destination) {
+      toast.info("This notification was cleared, but it could not be opened right now.")
       return
     }
 
-    toast.info("This notification was cleared, but it does not have a destination page yet.")
+    if (resolution.source === "kind") {
+      toast.info("Opened the reported leakage queue because this alert did not include a direct report link.")
+    }
+
+    router.push(resolution.destination)
   }
 
   const handleRefresh = async () => {
@@ -146,7 +163,7 @@ export default function NotificationsPage() {
                 <button
                   key={notification.id}
                   type="button"
-                  onClick={() => void handleOpenNotification(notification.id, notification.link)}
+                  onClick={() => void handleOpenNotification(notification.id, notification.title, notification.type, notification.link, notification.data)}
                   className={cn(
                     "w-full rounded-2xl border p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg",
                     notification.read

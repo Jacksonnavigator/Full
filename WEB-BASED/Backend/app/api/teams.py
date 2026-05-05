@@ -14,6 +14,7 @@ from app.database.session import get_db
 from app.models import DMA, Engineer, Report, Team, Utility
 from app.models.user import EntityStatusEnum
 from app.schemas.user import TeamCreate, TeamResponse, TeamUpdate
+from app.security.dependencies import CurrentUser, get_current_user
 
 teams_router = APIRouter(prefix="/api/teams", tags=["teams"])
 
@@ -73,18 +74,54 @@ def _build_team_with_details(team: Team, db: Session) -> TeamWithDetails:
     )
 
 
+def _get_team_utility_id(team: Team, db: Session) -> Optional[str]:
+    dma = db.query(DMA).filter(DMA.id == team.dma_id).first()
+    return dma.utility_id if dma else None
+
+
+def _ensure_team_read_access(current_user: CurrentUser, team: Team, db: Session) -> None:
+    if current_user.user_type == "user":
+        return
+
+    if current_user.user_type == "dma_manager" and current_user.dma_id == team.dma_id:
+        return
+
+    if current_user.user_type == "utility_manager" and current_user.utility_id == _get_team_utility_id(team, db):
+        return
+
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+
+
+def _ensure_team_write_access(current_user: CurrentUser, dma_id: str) -> None:
+    if current_user.user_type == "user":
+        return
+
+    if current_user.user_type == "dma_manager" and current_user.dma_id == dma_id:
+        return
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Only admins and DMA managers for this DMA can manage teams",
+    )
+
+
 @teams_router.get("", response_model=TeamListWithDetailsResponse)
 async def list_teams(
     dma_id: str = Query(None),
     utility_id: str = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=100),
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """List teams with optional DMA and utility filters."""
     query = db.query(Team)
 
-    if dma_id:
+    if current_user.user_type == "dma_manager" and current_user.dma_id:
+        query = query.filter(Team.dma_id == current_user.dma_id)
+    elif current_user.user_type == "utility_manager" and current_user.utility_id:
+        query = query.join(DMA, DMA.id == Team.dma_id).filter(DMA.utility_id == current_user.utility_id)
+    elif dma_id:
         query = query.filter(Team.dma_id == dma_id)
     elif utility_id:
         query = query.join(DMA, DMA.id == Team.dma_id).filter(DMA.utility_id == utility_id)
@@ -101,6 +138,7 @@ async def list_teams(
 @teams_router.get("/{team_id}", response_model=TeamWithDetails)
 async def get_team(
     team_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     team = db.query(Team).filter(Team.id == team_id).first()
@@ -110,12 +148,14 @@ async def get_team(
             detail="Team not found",
         )
 
+    _ensure_team_read_access(current_user, team, db)
     return _build_team_with_details(team, db)
 
 
 @teams_router.post("", response_model=TeamWithDetails, status_code=status.HTTP_201_CREATED)
 async def create_team(
     team_data: TeamCreate,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     dma = db.query(DMA).filter(DMA.id == team_data.dma_id).first()
@@ -124,6 +164,8 @@ async def create_team(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="DMA not found",
         )
+
+    _ensure_team_write_access(current_user, dma.id)
 
     new_team = Team(
         dma_id=dma.id,
@@ -143,6 +185,7 @@ async def create_team(
 async def update_team(
     team_id: str,
     team_data: TeamUpdate,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     team = db.query(Team).filter(Team.id == team_id).first()
@@ -151,6 +194,8 @@ async def update_team(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Team not found",
         )
+
+    _ensure_team_write_access(current_user, team.dma_id)
 
     update_data = team_data.dict(exclude_unset=True)
 
@@ -161,6 +206,7 @@ async def update_team(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="DMA not found",
             )
+        _ensure_team_write_access(current_user, dma.id)
         team.dma_id = dma.id
 
     if "name" in update_data:
@@ -180,14 +226,16 @@ async def update_team(
 async def patch_team(
     team_id: str,
     team_data: TeamUpdate,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return await update_team(team_id, team_data, db)
+    return await update_team(team_id, team_data, current_user, db)
 
 
 @teams_router.get("/{team_id}/members")
 async def get_team_members(
     team_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     team = db.query(Team).filter(Team.id == team_id).first()
@@ -196,6 +244,8 @@ async def get_team_members(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Team not found",
         )
+
+    _ensure_team_read_access(current_user, team, db)
 
     dma = db.query(DMA).filter(DMA.id == team.dma_id).first()
     leader_engineer = db.query(Engineer).filter(Engineer.id == team.leader_id).first() if team.leader_id else None
@@ -271,6 +321,7 @@ class AddMembersRequest(BaseModel):
 async def add_team_members(
     team_id: str,
     data: AddMembersRequest,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     if not data.engineer_ids:
@@ -285,6 +336,8 @@ async def add_team_members(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Team not found",
         )
+
+    _ensure_team_write_access(current_user, team.dma_id)
 
     engineers = db.query(Engineer).filter(Engineer.id.in_(data.engineer_ids)).all()
     if len(engineers) != len(data.engineer_ids):
@@ -316,6 +369,7 @@ async def add_team_members(
 async def remove_team_members(
     team_id: str,
     engineerIds: str = Query(..., alias="engineerIds", description="Comma-separated engineer IDs"),
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     ids = engineerIds.split(",") if engineerIds else []
@@ -331,6 +385,8 @@ async def remove_team_members(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Team not found",
         )
+
+    _ensure_team_write_access(current_user, team.dma_id)
 
     for engineer_id in ids:
         if team.leader_id == engineer_id:
@@ -348,6 +404,7 @@ async def remove_team_members(
 @teams_router.get("/{team_id}/leader")
 async def get_team_leader(
     team_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     team = db.query(Team).filter(Team.id == team_id).first()
@@ -356,6 +413,8 @@ async def get_team_leader(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Team not found",
         )
+
+    _ensure_team_read_access(current_user, team, db)
 
     leader_engineer = db.query(Engineer).filter(Engineer.id == team.leader_id).first() if team.leader_id else None
     leader = None
@@ -409,6 +468,7 @@ class AssignLeaderRequest(BaseModel):
 async def assign_team_leader(
     team_id: str,
     data: AssignLeaderRequest,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     if not data.engineer_id:
@@ -423,6 +483,8 @@ async def assign_team_leader(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Team not found",
         )
+
+    _ensure_team_write_access(current_user, team.dma_id)
 
     engineer = db.query(Engineer).filter(Engineer.id == data.engineer_id).first()
     if not engineer:
@@ -465,6 +527,7 @@ async def assign_team_leader(
 @teams_router.delete("/{team_id}/leader", response_model=TeamWithDetails)
 async def remove_team_leader(
     team_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     team = db.query(Team).filter(Team.id == team_id).first()
@@ -473,6 +536,8 @@ async def remove_team_leader(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Team not found",
         )
+
+    _ensure_team_write_access(current_user, team.dma_id)
 
     if not team.leader_id:
         raise HTTPException(
@@ -490,6 +555,7 @@ async def remove_team_leader(
 @teams_router.delete("/{team_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_team(
     team_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     team = db.query(Team).filter(Team.id == team_id).first()
@@ -498,6 +564,8 @@ async def delete_team(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Team not found",
         )
+
+    _ensure_team_write_access(current_user, team.dma_id)
 
     db.query(Engineer).filter(Engineer.team_id == team_id).update({"team_id": None})
     db.delete(team)

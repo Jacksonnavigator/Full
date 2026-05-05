@@ -6,7 +6,7 @@ CRUD operations for reports in the simplified DMA -> Team -> Engineer flow.
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from app.database.session import get_db
-from app.models import Report, Team, Engineer, DMA, Utility, ImageUpload, ImageTypeEnum
+from app.models import Report, Team, Engineer, DMA, Utility, ImageUpload, ImageTypeEnum, ActivityLog
 from app.models.business import ReportStatusEnum, ReportPriorityEnum, NotificationTypeEnum
 from app.models.user import DMAManager
 from app.schemas.business import (
@@ -27,6 +27,7 @@ from typing import Optional, List, Tuple
 from pydantic import BaseModel, Field
 from datetime import datetime
 import re
+from datetime import timedelta
 from app.services.hierarchy import find_nearest_dma
 from app.services.push_notifications import create_notification_record, deliver_notifications_push
 from app.services.activity_logs import log_report_activity
@@ -64,6 +65,9 @@ class ReportWithDetails(BaseModel):
     reporter_name: str
     reporter_phone: str
     notes: Optional[str] = None
+    engineer_submission_notes: Optional[str] = None
+    team_leader_review_notes: Optional[str] = None
+    dma_review_notes: Optional[str] = None
     sla_deadline: Optional[datetime] = None
     resolved_at: Optional[datetime] = None
     created_at: datetime
@@ -79,6 +83,72 @@ def _report_link(report_id: str) -> str:
     return f"/dashboard/reports/{report_id}"
 
 
+def _generate_tracking_id(prefix: str = "REP") -> str:
+    import uuid
+    return f"{prefix}-{uuid.uuid4().hex[:8].upper()}"
+
+
+def _extract_note_from_details(details: Optional[str]) -> Optional[str]:
+    if not details:
+        return None
+
+    for marker in ("Reason:", "Comment:", "Notes:"):
+        index = details.rfind(marker)
+        if index != -1:
+            value = details[index + len(marker):].strip()
+            return value or None
+
+    return None
+
+
+def _clean_note(note: Optional[str]) -> Optional[str]:
+    cleaned = (note or "").strip()
+    return cleaned or None
+
+
+def _extract_team_leader_review_note(note: Optional[str]) -> Optional[str]:
+    cleaned = _clean_note(note)
+    if not cleaned:
+        return None
+    if "Comment:" in cleaned:
+        comment = cleaned.rsplit("Comment:", 1)[1].strip()
+        return comment or cleaned
+    return cleaned
+
+
+def _derive_report_workflow_notes(report: Report, db: Session) -> tuple[Optional[str], Optional[str], Optional[str]]:
+    engineer_submission_notes: Optional[str] = _clean_note(getattr(report, "engineer_submission_notes", None))
+    team_leader_review_notes: Optional[str] = _clean_note(getattr(report, "team_leader_review_notes", None))
+    dma_review_notes: Optional[str] = _clean_note(getattr(report, "dma_review_notes", None))
+
+    if engineer_submission_notes and team_leader_review_notes and dma_review_notes:
+        return engineer_submission_notes, team_leader_review_notes, dma_review_notes
+
+    logs = (
+        db.query(ActivityLog)
+        .filter(ActivityLog.entity == "report", ActivityLog.entity_id == report.id)
+        .order_by(ActivityLog.timestamp.asc())
+        .all()
+    )
+
+    for log in logs:
+        role = (log.user_role or "").strip().lower()
+        action = (log.action or "").strip().lower()
+        note = _extract_note_from_details(log.details)
+
+        if action in {"report_status_changed", "report_updated"} and role == "engineer" and note and not engineer_submission_notes:
+            engineer_submission_notes = note
+        elif action == "report_status_changed" and role == "team_leader" and note and not team_leader_review_notes:
+            team_leader_review_notes = note
+        elif action in {"report_approved", "report_rejected"} and role == "dma_manager" and note and not dma_review_notes:
+            dma_review_notes = note
+
+    if not engineer_submission_notes and report.notes and report.status == ReportStatusEnum.PENDING_APPROVAL:
+        engineer_submission_notes = report.notes
+
+    return engineer_submission_notes, team_leader_review_notes, dma_review_notes
+
+
 def _priority_label(priority: str | ReportPriorityEnum | None) -> str:
     raw = priority.value if hasattr(priority, "value") else priority
     normalized = str(raw or "").strip().lower()
@@ -87,6 +157,10 @@ def _priority_label(priority: str | ReportPriorityEnum | None) -> str:
     if not normalized:
         return "Unspecified"
     return normalized.capitalize()
+
+
+def _build_public_history_claim_details(history_key: str) -> str:
+    return f"Report linked to backend-backed public history key {history_key}."
 
 
 def _queue_dma_manager_notification(
@@ -410,8 +484,8 @@ async def create_report(
     db: Session = Depends(get_db),
 ):
     """Create a new report (requires authentication)"""
-    # Verify tracking_id is unique
-    existing = db.query(Report).filter(Report.tracking_id == report_data.tracking_id).first()
+    tracking_id = (report_data.tracking_id or "").strip() or _generate_tracking_id()
+    existing = db.query(Report).filter(Report.tracking_id == tracking_id).first()
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -433,21 +507,25 @@ async def create_report(
         )
 
     new_report = Report(
-        tracking_id=report_data.tracking_id,
+        tracking_id=tracking_id,
         dma_id=dma.id if dma else None,
         utility_id=dma.utility_id if dma else None,
-        description=report_data.description,
+        description=report_data.description or "Authenticated reported leakage",
+        address=report_data.address,
         priority=report_data.priority,
         photos=report_data.photos or [],
         assigned_engineer_id=report_data.assigned_engineer_id,
         status=ReportStatusEnum.NEW,
-        reporter_name="System",
-        reporter_phone="N/A",
-        latitude=0.0,
-        longitude=0.0,
+        reporter_name=report_data.reporter_name or current_user.email or "Authenticated User",
+        reporter_phone=report_data.reporter_phone or "N/A",
+        latitude=report_data.latitude if report_data.latitude is not None else 0.0,
+        longitude=report_data.longitude if report_data.longitude is not None else 0.0,
+        sla_deadline=datetime.utcnow() + timedelta(days=7),
     )
     
     db.add(new_report)
+    db.flush()
+    _attach_upload_refs_to_report(new_report, report_data.photos or [], db)
     log_report_activity(
         db,
         report=new_report,
@@ -495,8 +573,6 @@ async def create_anonymous_report(
     }
     priority = priority_map.get(report_data.priority.lower(), ReportPriorityEnum.MEDIUM)
     
-    from datetime import timedelta
-
     new_report = Report(
         tracking_id=tracking_id,
         dma_id=dma.id,
@@ -508,6 +584,7 @@ async def create_anonymous_report(
         status=ReportStatusEnum.NEW,
         reporter_name=report_data.reported_by or "Anonymous",
         reporter_phone="N/A",
+        public_history_key=_clean_note(report_data.history_key),
         latitude=report_data.latitude,
         longitude=report_data.longitude,
         sla_deadline=datetime.utcnow() + timedelta(days=7),
@@ -537,6 +614,78 @@ async def create_anonymous_report(
         deliver_notifications_push([queued_notification], db)
     
     return _build_report_with_details(new_report, db)
+
+
+@reports_router.get("/public/tracking/{tracking_id}", response_model=ReportWithDetails)
+async def get_public_report_by_tracking_id(
+    tracking_id: str,
+    db: Session = Depends(get_db),
+):
+    report = db.query(Report).filter(Report.tracking_id == tracking_id).first()
+    if not report:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Report not found",
+        )
+
+    return _build_report_with_details(report, db)
+
+
+@reports_router.get("/public/history/{history_key}", response_model=ReportListResponse)
+async def get_public_report_history(
+    history_key: str,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    cleaned_key = _clean_note(history_key)
+    if not cleaned_key:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="History key is required",
+        )
+
+    query = db.query(Report).filter(Report.public_history_key == cleaned_key)
+    total = query.count()
+    reports = query.order_by(Report.created_at.desc()).offset(skip).limit(limit).all()
+    return ReportListResponse(
+        total=total,
+        items=[_build_report_with_details(report, db) for report in reports],
+    )
+
+
+@reports_router.post("/public/history/{history_key}/claim/{tracking_id}", response_model=ReportWithDetails)
+async def claim_public_report_history(
+    history_key: str,
+    tracking_id: str,
+    db: Session = Depends(get_db),
+):
+    cleaned_key = _clean_note(history_key)
+    if not cleaned_key:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="History key is required",
+        )
+
+    report = db.query(Report).filter(Report.tracking_id == tracking_id).first()
+    if not report:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Report not found",
+        )
+
+    report.public_history_key = cleaned_key
+    log_report_activity(
+        db,
+        report=report,
+        action="public_history_claimed",
+        details=_build_public_history_claim_details(cleaned_key),
+        actor_name="Anonymous",
+        actor_role="anonymous_reporter",
+    )
+    db.commit()
+    db.refresh(report)
+    return _build_report_with_details(report, db)
 
 
 @reports_router.get("/public/by-location", response_model=ReportListResponse)
@@ -608,11 +757,14 @@ async def update_report(
         changed_fields.append("photos")
 
     if changed_fields:
+        details = f"Updated report fields: {', '.join(sorted(set(changed_fields)))}."
+        if "notes" in changed_fields and report.notes:
+            details += f" Notes: {report.notes}"
         log_report_activity(
             db,
             report=report,
             action="report_updated",
-            details=f"Updated report fields: {', '.join(sorted(set(changed_fields)))}.",
+            details=details,
             actor=current_user,
         )
     
@@ -660,6 +812,17 @@ async def update_report_status(
     report.status = status_update.status
     if status_update.notes:
         report.notes = status_update.notes
+    if current_user.user_type == "engineer":
+        if current_user.role == "team_leader":
+            if status_update.notes:
+                report.team_leader_review_notes = _extract_team_leader_review_note(status_update.notes)
+            if status_update.status == ReportStatusEnum.PENDING_APPROVAL:
+                report.dma_review_notes = None
+        else:
+            if status_update.notes:
+                report.engineer_submission_notes = _clean_note(status_update.notes)
+            if status_update.status == ReportStatusEnum.PENDING_APPROVAL:
+                report.dma_review_notes = None
     queued_notifications = []
     
     if status_update.status == ReportStatusEnum.APPROVED:
@@ -816,6 +979,7 @@ async def approve_report(
         )
     
     report.status = ReportStatusEnum.APPROVED
+    report.dma_review_notes = _clean_note(decision.notes)
     if decision.notes:
         report.notes = decision.notes
     report.resolved_at = datetime.utcnow()
@@ -898,6 +1062,7 @@ async def reject_report(
         )
     
     report.status = ReportStatusEnum.ASSIGNED
+    report.dma_review_notes = _clean_note(decision.notes)
     if decision.notes:
         report.notes = decision.notes
     report.resolved_at = None
@@ -1008,6 +1173,7 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         assigned_engineer_name = engineer.name if engineer else None
 
     report_photos, submission_before_photos, submission_after_photos = _split_report_photo_groups(report, db)
+    engineer_submission_notes, team_leader_review_notes, dma_review_notes = _derive_report_workflow_notes(report, db)
     
     return ReportWithDetails(
         id=report.id,
@@ -1035,6 +1201,9 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         reporter_name=report.reporter_name,
         reporter_phone=report.reporter_phone,
         notes=report.notes,
+        engineer_submission_notes=engineer_submission_notes,
+        team_leader_review_notes=team_leader_review_notes,
+        dma_review_notes=dma_review_notes,
         sla_deadline=report.sla_deadline,
         resolved_at=report.resolved_at,
         created_at=report.created_at,

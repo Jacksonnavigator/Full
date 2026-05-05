@@ -36,6 +36,7 @@ def run_startup_migrations(engine: Engine) -> None:
     _migrate_account_password_reset_columns(engine)
     _migrate_notification_columns(engine)
     _migrate_activity_log_constraints(engine)
+    _migrate_report_workflow_columns(engine)
 
 
 def _needs_branchless_migration(inspector) -> bool:
@@ -368,3 +369,33 @@ def _migrate_activity_log_constraints(engine: Engine) -> None:
     if engine.dialect.name.startswith("postgresql"):
         with engine.begin() as connection:
             connection.execute(text('ALTER TABLE "activity_log" DROP CONSTRAINT IF EXISTS uq_log_entity'))
+
+
+def _migrate_report_workflow_columns(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "report" not in inspector.get_table_names():
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("report")}
+    quoted_table_name = '"report"' if engine.dialect.name.startswith("postgresql") else "report"
+    statements: list[str] = []
+
+    if "engineer_submission_notes" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN engineer_submission_notes TEXT")
+    if "team_leader_review_notes" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN team_leader_review_notes TEXT")
+    if "dma_review_notes" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN dma_review_notes TEXT")
+    if "public_history_key" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN public_history_key VARCHAR(64)")
+
+    with engine.begin() as connection:
+        for statement in statements:
+            connection.exec_driver_sql(statement)
+
+        index_statement = (
+            "CREATE INDEX IF NOT EXISTS ix_report_public_history_key ON report (public_history_key)"
+            if engine.dialect.name == "sqlite"
+            else 'CREATE INDEX IF NOT EXISTS ix_report_public_history_key ON "report" (public_history_key)'
+        )
+        connection.exec_driver_sql(index_statement)

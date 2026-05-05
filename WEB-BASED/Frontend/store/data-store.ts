@@ -107,6 +107,9 @@ export interface Report {
   reporterName: string
   reporterPhone: string
   notes: string | null
+  engineerSubmissionNotes?: string | null
+  teamLeaderReviewNotes?: string | null
+  dmaReviewNotes?: string | null
   slaDeadline: string
   resolvedAt: string | null
   createdAt: string

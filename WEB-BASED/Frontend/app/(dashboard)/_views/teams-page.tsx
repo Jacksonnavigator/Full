@@ -359,11 +359,11 @@ export default function TeamsPage() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{editingTeam ? "Edit Team" : "Create Team"}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 overflow-y-auto py-4 pr-1">
             <div className="rounded-xl border border-purple-200/80 bg-gradient-to-r from-purple-50/50 to-indigo-50/50 p-4">
               <div className="flex items-center gap-2 text-sm">
                 <Building2 className="h-4 w-4 text-purple-600" />

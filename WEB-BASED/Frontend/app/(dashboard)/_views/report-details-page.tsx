@@ -86,6 +86,18 @@ interface ReportActivityLog {
   timestamp: string
 }
 
+interface WorkflowStep {
+  title: string
+  detail: string
+  active: boolean
+  current: boolean
+}
+
+interface MissingReportInsight {
+  title: string
+  description: string
+}
+
 type SlaState = "critical_overdue" | "overdue" | "due_soon" | "on_track" | "resolved" | "unknown"
 
 const getSlaState = (report: Report): SlaState => {
@@ -142,6 +154,69 @@ const getSlaMeta = (report: Report) => {
   }
 }
 
+function getWorkflowSteps(report: Report): WorkflowStep[] {
+  const status = report.status
+  const wasSentForRework = Boolean(report.dmaReviewNotes && status === "assigned")
+
+  return [
+    {
+      title: "Reported",
+      detail: "Citizen or operator submitted the reported leakage.",
+      active: true,
+      current: status === "new",
+    },
+    {
+      title: wasSentForRework ? "Assigned Again" : "Assigned",
+      detail: wasSentForRework
+        ? "The report was returned for rework and is back with the field team."
+        : report.teamName
+        ? `Assigned to ${report.teamName}.`
+        : "Waiting for DMA assignment.",
+      active: Boolean(report.teamName) || status !== "new",
+      current: status === "assigned",
+    },
+    {
+      title: "Field Repair",
+      detail:
+        status === "in_progress"
+          ? "Field work is actively happening on site."
+          : report.engineerSubmissionNotes
+          ? "Engineer submitted repair evidence from the field."
+          : "Awaiting field repair activity.",
+      active: ["in_progress", "pending_approval", "approved", "closed"].includes(status) || Boolean(report.engineerSubmissionNotes),
+      current: status === "in_progress",
+    },
+    {
+      title: "Team Leader Review",
+      detail: report.teamLeaderReviewNotes
+        ? report.teamLeaderReviewNotes
+        : status === "pending_approval"
+        ? "Repair evidence passed through team leader review and reached DMA."
+        : "Waiting for team leader review notes.",
+      active: ["pending_approval", "approved", "closed"].includes(status) || Boolean(report.teamLeaderReviewNotes),
+      current: false,
+    },
+    {
+      title:
+        status === "approved" || status === "closed"
+          ? "Resolved and Closed"
+          : wasSentForRework
+          ? "Returned for Rework"
+          : status === "pending_approval"
+          ? "Awaiting DMA Approval"
+          : "DMA Decision",
+      detail:
+        status === "approved" || status === "closed"
+          ? report.dmaReviewNotes || "DMA approved the reported leakage resolution and closed the item."
+          : wasSentForRework
+          ? report.dmaReviewNotes || "DMA returned the repair for more field work."
+          : "Waiting for the final DMA decision.",
+      active: status === "pending_approval" || Boolean(report.dmaReviewNotes) || status === "approved" || status === "closed",
+      current: status === "pending_approval" || status === "approved" || status === "closed" || wasSentForRework,
+    },
+  ]
+}
+
 export default function ReportDetailPage() {
   const router = useRouter()
   const params = useParams<{ reportId: string }>()
@@ -162,6 +237,9 @@ export default function ReportDetailPage() {
   const [activeMedia, setActiveMedia] = useState<MediaItem | null>(null)
   const [activityLogs, setActivityLogs] = useState<ReportActivityLog[]>([])
   const [logsLoading, setLogsLoading] = useState(false)
+  const [directReport, setDirectReport] = useState<Report | null>(null)
+  const [missingInsight, setMissingInsight] = useState<MissingReportInsight | null>(null)
+  const [checkingMissingReport, setCheckingMissingReport] = useState(false)
 
   const isAdmin = currentUser?.role === "admin"
   const isUtility = currentUser?.role === "utility_manager"
@@ -195,8 +273,10 @@ export default function ReportDetailPage() {
     return []
   }, [currentUser, isAdmin, isUtility, isDMA, reports])
 
-  const report = scopedReports.find((item) => item.id === reportId)
+  const report = scopedReports.find((item) => item.id === reportId) ?? directReport
   const slaMeta = report ? getSlaMeta(report) : null
+  const latestWorkflowNote = report?.notes?.trim() || null
+  const workflowSteps = report ? getWorkflowSteps(report) : []
 
   const districtTeams = useMemo(() => {
     if (isDMA && currentUser?.dmaId) {
@@ -236,6 +316,80 @@ export default function ReportDetailPage() {
   useEffect(() => {
     void loadActivityLogs()
   }, [currentUser, reportId])
+
+  useEffect(() => {
+    setDirectReport(null)
+    setMissingInsight(null)
+    setCheckingMissingReport(false)
+  }, [reportId])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function inspectMissingReport() {
+      if (loading || !currentUser || !reportId || report) {
+        if (!loading && report) {
+          setMissingInsight(null)
+          setCheckingMissingReport(false)
+        }
+        return
+      }
+
+      setCheckingMissingReport(true)
+      try {
+        const response = await apiClient.get<Report>(`/reports/${reportId}`)
+        if (cancelled) return
+
+        if (response.success && response.data) {
+          setDirectReport(transformKeys(response.data) as Report)
+          setMissingInsight(null)
+          return
+        }
+
+        const normalizedError = String(response.error || "").toLowerCase()
+        setDirectReport(null)
+
+        if (normalizedError.includes("access denied")) {
+          setMissingInsight({
+            title: "Reported leakage is outside your access scope",
+            description: "This link is valid, but your current role is not allowed to open this reported leakage item.",
+          })
+          return
+        }
+
+        if (normalizedError.includes("not found")) {
+          setMissingInsight({
+            title: "Reported leakage no longer exists",
+            description: "This item may have been deleted or the link may be outdated.",
+          })
+          return
+        }
+
+        setMissingInsight({
+          title: "We could not load this reported leakage",
+          description: response.error || "Try refreshing the reports list and opening the item again.",
+        })
+      } catch (error) {
+        if (cancelled) return
+        console.error("Error checking missing report:", error)
+        setDirectReport(null)
+        setMissingInsight({
+          title: "We could not load this reported leakage",
+          description: "The report details could not be checked right now. Try refreshing and opening it again.",
+        })
+      } finally {
+        if (!cancelled) {
+          setCheckingMissingReport(false)
+        }
+      }
+    }
+
+    void inspectMissingReport()
+
+    return () => {
+      cancelled = true
+    }
+  }, [currentUser, loading, report, reportId])
 
   const openAssign = () => {
     if (!report) return
@@ -359,6 +513,23 @@ export default function ReportDetailPage() {
     )
   }
 
+  if (!report && checkingMissingReport) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Button variant="outline" onClick={() => router.push("/dashboard/reports")} className="w-fit rounded-xl">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Reported Leakage
+        </Button>
+        <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+          <CardContent className="flex items-center justify-center gap-3 py-16 text-slate-500">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            Checking reported leakage access...
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   if (!report) {
     return (
       <div className="flex flex-col gap-6">
@@ -368,8 +539,10 @@ export default function ReportDetailPage() {
         </Button>
         <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
           <CardContent className="py-16 text-center">
-            <p className="text-lg font-semibold text-slate-800">Reported leakage not found</p>
-            <p className="mt-1 text-sm text-slate-500">This reported leakage item may be outside your current access scope.</p>
+            <p className="text-lg font-semibold text-slate-800">{missingInsight?.title || "Reported leakage not found"}</p>
+            <p className="mt-1 text-sm text-slate-500">
+              {missingInsight?.description || "This reported leakage item may be outside your current access scope."}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -483,9 +656,15 @@ export default function ReportDetailPage() {
             <div className="rounded-2xl border border-slate-200/60 bg-slate-50/80 p-5">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Workflow</p>
               <div className="mt-4 space-y-3">
-                <TimelineStep title="Reported" active />
-                <TimelineStep title={report.teamName ? "Assigned" : "Awaiting assignment"} active={Boolean(report.teamName)} />
-                <TimelineStep title={report.status === "pending_approval" ? "Awaiting DMA approval" : "Resolution review"} active={report.status !== "new" && report.status !== "assigned"} />
+                {workflowSteps.map((step) => (
+                  <TimelineStep
+                    key={step.title}
+                    title={step.title}
+                    detail={step.detail}
+                    active={step.active}
+                    current={step.current}
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -514,10 +693,35 @@ export default function ReportDetailPage() {
             </div>
           </div>
 
-          {report.notes && (
-            <div className="rounded-xl border border-amber-200/50 bg-amber-50/50 p-4">
-              <p className="mb-1 text-xs font-medium text-amber-600">Notes</p>
-              <p className="text-sm text-slate-700">{report.notes}</p>
+          {(report.engineerSubmissionNotes || report.teamLeaderReviewNotes || report.dmaReviewNotes || latestWorkflowNote) && (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {report.engineerSubmissionNotes && (
+                <div className="rounded-xl border border-sky-200/50 bg-sky-50/50 p-4">
+                  <p className="mb-1 text-xs font-medium text-sky-700">Engineer Submission Note</p>
+                  <p className="text-sm text-slate-700">{report.engineerSubmissionNotes}</p>
+                </div>
+              )}
+              {report.teamLeaderReviewNotes && (
+                <div className="rounded-xl border border-violet-200/50 bg-violet-50/50 p-4">
+                  <p className="mb-1 text-xs font-medium text-violet-700">Team Leader Review Comment</p>
+                  <p className="text-sm text-slate-700">{report.teamLeaderReviewNotes}</p>
+                </div>
+              )}
+              {report.dmaReviewNotes && (
+                <div className="rounded-xl border border-emerald-200/50 bg-emerald-50/50 p-4">
+                  <p className="mb-1 text-xs font-medium text-emerald-700">DMA Review Decision</p>
+                  <p className="text-sm text-slate-700">{report.dmaReviewNotes}</p>
+                </div>
+              )}
+              {latestWorkflowNote &&
+                latestWorkflowNote !== report.dmaReviewNotes &&
+                latestWorkflowNote !== report.teamLeaderReviewNotes &&
+                latestWorkflowNote !== report.engineerSubmissionNotes && (
+                  <div className="rounded-xl border border-amber-200/50 bg-amber-50/50 p-4">
+                    <p className="mb-1 text-xs font-medium text-amber-600">Latest Workflow Note</p>
+                    <p className="text-sm text-slate-700">{latestWorkflowNote}</p>
+                  </div>
+                )}
             </div>
           )}
 
@@ -596,7 +800,7 @@ export default function ReportDetailPage() {
       </Card>
 
       <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
-        <DialogContent className="sm:max-w-md rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
+        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
@@ -606,7 +810,7 @@ export default function ReportDetailPage() {
             </DialogTitle>
             <DialogDescription>Select the team that should handle this reported leakage item.</DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-5 py-4">
+          <div className="flex flex-col gap-5 overflow-y-auto py-4 pr-1">
             <div className="rounded-xl border border-rose-200/80 bg-gradient-to-r from-rose-50/50 to-pink-50/50 p-4">
               <p className="font-mono text-xs font-semibold text-slate-700">{report.trackingId}</p>
               <p className="mt-1 line-clamp-2 text-sm text-slate-500">{report.description || "No description"}</p>
@@ -661,14 +865,14 @@ export default function ReportDetailPage() {
           if (!open) setApproveComment("")
         }}
       >
-        <DialogContent className="sm:max-w-md rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
+        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle className="text-xl">Approve Repair</DialogTitle>
             <DialogDescription>
               Add the DMA approval comment that should stay with this reported leakage resolution.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
+          <div className="space-y-2 overflow-y-auto pr-1">
             <Label htmlFor="approve-comment">DMA Approval Comment</Label>
             <Textarea
               id="approve-comment"
@@ -709,14 +913,14 @@ export default function ReportDetailPage() {
           if (!open) setRejectReason("")
         }}
       >
-        <DialogContent className="sm:max-w-md rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
+        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle className="text-xl">Reject Repair</DialogTitle>
             <DialogDescription>
               Add the DMA rejection reason. This report will return to the assigned team for rework instead of staying rejected.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
+          <div className="space-y-2 overflow-y-auto pr-1">
             <Label htmlFor="reject-reason">DMA Rework Reason</Label>
             <Textarea
               id="reject-reason"
@@ -808,11 +1012,33 @@ function HeroMetric({ label, value, accent }: { label: string; value: string; ac
   )
 }
 
-function TimelineStep({ title, active }: { title: string; active: boolean }) {
+function TimelineStep({
+  title,
+  detail,
+  active,
+  current,
+}: {
+  title: string
+  detail: string
+  active: boolean
+  current: boolean
+}) {
   return (
-    <div className="flex items-center gap-3">
-      <div className={cn("h-3.5 w-3.5 rounded-full", active ? "bg-emerald-500 shadow-lg shadow-emerald-500/30" : "bg-slate-200")} />
-      <span className={cn("text-sm", active ? "font-medium text-slate-700" : "text-slate-400")}>{title}</span>
+    <div className="flex items-start gap-3">
+      <div
+        className={cn(
+          "mt-1 h-3.5 w-3.5 rounded-full",
+          current
+            ? "bg-cyan-500 shadow-lg shadow-cyan-500/30"
+            : active
+            ? "bg-emerald-500 shadow-lg shadow-emerald-500/30"
+            : "bg-slate-200"
+        )}
+      />
+      <div className="min-w-0">
+        <span className={cn("text-sm", active ? "font-medium text-slate-700" : "text-slate-400")}>{title}</span>
+        <p className={cn("mt-1 text-xs leading-5", active ? "text-slate-500" : "text-slate-400")}>{detail}</p>
+      </div>
     </div>
   )
 }

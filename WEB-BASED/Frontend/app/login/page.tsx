@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { useAuthStore } from "@/store/auth-store"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,9 +29,47 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [pauseSlideshow, setPauseSlideshow] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  const goToSlide = (index: number) => {
+    if (prefersReducedMotion) {
+      setCurrentImageIndex(index)
+      setIsTransitioning(false)
+      return
+    }
+
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setCurrentImageIndex(index)
+      setIsTransitioning(false)
+    }, 500)
+  }
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches)
+    updatePreference()
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updatePreference)
+      return () => mediaQuery.removeEventListener("change", updatePreference)
+    }
+
+    mediaQuery.addListener(updatePreference)
+    return () => mediaQuery.removeListener(updatePreference)
+  }, [])
 
   // Dynamic background slideshow
   useEffect(() => {
+    if (pauseSlideshow || prefersReducedMotion) {
+      return
+    }
+
     const interval = setInterval(() => {
       setIsTransitioning(true)
       setTimeout(() => {
@@ -40,7 +79,7 @@ export default function LoginPage() {
     }, 6000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [pauseSlideshow, prefersReducedMotion])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -210,6 +249,14 @@ export default function LoginPage() {
                     )}
                   </button>
                 </div>
+                <div className="flex items-center justify-between text-xs">
+                  <Link href="/reset-password" className="font-medium text-cyan-200/80 transition-colors hover:text-cyan-100">
+                    Forgot password?
+                  </Link>
+                  <a href="mailto:support@majiscope.app?subject=MajiScope%20Sign-in%20Help" className="font-medium text-white/55 transition-colors hover:text-white/80">
+                    Need help signing in?
+                  </a>
+                </div>
               </div>
 
               <Button
@@ -235,17 +282,19 @@ export default function LoginPage() {
           <p className="text-xs text-white/30">
             MajiScope &middot; Water Infrastructure Intelligence &middot; Tanzania
           </p>
-          <div className="mt-3 flex items-center justify-center gap-1">
+          <div className="mt-3 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setPauseSlideshow((value) => !value)}
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-medium text-white/60 transition-colors hover:bg-white/10 hover:text-white/80"
+            >
+              {pauseSlideshow || prefersReducedMotion ? "Background paused" : "Pause background"}
+            </button>
+            <div className="flex items-center justify-center gap-1">
             {BACKGROUND_IMAGES.map((_, index) => (
               <button
                 key={index}
-                onClick={() => {
-                  setIsTransitioning(true)
-                  setTimeout(() => {
-                    setCurrentImageIndex(index)
-                    setIsTransitioning(false)
-                  }, 500)
-                }}
+                onClick={() => goToSlide(index)}
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-300",
                   index === currentImageIndex
@@ -255,6 +304,7 @@ export default function LoginPage() {
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}
+            </div>
           </div>
         </div>
       </div>
