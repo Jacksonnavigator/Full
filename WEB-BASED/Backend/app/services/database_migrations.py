@@ -37,6 +37,7 @@ def run_startup_migrations(engine: Engine) -> None:
     _migrate_notification_columns(engine)
     _migrate_activity_log_constraints(engine)
     _migrate_report_workflow_columns(engine)
+    _migrate_utility_contact_columns(engine)
 
 
 def _needs_branchless_migration(inspector) -> bool:
@@ -399,3 +400,27 @@ def _migrate_report_workflow_columns(engine: Engine) -> None:
             else 'CREATE INDEX IF NOT EXISTS ix_report_public_history_key ON "report" (public_history_key)'
         )
         connection.exec_driver_sql(index_statement)
+
+
+def _migrate_utility_contact_columns(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "utility" not in inspector.get_table_names():
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("utility")}
+    quoted_table_name = '"utility"' if engine.dialect.name.startswith("postgresql") else "utility"
+    statements: list[str] = []
+
+    if "contact_phone" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN contact_phone VARCHAR(20)")
+    if "contact_email" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN contact_email VARCHAR(255)")
+    if "contact_address" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN contact_address VARCHAR(255)")
+
+    if not statements:
+        return
+
+    with engine.begin() as connection:
+        for statement in statements:
+            connection.exec_driver_sql(statement)

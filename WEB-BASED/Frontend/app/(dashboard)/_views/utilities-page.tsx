@@ -53,6 +53,8 @@ import {
   Upload,
   Download,
   Network,
+  Phone,
+  Mail,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -82,6 +84,9 @@ export default function UtilitiesPage() {
   // Form state
   const [formName, setFormName] = useState("")
   const [formDescription, setFormDescription] = useState("")
+  const [formContactPhone, setFormContactPhone] = useState("")
+  const [formContactEmail, setFormContactEmail] = useState("")
+  const [formContactAddress, setFormContactAddress] = useState("")
   const [formStatus, setFormStatus] = useState<EntityStatus>("active")
 
   const isAdmin = currentUser?.role === "admin"
@@ -158,6 +163,9 @@ export default function UtilitiesPage() {
     setEditingUtility(null)
     setFormName("")
     setFormDescription("")
+    setFormContactPhone("")
+    setFormContactEmail("")
+    setFormContactAddress("")
     setFormStatus("active")
     setDialogOpen(true)
   }
@@ -166,6 +174,9 @@ export default function UtilitiesPage() {
     setEditingUtility(utility)
     setFormName(utility.name)
     setFormDescription(utility.description || "")
+    setFormContactPhone(utility.contactPhone || "")
+    setFormContactEmail(utility.contactEmail || "")
+    setFormContactAddress(utility.contactAddress || "")
     setFormStatus(utility.status)
     setDialogOpen(true)
   }
@@ -176,11 +187,18 @@ export default function UtilitiesPage() {
       return
     }
 
+    const normalizedContactPhone = formContactPhone.trim() || undefined
+    const normalizedContactEmail = formContactEmail.trim() || undefined
+    const normalizedContactAddress = formContactAddress.trim() || undefined
+
     try {
       if (editingUtility) {
         await updateUtility(editingUtility.id, {
           name: formName,
           description: formDescription,
+          contactPhone: normalizedContactPhone,
+          contactEmail: normalizedContactEmail,
+          contactAddress: normalizedContactAddress,
           status: formStatus,
         })
         toast.success("Utility updated successfully")
@@ -192,6 +210,9 @@ export default function UtilitiesPage() {
         await addUtility({
           name: formName,
           description: formDescription,
+          contactPhone: normalizedContactPhone,
+          contactEmail: normalizedContactEmail,
+          contactAddress: normalizedContactAddress,
           status: formStatus,
         })
         toast.success("Utility created successfully")
@@ -553,6 +574,36 @@ export default function UtilitiesPage() {
                   </div>
                 </div>
 
+                {(utility.contactPhone || utility.contactEmail || utility.contactAddress) ? (
+                  <div className="mt-4 rounded-2xl border border-slate-200/70 bg-white p-4">
+                    <p className="text-sm font-semibold text-slate-800">Public Utility Contacts</p>
+                    <div className="mt-3 flex flex-col gap-2 text-sm text-slate-600">
+                      {utility.contactPhone ? (
+                        <div className="flex items-start gap-2">
+                          <Phone className="mt-0.5 h-4 w-4 text-emerald-500" />
+                          <span className="break-all">{utility.contactPhone}</span>
+                        </div>
+                      ) : null}
+                      {utility.contactEmail ? (
+                        <div className="flex items-start gap-2">
+                          <Mail className="mt-0.5 h-4 w-4 text-blue-500" />
+                          <span className="break-all">{utility.contactEmail}</span>
+                        </div>
+                      ) : null}
+                      {utility.contactAddress ? (
+                        <div className="flex items-start gap-2">
+                          <MapPin className="mt-0.5 h-4 w-4 text-rose-500" />
+                          <span className="break-words">{utility.contactAddress}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-4 text-sm text-slate-500">
+                    Add the public phone, email, and address here so citizen apps can show the correct emergency utility contacts for this area.
+                  </div>
+                )}
+
                 <div className="mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
@@ -671,6 +722,40 @@ export default function UtilitiesPage() {
                 onChange={(e) => setFormDescription(e.target.value)}
                 placeholder="Brief description of the utility"
                 rows={3}
+                className="bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 resize-none"
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="utility-phone" className="text-sm font-medium text-slate-700">Public Contact Phone</Label>
+                <Input
+                  id="utility-phone"
+                  value={formContactPhone}
+                  onChange={(e) => setFormContactPhone(e.target.value)}
+                  placeholder="e.g. +255712345678"
+                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="utility-email" className="text-sm font-medium text-slate-700">Public Contact Email</Label>
+                <Input
+                  id="utility-email"
+                  type="email"
+                  value={formContactEmail}
+                  onChange={(e) => setFormContactEmail(e.target.value)}
+                  placeholder="e.g. support@utility.co.tz"
+                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="utility-contact-address" className="text-sm font-medium text-slate-700">Public Contact Address</Label>
+              <Textarea
+                id="utility-contact-address"
+                value={formContactAddress}
+                onChange={(e) => setFormContactAddress(e.target.value)}
+                placeholder="Office address to show in the public emergency contacts screen"
+                rows={2}
                 className="bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 resize-none"
               />
             </div>

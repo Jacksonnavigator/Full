@@ -54,6 +54,9 @@ class ReportWithDetails(BaseModel):
     status: str
     utility_id: str
     utility_name: Optional[str] = None
+    utility_contact_phone: Optional[str] = None
+    utility_contact_email: Optional[str] = None
+    utility_contact_address: Optional[str] = None
     dma_id: Optional[str] = None
     dma_name: Optional[str] = None
     team_id: Optional[str] = None
@@ -1195,9 +1198,15 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
     
     # Get utility name
     utility_name = None
+    utility_contact_phone = None
+    utility_contact_email = None
+    utility_contact_address = None
     if report.utility_id:
         utility = db.query(Utility).filter(Utility.id == report.utility_id).first()
         utility_name = utility.name if utility else None
+        utility_contact_phone = utility.contact_phone if utility else None
+        utility_contact_email = utility.contact_email if utility else None
+        utility_contact_address = utility.contact_address if utility else None
     
     # Get team name
     team = None
@@ -1236,6 +1245,9 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         status=report.status.value if hasattr(report.status, 'value') else report.status,
         utility_id=report.utility_id,
         utility_name=utility_name,
+        utility_contact_phone=utility_contact_phone,
+        utility_contact_email=utility_contact_email,
+        utility_contact_address=utility_contact_address,
         dma_id=report.dma_id,
         dma_name=dma_name,
         team_id=report.team_id,

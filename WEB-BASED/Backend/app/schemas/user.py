@@ -79,6 +79,9 @@ class UtilityBase(BaseModel):
     """Base schema for Utility"""
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = Field(None, max_length=1000)
+    contact_phone: Optional[str] = Field(None, max_length=20)
+    contact_email: Optional[EmailStr] = None
+    contact_address: Optional[str] = Field(None, max_length=255)
     status: EntityStatus = EntityStatus.ACTIVE
 
 
@@ -114,6 +117,18 @@ class UtilityListResponse(BaseModel):
     """Schema for list of utilities"""
     total: int
     items: List[UtilityResponse]
+
+
+class UtilityPublicContactResponse(BaseModel):
+    """Public utility contact details resolved for a user's area."""
+
+    utility_id: str
+    utility_name: str
+    dma_id: Optional[str] = None
+    dma_name: Optional[str] = None
+    contact_phone: Optional[str] = None
+    contact_email: Optional[EmailStr] = None
+    contact_address: Optional[str] = None
 
 
 # ============================================================================
@@ -454,6 +469,9 @@ class ReportResponse(BaseModel):
     status: str
     utility_id: str
     utility_name: Optional[str] = None
+    utility_contact_phone: Optional[str] = None
+    utility_contact_email: Optional[EmailStr] = None
+    utility_contact_address: Optional[str] = None
     dma_id: Optional[str] = None
     dma_name: Optional[str] = None
     team_id: Optional[str] = None

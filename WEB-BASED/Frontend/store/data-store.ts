@@ -16,6 +16,9 @@ export interface Utility {
   id: string
   name: string
   description: string | null
+  contactPhone?: string | null
+  contactEmail?: string | null
+  contactAddress?: string | null
   managerId?: string | null
   managerName?: string
   status: EntityStatus

@@ -19,8 +19,10 @@ from app.schemas.user import (
     UtilityUpdate,
     UtilityResponse,
     UtilityListResponse,
+    UtilityPublicContactResponse,
 )
 from app.security.dependencies import get_current_user, require_admin, require_utility_manager, CurrentUser
+from app.services.hierarchy import find_nearest_dma
 
 utilities_router = APIRouter(prefix="/api/utilities", tags=["utilities"])
 
@@ -66,6 +68,9 @@ def _build_utility_response(utility: Utility) -> UtilityResponse:
         id=utility.id,
         name=utility.name,
         description=utility.description,
+        contact_phone=utility.contact_phone,
+        contact_email=utility.contact_email,
+        contact_address=utility.contact_address,
         status=utility.status,
         pipe_network_file_name=pipe_network.file_name if pipe_network else None,
         pipe_network_file_size=pipe_network.file_size if pipe_network else None,
@@ -75,6 +80,40 @@ def _build_utility_response(utility: Utility) -> UtilityResponse:
         pipe_network_uploaded_at=pipe_network.updated_at if pipe_network else None,
         created_at=utility.created_at,
         updated_at=utility.updated_at,
+    )
+
+
+@utilities_router.get("/public/resolve", response_model=UtilityPublicContactResponse)
+async def resolve_public_utility_for_location(
+    latitude: float = Query(..., ge=-90, le=90),
+    longitude: float = Query(..., ge=-180, le=180),
+    db: Session = Depends(get_db),
+):
+    """
+    Resolve the responsible utility for a public mobile user based on location.
+    """
+    dma, _distance = find_nearest_dma(latitude, longitude, db)
+    if not dma:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No utility coverage is configured for this location",
+        )
+
+    utility = db.query(Utility).filter(Utility.id == dma.utility_id).first()
+    if not utility:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Utility not found for this location",
+        )
+
+    return UtilityPublicContactResponse(
+        utility_id=utility.id,
+        utility_name=utility.name,
+        dma_id=dma.id,
+        dma_name=dma.name,
+        contact_phone=utility.contact_phone,
+        contact_email=utility.contact_email,
+        contact_address=utility.contact_address,
     )
 
 
@@ -575,6 +614,9 @@ async def create_utility(
     new_utility = Utility(
         name=utility_data.name,
         description=utility_data.description,
+        contact_phone=utility_data.contact_phone,
+        contact_email=utility_data.contact_email,
+        contact_address=utility_data.contact_address,
         status=utility_data.status,
     )
     
