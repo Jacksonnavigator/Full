@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
 import Image from "next/image"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { BrandWordmark } from "@/components/shared/brand-wordmark"
 
 // Background images for the slideshow - using local images
 const BACKGROUND_IMAGES = [
@@ -157,19 +158,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Stylized MajiScope Brand Name */}
-          <h1 className="relative mb-2">
-            <span className="block text-5xl font-black tracking-tight">
-              <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-teal-300 bg-clip-text text-transparent drop-shadow-lg">
-                Maji
-              </span>
-              <span className="bg-gradient-to-r from-white via-cyan-100 to-white bg-clip-text text-transparent">
-                Scope
-              </span>
-            </span>
-            {/* Decorative underline */}
-            <span className="absolute -bottom-1 left-1/2 h-1 w-24 -translate-x-1/2 rounded-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
-          </h1>
+          <BrandWordmark size="xl" theme="dark" centered className="mb-2" />
 
           {/* Tagline */}
           <p className="mt-4 text-sm font-medium tracking-widest text-cyan-200/70 uppercase">

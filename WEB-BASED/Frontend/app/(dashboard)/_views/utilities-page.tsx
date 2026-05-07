@@ -5,6 +5,7 @@ import { useDataStore, type Utility } from "@/store/data-store"
 import { useAuthStore } from "@/store/auth-store"
 import { usePageAccess } from "@/hooks/use-page-access"
 import { CONFIG } from "@/lib/config"
+import { formatTanzaniaDateTime } from "@/lib/date-time"
 import { PageHeader } from "@/components/shared/page-header"
 import { EntityStatusBadge } from "@/components/shared/status-badge"
 import { ConfirmDialog } from "@/components/shared/confirm-dialog"
@@ -569,7 +570,7 @@ export default function UtilitiesPage() {
                           <p className="break-words text-sm font-medium text-slate-700">{utility.pipeNetworkFileName}</p>
                           <p className="text-xs text-slate-500">
                             {(utility.pipeNetworkFileSize || 0) > 0 ? `${(utility.pipeNetworkFileSize! / 1024 / 1024).toFixed(2)} MB` : "File size unavailable"}
-                            {utility.pipeNetworkUploadedAt ? ` • Updated ${new Date(utility.pipeNetworkUploadedAt).toLocaleString("en-ZA")}` : ""}
+                            {utility.pipeNetworkUploadedAt ? ` • Updated ${formatTanzaniaDateTime(utility.pipeNetworkUploadedAt)}` : ""}
                           </p>
                         </div>
                       ) : (

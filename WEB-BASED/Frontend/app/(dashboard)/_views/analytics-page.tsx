@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import { useDataStore } from "@/store/data-store"
 import { useAuthStore } from "@/store/auth-store"
 import { PageHeader } from "@/components/shared/page-header"
+import { formatTanzaniaMonthLabel } from "@/lib/date-time"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatCard } from "@/components/shared/stat-card"
 import { Button } from "@/components/ui/button"
@@ -28,8 +29,6 @@ import {
   LineChart,
   Line,
 } from "recharts"
-
-const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short" })
 
 export default function AnalyticsPage() {
   const { currentUser } = useAuthStore()
@@ -118,7 +117,7 @@ export default function AnalyticsPage() {
       const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1)
       return {
         key: `${date.getFullYear()}-${date.getMonth()}`,
-        month: monthFormatter.format(date),
+        month: formatTanzaniaMonthLabel(date),
         total: 0,
         resolved: 0,
       }
@@ -205,7 +204,7 @@ export default function AnalyticsPage() {
 
   const exportOperationalCsv = () => {
     const rows = [
-      ["tracking_id", "description", "utility", "dma", "team", "priority", "status", "sla_deadline", "created_at"],
+      ["tracking_id", "description", "utility", "dma", "team", "priority", "status", "due_date", "created_at"],
       ...scopedReports.map((report) => [
         report.trackingId,
         report.description,
@@ -242,7 +241,7 @@ export default function AnalyticsPage() {
         description={
           isAdmin
             ? "National performance analytics for water leakage operations"
-            : "Regional analytics for leakage response and SLA compliance"
+            : "Regional analytics for leakage response and resolution performance"
         }
       />
 
@@ -277,7 +276,7 @@ export default function AnalyticsPage() {
           trend={{ value: 3, isPositive: false }}
         />
         <StatCard
-          title="SLA Compliance"
+          title="Resolution Rate"
           value={slaCompliance}
           suffix="%"
           icon={CheckCircle2}
@@ -288,11 +287,11 @@ export default function AnalyticsPage() {
 
       {/* Charts row */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Utility SLA chart */}
+        {/* Utility resolution chart */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">
-              {isAdmin ? "Utility SLA Compliance" : "DMA SLA Compliance"}
+              {isAdmin ? "Utility Resolution Rate" : "DMA Resolution Rate"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -348,10 +347,10 @@ export default function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        {/* SLA trend */}
+        {/* Resolution trend */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">SLA Trend (Last 6 months)</CardTitle>
+            <CardTitle className="text-base">Resolution Trend (Last 6 months)</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -382,7 +381,7 @@ export default function AnalyticsPage() {
                 <Line
                   type="monotone"
                   dataKey="value"
-                  name="SLA %"
+                  name="Resolved %"
                   stroke="#1d4ed8"
                   strokeWidth={2}
                   dot={{ fill: "#1d4ed8", r: 4 }}
@@ -479,7 +478,7 @@ export default function AnalyticsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <ShieldAlert className="h-4 w-4 text-rose-500" />
-              SLA Risk Queue
+              At-Risk Queue
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -509,7 +508,7 @@ export default function AnalyticsPage() {
             ))}
             {riskQueue.length === 0 && (
               <div className="rounded-2xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
-                No open reports are currently sitting in the SLA risk queue.
+                No open reports are currently sitting in the at-risk queue.
               </div>
             )}
           </CardContent>

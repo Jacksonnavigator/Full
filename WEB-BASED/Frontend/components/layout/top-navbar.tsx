@@ -37,7 +37,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { getNotificationTag, resolveNotificationDestinationWithData } from "@/lib/notifications"
+import { formatTanzaniaShortDate } from "@/lib/date-time"
 import { DEFAULT_WEB_UI_PREFERENCES, loadWebUiPreferences, subscribeToWebUiPreferences } from "@/lib/user-preferences"
+import { BrandWordmark } from "@/components/shared/brand-wordmark"
 
 export function TopNavbar() {
   const router = useRouter()
@@ -186,7 +188,7 @@ export function TopNavbar() {
     if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`
     const diffDays = Math.floor(diffHours / 24)
     if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`
-    return date.toLocaleDateString("en-ZA", { day: "numeric", month: "short" })
+    return formatTanzaniaShortDate(date, "N/A")
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -257,14 +259,13 @@ export function TopNavbar() {
                 />
               </div>
             </div>
-            <span className="truncate text-lg font-bold tracking-tight">
-              <span className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-teal-400 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]">
-                Maji
-              </span>
-              <span className="bg-gradient-to-r from-white via-slate-200 to-slate-300 bg-clip-text text-transparent">
-                Scope
-              </span>
-            </span>
+            <BrandWordmark
+              size="sm"
+              theme="dark"
+              underline={false}
+              wordClassName="leading-none"
+              className="shrink min-w-0"
+            />
           </div>
         </div>
 

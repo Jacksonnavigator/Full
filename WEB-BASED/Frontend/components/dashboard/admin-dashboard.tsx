@@ -167,7 +167,7 @@ export function AdminDashboard() {
           trend={{ value: 15, isPositive: true }}
         />
         <StatCard
-          title="SLA Compliance"
+          title="Resolution Rate"
           value={slaCompliance}
           suffix="%"
           icon={CheckCircle2}

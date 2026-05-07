@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ReportStatusMap } from "@/components/maps/report-status-map"
 import { UtilityPipeNetworkMap } from "@/components/maps/utility-pipe-network-map"
 import { EntityStatusBadge, PriorityBadge, ReportStatusBadge } from "@/components/shared/status-badge"
+import { formatTanzaniaMonthLabel } from "@/lib/date-time"
 import {
   MapPin,
   FileText,
@@ -30,7 +31,6 @@ import {
   Line,
 } from "recharts"
 
-const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short" })
 const HOTSPOT_CELL_SIZE = 0.0045
 const RESOLVED_STATUSES = new Set(["approved", "closed"])
 
@@ -75,7 +75,7 @@ export function UtilityDashboard() {
       const date = new Date(now.getFullYear(), now.getMonth() - (5 - index), 1)
       return {
         key: `${date.getFullYear()}-${date.getMonth()}`,
-        month: monthFormatter.format(date),
+      month: formatTanzaniaMonthLabel(date),
         total: 0,
         resolved: 0,
       }
@@ -240,7 +240,7 @@ export function UtilityDashboard() {
           trend={{ value: 5, isPositive: true }}
         />
         <StatCard
-          title="SLA Compliance"
+          title="Resolution Rate"
           value={slaCompliance}
           suffix="%"
           icon={CheckCircle2}
@@ -396,10 +396,10 @@ export function UtilityDashboard() {
           </CardContent>
         </Card>
 
-        {/* SLA trend */}
+        {/* Resolution trend */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">SLA Compliance Trend</CardTitle>
+            <CardTitle className="text-base">Resolution Trend</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={280}>
@@ -418,7 +418,7 @@ export function UtilityDashboard() {
                 <Line
                   type="monotone"
                   dataKey="compliance"
-                  name="SLA %"
+                  name="Resolved %"
                   stroke="#3b82f6"
                   strokeWidth={2}
                   dot={{ fill: "#3b82f6", r: 4 }}

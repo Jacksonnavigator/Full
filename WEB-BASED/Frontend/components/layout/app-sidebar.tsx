@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import { BrandWordmark } from "@/components/shared/brand-wordmark"
 
 export function AppSidebar() {
   const pathname = usePathname()
@@ -102,16 +103,13 @@ export function AppSidebar() {
 
           {!isCollapsed && (
             <div className="flex flex-col gap-0.5">
-              <div className="relative">
-                <span className="block text-lg font-black tracking-tight">
-                  <span className="bg-gradient-to-r from-cyan-500 via-blue-500 to-teal-400 bg-clip-text text-transparent">
-                    Maji
-                  </span>
-                  <span className="bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
-                    Scope
-                  </span>
-                </span>
-                <span className="absolute -bottom-1 left-0 h-0.5 w-12 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-transparent" />
+              <div className="inline-flex self-start rounded-xl bg-slate-950 px-3 py-2 shadow-lg shadow-slate-950/15">
+                <BrandWordmark
+                  size="sm"
+                  theme="dark"
+                  wordClassName="leading-none"
+                  underlineClassName="mt-1 h-0.5"
+                />
               </div>
               <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-cyan-600/60 mt-2">
                 Water Intelligence

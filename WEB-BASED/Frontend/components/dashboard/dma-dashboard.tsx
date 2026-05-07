@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
 import { StatCard } from "@/components/shared/stat-card"
+import { formatTanzaniaDate } from "@/lib/date-time"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ReportStatusMap } from "@/components/maps/report-status-map"
 import {
@@ -363,7 +364,7 @@ export function DMADashboard() {
                     High priority: {hotspot.highPriority}
                   </span>
                   <span className="rounded-full bg-blue-50 px-2.5 py-1 text-blue-700">
-                    Updated: {new Date(hotspot.latestUpdate).toLocaleDateString()}
+                    Updated: {formatTanzaniaDate(hotspot.latestUpdate)}
                   </span>
                 </div>
               </div>

@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { getNotificationTag, resolveNotificationDestinationWithData } from "@/lib/notifications"
+import { formatTanzaniaDateTime } from "@/lib/date-time"
 import { toast } from "sonner"
 
 export default function NotificationsPage() {
@@ -192,12 +193,7 @@ export default function NotificationsPage() {
 
                     <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
                       <span>
-                        {new Date(notification.createdAt).toLocaleDateString("en-ZA", {
-                          day: "numeric",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {formatTanzaniaDateTime(notification.createdAt)}
                       </span>
                       <ChevronRight className="h-4 w-4" />
                     </div>

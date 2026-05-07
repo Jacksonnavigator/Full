@@ -249,6 +249,52 @@ def _queue_team_leader_notification(
     )
 
 
+def _queue_team_member_notifications(
+    db: Session,
+    report: Report,
+    title: str,
+    message: str,
+    notification_type: NotificationTypeEnum,
+):
+    if not report.team_id:
+        return []
+
+    team = db.query(Team).filter(Team.id == report.team_id).first()
+    if not team:
+        return []
+
+    recipient_ids = {
+        engineer.id
+        for engineer in (team.engineers or [])
+        if engineer and str(getattr(getattr(engineer, "status", None), "value", getattr(engineer, "status", ""))).lower() == "active"
+    }
+    if team.leader_id:
+        recipient_ids.add(team.leader_id)
+
+    notifications = []
+    for engineer_id in recipient_ids:
+        notifications.append(
+            create_notification_record(
+                db,
+                title=title,
+                message=message,
+                notification_type=notification_type,
+                engineer_id=engineer_id,
+                data={
+                    "reportId": report.id,
+                    "trackingId": report.tracking_id,
+                    "status": report.status.value if hasattr(report.status, "value") else report.status,
+                    "priority": report.priority.value if hasattr(report.priority, "value") else report.priority,
+                    "notificationKind": "engineer_assignment",
+                },
+                link=_report_link(report.id),
+                flush=False,
+            )
+        )
+
+    return notifications
+
+
 def _extract_upload_id(photo_ref: str) -> Optional[str]:
     if not photo_ref:
         return None
@@ -928,15 +974,15 @@ async def assign_report(
         details=f"Assigned to team {team.name}.",
         actor=current_user,
     )
-    leader_notification = _queue_team_leader_notification(
+    team_notifications = _queue_team_member_notifications(
         db,
         report,
         title="New reported leakage assigned to your team",
         message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} is now assigned to your team for field action.",
         notification_type=NotificationTypeEnum.INFO,
     )
-    if leader_notification:
-        queued_notifications.append(leader_notification)
+    if team_notifications:
+        queued_notifications.extend(team_notifications)
 
     db.commit()
     db.refresh(report)

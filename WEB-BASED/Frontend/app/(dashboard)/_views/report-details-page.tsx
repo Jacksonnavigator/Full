@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
+import { formatTanzaniaDateTime } from "@/lib/date-time"
 import { transformKeys } from "@/lib/transform-data"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -147,7 +148,7 @@ const getSlaMeta = (report: Report) => {
       }
     default:
       return {
-        label: "SLA pending",
+        label: "Deadline pending",
         tone: "border-slate-200 bg-slate-50 text-slate-600",
         icon: <Clock className="h-4 w-4" />,
       }
@@ -674,8 +675,8 @@ export default function ReportDetailPage() {
             <DetailCard icon={<Users className="h-5 w-5 text-indigo-600" />} label="DMA" value={report.dmaName || "N/A"} tone="bg-indigo-100" />
             <DetailCard icon={<UserCog className="h-5 w-5 text-violet-600" />} label="Assigned Team" value={report.teamName || "Not assigned"} tone="bg-violet-100" />
             <DetailCard icon={<Users className="h-5 w-5 text-amber-600" />} label="Team Leader" value={report.teamLeaderName || "Not assigned"} tone="bg-amber-100" />
-            <DetailCard icon={<Clock className="h-5 w-5 text-blue-600" />} label="Created" value={report.createdAt ? new Date(report.createdAt).toLocaleString("en-ZA") : "N/A"} tone="bg-blue-100" />
-            <DetailCard icon={<CheckCircle2 className="h-5 w-5 text-cyan-600" />} label="SLA Deadline" value={report.slaDeadline ? new Date(report.slaDeadline).toLocaleString("en-ZA") : "N/A"} tone="bg-cyan-100" />
+            <DetailCard icon={<Clock className="h-5 w-5 text-blue-600" />} label="Created" value={report.createdAt ? formatTanzaniaDateTime(report.createdAt) : "N/A"} tone="bg-blue-100" />
+            <DetailCard icon={<CheckCircle2 className="h-5 w-5 text-cyan-600" />} label="Due Date" value={report.slaDeadline ? formatTanzaniaDateTime(report.slaDeadline) : "N/A"} tone="bg-cyan-100" />
           </div>
 
           <div className="rounded-xl border border-slate-200/60 bg-gradient-to-r from-slate-50/80 to-slate-100/50 p-4">
@@ -753,7 +754,7 @@ export default function ReportDetailPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="text-sm font-semibold text-slate-800">{log.action.replace(/_/g, " ")}</p>
                         <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
-                          {new Date(log.timestamp).toLocaleString("en-ZA")}
+                          {formatTanzaniaDateTime(log.timestamp)}
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-slate-500">

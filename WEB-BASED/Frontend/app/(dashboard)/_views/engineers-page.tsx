@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Building2, CheckCircle2, Download, Eye, Layers, Loader2, Mail, MailPlus, MoreHorizontal, Pencil, Phone, Plus, Search, Send, ShieldCheck, Trash2, Upload, User, UserCog, Users } from "lucide-react"
+import { formatTanzaniaDateTime } from "@/lib/date-time"
 import { toast } from "sonner"
 import type { EntityStatus } from "@/lib/types"
 
@@ -128,8 +129,7 @@ const mapTeam = (raw: Record<string, unknown>): TeamOption => ({
 
 const formatDateTime = (value?: string | null) => {
   if (!value) return "Not set"
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
+  return formatTanzaniaDateTime(value, value)
 }
 
 const copyText = async (text: string, successMessage: string) => {
