@@ -287,7 +287,6 @@ export const useDataStore = create<DataState>((set, get) => ({
         get().fetchEngineers(),
         get().fetchTeams(),
         get().fetchReports(),
-        get().fetchLogs(),
       ])
       set({ isLoading: false, initialized: true })
     } catch (error) {

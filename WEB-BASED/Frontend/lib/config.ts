@@ -82,7 +82,7 @@ export const CONFIG = {
 
   // ===== Request Configuration =====
   request: {
-    timeout: 30000, // 30 seconds
+    timeout: 120000, // 120 seconds
     retryAttempts: 3,
     retryDelay: 1000, // 1 second
   },
