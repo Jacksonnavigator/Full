@@ -4,7 +4,7 @@ CRUD operations for reports in the simplified DMA -> Team -> Engineer flow.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 from app.database.session import get_db
 from app.models import Report, Team, Engineer, DMA, Utility, ImageUpload, ImageTypeEnum, ActivityLog
 from app.models.business import ReportStatusEnum, ReportPriorityEnum, NotificationTypeEnum
@@ -414,6 +414,106 @@ def _split_report_photo_groups(report: Report, db: Session) -> Tuple[List[str], 
     return report_photos, submission_before_photos, submission_after_photos
 
 
+def _split_report_photo_groups_from_loaded_report(report: Report) -> Tuple[List[str], List[str], List[str]]:
+    """
+    Lightweight photo grouping for list endpoints.
+
+    Uses only relationships already loaded on the report instead of issuing
+    additional database lookups for each row.
+    """
+    report_photos: List[str] = []
+    submission_before_photos: List[str] = []
+    submission_after_photos: List[str] = []
+
+    images_by_id = {image.id: image for image in (report.images or [])}
+
+    for photo_ref in list(report.photos or []):
+        upload_id = _extract_upload_id(photo_ref)
+        upload = images_by_id.get(upload_id) if upload_id else None
+        if not upload:
+            _append_unique(report_photos, photo_ref)
+            continue
+
+        image_type = upload.image_type.value if hasattr(upload.image_type, "value") else upload.image_type
+        if image_type == "submission_before":
+            _append_unique(submission_before_photos, photo_ref)
+        elif image_type == "submission_after":
+            _append_unique(submission_after_photos, photo_ref)
+        elif upload.engineer_id and not upload.user_id:
+            _append_unique(submission_after_photos, photo_ref)
+        else:
+            _append_unique(report_photos, photo_ref)
+
+    for image in report.images or []:
+        download_url = f"/api/uploads/{image.id}"
+        image_type = image.image_type.value if hasattr(image.image_type, "value") else image.image_type
+
+        if image_type == "submission_before":
+            _append_unique(submission_before_photos, download_url)
+        elif image_type == "submission_after":
+            _append_unique(submission_after_photos, download_url)
+        elif image.engineer_id and not image.user_id:
+            _append_unique(submission_after_photos, download_url)
+        else:
+            _append_unique(report_photos, download_url)
+
+    return report_photos, submission_before_photos, submission_after_photos
+
+
+def _build_report_list_item(report: Report) -> ReportWithDetails:
+    """
+    Lightweight serializer for report list endpoints.
+
+    Avoids the N+1 query explosion caused by resolving extra related rows and
+    activity-log-derived notes for every report in a large result set.
+    """
+    report_photos, submission_before_photos, submission_after_photos = _split_report_photo_groups_from_loaded_report(report)
+
+    utility = report.utility
+    dma = report.dma
+    team = report.team
+    assigned_engineer = report.assigned_engineer
+    team_leader = team.leader if team and team.leader_id else None
+
+    return ReportWithDetails(
+        id=report.id,
+        tracking_id=report.tracking_id,
+        description=report.description,
+        latitude=report.latitude,
+        longitude=report.longitude,
+        address=report.address,
+        photos=report.photos or [],
+        report_photos=report_photos,
+        submission_before_photos=submission_before_photos,
+        submission_after_photos=submission_after_photos,
+        priority=report.priority.value if hasattr(report.priority, "value") else report.priority,
+        status=report.status.value if hasattr(report.status, "value") else report.status,
+        utility_id=report.utility_id,
+        utility_name=utility.name if utility else None,
+        utility_contact_phone=utility.contact_phone if utility else None,
+        utility_contact_email=utility.contact_email if utility else None,
+        utility_contact_address=utility.contact_address if utility else None,
+        dma_id=report.dma_id,
+        dma_name=dma.name if dma else None,
+        team_id=report.team_id,
+        team_name=team.name if team else None,
+        team_leader_id=team.leader_id if team else None,
+        team_leader_name=team_leader.name if team_leader else None,
+        assigned_engineer_id=report.assigned_engineer_id,
+        assigned_engineer_name=assigned_engineer.name if assigned_engineer else None,
+        reporter_name=report.reporter_name,
+        reporter_phone=report.reporter_phone,
+        notes=report.notes,
+        engineer_submission_notes=_clean_note(getattr(report, "engineer_submission_notes", None)),
+        team_leader_review_notes=_clean_note(getattr(report, "team_leader_review_notes", None)),
+        dma_review_notes=_clean_note(getattr(report, "dma_review_notes", None)),
+        sla_deadline=report.sla_deadline,
+        resolved_at=report.resolved_at,
+        created_at=report.created_at,
+        updated_at=report.updated_at,
+    )
+
+
 @reports_router.get("", response_model=ReportListResponse)
 async def list_reports(
     dma_id: str = Query(None),
@@ -426,7 +526,13 @@ async def list_reports(
     db: Session = Depends(get_db),
 ):
     """List all reports with optional filters (requires authentication)"""
-    query = db.query(Report)
+    query = db.query(Report).options(
+        joinedload(Report.utility),
+        joinedload(Report.dma),
+        joinedload(Report.team).joinedload(Team.leader),
+        joinedload(Report.assigned_engineer),
+        selectinload(Report.images),
+    )
     
     # Role-based filtering
     if current_user.user_type == "utility_manager" and current_user.utility_id:
@@ -461,9 +567,7 @@ async def list_reports(
     reports = query.offset(skip).limit(limit).all()
     
     # Build response with details
-    items = []
-    for report in reports:
-        items.append(_build_report_with_details(report, db))
+    items = [_build_report_list_item(report) for report in reports]
     
     return ReportListResponse(total=total, items=items)
 

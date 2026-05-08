@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.config import settings
 from app.database.session import get_db
@@ -395,7 +395,11 @@ async def list_engineers(
     db: Session = Depends(get_db),
 ):
     """List engineers with optional team and DMA filters."""
-    query = db.query(Engineer)
+    query = db.query(Engineer).options(
+        joinedload(Engineer.dma),
+        joinedload(Engineer.team),
+        selectinload(Engineer.reports),
+    )
 
     if current_user.user_type == "dma_manager" and current_user.dma_id:
         query = query.filter(Engineer.dma_id == current_user.dma_id)

@@ -8,7 +8,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy import or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.database.session import get_db
 from app.models import DMA, Engineer, Report, Team, Utility
@@ -43,15 +43,18 @@ class TeamListWithDetailsResponse(BaseModel):
 
 
 def _build_team_with_details(team: Team, db: Session) -> TeamWithDetails:
-    dma = db.query(DMA).filter(DMA.id == team.dma_id).first()
-    utility = db.query(Utility).filter(Utility.id == dma.utility_id).first() if dma else None
-    leader = db.query(Engineer).filter(Engineer.id == team.leader_id).first() if team.leader_id else None
-    member_query = db.query(Engineer).filter(Engineer.team_id == team.id)
-    members = member_query.order_by(Engineer.name).all()
-    active_reports = db.query(Report).filter(
-        Report.team_id == team.id,
-        Report.status.in_(["new", "assigned", "in_progress", "pending_approval"]),
-    ).count()
+    dma = team.dma or db.query(DMA).filter(DMA.id == team.dma_id).first()
+    utility = dma.utility if dma and getattr(dma, "utility", None) else (
+        db.query(Utility).filter(Utility.id == dma.utility_id).first() if dma else None
+    )
+    leader = team.leader if team.leader_id else None
+    members = sorted(list(team.engineers or []), key=lambda engineer: engineer.name or "")
+    active_reports = sum(
+        1
+        for report in (team.reports or [])
+        if str(getattr(getattr(report, "status", None), "value", getattr(report, "status", ""))).lower()
+        in {"new", "assigned", "in_progress", "pending_approval"}
+    )
 
     return TeamWithDetails(
         id=team.id,
@@ -115,7 +118,12 @@ async def list_teams(
     db: Session = Depends(get_db),
 ):
     """List teams with optional DMA and utility filters."""
-    query = db.query(Team)
+    query = db.query(Team).options(
+        joinedload(Team.dma).joinedload(DMA.utility),
+        joinedload(Team.leader),
+        selectinload(Team.engineers),
+        selectinload(Team.reports),
+    )
 
     if current_user.user_type == "dma_manager" and current_user.dma_id:
         query = query.filter(Team.dma_id == current_user.dma_id)
