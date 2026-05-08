@@ -5,6 +5,7 @@ FastAPI application initialization and route registration
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from contextlib import asynccontextmanager
 
 from app.config import settings
@@ -84,6 +85,17 @@ app = FastAPI(
 )
 
 # ============================================================
+# Global Middleware & Exception Handlers
+# ============================================================
+
+# Add custom middleware first.
+# CORSMiddleware must be added last so it runs first and can answer browser
+# OPTIONS preflight requests before the custom middleware chain.
+app.add_middleware(RateLimitMiddleware, requests_per_minute=100)
+app.add_middleware(RequestIDMiddleware)
+app.add_middleware(LoggingMiddleware)
+
+# ============================================================
 # CORS Configuration
 # ============================================================
 # Frontend URL is dynamically included in CORS origins via settings.get_cors_origins()
@@ -95,22 +107,8 @@ app.add_middleware(
     allow_credentials=settings.cors_credentials,
     allow_methods=settings.cors_allow_methods,
     allow_headers=settings.cors_allow_headers,
+    max_age=86400,
 )
-
-# ============================================================
-# Database Setup (Placeholder)
-# ============================================================
-# This will be uncommented when database models are created
-# Base.metadata.create_all(bind=engine)
-
-# ============================================================
-# Global Middleware & Exception Handlers
-# ============================================================
-
-# Add custom middleware (order matters - last added is first executed)
-app.add_middleware(RateLimitMiddleware, requests_per_minute=100)
-app.add_middleware(RequestIDMiddleware)
-app.add_middleware(LoggingMiddleware)
 
 # Register global exception handlers
 register_exception_handlers(app)
@@ -154,6 +152,16 @@ async def root():
         "docs": f"http://{settings.host}:{settings.port}/docs",
         "api_prefix": settings.api_prefix,
     }
+
+
+@app.options("/{full_path:path}", include_in_schema=False)
+async def cors_preflight_passthrough(full_path: str):
+    """
+    Safety net for browsers issuing OPTIONS preflight requests.
+    CORSMiddleware should normally handle these, but keeping an explicit route
+    avoids framework/router edge cases during production deploys.
+    """
+    return Response(status_code=204)
 
 
 @app.get("/api", tags=["root"])

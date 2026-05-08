@@ -28,11 +28,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     
     async def dispatch(self, request: Request, call_next):
         """Check rate limit for request"""
+        if request.method.upper() == "OPTIONS":
+            return await call_next(request)
+
         # Get client IP
         client_ip = request.client.host if request.client else "unknown"
-        
+
         # Skip rate limiting for health checks
-        if request.url.path == "/health":
+        if request.url.path in {"/health", "/api/health", "/api/health/ready", "/api/health/database"}:
             return await call_next(request)
         
         # Check rate limit
