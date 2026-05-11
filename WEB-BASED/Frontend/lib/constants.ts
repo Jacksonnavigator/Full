@@ -13,6 +13,7 @@ import {
   Bell,
   BarChart3,
   ScrollText,
+  Route,
 } from "lucide-react"
 import type { UserRole, ReportStatus, ReportPriority, EntityStatus } from "./types"
 
@@ -80,6 +81,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/dashboard/reports",
     icon: FileText,
     roles: ["admin", "utility_manager", "dma_manager"],
+  },
+  {
+    title: "Location Routing",
+    href: "/dashboard/location-routing",
+    icon: Route,
+    roles: ["admin"],
   },
   {
     title: "Notifications",

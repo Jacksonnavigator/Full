@@ -124,6 +124,21 @@ const formatReportTime = (dateString: string | undefined): string => {
   }
 }
 
+const formatReportDateLabel = (dateString: string | undefined): string => {
+  if (!dateString) return "-"
+
+  try {
+    return new Date(dateString).toLocaleDateString("en-GB", {
+      timeZone: "Africa/Dar_es_Salaam",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+  } catch {
+    return "-"
+  }
+}
+
 export default function ReportsPage() {
   const router = useRouter()
   const { currentUser } = useAuthStore()
@@ -385,55 +400,58 @@ export default function ReportsPage() {
       {/* Modern Table */}
       <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden">
         <CardContent className="p-0">
-            <Table className="w-full table-fixed">
-              <colgroup>
-                <col style={{ width: isDMA ? "15%" : "13%" }} />
-                <col style={{ width: isDMA ? "18%" : "20%" }} />
-                <col style={{ width: isDMA ? "16%" : "16%" }} />
-                {!isDMA && <col style={{ width: "10%" }} />}
-                <col style={{ width: isDMA ? "9%" : "8%" }} />
-                <col style={{ width: isDMA ? "10%" : "9%" }} />
-                <col style={{ width: isDMA ? "12%" : "11%" }} />
-                {isDMA && <col style={{ width: "12%" }} />}
-                <col style={{ width: isDMA ? "8%" : "13%" }} />
-              </colgroup>
+          <div className="border-b border-slate-200/60 bg-gradient-to-r from-slate-50 to-white px-5 py-4">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-slate-800">Live Report Queue</p>
+                <p className="text-xs text-slate-500">
+                  Newest reported leakage items appear first. Scroll horizontally if you want the full operational view.
+                </p>
+              </div>
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
+                {filteredReports.length} visible
+              </div>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <Table className="min-w-[1180px] w-full">
               <TableHeader>
                 <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/80 hover:from-slate-50 hover:to-slate-100/80 border-b border-slate-200/60">
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       Tracking ID
                     </div>
                   </TableHead>
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[280px]">
                     Description
                   </TableHead>
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[220px]">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
                       Location
                     </div>
                   </TableHead>
                   {!isDMA && (
-                    <TableHead className="px-4 py-4 font-semibold text-slate-600">DMA</TableHead>
+                    <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[160px]">DMA</TableHead>
                   )}
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600">Priority</TableHead>
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600">Status</TableHead>
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Priority</TableHead>
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Status</TableHead>
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[140px]">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       Created
                     </div>
                   </TableHead>
                   {isDMA && (
-                    <TableHead className="px-4 py-4 font-semibold text-slate-600">
+                    <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[180px]">
                       <div className="flex items-center gap-2">
                         <UserCog className="h-4 w-4" />
                         Assigned To
                       </div>
                     </TableHead>
                   )}
-                  <TableHead className="px-4 py-4 text-right font-semibold text-slate-600">Actions</TableHead>
+                  <TableHead className="px-4 py-4 text-right font-semibold text-slate-600 whitespace-nowrap min-w-[170px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -476,7 +494,7 @@ export default function ReportsPage() {
                         <TableCell className="px-4 py-4 align-top">
                           <div className="flex items-start gap-3">
                             <div className={cn(
-                              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-lg",
+                              "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-lg",
                               isNew
                                 ? "bg-gradient-to-br from-blue-500 to-cyan-600"
                                 : isPending
@@ -485,17 +503,25 @@ export default function ReportsPage() {
                             )}>
                               <FileText className="h-5 w-5 text-white" />
                             </div>
-                            <span className="break-words font-mono text-xs font-semibold leading-snug text-slate-700">
-                              {report.trackingId}
-                            </span>
+                            <div className="space-y-1">
+                              <span className="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-slate-700 whitespace-nowrap">
+                                {report.trackingId}
+                              </span>
+                              <p className="text-xs text-slate-500">{report.reporterName || "Unknown reporter"}</p>
+                            </div>
                           </div>
                         </TableCell>
 
                         {/* Description */}
                         <TableCell className="px-4 py-4 align-top">
-                          <p className="line-clamp-3 break-words text-sm leading-snug text-slate-600">
-                            {report.description || "No description"}
-                          </p>
+                          <div className="space-y-1.5">
+                            <p className="line-clamp-2 text-sm font-medium leading-6 text-slate-800">
+                              {report.description || "No description"}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              Updated {formatReportTime(report.updatedAt)}
+                            </p>
+                          </div>
                         </TableCell>
 
                         {/* Location */}
@@ -504,16 +530,26 @@ export default function ReportsPage() {
                             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100">
                               <MapPin className="h-4 w-4 text-emerald-600" />
                             </div>
-                            <span className="break-words text-sm leading-snug text-slate-600">
-                              {getReportLocationLabel(report)}
-                            </span>
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium leading-snug text-slate-700">
+                                {getReportLocationLabel(report)}
+                              </p>
+                              {report.address && Number.isFinite(report.latitude) && Number.isFinite(report.longitude) ? (
+                                <p className="font-mono text-xs text-slate-400">
+                                  {report.latitude.toFixed(5)}, {report.longitude.toFixed(5)}
+                                </p>
+                              ) : null}
+                            </div>
                           </div>
                         </TableCell>
 
                         {/* DMA (for non-DMA users) */}
                         {!isDMA && (
                           <TableCell className="px-4 py-4 align-top">
-                            <span className="break-words text-sm font-medium leading-snug text-slate-700">{report.dmaName || "-"}</span>
+                            <div className="space-y-1">
+                              <p className="text-sm font-medium leading-snug text-slate-700">{report.dmaName || "Unassigned DMA"}</p>
+                              <p className="text-xs text-slate-500">{report.utilityName || "Unassigned Utility"}</p>
+                            </div>
                           </TableCell>
                         )}
 
@@ -529,11 +565,16 @@ export default function ReportsPage() {
 
                         {/* Created Time */}
                         <TableCell className="px-4 py-4 align-top">
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
-                            <Calendar className="h-4 w-4 text-slate-400" />
-                            <span title={formatTanzaniaDateTime(report.createdAt)}>
-                              {formatReportTime(report.createdAt)}
-                            </span>
+                          <div className="flex items-start gap-2 text-sm text-slate-600">
+                            <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                            <div className="space-y-1">
+                              <p className="whitespace-nowrap text-sm font-medium text-slate-700" title={formatTanzaniaDateTime(report.createdAt)}>
+                                {formatReportDateLabel(report.createdAt)}
+                              </p>
+                              <p className="whitespace-nowrap text-xs text-slate-500">
+                                {formatReportTime(report.createdAt)}
+                              </p>
+                            </div>
                           </div>
                         </TableCell>
 
@@ -566,23 +607,23 @@ export default function ReportsPage() {
 
                         {/* Actions */}
                         <TableCell className="px-4 py-4 align-top text-right">
-                          <div className="flex flex-col items-stretch gap-2 2xl:flex-row 2xl:justify-end">
+                          <div className="flex items-center justify-end gap-2">
                             <Button
                               variant="outline"
                               onClick={() => openDetail(report)}
-                              className="w-full rounded-xl border-slate-200 bg-white 2xl:w-auto"
+                              className="rounded-xl border-slate-200 bg-white px-3"
                             >
                               <Eye className="mr-2 h-4 w-4 text-blue-500" />
-                              Details
+                              View
                             </Button>
                             {isAdmin && (
                               <Button
                                 variant="outline"
                                 onClick={() => setReportToDelete({ id: report.id, trackingId: report.trackingId })}
-                                className="w-full rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 2xl:w-auto"
+                                className="rounded-xl border-red-200 bg-red-50 px-3 text-red-600 hover:bg-red-100 hover:text-red-700"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
+                                Remove
                               </Button>
                             )}
                           </div>
@@ -593,6 +634,7 @@ export default function ReportsPage() {
                 )}
               </TableBody>
             </Table>
+          </div>
         </CardContent>
       </Card>
 

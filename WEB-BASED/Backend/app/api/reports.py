@@ -608,7 +608,7 @@ async def list_reports(
     status_filter: str = Query(None, alias="status"),
     user_id: str = Query(None, alias="user_id"),  # Add user_id filter for engineers
     skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1, le=100),
+    limit: int = Query(250, ge=1, le=500),
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -651,7 +651,13 @@ async def list_reports(
         query = query.filter(Report.status == status_filter)
     
     total = query.count()
-    reports = query.offset(skip).limit(limit).all()
+    reports = (
+        query
+        .order_by(Report.created_at.desc(), Report.updated_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     
     # Build response with details
     items = [_build_report_list_item(report) for report in reports]

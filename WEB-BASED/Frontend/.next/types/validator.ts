@@ -128,6 +128,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/(dashboard)/dashboard/location-routing/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/dashboard/location-routing">> = Specific
+  const handler = {} as typeof import("../../app/(dashboard)/dashboard/location-routing/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/(dashboard)/dashboard/managers/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/dashboard/managers">> = Specific
@@ -240,6 +249,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends AppPageConfig<"/engineers">> = Specific
   const handler = {} as typeof import("../../app/(dashboard)/engineers/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/(dashboard)/location-routing/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/location-routing">> = Specific
+  const handler = {} as typeof import("../../app/(dashboard)/location-routing/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

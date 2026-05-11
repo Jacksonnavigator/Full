@@ -370,6 +370,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       if (filters?.utilityId) params.set("utility_id", filters.utilityId)
       if (filters?.dmaId) params.set("dma_id", filters.dmaId)
       if (filters?.status) params.set("status", filters.status)
+      params.set("limit", "500")
 
       const endpoint = `/reports${params.toString() ? `?${params}` : ""}`
       const response = await apiClient.get(endpoint)

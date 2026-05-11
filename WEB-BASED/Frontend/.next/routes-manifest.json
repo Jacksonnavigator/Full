@@ -136,6 +136,12 @@
       "namedRegex": "^/dashboard/engineers(?:/)?$"
     },
     {
+      "page": "/dashboard/location-routing",
+      "regex": "^/dashboard/location\\-routing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/location\\-routing(?:/)?$"
+    },
+    {
       "page": "/dashboard/managers",
       "regex": "^/dashboard/managers(?:/)?$",
       "routeKeys": {},
@@ -200,6 +206,12 @@
       "regex": "^/engineers(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/engineers(?:/)?$"
+    },
+    {
+      "page": "/location-routing",
+      "regex": "^/location\\-routing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/location\\-routing(?:/)?$"
     },
     {
       "page": "/login",
