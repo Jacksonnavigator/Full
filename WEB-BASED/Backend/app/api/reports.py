@@ -28,7 +28,13 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 import re
 from datetime import timedelta
-from app.services.hierarchy import find_nearest_dma
+from app.services.hierarchy import (
+    find_dma_within_utility_by_district_name,
+    find_nearest_dma_within_utility,
+    find_nearest_utility,
+    find_utility_by_region_name,
+    resolve_region_name_hint,
+)
 from app.services.push_notifications import create_notification_record, deliver_notifications_push
 from app.services.activity_logs import log_report_activity
 
@@ -46,13 +52,15 @@ class ReportWithDetails(BaseModel):
     latitude: float
     longitude: float
     address: Optional[str] = None
+    region_name: Optional[str] = None
+    district_name: Optional[str] = None
     photos: List[str] = []
     report_photos: List[str] = []
     submission_before_photos: List[str] = []
     submission_after_photos: List[str] = []
     priority: str
     status: str
-    utility_id: str
+    utility_id: Optional[str] = None
     utility_name: Optional[str] = None
     utility_contact_phone: Optional[str] = None
     utility_contact_email: Optional[str] = None
@@ -89,6 +97,83 @@ def _report_link(report_id: str) -> str:
 def _generate_tracking_id(prefix: str = "REP") -> str:
     import uuid
     return f"{prefix}-{uuid.uuid4().hex[:8].upper()}"
+
+
+def _report_utility_label(utility: Optional[Utility]) -> str:
+    return utility.name if utility else "Unassigned Utility"
+
+
+def _report_dma_label(dma: Optional[DMA], utility: Optional[Utility]) -> str:
+    if dma:
+        return dma.name
+    if utility:
+        return "Unassigned DMA"
+    return "Unassigned Location"
+
+
+def _resolve_report_assignment(
+    *,
+    latitude: Optional[float],
+    longitude: Optional[float],
+    region_name: Optional[str],
+    district_name: Optional[str],
+    explicit_utility_id: Optional[str],
+    explicit_dma_id: Optional[str],
+    current_user: Optional[CurrentUser],
+    db: Session,
+) -> Tuple[Optional[Utility], Optional[DMA]]:
+    utility: Optional[Utility] = None
+    dma: Optional[DMA] = None
+
+    if current_user and current_user.user_type == "dma_manager" and current_user.dma_id:
+        dma = db.query(DMA).filter(DMA.id == current_user.dma_id).first()
+        if dma:
+            utility = db.query(Utility).filter(Utility.id == dma.utility_id).first()
+        return utility, dma
+
+    if current_user and current_user.user_type == "utility_manager" and current_user.utility_id:
+        utility = db.query(Utility).filter(Utility.id == current_user.utility_id).first()
+        if utility and district_name:
+            dma = find_dma_within_utility_by_district_name(district_name, utility, db)
+        if utility and not dma and latitude is not None and longitude is not None:
+            dma, _dma_distance = find_nearest_dma_within_utility(latitude, longitude, utility, db)
+        return utility, dma
+
+    if explicit_dma_id:
+        dma = db.query(DMA).filter(DMA.id == explicit_dma_id).first()
+        if not dma:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="DMA not found",
+            )
+        utility = db.query(Utility).filter(Utility.id == dma.utility_id).first()
+        return utility, dma
+
+    if explicit_utility_id:
+        utility = db.query(Utility).filter(Utility.id == explicit_utility_id).first()
+        if not utility:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Utility not found",
+            )
+        if district_name:
+            dma = find_dma_within_utility_by_district_name(district_name, utility, db)
+        if not dma and latitude is not None and longitude is not None:
+            dma, _dma_distance = find_nearest_dma_within_utility(latitude, longitude, utility, db)
+        return utility, dma
+
+    if region_name:
+        utility = find_utility_by_region_name(region_name, db)
+    if not utility and (latitude is None or longitude is None):
+        return None, None
+
+    if not utility:
+        utility, _utility_distance = find_nearest_utility(latitude, longitude, db)
+    if utility and district_name:
+        dma = find_dma_within_utility_by_district_name(district_name, utility, db)
+    if not dma:
+        dma, _dma_distance = find_nearest_dma_within_utility(latitude, longitude, utility, db)
+    return utility, dma
 
 
 def _extract_note_from_details(details: Optional[str]) -> Optional[str]:
@@ -482,6 +567,8 @@ def _build_report_list_item(report: Report) -> ReportWithDetails:
         latitude=report.latitude,
         longitude=report.longitude,
         address=report.address,
+        region_name=getattr(report, "region_name", None),
+        district_name=getattr(report, "district_name", None),
         photos=report.photos or [],
         report_photos=report_photos,
         submission_before_photos=submission_before_photos,
@@ -489,12 +576,12 @@ def _build_report_list_item(report: Report) -> ReportWithDetails:
         priority=report.priority.value if hasattr(report.priority, "value") else report.priority,
         status=report.status.value if hasattr(report.status, "value") else report.status,
         utility_id=report.utility_id,
-        utility_name=utility.name if utility else None,
+        utility_name=_report_utility_label(utility),
         utility_contact_phone=utility.contact_phone if utility else None,
         utility_contact_email=utility.contact_email if utility else None,
         utility_contact_address=utility.contact_address if utility else None,
         dma_id=report.dma_id,
-        dma_name=dma.name if dma else None,
+        dma_name=_report_dma_label(dma, utility),
         team_id=report.team_id,
         team_name=team.name if team else None,
         team_leader_id=team.leader_id if team else None,
@@ -645,26 +732,33 @@ async def create_report(
             detail="Report with this tracking ID already exists",
         )
     
-    dma = None
-    if report_data.dma_id:
-        dma = db.query(DMA).filter(DMA.id == report_data.dma_id).first()
-        if not dma:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="DMA not found",
-            )
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="DMA is required",
-        )
+    resolved_region_name = resolve_region_name_hint(
+        report_data.region_name,
+        report_data.latitude,
+        report_data.longitude,
+    )
+
+    utility, dma = _resolve_report_assignment(
+        latitude=report_data.latitude,
+        longitude=report_data.longitude,
+        region_name=resolved_region_name,
+        district_name=report_data.district_name,
+        explicit_utility_id=report_data.utility_id,
+        explicit_dma_id=report_data.dma_id,
+        current_user=current_user,
+        db=db,
+    )
+    resolved_region_name = resolved_region_name or getattr(utility, "region_name", None)
+    resolved_district_name = report_data.district_name or (dma.name if dma else None)
 
     new_report = Report(
         tracking_id=tracking_id,
         dma_id=dma.id if dma else None,
-        utility_id=dma.utility_id if dma else None,
+        utility_id=utility.id if utility else None,
         description=report_data.description or "Authenticated reported leakage",
         address=report_data.address,
+        region_name=resolved_region_name,
+        district_name=resolved_district_name,
         priority=report_data.priority,
         photos=report_data.photos or [],
         assigned_engineer_id=report_data.assigned_engineer_id,
@@ -683,7 +777,10 @@ async def create_report(
         db,
         report=new_report,
         action="report_created",
-        details=f"Report {new_report.tracking_id} was created from the authenticated workflow.",
+        details=(
+            f"Report {new_report.tracking_id} was created from the authenticated workflow. "
+            f"Utility: {_report_utility_label(utility)}. DMA: {_report_dma_label(dma, utility)}."
+        ),
         actor=current_user,
     )
     db.commit()
@@ -705,14 +802,24 @@ async def create_anonymous_report(
     # Generate unique tracking ID
     tracking_id = f"ANON-{uuid.uuid4().hex[:8].upper()}"
     
-    # Assign the report to the nearest DMA based on coordinates.
-    dma, distance = find_nearest_dma(report_data.latitude, report_data.longitude, db)
+    resolved_region_name = resolve_region_name_hint(
+        report_data.region_name,
+        report_data.latitude,
+        report_data.longitude,
+    )
 
-    if not dma:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No DMAs configured in system",
-        )
+    utility, dma = _resolve_report_assignment(
+        latitude=report_data.latitude,
+        longitude=report_data.longitude,
+        region_name=resolved_region_name,
+        district_name=report_data.district_name,
+        explicit_utility_id=None,
+        explicit_dma_id=None,
+        current_user=None,
+        db=db,
+    )
+    resolved_region_name = resolved_region_name or getattr(utility, "region_name", None)
+    resolved_district_name = report_data.district_name or (dma.name if dma else None)
 
     # Map priority string to enum
     priority_map = {
@@ -728,10 +835,12 @@ async def create_anonymous_report(
     
     new_report = Report(
         tracking_id=tracking_id,
-        dma_id=dma.id,
-        utility_id=dma.utility_id,
+        dma_id=dma.id if dma else None,
+        utility_id=utility.id if utility else None,
         description=report_data.description,
         address=report_data.address,
+        region_name=resolved_region_name,
+        district_name=resolved_district_name,
         priority=priority,
         photos=report_data.images or [],
         status=ReportStatusEnum.NEW,
@@ -746,18 +855,23 @@ async def create_anonymous_report(
     db.add(new_report)
     db.flush()
     _attach_upload_refs_to_report(new_report, report_data.images or [], db)
-    queued_notification = _queue_dma_manager_notification(
-        db,
-        new_report,
-        title="New reported leakage needs assignment",
-        message=f"{_priority_label(new_report.priority)} priority reported leakage {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
-        notification_type=NotificationTypeEnum.WARNING,
-    )
+    queued_notification = None
+    if dma:
+        queued_notification = _queue_dma_manager_notification(
+            db,
+            new_report,
+            title="New reported leakage needs assignment",
+            message=f"{_priority_label(new_report.priority)} priority reported leakage {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
+            notification_type=NotificationTypeEnum.WARNING,
+        )
     log_report_activity(
         db,
         report=new_report,
         action="report_created",
-        details=f"Anonymous report {tracking_id} was created and routed to {dma.name}.",
+        details=(
+            f"Anonymous report {tracking_id} was created. "
+            f"Utility: {_report_utility_label(utility)}. DMA: {_report_dma_label(dma, utility)}."
+        ),
         actor_name=report_data.reported_by or "Anonymous",
         actor_role="anonymous_reporter",
     )
@@ -899,8 +1013,41 @@ async def update_report(
     
     update_data = report_data.dict(exclude_unset=True)
     incoming_photos = update_data.pop("photos", None)
+    next_utility_id = update_data.pop("utility_id", None) if "utility_id" in update_data else None
+    next_dma_id = update_data.pop("dma_id", None) if "dma_id" in update_data else None
     queued_notifications = []
     changed_fields: list[str] = []
+
+    if "utility_id" in report_data.model_fields_set or "dma_id" in report_data.model_fields_set:
+        next_utility = db.query(Utility).filter(Utility.id == next_utility_id).first() if next_utility_id else None
+        if next_utility_id and not next_utility:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Utility not found")
+
+        next_dma = db.query(DMA).filter(DMA.id == next_dma_id).first() if next_dma_id else None
+        if next_dma_id and not next_dma:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="DMA not found")
+
+        if next_dma and next_utility and next_dma.utility_id != next_utility.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Selected DMA does not belong to the selected utility",
+            )
+
+        if next_dma and not next_utility:
+            next_utility = db.query(Utility).filter(Utility.id == next_dma.utility_id).first()
+
+        report.utility_id = next_utility.id if next_utility else None
+        report.dma_id = next_dma.id if next_dma else None
+
+        if report.team_id:
+            report.team_id = None
+            changed_fields.append("team_id")
+        if report.assigned_engineer_id:
+            report.assigned_engineer_id = None
+            changed_fields.append("assigned_engineer_id")
+
+        changed_fields.extend(["utility_id", "dma_id"])
+
     for field, value in update_data.items():
         setattr(report, field, value)
         changed_fields.append(field)
@@ -1295,12 +1442,14 @@ async def delete_report(
 def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails:
     """Helper to build report response with all related details"""
     # Get DMA name
+    dma = None
     dma_name = None
     if report.dma_id:
         dma = db.query(DMA).filter(DMA.id == report.dma_id).first()
         dma_name = dma.name if dma else None
     
     # Get utility name
+    utility = None
     utility_name = None
     utility_contact_phone = None
     utility_contact_email = None
@@ -1341,6 +1490,8 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         latitude=report.latitude,
         longitude=report.longitude,
         address=report.address,
+        region_name=getattr(report, "region_name", None),
+        district_name=getattr(report, "district_name", None),
         photos=report.photos or [],
         report_photos=report_photos,
         submission_before_photos=submission_before_photos,
@@ -1348,12 +1499,12 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         priority=report.priority.value if hasattr(report.priority, 'value') else report.priority,
         status=report.status.value if hasattr(report.status, 'value') else report.status,
         utility_id=report.utility_id,
-        utility_name=utility_name,
+        utility_name=_report_utility_label(utility if report.utility_id else None),
         utility_contact_phone=utility_contact_phone,
         utility_contact_email=utility_contact_email,
         utility_contact_address=utility_contact_address,
         dma_id=report.dma_id,
-        dma_name=dma_name,
+        dma_name=_report_dma_label(dma if report.dma_id else None, utility if report.utility_id else None),
         team_id=report.team_id,
         team_name=team_name,
         team_leader_id=team_leader_id,

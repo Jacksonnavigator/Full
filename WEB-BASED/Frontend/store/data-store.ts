@@ -15,10 +15,13 @@ import type { ReportStatus, ReportPriority, EntityStatus } from "@/lib/types"
 export interface Utility {
   id: string
   name: string
+  regionName?: string | null
   description: string | null
   contactPhone?: string | null
   contactEmail?: string | null
   contactAddress?: string | null
+  centerLatitude?: number | null
+  centerLongitude?: number | null
   managerId?: string | null
   managerName?: string
   status: EntityStatus
@@ -91,15 +94,17 @@ export interface Report {
   latitude: number
   longitude: number
   address: string | null
+  regionName?: string | null
+  districtName?: string | null
   photos: string[]
   reportPhotos?: string[]
   submissionBeforePhotos?: string[]
   submissionAfterPhotos?: string[]
   priority: ReportPriority
   status: ReportStatus
-  utilityId: string
+  utilityId: string | null
   utilityName: string
-  dmaId: string
+  dmaId: string | null
   dmaName: string
   teamId: string | null
   teamName: string | null

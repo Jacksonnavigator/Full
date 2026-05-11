@@ -22,7 +22,12 @@ from app.schemas.user import (
     UtilityPublicContactResponse,
 )
 from app.security.dependencies import get_current_user, require_admin, require_utility_manager, CurrentUser
-from app.services.hierarchy import find_nearest_dma
+from app.services.hierarchy import (
+    find_nearest_dma_within_utility,
+    find_nearest_utility,
+    find_utility_by_region_name,
+    resolve_region_name_hint,
+)
 
 utilities_router = APIRouter(prefix="/api/utilities", tags=["utilities"])
 
@@ -67,10 +72,13 @@ def _build_utility_response(utility: Utility) -> UtilityResponse:
     return UtilityResponse(
         id=utility.id,
         name=utility.name,
+        region_name=utility.region_name,
         description=utility.description,
         contact_phone=utility.contact_phone,
         contact_email=utility.contact_email,
         contact_address=utility.contact_address,
+        center_latitude=utility.center_latitude,
+        center_longitude=utility.center_longitude,
         status=utility.status,
         pipe_network_file_name=pipe_network.file_name if pipe_network else None,
         pipe_network_file_size=pipe_network.file_size if pipe_network else None,
@@ -92,25 +100,24 @@ async def resolve_public_utility_for_location(
     """
     Resolve the responsible utility for a public mobile user based on location.
     """
-    dma, _distance = find_nearest_dma(latitude, longitude, db)
-    if not dma:
+    resolved_region_name = resolve_region_name_hint(None, latitude, longitude)
+    utility = find_utility_by_region_name(resolved_region_name, db) if resolved_region_name else None
+    if not utility:
+        utility, _distance = find_nearest_utility(latitude, longitude, db)
+    if not utility:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No utility coverage is configured for this location",
         )
 
-    utility = db.query(Utility).filter(Utility.id == dma.utility_id).first()
-    if not utility:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Utility not found for this location",
-        )
+    dma, _dma_distance = find_nearest_dma_within_utility(latitude, longitude, utility, db)
 
     return UtilityPublicContactResponse(
         utility_id=utility.id,
         utility_name=utility.name,
-        dma_id=dma.id,
-        dma_name=dma.name,
+        region_name=resolved_region_name or utility.region_name,
+        dma_id=dma.id if dma else None,
+        dma_name=dma.name if dma else None,
         contact_phone=utility.contact_phone,
         contact_email=utility.contact_email,
         contact_address=utility.contact_address,
@@ -613,10 +620,13 @@ async def create_utility(
     """
     new_utility = Utility(
         name=utility_data.name,
+        region_name=utility_data.region_name,
         description=utility_data.description,
         contact_phone=utility_data.contact_phone,
         contact_email=utility_data.contact_email,
         contact_address=utility_data.contact_address,
+        center_latitude=utility_data.center_latitude,
+        center_longitude=utility_data.center_longitude,
         status=utility_data.status,
     )
     

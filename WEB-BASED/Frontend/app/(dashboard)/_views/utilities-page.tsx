@@ -67,6 +67,39 @@ interface User {
   role: string
 }
 
+const TANZANIA_REGIONS = [
+  "Arusha",
+  "Dar es Salaam",
+  "Dodoma",
+  "Geita",
+  "Iringa",
+  "Kagera",
+  "Katavi",
+  "Kigoma",
+  "Kilimanjaro",
+  "Lindi",
+  "Manyara",
+  "Mara",
+  "Mbeya",
+  "Morogoro",
+  "Mtwara",
+  "Mwanza",
+  "Njombe",
+  "Pemba North",
+  "Pemba South",
+  "Pwani",
+  "Rukwa",
+  "Ruvuma",
+  "Shinyanga",
+  "Simiyu",
+  "Singida",
+  "Songwe",
+  "Tabora",
+  "Tanga",
+  "Unguja North",
+  "Unguja South",
+]
+
 export default function UtilitiesPage() {
   usePageAccess() // Check if user has access to this page
 
@@ -84,9 +117,12 @@ export default function UtilitiesPage() {
   // Form state
   const [formName, setFormName] = useState("")
   const [formDescription, setFormDescription] = useState("")
+  const [formRegionName, setFormRegionName] = useState("")
   const [formContactPhone, setFormContactPhone] = useState("")
   const [formContactEmail, setFormContactEmail] = useState("")
   const [formContactAddress, setFormContactAddress] = useState("")
+  const [formCenterLatitude, setFormCenterLatitude] = useState("")
+  const [formCenterLongitude, setFormCenterLongitude] = useState("")
   const [formStatus, setFormStatus] = useState<EntityStatus>("active")
 
   const isAdmin = currentUser?.role === "admin"
@@ -163,9 +199,12 @@ export default function UtilitiesPage() {
     setEditingUtility(null)
     setFormName("")
     setFormDescription("")
+    setFormRegionName("")
     setFormContactPhone("")
     setFormContactEmail("")
     setFormContactAddress("")
+    setFormCenterLatitude("")
+    setFormCenterLongitude("")
     setFormStatus("active")
     setDialogOpen(true)
   }
@@ -174,9 +213,16 @@ export default function UtilitiesPage() {
     setEditingUtility(utility)
     setFormName(utility.name)
     setFormDescription(utility.description || "")
+    setFormRegionName(utility.regionName || "")
     setFormContactPhone(utility.contactPhone || "")
     setFormContactEmail(utility.contactEmail || "")
     setFormContactAddress(utility.contactAddress || "")
+    setFormCenterLatitude(
+      utility.centerLatitude !== null && utility.centerLatitude !== undefined ? String(utility.centerLatitude) : ""
+    )
+    setFormCenterLongitude(
+      utility.centerLongitude !== null && utility.centerLongitude !== undefined ? String(utility.centerLongitude) : ""
+    )
     setFormStatus(utility.status)
     setDialogOpen(true)
   }
@@ -190,15 +236,30 @@ export default function UtilitiesPage() {
     const normalizedContactPhone = formContactPhone.trim() || undefined
     const normalizedContactEmail = formContactEmail.trim() || undefined
     const normalizedContactAddress = formContactAddress.trim() || undefined
+    const normalizedCenterLatitude = formCenterLatitude.trim() ? Number(formCenterLatitude) : undefined
+    const normalizedCenterLongitude = formCenterLongitude.trim() ? Number(formCenterLongitude) : undefined
+
+    if ((formCenterLatitude.trim() && !formCenterLongitude.trim()) || (!formCenterLatitude.trim() && formCenterLongitude.trim())) {
+      toast.error("Please provide both utility center latitude and longitude")
+      return
+    }
+
+    if ((formCenterLatitude.trim() && Number.isNaN(normalizedCenterLatitude)) || (formCenterLongitude.trim() && Number.isNaN(normalizedCenterLongitude))) {
+      toast.error("Utility center coordinates must be valid numbers")
+      return
+    }
 
     try {
       if (editingUtility) {
         await updateUtility(editingUtility.id, {
           name: formName,
+          regionName: formRegionName.trim() || undefined,
           description: formDescription,
           contactPhone: normalizedContactPhone,
           contactEmail: normalizedContactEmail,
           contactAddress: normalizedContactAddress,
+          centerLatitude: normalizedCenterLatitude,
+          centerLongitude: normalizedCenterLongitude,
           status: formStatus,
         })
         toast.success("Utility updated successfully")
@@ -209,10 +270,13 @@ export default function UtilitiesPage() {
         }
         await addUtility({
           name: formName,
+          regionName: formRegionName.trim() || undefined,
           description: formDescription,
           contactPhone: normalizedContactPhone,
           contactEmail: normalizedContactEmail,
           contactAddress: normalizedContactAddress,
+          centerLatitude: normalizedCenterLatitude,
+          centerLongitude: normalizedCenterLongitude,
           status: formStatus,
         })
         toast.success("Utility created successfully")
@@ -715,6 +779,22 @@ export default function UtilitiesPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium text-slate-700">Region Authority</Label>
+              <Select value={formRegionName || "__none__"} onValueChange={(value) => setFormRegionName(value === "__none__" ? "" : value)}>
+                <SelectTrigger className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl">
+                  <SelectValue placeholder="Select utility region" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
+                  <SelectItem value="__none__" className="rounded-lg">No region selected yet</SelectItem>
+                  {TANZANIA_REGIONS.map((region) => (
+                    <SelectItem key={region} value={region} className="rounded-lg">
+                      {region}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
               <Label htmlFor="utility-desc" className="text-sm font-medium text-slate-700">Description</Label>
               <Textarea
                 id="utility-desc"
@@ -758,6 +838,32 @@ export default function UtilitiesPage() {
                 rows={2}
                 className="bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 resize-none"
               />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="utility-center-latitude" className="text-sm font-medium text-slate-700">Region Center Latitude</Label>
+                <Input
+                  id="utility-center-latitude"
+                  type="number"
+                  step="0.000001"
+                  value={formCenterLatitude}
+                  onChange={(e) => setFormCenterLatitude(e.target.value)}
+                  placeholder="e.g. -6.173056"
+                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="utility-center-longitude" className="text-sm font-medium text-slate-700">Region Center Longitude</Label>
+                <Input
+                  id="utility-center-longitude"
+                  type="number"
+                  step="0.000001"
+                  value={formCenterLongitude}
+                  onChange={(e) => setFormCenterLongitude(e.target.value)}
+                  placeholder="e.g. 35.741944"
+                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
+                />
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium text-slate-700">Status</Label>

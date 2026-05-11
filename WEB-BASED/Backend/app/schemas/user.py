@@ -78,10 +78,13 @@ class UserInvitationCreate(BaseModel):
 class UtilityBase(BaseModel):
     """Base schema for Utility"""
     name: str = Field(..., min_length=1, max_length=255)
+    region_name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=1000)
     contact_phone: Optional[str] = Field(None, max_length=20)
     contact_email: Optional[EmailStr] = None
     contact_address: Optional[str] = Field(None, max_length=255)
+    center_latitude: Optional[float] = Field(None, ge=-90, le=90)
+    center_longitude: Optional[float] = Field(None, ge=-180, le=180)
     status: EntityStatus = EntityStatus.ACTIVE
 
 
@@ -93,7 +96,13 @@ class UtilityCreate(UtilityBase):
 class UtilityUpdate(BaseModel):
     """Schema for updating utility"""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
+    region_name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=1000)
+    contact_phone: Optional[str] = Field(None, max_length=20)
+    contact_email: Optional[EmailStr] = None
+    contact_address: Optional[str] = Field(None, max_length=255)
+    center_latitude: Optional[float] = Field(None, ge=-90, le=90)
+    center_longitude: Optional[float] = Field(None, ge=-180, le=180)
     status: Optional[EntityStatus] = None
 
 
@@ -124,6 +133,7 @@ class UtilityPublicContactResponse(BaseModel):
 
     utility_id: str
     utility_name: str
+    region_name: Optional[str] = None
     dma_id: Optional[str] = None
     dma_name: Optional[str] = None
     contact_phone: Optional[str] = None
@@ -461,13 +471,15 @@ class ReportResponse(BaseModel):
     latitude: float
     longitude: float
     address: Optional[str] = None
+    region_name: Optional[str] = None
+    district_name: Optional[str] = None
     photos: List[str] = []
     report_photos: List[str] = []
     submission_before_photos: List[str] = []
     submission_after_photos: List[str] = []
     priority: str
     status: str
-    utility_id: str
+    utility_id: Optional[str] = None
     utility_name: Optional[str] = None
     utility_contact_phone: Optional[str] = None
     utility_contact_email: Optional[EmailStr] = None

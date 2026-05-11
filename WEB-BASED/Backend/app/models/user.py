@@ -66,10 +66,13 @@ class Utility(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), unique=True, nullable=False, index=True)
+    region_name = Column(String(100), nullable=True, index=True)
     description = Column(String, nullable=True)
     contact_phone = Column(String(20), nullable=True)
     contact_email = Column(String(255), nullable=True)
     contact_address = Column(String(255), nullable=True)
+    center_latitude = Column(Float, nullable=True)
+    center_longitude = Column(Float, nullable=True)
     status = Column(SQLEnum(EntityStatusEnum), default=EntityStatusEnum.ACTIVE)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

@@ -68,10 +68,20 @@ const getReportLocationLabel = (report: {
   address?: string | null
   latitude?: number | null
   longitude?: number | null
+  districtName?: string | null
+  regionName?: string | null
   dmaName?: string | null
 }) => {
   if (report.address?.trim()) {
     return report.address
+  }
+
+  if (report.districtName?.trim() && report.regionName?.trim()) {
+    return `${report.districtName}, ${report.regionName}`
+  }
+
+  if (report.districtName?.trim()) {
+    return report.districtName
   }
 
   if (Number.isFinite(report.latitude) && Number.isFinite(report.longitude)) {
@@ -148,7 +158,10 @@ export default function ReportsPage() {
           r.trackingId.toLowerCase().includes(query) ||
           r.description.toLowerCase().includes(query) ||
           (r.address?.toLowerCase() || "").includes(query) ||
-          r.dmaName.toLowerCase().includes(query)
+          (r.dmaName?.toLowerCase() || "").includes(query) ||
+          (r.utilityName?.toLowerCase() || "").includes(query) ||
+          (r.regionName?.toLowerCase() || "").includes(query) ||
+          (r.districtName?.toLowerCase() || "").includes(query)
 
         const matchesStatus =
           statusFilter === "all" ? true : r.status === statusFilter

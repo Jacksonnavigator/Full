@@ -38,6 +38,7 @@ def run_startup_migrations(engine: Engine) -> None:
     _migrate_activity_log_constraints(engine)
     _migrate_report_workflow_columns(engine)
     _migrate_utility_contact_columns(engine)
+    _migrate_geographic_assignment_columns(engine)
 
 
 def _needs_branchless_migration(inspector) -> bool:
@@ -132,11 +133,13 @@ def _migrate_sqlite_branchless_schema(engine: Engine) -> None:
             latitude FLOAT NOT NULL,
             longitude FLOAT NOT NULL,
             address VARCHAR(255),
+            region_name VARCHAR(100),
+            district_name VARCHAR(100),
             photos JSON,
             priority VARCHAR(8),
             status VARCHAR(16),
-            utility_id VARCHAR(36) NOT NULL,
-            dma_id VARCHAR(36) NOT NULL,
+            utility_id VARCHAR(36),
+            dma_id VARCHAR(36),
             team_id VARCHAR(36),
             assigned_engineer_id VARCHAR(36),
             reporter_name VARCHAR(255) NOT NULL,
@@ -154,12 +157,12 @@ def _migrate_sqlite_branchless_schema(engine: Engine) -> None:
         """,
         """
         INSERT INTO report_new (
-            id, tracking_id, description, latitude, longitude, address, photos, priority, status,
+            id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, status,
             utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
             notes, sla_deadline, resolved_at, created_at, updated_at
         )
         SELECT
-            id, tracking_id, description, latitude, longitude, address, photos, priority, status,
+            id, tracking_id, description, latitude, longitude, address, NULL as region_name, NULL as district_name, photos, priority, status,
             utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
             notes, sla_deadline, resolved_at, created_at, updated_at
         FROM report
@@ -389,6 +392,10 @@ def _migrate_report_workflow_columns(engine: Engine) -> None:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN dma_review_notes TEXT")
     if "public_history_key" not in columns:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN public_history_key VARCHAR(64)")
+    if "region_name" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN region_name VARCHAR(100)")
+    if "district_name" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN district_name VARCHAR(100)")
 
     with engine.begin() as connection:
         for statement in statements:
@@ -400,6 +407,12 @@ def _migrate_report_workflow_columns(engine: Engine) -> None:
             else 'CREATE INDEX IF NOT EXISTS ix_report_public_history_key ON "report" (public_history_key)'
         )
         connection.exec_driver_sql(index_statement)
+        if engine.dialect.name == "sqlite":
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_report_region_name ON report (region_name)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_report_district_name ON report (district_name)")
+        else:
+            connection.exec_driver_sql('CREATE INDEX IF NOT EXISTS ix_report_region_name ON "report" (region_name)')
+            connection.exec_driver_sql('CREATE INDEX IF NOT EXISTS ix_report_district_name ON "report" (district_name)')
 
 
 def _migrate_utility_contact_columns(engine: Engine) -> None:
@@ -417,10 +430,110 @@ def _migrate_utility_contact_columns(engine: Engine) -> None:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN contact_email VARCHAR(255)")
     if "contact_address" not in columns:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN contact_address VARCHAR(255)")
+    if "center_latitude" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN center_latitude FLOAT")
+    if "center_longitude" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN center_longitude FLOAT")
+    if "region_name" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN region_name VARCHAR(100)")
 
     if not statements:
         return
 
     with engine.begin() as connection:
+        for statement in statements:
+            connection.exec_driver_sql(statement)
+
+
+def _migrate_geographic_assignment_columns(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "report" not in inspector.get_table_names():
+        return
+
+    if engine.dialect.name == "sqlite":
+        _migrate_sqlite_nullable_report_assignment(engine)
+        return
+
+    if engine.dialect.name.startswith("postgresql"):
+        with engine.begin() as connection:
+            connection.execute(text('ALTER TABLE "report" ALTER COLUMN utility_id DROP NOT NULL'))
+            connection.execute(text('ALTER TABLE "report" ALTER COLUMN dma_id DROP NOT NULL'))
+
+
+def _migrate_sqlite_nullable_report_assignment(engine: Engine) -> None:
+    with engine.begin() as connection:
+        row = connection.exec_driver_sql(
+            "SELECT sql FROM sqlite_master WHERE type='table' AND name='report'"
+        ).fetchone()
+        create_sql = row[0] if row else ""
+        if "utility_id VARCHAR(36) NOT NULL" not in create_sql and "dma_id VARCHAR(36) NOT NULL" not in create_sql:
+            return
+
+        statements = [
+            "PRAGMA foreign_keys=OFF",
+            """
+            CREATE TABLE IF NOT EXISTS report_new (
+                id VARCHAR(36) PRIMARY KEY,
+                tracking_id VARCHAR(50) NOT NULL UNIQUE,
+                description TEXT NOT NULL,
+                latitude FLOAT NOT NULL,
+                longitude FLOAT NOT NULL,
+                address VARCHAR(255),
+                region_name VARCHAR(100),
+                district_name VARCHAR(100),
+                photos JSON,
+                priority VARCHAR(8),
+                status VARCHAR(16),
+                utility_id VARCHAR(36),
+                dma_id VARCHAR(36),
+                team_id VARCHAR(36),
+                assigned_engineer_id VARCHAR(36),
+                reporter_name VARCHAR(255) NOT NULL,
+                reporter_phone VARCHAR(20) NOT NULL,
+                notes TEXT,
+                engineer_submission_notes TEXT,
+                team_leader_review_notes TEXT,
+                dma_review_notes TEXT,
+                public_history_key VARCHAR(64),
+                sla_deadline DATETIME NOT NULL,
+                resolved_at DATETIME,
+                created_at DATETIME NOT NULL,
+                updated_at DATETIME NOT NULL,
+                FOREIGN KEY(utility_id) REFERENCES utility(id),
+                FOREIGN KEY(dma_id) REFERENCES dma(id) ON DELETE CASCADE,
+                FOREIGN KEY(team_id) REFERENCES team(id),
+                FOREIGN KEY(assigned_engineer_id) REFERENCES engineer(id)
+            )
+            """,
+            """
+            INSERT INTO report_new (
+                id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, status,
+                utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
+                notes, engineer_submission_notes, team_leader_review_notes, dma_review_notes, public_history_key,
+                sla_deadline, resolved_at, created_at, updated_at
+            )
+            SELECT
+                id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, status,
+                utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
+                notes,
+                engineer_submission_notes,
+                team_leader_review_notes,
+                dma_review_notes,
+                public_history_key,
+                sla_deadline, resolved_at, created_at, updated_at
+            FROM report
+            """,
+            "DROP TABLE IF EXISTS report",
+            "ALTER TABLE report_new RENAME TO report",
+            "CREATE UNIQUE INDEX IF NOT EXISTS ix_report_tracking_id ON report (tracking_id)",
+            "CREATE INDEX IF NOT EXISTS ix_report_status ON report (status)",
+            "CREATE INDEX IF NOT EXISTS ix_report_utility_id ON report (utility_id)",
+            "CREATE INDEX IF NOT EXISTS ix_report_dma_id ON report (dma_id)",
+            "CREATE INDEX IF NOT EXISTS ix_report_created_at ON report (created_at)",
+            "CREATE INDEX IF NOT EXISTS ix_report_public_history_key ON report (public_history_key)",
+            "CREATE INDEX IF NOT EXISTS ix_report_region_name ON report (region_name)",
+            "CREATE INDEX IF NOT EXISTS ix_report_district_name ON report (district_name)",
+            "PRAGMA foreign_keys=ON",
+        ]
         for statement in statements:
             connection.exec_driver_sql(statement)

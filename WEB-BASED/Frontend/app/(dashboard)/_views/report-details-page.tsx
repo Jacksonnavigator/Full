@@ -46,9 +46,17 @@ const getRepairPhotos = (report: Report) => [
   ...(report.submissionAfterPhotos ?? []).map((uri) => ({ uri, label: "After Repair" })),
 ]
 
-const getReportLocationLabel = (report: Pick<Report, "address" | "latitude" | "longitude">) => {
+const getReportLocationLabel = (report: Pick<Report, "address" | "latitude" | "longitude" | "regionName" | "districtName">) => {
   if (report.address?.trim()) {
     return report.address
+  }
+
+  if (report.districtName?.trim() && report.regionName?.trim()) {
+    return `${report.districtName}, ${report.regionName}`
+  }
+
+  if (report.districtName?.trim()) {
+    return report.districtName
   }
 
   if (Number.isFinite(report.latitude) && Number.isFinite(report.longitude)) {
@@ -224,13 +232,16 @@ export default function ReportDetailPage() {
   const reportId = Array.isArray(params?.reportId) ? params.reportId[0] : params?.reportId
 
   const { currentUser } = useAuthStore()
-  const { reports, teams, fetchReports, fetchTeams, deleteReport } = useDataStore()
+  const { reports, teams, utilities, dmas, fetchReports, fetchTeams, fetchUtilities, fetchDMAs, updateReport, deleteReport } = useDataStore()
   const [loading, setLoading] = useState(true)
   const [assignOpen, setAssignOpen] = useState(false)
+  const [resolveLocationOpen, setResolveLocationOpen] = useState(false)
   const [approveDialogOpen, setApproveDialogOpen] = useState(false)
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [assignTeamId, setAssignTeamId] = useState("")
+  const [resolveUtilityId, setResolveUtilityId] = useState("")
+  const [resolveDMAId, setResolveDMAId] = useState("")
   const [approveComment, setApproveComment] = useState("")
   const [rejectReason, setRejectReason] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -257,6 +268,8 @@ export default function ReportDetailPage() {
       const dmaId = isDMA ? currentUser.dmaId ?? "" : undefined
       const utilityId = isUtility ? currentUser.utilityId ?? "" : undefined
       await Promise.all([
+        fetchUtilities(),
+        fetchDMAs(),
         fetchReports(isDMA ? { dmaId } : isUtility ? { utilityId } : undefined),
         fetchTeams(dmaId),
       ])
@@ -264,7 +277,7 @@ export default function ReportDetailPage() {
     }
 
     void loadData()
-  }, [currentUser, fetchReports, fetchTeams, isDMA, isUtility])
+  }, [currentUser, fetchDMAs, fetchReports, fetchTeams, fetchUtilities, isDMA, isUtility])
 
   const scopedReports = useMemo(() => {
     if (!currentUser) return []
@@ -288,6 +301,18 @@ export default function ReportDetailPage() {
     }
     return []
   }, [teams, isDMA, isUtility, currentUser])
+
+  const availableUtilities = useMemo(() => {
+    if (isUtility && currentUser?.utilityId) {
+      return utilities.filter((utility) => utility.id === currentUser.utilityId)
+    }
+    return utilities
+  }, [currentUser, isUtility, utilities])
+
+  const availableDMAs = useMemo(() => {
+    if (!resolveUtilityId) return []
+    return dmas.filter((dma) => dma.utilityId === resolveUtilityId)
+  }, [dmas, resolveUtilityId])
 
   const loadActivityLogs = async () => {
     if (!currentUser || !reportId) {
@@ -398,6 +423,14 @@ export default function ReportDetailPage() {
     setAssignOpen(true)
   }
 
+  const openResolveLocation = () => {
+    if (!report) return
+    const initialUtilityId = report.utilityId || (isUtility ? currentUser?.utilityId ?? "" : "")
+    setResolveUtilityId(initialUtilityId)
+    setResolveDMAId(report.dmaId || "")
+    setResolveLocationOpen(true)
+  }
+
   const openMediaViewer = (media: MediaItem) => {
     setActiveMedia(media)
     setViewerOpen(true)
@@ -427,6 +460,43 @@ export default function ReportDetailPage() {
     } catch (error) {
       console.error("Error assigning report:", error)
       toast.error("Failed to assign report")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleResolveLocation = async () => {
+    if (!report) return
+    if (isUtility && !currentUser?.utilityId) {
+      toast.error("Your account has no utility scope configured.")
+      return
+    }
+    if (!isAdmin && !isUtility) {
+      toast.error("Only admin and utility managers can update report geography.")
+      return
+    }
+
+    const nextUtilityId = isUtility ? currentUser?.utilityId ?? null : resolveUtilityId || null
+    const nextDMAId = resolveDMAId || null
+
+    if (nextDMAId && !nextUtilityId) {
+      toast.error("Please select a utility before selecting a DMA.")
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      await updateReport(report.id, {
+        utilityId: nextUtilityId,
+        dmaId: nextDMAId,
+      })
+      toast.success("Reported leakage location routing updated successfully")
+      setResolveLocationOpen(false)
+      await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
+      await loadActivityLogs()
+    } catch (error) {
+      console.error("Error resolving report location:", error)
+      toast.error("Failed to update report location routing")
     } finally {
       setIsSubmitting(false)
     }
@@ -613,6 +683,16 @@ export default function ReportDetailPage() {
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Delete Reported Leakage
+          </Button>
+        )}
+        {(isAdmin || isUtility) && (
+          <Button
+            variant="outline"
+            onClick={openResolveLocation}
+            className="rounded-xl border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 hover:text-cyan-800"
+          >
+            <MapPin className="mr-2 h-4 w-4" />
+            {report.utilityId && report.dmaId ? "Adjust Utility / DMA" : "Resolve Utility / DMA"}
           </Button>
         )}
         {isDMA && !report.teamName && (
@@ -852,6 +932,99 @@ export default function ReportDetailPage() {
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
                   Assign Reported Leakage
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resolveLocationOpen} onOpenChange={setResolveLocationOpen}>
+        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600">
+                <MapPin className="h-4 w-4 text-white" />
+              </div>
+              Resolve Report Location
+            </DialogTitle>
+            <DialogDescription>
+              Link this reported leakage to the correct regional utility and district DMA when the automatic match was uncertain.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-5 overflow-y-auto py-4 pr-1">
+            <div className="rounded-xl border border-cyan-200/80 bg-gradient-to-r from-cyan-50/50 to-blue-50/50 p-4">
+              <p className="font-mono text-xs font-semibold text-slate-700">{report.trackingId}</p>
+              <p className="mt-1 line-clamp-2 text-sm text-slate-500">{report.description || "No description"}</p>
+              <p className="mt-2 text-xs text-slate-500">{getReportLocationLabel(report)}</p>
+            </div>
+
+            {!isUtility && (
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium text-slate-700">Utility / Region</Label>
+                <Select
+                  value={resolveUtilityId || "__none__"}
+                  onValueChange={(value) => {
+                    const nextValue = value === "__none__" ? "" : value
+                    setResolveUtilityId(nextValue)
+                    setResolveDMAId("")
+                  }}
+                >
+                  <SelectTrigger className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80">
+                    <SelectValue placeholder="Select utility" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
+                    <SelectItem value="__none__" className="rounded-lg">
+                      Unassigned Utility
+                    </SelectItem>
+                    {availableUtilities.map((utility) => (
+                      <SelectItem key={utility.id} value={utility.id} className="rounded-lg">
+                        {utility.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium text-slate-700">DMA / District</Label>
+              <Select
+                value={resolveDMAId || "__none__"}
+                onValueChange={(value) => setResolveDMAId(value === "__none__" ? "" : value)}
+              >
+                <SelectTrigger className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80">
+                  <SelectValue placeholder="Select DMA" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
+                  <SelectItem value="__none__" className="rounded-lg">
+                    {resolveUtilityId ? "Unassigned DMA" : "Unassigned Location"}
+                  </SelectItem>
+                  {availableDMAs.map((dma) => (
+                    <SelectItem key={dma.id} value={dma.id} className="rounded-lg">
+                      {dma.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResolveLocationOpen(false)} className="rounded-xl">Cancel</Button>
+            <Button
+              onClick={handleResolveLocation}
+              disabled={isSubmitting}
+              className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25 hover:from-cyan-600 hover:to-blue-700"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Save Location Routing
                 </>
               )}
             </Button>

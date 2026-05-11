@@ -41,9 +41,12 @@ export interface User {
 export interface Utility {
   id: string
   name: string
+  regionName?: string | null
   description: string
   managerId: string
   managerName: string
+  centerLatitude?: number | null
+  centerLongitude?: number | null
   status: EntityStatus
   dmasCount: number
   createdAt: string
@@ -97,15 +100,17 @@ export interface Report {
   latitude: number
   longitude: number
   address: string
+  regionName?: string | null
+  districtName?: string | null
   photos: string[]
   reportPhotos?: string[]
   submissionBeforePhotos?: string[]
   submissionAfterPhotos?: string[]
   priority: ReportPriority
   status: ReportStatus
-  utilityId: string
+  utilityId: string | null
   utilityName: string
-  dmaId: string
+  dmaId: string | null
   dmaName: string
   teamId?: string
   teamName?: string

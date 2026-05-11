@@ -45,6 +45,8 @@ export function AdminDashboard() {
   const slaCompliance = totalReports > 0 ? Math.round((resolvedReports / totalReports) * 100) : 0
   const inactiveEngineers = engineers.filter((e) => e.status !== "active").length
   const dmasWithoutManager = dmas.filter((dma) => !dma.managerId).length
+  const reportsWithoutUtility = reports.filter((report) => !report.utilityId).length
+  const reportsWithoutDMA = reports.filter((report) => report.utilityId && !report.dmaId).length
   const unassignedReports = reports.filter((report) => !report.teamId).length
   const utilitiesWithoutManager = utilities.filter((utility) => !utility.managerId).length
   const governanceAlerts = [
@@ -65,6 +67,18 @@ export function AdminDashboard() {
       value: inactiveEngineers,
       tone: "text-blue-700 bg-blue-50",
       icon: UserX,
+    },
+    {
+      label: "Reports without utility",
+      value: reportsWithoutUtility,
+      tone: "text-fuchsia-700 bg-fuchsia-50",
+      icon: Globe,
+    },
+    {
+      label: "Reports without DMA",
+      value: reportsWithoutDMA,
+      tone: "text-orange-700 bg-orange-50",
+      icon: MapPin,
     },
     {
       label: "Unassigned reports",

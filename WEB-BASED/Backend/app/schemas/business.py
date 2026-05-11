@@ -16,11 +16,14 @@ from app.constants.enums import ReportStatus, ReportPriority, NotificationType
 class ReportBase(BaseModel):
     """Base schema for Report"""
     tracking_id: str = Field(..., min_length=1, max_length=50)
+    utility_id: Optional[str] = None
     dma_id: Optional[str] = None
     description: Optional[str] = Field(None, max_length=2000)
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     address: Optional[str] = Field(None, max_length=500)
+    region_name: Optional[str] = Field(None, max_length=100)
+    district_name: Optional[str] = Field(None, max_length=100)
     priority: ReportPriority = ReportPriority.MEDIUM
     photos: Optional[List[str]] = []
 
@@ -38,6 +41,8 @@ class AnonymousReportCreate(BaseModel):
     latitude: float
     longitude: float
     address: Optional[str] = Field(None, max_length=500)
+    region_name: Optional[str] = Field(None, max_length=100)
+    district_name: Optional[str] = Field(None, max_length=100)
     priority: str = "Medium"  # Accept string priority from mobile app
     images: Optional[List[str]] = []
     reported_by: Optional[str] = "Anonymous"
@@ -47,7 +52,11 @@ class AnonymousReportCreate(BaseModel):
 class ReportUpdate(BaseModel):
     """Schema for updating report"""
     description: Optional[str] = Field(None, max_length=2000)
+    region_name: Optional[str] = Field(None, max_length=100)
+    district_name: Optional[str] = Field(None, max_length=100)
     priority: Optional[ReportPriority] = None
+    utility_id: Optional[str] = None
+    dma_id: Optional[str] = None
     assigned_engineer_id: Optional[str] = None
     status: Optional[ReportStatus] = None
     photos: Optional[List[str]] = None
