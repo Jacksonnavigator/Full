@@ -38,8 +38,10 @@ import {
   Sparkles,
   Eye,
   Trash2,
+  Calendar,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { formatTanzaniaDateTime, formatTanzaniaTime } from "@/lib/date-time"
 import { toast } from "sonner"
 
 type ReportStatus = "new" | "assigned" | "in_progress" | "pending_approval" | "approved" | "rejected" | "closed"
@@ -93,6 +95,33 @@ const getReportLocationLabel = (report: {
   }
 
   return "Location not available"
+}
+
+const formatReportTime = (dateString: string | undefined): string => {
+  if (!dateString) return "-"
+  
+  try {
+    const date = new Date(dateString)
+    // Tanzania time is UTC+3 (East Africa Time)
+    const tanzaniaTime = new Date(date.toLocaleString('en-US', { timeZone: 'Africa/Dar_es_Salaam' }))
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Africa/Dar_es_Salaam' }))
+    
+    const diffMs = now.getTime() - tanzaniaTime.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+    
+    // Show relative time for recent items
+    if (diffMins < 1) return "Just now"
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    
+    // Show full Tanzania date for older items
+    return formatTanzaniaDateTime(date)
+  } catch {
+    return "-"
+  }
 }
 
 export default function ReportsPage() {
@@ -150,8 +179,8 @@ export default function ReportsPage() {
   }, [currentUser, isAdmin, isUtility, isDMA, reports])
 
   const filteredReports = useMemo(
-    () =>
-      scopedReports.filter((r) => {
+    () => {
+      const filtered = scopedReports.filter((r) => {
         const query = search.toLowerCase()
         const matchesSearch =
           !query ||
@@ -170,7 +199,15 @@ export default function ReportsPage() {
           priorityFilter === "all" ? true : r.priority === priorityFilter
 
         return matchesSearch && matchesStatus && matchesPriority
-      }),
+      })
+
+      // Sort by createdAt (most recent first)
+      return filtered.sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime()
+        const dateB = new Date(b.createdAt).getTime()
+        return dateB - dateA
+      })
+    },
     [scopedReports, search, statusFilter, priorityFilter]
   )
 
@@ -350,14 +387,15 @@ export default function ReportsPage() {
         <CardContent className="p-0">
             <Table className="w-full table-fixed">
               <colgroup>
-                <col style={{ width: isDMA ? "16%" : "14%" }} />
-                <col style={{ width: isDMA ? "21%" : "23%" }} />
-                <col style={{ width: isDMA ? "18%" : "18%" }} />
-                {!isDMA && <col style={{ width: "11%" }} />}
+                <col style={{ width: isDMA ? "15%" : "13%" }} />
+                <col style={{ width: isDMA ? "18%" : "20%" }} />
+                <col style={{ width: isDMA ? "16%" : "16%" }} />
+                {!isDMA && <col style={{ width: "10%" }} />}
+                <col style={{ width: isDMA ? "9%" : "8%" }} />
                 <col style={{ width: isDMA ? "10%" : "9%" }} />
                 <col style={{ width: isDMA ? "12%" : "11%" }} />
-                {isDMA && <col style={{ width: "13%" }} />}
-                <col style={{ width: isDMA ? "10%" : "14%" }} />
+                {isDMA && <col style={{ width: "12%" }} />}
+                <col style={{ width: isDMA ? "8%" : "13%" }} />
               </colgroup>
               <TableHeader>
                 <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/80 hover:from-slate-50 hover:to-slate-100/80 border-b border-slate-200/60">
@@ -381,6 +419,12 @@ export default function ReportsPage() {
                   )}
                   <TableHead className="px-4 py-4 font-semibold text-slate-600">Priority</TableHead>
                   <TableHead className="px-4 py-4 font-semibold text-slate-600">Status</TableHead>
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Created
+                    </div>
+                  </TableHead>
                   {isDMA && (
                     <TableHead className="px-4 py-4 font-semibold text-slate-600">
                       <div className="flex items-center gap-2">
@@ -395,7 +439,7 @@ export default function ReportsPage() {
               <TableBody>
                 {filteredReports.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={isDMA ? 8 : 7} className="py-16 text-center">
+                    <TableCell colSpan={isDMA ? 9 : 8} className="py-16 text-center">
                       <div className="flex flex-col items-center gap-4">
                         <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                           <FileText className="h-8 w-8 text-slate-400" />
@@ -481,6 +525,16 @@ export default function ReportsPage() {
                         {/* Status */}
                         <TableCell className="px-4 py-4 align-top">
                           <ReportStatusBadge status={report.status} />
+                        </TableCell>
+
+                        {/* Created Time */}
+                        <TableCell className="px-4 py-4 align-top">
+                          <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <Calendar className="h-4 w-4 text-slate-400" />
+                            <span title={formatTanzaniaDateTime(report.createdAt)}>
+                              {formatReportTime(report.createdAt)}
+                            </span>
+                          </div>
                         </TableCell>
 
                         {/* Assigned To (for DMA managers) */}

@@ -773,6 +773,18 @@ async def create_report(
     db.add(new_report)
     db.flush()
     _attach_upload_refs_to_report(new_report, report_data.photos or [], db)
+    
+    # Create notification for DMA managers
+    queued_notification = None
+    if dma:
+        queued_notification = _queue_dma_manager_notification(
+            db,
+            new_report,
+            title="New reported leakage needs assignment",
+            message=f"{_priority_label(new_report.priority)} priority reported leakage {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
+            notification_type=NotificationTypeEnum.WARNING,
+        )
+    
     log_report_activity(
         db,
         report=new_report,
@@ -785,6 +797,10 @@ async def create_report(
     )
     db.commit()
     db.refresh(new_report)
+    
+    # Deliver notification after commit
+    if queued_notification:
+        deliver_notifications_push([queued_notification], db)
     
     return _build_report_with_details(new_report, db)
 
