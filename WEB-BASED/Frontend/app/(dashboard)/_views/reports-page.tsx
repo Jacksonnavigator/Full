@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
 import { ReportStatusBadge, PriorityBadge } from "@/components/shared/status-badge"
-import { ConfirmDialog } from "@/components/shared/confirm-dialog"
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -27,22 +25,17 @@ import {
 import {
   Search,
   Filter,
-  UserCog,
-  Users,
   MapPin,
-  AlertTriangle,
   Loader2,
   FileText,
   CheckCircle2,
   Clock,
   Sparkles,
-  Eye,
-  Trash2,
   Calendar,
+  ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { formatTanzaniaDateTime, formatTanzaniaTime } from "@/lib/date-time"
-import { toast } from "sonner"
+import { formatTanzaniaDateTime } from "@/lib/date-time"
 
 type ReportStatus = "new" | "assigned" | "in_progress" | "pending_approval" | "approved" | "rejected" | "closed"
 type ReportPriority = "low" | "medium" | "high" | "critical"
@@ -144,22 +137,16 @@ export default function ReportsPage() {
   const { currentUser } = useAuthStore()
   const { 
     reports, 
-    teams, 
-    engineers, 
     fetchReports, 
     fetchTeams, 
     fetchEngineers,
-    deleteReport,
   } = useDataStore()
 
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | ReportStatus>("all")
   const [priorityFilter, setPriorityFilter] = useState<"all" | ReportPriority>("all")
   const [loading, setLoading] = useState(true)
-  const [reportToDelete, setReportToDelete] = useState<{ id: string; trackingId: string } | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
 
-  const isAdmin = currentUser?.role === "admin"
   const isUtility = currentUser?.role === "utility_manager"
   const isDMA = currentUser?.role === "dma_manager"
 
@@ -228,22 +215,6 @@ export default function ReportsPage() {
 
   function openDetail(report: { id: string }) {
     router.push(`/dashboard/reports/${report.id}`)
-  }
-
-  const handleDeleteReport = async () => {
-    if (!reportToDelete) return
-
-    setIsDeleting(true)
-    try {
-      await deleteReport(reportToDelete.id)
-      toast.success(`Reported leakage ${reportToDelete.trackingId} deleted successfully`)
-      setReportToDelete(null)
-    } catch (error) {
-      console.error("Error deleting report:", error)
-      toast.error("Failed to delete report")
-    } finally {
-      setIsDeleting(false)
-    }
   }
 
   // Stats
@@ -405,7 +376,7 @@ export default function ReportsPage() {
               <div>
                 <p className="text-sm font-semibold text-slate-800">Live Report Queue</p>
                 <p className="text-xs text-slate-500">
-                  Newest reported leakage items appear first. Scroll horizontally if you want the full operational view.
+                  Newest reported leakage items appear first. Select any report row to open the full report page.
                 </p>
               </div>
               <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
@@ -413,8 +384,8 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <Table className="min-w-[1180px] w-full">
+          <div>
+            <Table className="w-full">
               <TableHeader>
                 <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/80 hover:from-slate-50 hover:to-slate-100/80 border-b border-slate-200/60">
                   <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">
@@ -423,41 +394,29 @@ export default function ReportsPage() {
                       Tracking ID
                     </div>
                   </TableHead>
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[280px]">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">
                     Description
                   </TableHead>
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[220px]">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
                       Location
                     </div>
                   </TableHead>
-                  {!isDMA && (
-                    <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[160px]">DMA</TableHead>
-                  )}
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Priority</TableHead>
                   <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Status</TableHead>
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[140px]">
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       Created
                     </div>
                   </TableHead>
-                  {isDMA && (
-                    <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap min-w-[180px]">
-                      <div className="flex items-center gap-2">
-                        <UserCog className="h-4 w-4" />
-                        Assigned To
-                      </div>
-                    </TableHead>
-                  )}
-                  <TableHead className="px-4 py-4 text-right font-semibold text-slate-600 whitespace-nowrap min-w-[170px]">Actions</TableHead>
+                  <TableHead className="px-4 py-4 text-right font-semibold text-slate-600 whitespace-nowrap">Open</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredReports.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={isDMA ? 9 : 8} className="py-16 text-center">
+                    <TableCell colSpan={6} className="py-16 text-center">
                       <div className="flex flex-col items-center gap-4">
                         <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                           <FileText className="h-8 w-8 text-slate-400" />
@@ -481,13 +440,14 @@ export default function ReportsPage() {
                     return (
                       <TableRow
                         key={report.id}
+                        onClick={() => openDetail(report)}
                         className={cn(
-                          "border-b border-slate-100 transition-all duration-200",
+                          "cursor-pointer border-b border-slate-100 transition-all duration-200",
                           isNew
-                            ? "bg-blue-50/30 hover:bg-blue-50/50"
+                            ? "bg-blue-50/30 hover:bg-blue-50/60"
                             : isPending
-                              ? "bg-violet-50/30 hover:bg-violet-50/50"
-                              : "hover:bg-rose-50/50"
+                              ? "bg-violet-50/30 hover:bg-violet-50/60"
+                              : "hover:bg-rose-50/60"
                         )}
                       >
                         {/* Tracking ID */}
@@ -507,7 +467,9 @@ export default function ReportsPage() {
                               <span className="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-slate-700 whitespace-nowrap">
                                 {report.trackingId}
                               </span>
-                              <p className="text-xs text-slate-500">{report.reporterName || "Unknown reporter"}</p>
+                              {!isDMA && report.dmaName ? (
+                                <p className="text-xs text-slate-500">{report.dmaName}</p>
+                              ) : null}
                             </div>
                           </div>
                         </TableCell>
@@ -518,9 +480,10 @@ export default function ReportsPage() {
                             <p className="line-clamp-2 text-sm font-medium leading-6 text-slate-800">
                               {report.description || "No description"}
                             </p>
-                            <p className="text-xs text-slate-500">
-                              Updated {formatReportTime(report.updatedAt)}
-                            </p>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <PriorityBadge priority={report.priority} />
+                              <span className="text-xs text-slate-500">Updated {formatReportTime(report.updatedAt)}</span>
+                            </div>
                           </div>
                         </TableCell>
 
@@ -538,24 +501,13 @@ export default function ReportsPage() {
                                 <p className="font-mono text-xs text-slate-400">
                                   {report.latitude.toFixed(5)}, {report.longitude.toFixed(5)}
                                 </p>
+                              ) : report.utilityName ? (
+                                <p className="text-xs text-slate-400">
+                                  {report.utilityName}
+                                </p>
                               ) : null}
                             </div>
                           </div>
-                        </TableCell>
-
-                        {/* DMA (for non-DMA users) */}
-                        {!isDMA && (
-                          <TableCell className="px-4 py-4 align-top">
-                            <div className="space-y-1">
-                              <p className="text-sm font-medium leading-snug text-slate-700">{report.dmaName || "Unassigned DMA"}</p>
-                              <p className="text-xs text-slate-500">{report.utilityName || "Unassigned Utility"}</p>
-                            </div>
-                          </TableCell>
-                        )}
-
-                        {/* Priority */}
-                        <TableCell className="px-4 py-4 align-top">
-                          <PriorityBadge priority={report.priority} />
                         </TableCell>
 
                         {/* Status */}
@@ -578,54 +530,10 @@ export default function ReportsPage() {
                           </div>
                         </TableCell>
 
-                        {/* Assigned To (for DMA managers) */}
-                        {isDMA && (
-                          <TableCell className="px-4 py-4 align-top">
-                            {report.teamName ? (
-                              <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                  <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-indigo-100 to-violet-100 flex items-center justify-center">
-                                    <UserCog className="h-3 w-3 text-indigo-600" />
-                                  </div>
-                                  <span className="text-xs font-medium text-slate-700">{report.teamName}</span>
-                                </div>
-                                {report.assignedEngineerName && (
-                                  <div className="flex items-center gap-2 ml-8">
-                                    <Users className="h-3 w-3 text-slate-400" />
-                                    <span className="text-xs text-slate-500">{report.assignedEngineerName}</span>
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="inline-flex items-center gap-1.5 text-xs text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
-                                <AlertTriangle className="h-3 w-3" />
-                                Unassigned
-                              </span>
-                            )}
-                          </TableCell>
-                        )}
-
-                        {/* Actions */}
                         <TableCell className="px-4 py-4 align-top text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => openDetail(report)}
-                              className="rounded-xl border-slate-200 bg-white px-3"
-                            >
-                              <Eye className="mr-2 h-4 w-4 text-blue-500" />
-                              View
-                            </Button>
-                            {isAdmin && (
-                              <Button
-                                variant="outline"
-                                onClick={() => setReportToDelete({ id: report.id, trackingId: report.trackingId })}
-                                className="rounded-xl border-red-200 bg-red-50 px-3 text-red-600 hover:bg-red-100 hover:text-red-700"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Remove
-                              </Button>
-                            )}
+                          <div className="inline-flex items-center gap-1 text-sm font-medium text-slate-400">
+                            Open
+                            <ChevronRight className="h-4 w-4" />
                           </div>
                         </TableCell>
                       </TableRow>
@@ -637,24 +545,6 @@ export default function ReportsPage() {
           </div>
         </CardContent>
       </Card>
-
-      <ConfirmDialog
-        open={Boolean(reportToDelete)}
-        onOpenChange={(open) => {
-          if (!open && !isDeleting) {
-            setReportToDelete(null)
-          }
-        }}
-        title="Delete Reported Leakage"
-        description={
-          reportToDelete
-            ? `Delete reported leakage ${reportToDelete.trackingId}? This action cannot be undone.`
-            : "Delete this reported leakage item? This action cannot be undone."
-        }
-        confirmLabel={isDeleting ? "Deleting..." : "Delete Reported Leakage"}
-        onConfirm={handleDeleteReport}
-        variant="destructive"
-      />
     </div>
   )
 }

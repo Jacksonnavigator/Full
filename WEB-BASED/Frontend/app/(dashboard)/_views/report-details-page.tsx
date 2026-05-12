@@ -634,223 +634,142 @@ export default function ReportDetailPage() {
     alt: `${label} ${index + 1}`,
     label,
   }))
+  const createdLabel = report.createdAt ? formatTanzaniaDateTime(report.createdAt) : "Not recorded"
+  const dueLabel = report.slaDeadline ? formatTanzaniaDateTime(report.slaDeadline) : "Deadline pending"
+  const utilityLabel = report.utilityName?.trim() || report.regionName?.trim() || "Unassigned utility"
+  const dmaLabel = report.dmaName?.trim() || report.districtName?.trim() || "Unassigned DMA"
+  const fieldOwnerLabel =
+    report.assignedEngineerName?.trim() || report.teamLeaderName?.trim() || report.teamName?.trim() || "Waiting for team routing"
+  const hasWorkflowNotes = Boolean(
+    report.engineerSubmissionNotes || report.teamLeaderReviewNotes || report.dmaReviewNotes || latestWorkflowNote
+  )
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-3xl border border-slate-200/70 bg-gradient-to-br from-white via-rose-50/30 to-cyan-50/30 p-6 shadow-xl shadow-slate-200/30">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-3xl">
-            <Button variant="outline" onClick={() => router.push("/dashboard/reports")} className="mb-4 w-fit rounded-xl border-white/80 bg-white/80">
+      <div className="rounded-3xl border border-slate-200/70 bg-white p-6 shadow-lg shadow-slate-200/20">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+          <div className="max-w-4xl">
+            <Button variant="outline" onClick={() => router.push("/dashboard/reports")} className="mb-4 w-fit rounded-xl">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Reported Leakage
             </Button>
-            <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-lg shadow-rose-500/20">
-                <FileText className="h-7 w-7 text-white" />
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-500">Reported Leakage Review</p>
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              <h1 className="font-mono text-2xl font-bold text-slate-900 sm:text-3xl">{report.trackingId}</h1>
+              <PriorityBadge priority={report.priority} />
+              <ReportStatusBadge status={report.status} />
+              {slaMeta ? (
+                <div className={cn("flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold", slaMeta.tone)}>
+                  {slaMeta.icon}
+                  <span>{slaMeta.label}</span>
+                </div>
+              ) : null}
+            </div>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
+              {report.description || "No description was provided for this reported leakage item."}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                Utility: {utilityLabel}
+              </span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                DMA: {dmaLabel}
+              </span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                Reported: {createdLabel}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid min-w-[260px] grid-cols-1 gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Location</p>
+              <p className="mt-2 text-sm font-medium leading-6 text-slate-700">{getReportLocationLabel(report)}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Reporter</p>
+                <p className="mt-1 text-sm font-semibold text-slate-700">{report.reporterName || "Unknown"}</p>
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-500">DMA Reported Leakage Review</p>
-                <h1 className="mt-1 text-3xl font-bold text-slate-800">Reported Leakage Details</h1>
-                <p className="mt-2 text-slate-500">Full reported leakage context, richer media handling, and working field actions on one page.</p>
+              <div className="rounded-xl border border-slate-200 bg-white px-3 py-2">
+                <p className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Field owner</p>
+                <p className="mt-1 text-sm font-semibold text-slate-700">{fieldOwnerLabel}</p>
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-            <PriorityBadge priority={report.priority} />
-            <ReportStatusBadge status={report.status} />
-            {slaMeta ? (
-              <div className={cn("flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold", slaMeta.tone)}>
-                {slaMeta.icon}
-                <span>{slaMeta.label}</span>
-              </div>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <HeroMetric label="Tracking ID" value={report.trackingId} accent="from-rose-500 to-pink-600" />
-          <HeroMetric label="Reporter" value={report.reporterName || "Unknown"} accent="from-teal-500 to-cyan-600" />
-          <HeroMetric label="Leak Location" value={getReportLocationLabel(report)} accent="from-indigo-500 to-violet-600" />
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        {isAdmin && (
-          <Button
-            variant="outline"
-            onClick={() => setDeleteDialogOpen(true)}
-            className="rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete Reported Leakage
-          </Button>
-        )}
-        {(isAdmin || isUtility) && (
-          <Button
-            variant="outline"
-            onClick={openResolveLocation}
-            className="rounded-xl border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 hover:text-cyan-800"
-          >
-            <MapPin className="mr-2 h-4 w-4" />
-            {report.utilityId && report.dmaId ? "Adjust Utility / DMA" : "Resolve Utility / DMA"}
-          </Button>
-        )}
-        {isDMA && !report.teamName && (
-          <Button
-            onClick={openAssign}
-            className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
-          >
-            <ClipboardCheck className="mr-2 h-4 w-4" />
-            Assign Reported Leakage
-          </Button>
-        )}
-        {isDMA && report.status === "pending_approval" && (
-          <>
-            <Button
-              onClick={() => setApproveDialogOpen(true)}
-              className="rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-600 hover:to-green-700"
-            >
-              <CheckCheck className="mr-2 h-4 w-4" />
-              Approve Repair
-            </Button>
-            <Button variant="destructive" onClick={() => setRejectDialogOpen(true)} className="rounded-xl">
-              <X className="mr-2 h-4 w-4" />
-              Reject Repair
-            </Button>
-          </>
-        )}
-      </div>
-
-      <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
-        <CardContent className="flex flex-col gap-6 p-6">
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.4fr_0.9fr]">
-            <div className="flex items-center gap-4 rounded-2xl border border-rose-200/50 bg-gradient-to-r from-rose-50/60 to-pink-50/50 p-5">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-lg">
-                <FileText className="h-8 w-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="font-mono text-sm font-semibold text-slate-800">{report.trackingId}</p>
-                <p className="mt-2 text-base text-slate-600">{report.description || "No description provided"}</p>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200/60 bg-slate-50/80 p-5">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Workflow</p>
-              <div className="mt-4 space-y-3">
-                {workflowSteps.map((step) => (
-                  <TimelineStep
-                    key={step.title}
-                    title={step.title}
-                    detail={step.detail}
-                    active={step.active}
-                    current={step.current}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <DetailCard icon={<MapPin className="h-5 w-5 text-emerald-600" />} label="Location" value={getReportLocationLabel(report)} tone="bg-emerald-100" />
-            <DetailCard icon={<Users className="h-5 w-5 text-indigo-600" />} label="DMA" value={report.dmaName || "N/A"} tone="bg-indigo-100" />
-            <DetailCard icon={<UserCog className="h-5 w-5 text-violet-600" />} label="Assigned Team" value={report.teamName || "Not assigned"} tone="bg-violet-100" />
-            <DetailCard icon={<Users className="h-5 w-5 text-amber-600" />} label="Team Leader" value={report.teamLeaderName || "Not assigned"} tone="bg-amber-100" />
-            <DetailCard icon={<Clock className="h-5 w-5 text-blue-600" />} label="Created" value={report.createdAt ? formatTanzaniaDateTime(report.createdAt) : "N/A"} tone="bg-blue-100" />
-            <DetailCard icon={<CheckCircle2 className="h-5 w-5 text-cyan-600" />} label="Due Date" value={report.slaDeadline ? formatTanzaniaDateTime(report.slaDeadline) : "N/A"} tone="bg-cyan-100" />
-          </div>
-
-          <div className="rounded-xl border border-slate-200/60 bg-gradient-to-r from-slate-50/80 to-slate-100/50 p-4">
-            <p className="mb-2 text-xs font-medium text-slate-500">Reporter</p>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-600">
-                <span className="text-sm font-semibold text-white">
-                  {(report.reporterName || "U").charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-slate-700">{report.reporterName || "Unknown"}</p>
-                <p className="text-xs text-slate-500">{report.reporterPhone || "N/A"}</p>
-              </div>
-            </div>
-          </div>
-
-          {(report.engineerSubmissionNotes || report.teamLeaderReviewNotes || report.dmaReviewNotes || latestWorkflowNote) && (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {report.engineerSubmissionNotes && (
-                <div className="rounded-xl border border-sky-200/50 bg-sky-50/50 p-4">
-                  <p className="mb-1 text-xs font-medium text-sky-700">Engineer Submission Note</p>
-                  <p className="text-sm text-slate-700">{report.engineerSubmissionNotes}</p>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.35fr)_360px]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-lg shadow-rose-500/20">
+                  <FileText className="h-6 w-6 text-white" />
                 </div>
-              )}
-              {report.teamLeaderReviewNotes && (
-                <div className="rounded-xl border border-violet-200/50 bg-violet-50/50 p-4">
-                  <p className="mb-1 text-xs font-medium text-violet-700">Team Leader Review Comment</p>
-                  <p className="text-sm text-slate-700">{report.teamLeaderReviewNotes}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Leak Summary</p>
+                  <p className="mt-2 text-base leading-7 text-slate-700">
+                    {report.description || "No detailed description was submitted with this reported leakage item."}
+                  </p>
                 </div>
-              )}
-              {report.dmaReviewNotes && (
-                <div className="rounded-xl border border-emerald-200/50 bg-emerald-50/50 p-4">
-                  <p className="mb-1 text-xs font-medium text-emerald-700">DMA Review Decision</p>
-                  <p className="text-sm text-slate-700">{report.dmaReviewNotes}</p>
-                </div>
-              )}
-              {latestWorkflowNote &&
-                latestWorkflowNote !== report.dmaReviewNotes &&
-                latestWorkflowNote !== report.teamLeaderReviewNotes &&
-                latestWorkflowNote !== report.engineerSubmissionNotes && (
-                  <div className="rounded-xl border border-amber-200/50 bg-amber-50/50 p-4">
-                    <p className="mb-1 text-xs font-medium text-amber-600">Latest Workflow Note</p>
-                    <p className="text-sm text-slate-700">{latestWorkflowNote}</p>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <DetailCard icon={<MapPin className="h-5 w-5 text-emerald-600" />} label="Location" value={getReportLocationLabel(report)} tone="bg-emerald-100" />
+                <DetailCard icon={<Users className="h-5 w-5 text-indigo-600" />} label="Utility / Region" value={utilityLabel} tone="bg-indigo-100" />
+                <DetailCard icon={<Users className="h-5 w-5 text-violet-600" />} label="DMA / District" value={dmaLabel} tone="bg-violet-100" />
+                <DetailCard icon={<UserCog className="h-5 w-5 text-amber-600" />} label="Assigned Team" value={report.teamName || "Not assigned"} tone="bg-amber-100" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {hasWorkflowNotes && (
+            <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
+                    <ClipboardCheck className="h-5 w-5 text-amber-600" />
                   </div>
-                )}
-            </div>
-          )}
-
-          <div className="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100">
-                <Clock className="h-4 w-4 text-violet-600" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-800">Activity Timeline</p>
-                <p className="text-xs text-slate-500">Every assignment, review, and approval event for this reported leakage item.</p>
-              </div>
-            </div>
-
-            <div className="mt-5 space-y-4">
-              {logsLoading ? (
-                <div className="flex items-center gap-2 text-sm text-slate-500">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading activity history...
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">Workflow Notes</p>
+                    <p className="text-xs text-slate-500">Only the comments that matter for review and follow-up.</p>
+                  </div>
                 </div>
-              ) : activityLogs.length > 0 ? (
-                activityLogs.map((log) => (
-                  <div key={log.id} className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className="mt-1 h-3 w-3 rounded-full bg-violet-500 shadow-sm shadow-violet-500/30" />
-                      <div className="mt-2 h-full w-px bg-slate-200" />
+
+                <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {report.engineerSubmissionNotes && (
+                    <div className="rounded-2xl border border-sky-200/60 bg-sky-50/60 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Engineer Note</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-700">{report.engineerSubmissionNotes}</p>
                     </div>
-                    <div className="pb-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-sm font-semibold text-slate-800">{log.action.replace(/_/g, " ")}</p>
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
-                          {formatTanzaniaDateTime(log.timestamp)}
-                        </span>
+                  )}
+                  {report.teamLeaderReviewNotes && (
+                    <div className="rounded-2xl border border-violet-200/60 bg-violet-50/60 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-700">Team Leader Review</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-700">{report.teamLeaderReviewNotes}</p>
+                    </div>
+                  )}
+                  {report.dmaReviewNotes && (
+                    <div className="rounded-2xl border border-emerald-200/60 bg-emerald-50/60 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">DMA Decision</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-700">{report.dmaReviewNotes}</p>
+                    </div>
+                  )}
+                  {latestWorkflowNote &&
+                    latestWorkflowNote !== report.dmaReviewNotes &&
+                    latestWorkflowNote !== report.teamLeaderReviewNotes &&
+                    latestWorkflowNote !== report.engineerSubmissionNotes && (
+                      <div className="rounded-2xl border border-slate-200/60 bg-slate-50 p-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Latest Note</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-700">{latestWorkflowNote}</p>
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {log.userName} • {log.userRole}
-                      </p>
-                      {log.details ? <p className="mt-2 text-sm text-slate-600">{log.details}</p> : null}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
-                  No activity history has been recorded for this reported leakage item yet.
+                    )}
                 </div>
-              )}
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="grid grid-cols-1 gap-4">
             <MediaSection
@@ -877,8 +796,177 @@ export default function ReportDetailPage() {
               onOpen={openMediaViewer}
             />
           </div>
-        </CardContent>
-      </Card>
+
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100">
+                  <Clock className="h-5 w-5 text-violet-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">Activity Timeline</p>
+                  <p className="text-xs text-slate-500">Assignments, approvals, and routing events for this report.</p>
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                {logsLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading activity history...
+                  </div>
+                ) : activityLogs.length > 0 ? (
+                  activityLogs.map((log) => (
+                    <div key={log.id} className="flex gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className="mt-1 h-3 w-3 rounded-full bg-violet-500 shadow-sm shadow-violet-500/30" />
+                        <div className="mt-2 h-full w-px bg-slate-200" />
+                      </div>
+                      <div className="pb-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-semibold text-slate-800">{log.action.replace(/_/g, " ")}</p>
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
+                            {formatTanzaniaDateTime(log.timestamp)}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {log.userName} | {log.userRole}
+                        </p>
+                        {log.details ? <p className="mt-2 text-sm text-slate-600">{log.details}</p> : null}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+                    No activity history has been recorded for this reported leakage item yet.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex flex-col gap-6 xl:sticky xl:top-6 xl:self-start">
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100">
+                  <Sparkles className="h-5 w-5 text-rose-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">Decision Panel</p>
+                  <p className="text-xs text-slate-500">Take the next action without hunting across the page.</p>
+                </div>
+              </div>
+
+              <div className="mt-5 flex flex-col gap-3">
+                {(isAdmin || isUtility) && (
+                  <Button
+                    variant="outline"
+                    onClick={openResolveLocation}
+                    className="w-full justify-start rounded-xl border-cyan-200 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 hover:text-cyan-800"
+                  >
+                    <MapPin className="mr-2 h-4 w-4" />
+                    {report.utilityId && report.dmaId ? "Adjust Utility / DMA" : "Resolve Utility / DMA"}
+                  </Button>
+                )}
+                {isDMA && !report.teamName && (
+                  <Button
+                    onClick={openAssign}
+                    className="w-full justify-start rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
+                  >
+                    <ClipboardCheck className="mr-2 h-4 w-4" />
+                    Assign Reported Leakage
+                  </Button>
+                )}
+                {isDMA && report.status === "pending_approval" && (
+                  <>
+                    <Button
+                      onClick={() => setApproveDialogOpen(true)}
+                      className="w-full justify-start rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-600 hover:to-green-700"
+                    >
+                      <CheckCheck className="mr-2 h-4 w-4" />
+                      Approve Repair
+                    </Button>
+                    <Button variant="destructive" onClick={() => setRejectDialogOpen(true)} className="w-full justify-start rounded-xl">
+                      <X className="mr-2 h-4 w-4" />
+                      Return For Rework
+                    </Button>
+                  </>
+                )}
+                {isAdmin && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setDeleteDialogOpen(true)}
+                    className="w-full justify-start rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Reported Leakage
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+            <CardContent className="p-6">
+              <p className="text-sm font-semibold text-slate-800">Workflow</p>
+              <p className="mt-1 text-xs text-slate-500">Where the report is right now and what happened before.</p>
+              <div className="mt-5 space-y-4">
+                {workflowSteps.map((step) => (
+                  <TimelineStep
+                    key={step.title}
+                    title={step.title}
+                    detail={step.detail}
+                    active={step.active}
+                    current={step.current}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+            <CardContent className="p-6">
+              <p className="text-sm font-semibold text-slate-800">Routing & Ownership</p>
+              <div className="mt-4 grid grid-cols-1 gap-3">
+                <DetailCard icon={<Users className="h-5 w-5 text-indigo-600" />} label="Utility / Region" value={utilityLabel} tone="bg-indigo-100" />
+                <DetailCard icon={<MapPin className="h-5 w-5 text-emerald-600" />} label="DMA / District" value={dmaLabel} tone="bg-emerald-100" />
+                <DetailCard icon={<UserCog className="h-5 w-5 text-violet-600" />} label="Team Leader" value={report.teamLeaderName || "Not assigned"} tone="bg-violet-100" />
+                <DetailCard icon={<Users className="h-5 w-5 text-amber-600" />} label="Assigned Engineer" value={report.assignedEngineerName || "Not assigned"} tone="bg-amber-100" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+            <CardContent className="p-6">
+              <p className="text-sm font-semibold text-slate-800">Reporter & Timing</p>
+              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-600">
+                  <span className="text-sm font-semibold text-white">
+                    {(report.reporterName || "U").charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-800">{report.reporterName || "Unknown reporter"}</p>
+                  <p className="text-xs text-slate-500">{report.reporterPhone || "No phone provided"}</p>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-3">
+                <DetailCard icon={<Clock className="h-5 w-5 text-blue-600" />} label="Created" value={createdLabel} tone="bg-blue-100" />
+                <DetailCard icon={<CheckCircle2 className="h-5 w-5 text-cyan-600" />} label="Due Date" value={dueLabel} tone="bg-cyan-100" />
+                <DetailCard
+                  icon={<Expand className="h-5 w-5 text-slate-600" />}
+                  label="Resolved At"
+                  value={report.resolvedAt ? formatTanzaniaDateTime(report.resolvedAt) : "Not resolved yet"}
+                  tone="bg-slate-100"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
         <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
