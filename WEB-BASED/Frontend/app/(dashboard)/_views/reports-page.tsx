@@ -147,6 +147,7 @@ export default function ReportsPage() {
   const [priorityFilter, setPriorityFilter] = useState<"all" | ReportPriority>("all")
   const [loading, setLoading] = useState(true)
 
+  const isAdmin = currentUser?.role === "admin"
   const isUtility = currentUser?.role === "utility_manager"
   const isDMA = currentUser?.role === "dma_manager"
 
@@ -187,7 +188,7 @@ export default function ReportsPage() {
         const matchesSearch =
           !query ||
           r.trackingId.toLowerCase().includes(query) ||
-          r.description.toLowerCase().includes(query) ||
+          (r.description?.toLowerCase() || "").includes(query) ||
           (r.address?.toLowerCase() || "").includes(query) ||
           (r.dmaName?.toLowerCase() || "").includes(query) ||
           (r.utilityName?.toLowerCase() || "").includes(query) ||
