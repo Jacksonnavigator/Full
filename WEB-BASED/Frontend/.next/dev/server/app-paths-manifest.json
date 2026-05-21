@@ -1,4 +1,8 @@
 {
+  "/(dashboard)/dashboard/managers/page": "app/(dashboard)/dashboard/managers/page.js",
+  "/(dashboard)/dashboard/map/page": "app/(dashboard)/dashboard/map/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/(dashboard)/dashboard/reports/[reportId]/page": "app/(dashboard)/dashboard/reports/[reportId]/page.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js"
 }

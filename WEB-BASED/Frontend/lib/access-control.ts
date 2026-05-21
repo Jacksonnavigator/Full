@@ -38,6 +38,9 @@ export const PAGE_ACCESS_MAP: Record<string, UserRole[]> = {
   // Reports - all can access (filtered by role)
   '/reports': ['admin', 'utility_manager', 'dma_manager', 'user'],
 
+  // Map monitoring - operational roles only
+  '/map': ['admin', 'utility_manager', 'dma_manager'],
+
   // Analytics - admin and utility managers
   '/analytics': ['admin', 'utility_manager', 'user'],
 

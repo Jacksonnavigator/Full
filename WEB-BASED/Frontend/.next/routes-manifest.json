@@ -148,6 +148,12 @@
       "namedRegex": "^/dashboard/managers(?:/)?$"
     },
     {
+      "page": "/dashboard/map",
+      "regex": "^/dashboard/map(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/map(?:/)?$"
+    },
+    {
       "page": "/dashboard/notifications",
       "regex": "^/dashboard/notifications(?:/)?$",
       "routeKeys": {},
@@ -218,6 +224,12 @@
       "regex": "^/login(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/map",
+      "regex": "^/map(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/map(?:/)?$"
     },
     {
       "page": "/notifications",

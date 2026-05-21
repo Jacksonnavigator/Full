@@ -677,7 +677,7 @@ export default function UtilitiesPage() {
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-slate-800">Utility Pipe Network</p>
-                          <p className="text-xs text-slate-500">Upload the latest utility network map in a previewable GIS format.</p>
+                          <p className="text-xs text-slate-500">Upload the latest utility network map in a previewable GIS format, including GeoPackage.</p>
                         </div>
                       </div>
                       {utility.pipeNetworkFileName ? (
@@ -748,7 +748,7 @@ export default function UtilitiesPage() {
         ref={uploadInputRef}
         type="file"
         className="hidden"
-        accept=".geojson,.json,.kml,.kmz,.zip,.csv,.txt"
+        accept=".gpkg,.geojson,.json,.kml,.kmz,.zip,.csv,.txt"
         onChange={handlePipeNetworkUpload}
       />
 

@@ -139,7 +139,7 @@ export function UtilityPipeNetworkMapImpl({
       setLoading(true)
       setError(null)
       try {
-        const response = await fetch(`${CONFIG.backend.fullUrl}${previewUrl}`, {
+        const response = await fetch(`${CONFIG.backend.baseUrl}${previewUrl}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

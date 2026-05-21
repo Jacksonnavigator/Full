@@ -52,7 +52,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sonner$2
 ;
 ;
 const metadata = {
-    title: "MajiScope - Water Infrastructure Intelligence System",
+    title: "Majiscope - Water Leakage Management System",
     description: "Government-grade water leakage reporting and management platform for South African municipalities",
     icons: {
         icon: "/favicon.ico"

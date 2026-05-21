@@ -6,6 +6,7 @@
 import {
   LayoutDashboard,
   Globe,
+  Map,
   MapPin,
   Users,
   UserCog,
@@ -80,6 +81,12 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Reported Leakage",
     href: "/dashboard/reports",
     icon: FileText,
+    roles: ["admin", "utility_manager", "dma_manager"],
+  },
+  {
+    title: "Map",
+    href: "/dashboard/map",
+    icon: Map,
     roles: ["admin", "utility_manager", "dma_manager"],
   },
   {

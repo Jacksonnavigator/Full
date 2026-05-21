@@ -87,7 +87,7 @@ const CONFIG = {
     },
     // ===== Request Configuration =====
     request: {
-        timeout: 30000,
+        timeout: 120000,
         retryAttempts: 3,
         retryDelay: 1000
     }

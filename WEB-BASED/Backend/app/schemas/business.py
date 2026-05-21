@@ -16,14 +16,8 @@ from app.constants.enums import ReportStatus, ReportPriority, NotificationType
 class ReportBase(BaseModel):
     """Base schema for Report"""
     tracking_id: str = Field(..., min_length=1, max_length=50)
-    utility_id: Optional[str] = None
     dma_id: Optional[str] = None
     description: Optional[str] = Field(None, max_length=2000)
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    address: Optional[str] = Field(None, max_length=500)
-    region_name: Optional[str] = Field(None, max_length=100)
-    district_name: Optional[str] = Field(None, max_length=100)
     priority: ReportPriority = ReportPriority.MEDIUM
     photos: Optional[List[str]] = []
 
@@ -31,8 +25,6 @@ class ReportBase(BaseModel):
 class ReportCreate(ReportBase):
     """Schema for creating a report"""
     assigned_engineer_id: Optional[str] = None
-    reporter_name: Optional[str] = Field(None, max_length=255)
-    reporter_phone: Optional[str] = Field(None, max_length=20)
 
 
 class AnonymousReportCreate(BaseModel):
@@ -41,22 +33,15 @@ class AnonymousReportCreate(BaseModel):
     latitude: float
     longitude: float
     address: Optional[str] = Field(None, max_length=500)
-    region_name: Optional[str] = Field(None, max_length=100)
-    district_name: Optional[str] = Field(None, max_length=100)
     priority: str = "Medium"  # Accept string priority from mobile app
     images: Optional[List[str]] = []
     reported_by: Optional[str] = "Anonymous"
-    history_key: Optional[str] = Field(None, max_length=64)
 
 
 class ReportUpdate(BaseModel):
     """Schema for updating report"""
     description: Optional[str] = Field(None, max_length=2000)
-    region_name: Optional[str] = Field(None, max_length=100)
-    district_name: Optional[str] = Field(None, max_length=100)
     priority: Optional[ReportPriority] = None
-    utility_id: Optional[str] = None
-    dma_id: Optional[str] = None
     assigned_engineer_id: Optional[str] = None
     status: Optional[ReportStatus] = None
     photos: Optional[List[str]] = None
@@ -89,8 +74,8 @@ class ReportStatusUpdateRequest(BaseModel):
 
 
 class ReportReviewDecisionRequest(BaseModel):
-    """Schema for DMA approval / rejection decisions"""
-    notes: Optional[str] = Field(None, max_length=500, description="DMA review comment or rejection reason")
+    """Schema for DMA review decisions on a completed report."""
+    notes: Optional[str] = Field(None, max_length=500, description="Optional DMA approval or rework comment")
 
 
 # ============================================================================

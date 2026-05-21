@@ -78,7 +78,7 @@ class UserInvitationCreate(BaseModel):
 class UtilityBase(BaseModel):
     """Base schema for Utility"""
     name: str = Field(..., min_length=1, max_length=255)
-    region_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    region_name: Optional[str] = Field(None, max_length=100)
     description: Optional[str] = Field(None, max_length=1000)
     contact_phone: Optional[str] = Field(None, max_length=20)
     contact_email: Optional[EmailStr] = None
@@ -96,7 +96,7 @@ class UtilityCreate(UtilityBase):
 class UtilityUpdate(BaseModel):
     """Schema for updating utility"""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
-    region_name: Optional[str] = Field(None, min_length=1, max_length=100)
+    region_name: Optional[str] = Field(None, max_length=100)
     description: Optional[str] = Field(None, max_length=1000)
     contact_phone: Optional[str] = Field(None, max_length=20)
     contact_email: Optional[EmailStr] = None
@@ -129,7 +129,7 @@ class UtilityListResponse(BaseModel):
 
 
 class UtilityPublicContactResponse(BaseModel):
-    """Public utility contact details resolved for a user's area."""
+    """Resolved public utility and DMA contacts for a given location."""
 
     utility_id: str
     utility_name: str
@@ -471,19 +471,14 @@ class ReportResponse(BaseModel):
     latitude: float
     longitude: float
     address: Optional[str] = None
-    region_name: Optional[str] = None
-    district_name: Optional[str] = None
     photos: List[str] = []
     report_photos: List[str] = []
     submission_before_photos: List[str] = []
     submission_after_photos: List[str] = []
     priority: str
     status: str
-    utility_id: Optional[str] = None
+    utility_id: str
     utility_name: Optional[str] = None
-    utility_contact_phone: Optional[str] = None
-    utility_contact_email: Optional[EmailStr] = None
-    utility_contact_address: Optional[str] = None
     dma_id: Optional[str] = None
     dma_name: Optional[str] = None
     team_id: Optional[str] = None
@@ -495,9 +490,6 @@ class ReportResponse(BaseModel):
     reporter_name: str
     reporter_phone: str
     notes: Optional[str] = None
-    engineer_submission_notes: Optional[str] = None
-    team_leader_review_notes: Optional[str] = None
-    dma_review_notes: Optional[str] = None
     sla_deadline: Optional[datetime] = None
     resolved_at: Optional[datetime] = None
     created_at: datetime

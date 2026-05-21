@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next"
 import { Toaster } from "@/components/ui/sonner"
-import { ThemeProvider } from "@/components/theme-provider"
 
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "MajiScope - Water Infrastructure Intelligence System",
+  title: "Majiscope - Water Leakage Management System",
   description:
     "Government-grade water leakage reporting and management platform for South African municipalities",
   icons: {
@@ -25,10 +24,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          {children}
-          <Toaster position="top-right" richColors />
-        </ThemeProvider>
+        {children}
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   )

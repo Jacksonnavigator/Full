@@ -6,12 +6,16 @@ CRUD operations for utilities
 import csv
 import io
 import json
+import sqlite3
+import tempfile
 from pathlib import Path
 from typing import Any, List, Optional
 import xml.etree.ElementTree as ET
 import zipfile
 from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Response
 from sqlalchemy.orm import Session
+from shapely import wkb
+from shapely.geometry import mapping
 from app.database.session import get_db
 from app.models import Utility, UtilityPipeNetwork, DMA
 from app.schemas.user import (
@@ -33,6 +37,7 @@ utilities_router = APIRouter(prefix="/api/utilities", tags=["utilities"])
 
 MAX_PIPE_NETWORK_SIZE = 50 * 1024 * 1024  # 50MB
 ALLOWED_PIPE_NETWORK_EXTENSIONS = {
+    ".gpkg",
     ".geojson",
     ".json",
     ".kml",
@@ -527,9 +532,113 @@ def _load_zip_geojson(data: bytes, allow_kml: bool = True) -> dict[str, Any]:
     )
 
 
+def _quote_sqlite_identifier(identifier: str) -> str:
+    return '"' + identifier.replace('"', '""') + '"'
+
+
+def _gpkg_geometry_wkb(geometry_blob: bytes) -> bytes:
+    if len(geometry_blob) < 8 or geometry_blob[:2] != b"GP":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Pipe network GeoPackage contains unsupported geometry encoding.",
+        )
+
+    flags = geometry_blob[3]
+    envelope_code = (flags >> 1) & 0b111
+    header_length = 8
+
+    if envelope_code == 1:
+        header_length += 32
+    elif envelope_code in {2, 3}:
+        header_length += 48
+    elif envelope_code == 4:
+        header_length += 64
+
+    return geometry_blob[header_length:]
+
+
+def _load_gpkg_geojson(data: bytes) -> dict[str, Any]:
+    temp_path: Optional[str] = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".gpkg", delete=False) as temp_file:
+            temp_file.write(data)
+            temp_path = temp_file.name
+
+        connection = sqlite3.connect(temp_path)
+        try:
+            cursor = connection.cursor()
+            geometry_layers = cursor.execute(
+                "SELECT table_name, column_name FROM gpkg_geometry_columns"
+            ).fetchall()
+
+            if not geometry_layers:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="Pipe network GeoPackage did not contain any spatial layers.",
+                )
+
+            features: list[dict[str, Any]] = []
+
+            for table_name, geometry_column in geometry_layers:
+                columns = [row[1] for row in cursor.execute(f"PRAGMA table_info({_quote_sqlite_identifier(table_name)})").fetchall()]
+                if geometry_column not in columns:
+                    continue
+
+                property_columns = [column for column in columns if column != geometry_column]
+                select_columns = [geometry_column, *property_columns]
+                query = (
+                    "SELECT "
+                    + ", ".join(_quote_sqlite_identifier(column) for column in select_columns)
+                    + f" FROM {_quote_sqlite_identifier(table_name)}"
+                )
+
+                for row in cursor.execute(query):
+                    geometry_blob = row[0]
+                    if not geometry_blob:
+                        continue
+
+                    try:
+                        geometry = mapping(wkb.loads(_gpkg_geometry_wkb(bytes(geometry_blob))))
+                    except Exception:
+                        continue
+
+                    properties = {
+                        column: value
+                        for column, value in zip(property_columns, row[1:])
+                        if value not in (None, "") and not isinstance(value, (bytes, bytearray))
+                    }
+                    properties.setdefault("source_table", table_name)
+
+                    features.append(
+                        {
+                            "type": "Feature",
+                            "properties": properties,
+                            "geometry": geometry,
+                        }
+                    )
+
+            if not features:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="Pipe network GeoPackage could not be converted into previewable map features.",
+                )
+
+            return {
+                "type": "FeatureCollection",
+                "features": features,
+            }
+        finally:
+            connection.close()
+    finally:
+        if temp_path:
+            Path(temp_path).unlink(missing_ok=True)
+
+
 def _load_pipe_network_geojson(pipe_network: UtilityPipeNetwork):
     extension = Path(pipe_network.file_name).suffix.lower()
     try:
+        if extension == ".gpkg":
+            return _load_gpkg_geojson(pipe_network.file_data)
         if extension in {".geojson", ".json"}:
             return _coerce_geojson(json.loads(_decode_text_bytes(pipe_network.file_data)))
         if extension == ".kml":

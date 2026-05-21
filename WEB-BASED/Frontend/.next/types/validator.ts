@@ -146,6 +146,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/(dashboard)/dashboard/map/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/dashboard/map">> = Specific
+  const handler = {} as typeof import("../../app/(dashboard)/dashboard/map/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/(dashboard)/dashboard/notifications/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/dashboard/notifications">> = Specific
@@ -258,6 +267,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends AppPageConfig<"/location-routing">> = Specific
   const handler = {} as typeof import("../../app/(dashboard)/location-routing/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/(dashboard)/map/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/map">> = Specific
+  const handler = {} as typeof import("../../app/(dashboard)/map/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

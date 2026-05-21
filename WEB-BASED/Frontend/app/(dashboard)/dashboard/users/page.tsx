@@ -440,65 +440,8 @@ export default function UsersPage() {
       {/* Modern Table */}
       <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden">
         <CardContent className="p-0">
-          <div className="space-y-3 p-4 md:hidden">
-            {filteredUsers.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-10 text-center">
-                <p className="text-lg font-semibold text-slate-800">No users found</p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {search ? "Try adjusting your search terms" : "Get started by inviting your first user"}
-                </p>
-                {!search ? (
-                  <Button
-                    onClick={openCreateDialog}
-                    className="mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 rounded-xl"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Invite User
-                  </Button>
-                ) : null}
-              </div>
-            ) : filteredUsers.map((user) => {
-              const isInactive = user.status === "inactive"
-              return (
-                <div
-                  key={user.id}
-                  className={cn(
-                    "rounded-2xl border p-4 shadow-sm",
-                    isInactive ? "border-red-200 bg-red-50/40" : "border-slate-200 bg-white"
-                  )}
-                >
-                  <div className="flex items-start gap-3">
-                    <Avatar className={cn("h-10 w-10 shadow-lg", isInactive ? "ring-2 ring-red-200" : "ring-2 ring-blue-200")}>
-                      <AvatarFallback className={cn(
-                        "text-sm font-semibold",
-                        isInactive ? "bg-gradient-to-br from-red-400 to-rose-500 text-white" : "bg-gradient-to-br from-blue-500 to-indigo-600 text-white"
-                      )}>
-                        {getInitials(user.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-slate-800">{user.name}</p>
-                      <p className="text-xs text-slate-500">Regular User</p>
-                      <p className="mt-2 break-all text-sm text-slate-600">{user.email}</p>
-                      {user.phone ? <p className="mt-1 text-sm text-slate-500">{user.phone}</p> : null}
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <EntityStatusBadge status={(user.status as EntityStatus) ?? "active"} />
-                    {renderOnboardingBadge(user.onboardingStatus)}
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Button variant="outline" size="sm" onClick={() => setViewingUser(user)}><Eye className="mr-2 h-4 w-4" />Details</Button>
-                    <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}><Pencil className="mr-2 h-4 w-4" />Edit</Button>
-                    {user.onboardingStatus !== "completed" ? <Button variant="outline" size="sm" onClick={() => handleResendInvite(user.id)}><Send className="mr-2 h-4 w-4" />Resend</Button> : null}
-                    <Button variant="outline" size="sm" className="text-red-600" onClick={() => setDeleteId(user.id)}><Trash2 className="mr-2 h-4 w-4" />Delete</Button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-          <div className="hidden md:block">
-            <Table className="table-fixed">
+          <div className="overflow-x-auto">
+            <Table>
               <TableHeader>
                 <TableRow className="bg-gradient-to-r from-slate-50 to-slate-100/80 hover:from-slate-50 hover:to-slate-100/80 border-b border-slate-200/60">
                   <TableHead className="font-semibold text-slate-600 py-4 px-6">
@@ -592,7 +535,7 @@ export default function UsersPage() {
                           <div className="flex flex-col gap-1">
                             <div className="flex items-center gap-2 text-sm text-slate-600">
                               <Mail className="h-3.5 w-3.5 text-slate-400" />
-                              <span className="break-all">{user.email}</span>
+                              <span className="truncate max-w-[200px]">{user.email}</span>
                             </div>
                             {user.phone && (
                               <div className="flex items-center gap-2 text-sm text-slate-500">
