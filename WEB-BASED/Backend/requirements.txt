@@ -31,6 +31,7 @@ python-dotenv==1.0.0
 # Utilities
 python-dateutil==2.8.2
 Pillow>=10.0.0  # Image processing for upload compression
+shapely>=2.0,<3  # GeoPackage pipe-network geometry parsing
 
 # Development & Testing
 pytest==7.4.3
