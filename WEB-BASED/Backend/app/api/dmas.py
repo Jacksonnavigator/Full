@@ -4,6 +4,9 @@ CRUD operations for District Metering Areas (DMAs)
 Includes manager and utility info for proper frontend integration
 """
 
+import json
+from typing import Any, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from app.database.session import get_db
@@ -17,6 +20,88 @@ from app.schemas.user import (
 from app.security.dependencies import get_current_user, require_admin, CurrentUser
 
 dmas_router = APIRouter(prefix="/api/dmas", tags=["dmas"])
+
+
+def _serialize_boundary_geojson(boundary_geojson: Optional[dict[str, Any]]) -> Optional[str]:
+    if boundary_geojson is None:
+        return None
+
+    if not isinstance(boundary_geojson, dict):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="DMA boundary must be a valid GeoJSON polygon object.",
+        )
+
+    if boundary_geojson.get("type") != "Polygon":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="DMA boundary must use GeoJSON Polygon geometry.",
+        )
+
+    coordinates = boundary_geojson.get("coordinates")
+    if not isinstance(coordinates, list) or not coordinates:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="DMA boundary polygon must include coordinate rings.",
+        )
+
+    outer_ring = coordinates[0]
+    if not isinstance(outer_ring, list):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="DMA boundary polygon must include an outer coordinate ring.",
+        )
+
+    normalized_ring: list[list[float]] = []
+    distinct_points: set[tuple[float, float]] = set()
+
+    for raw_point in outer_ring:
+        if not isinstance(raw_point, (list, tuple)) or len(raw_point) < 2:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Each DMA boundary point must contain longitude and latitude values.",
+            )
+
+        try:
+            longitude = float(raw_point[0])
+            latitude = float(raw_point[1])
+        except (TypeError, ValueError):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="DMA boundary points must be valid numeric coordinates.",
+            ) from None
+
+        if longitude < -180 or longitude > 180 or latitude < -90 or latitude > 90:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="DMA boundary coordinates must be within valid longitude and latitude ranges.",
+            )
+
+        normalized_ring.append([longitude, latitude])
+        distinct_points.add((longitude, latitude))
+
+    if len(distinct_points) < 3:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="DMA boundary polygon must contain at least three distinct points.",
+        )
+
+    if normalized_ring[0] != normalized_ring[-1]:
+        normalized_ring.append(normalized_ring[0])
+
+    return json.dumps({"type": "Polygon", "coordinates": [normalized_ring]})
+
+
+def _deserialize_boundary_geojson(raw_value: Optional[str]) -> Optional[dict[str, Any]]:
+    if not raw_value:
+        return None
+
+    try:
+        payload = json.loads(raw_value)
+    except json.JSONDecodeError:
+        return None
+
+    return payload if isinstance(payload, dict) else None
 
 
 def transform_dma(dma: DMA) -> dict:
@@ -44,6 +129,7 @@ def transform_dma(dma: DMA) -> dict:
         "description": dma.description,
         "center_latitude": dma.center_latitude,
         "center_longitude": dma.center_longitude,
+        "boundary_geojson": _deserialize_boundary_geojson(dma.boundary_geojson),
         "status": dma.status.value if hasattr(dma.status, 'value') else dma.status,
         "manager_id": manager_id,
         "manager_name": manager_name,
@@ -139,6 +225,7 @@ async def create_dma(
         description=dma_data.description,
         center_latitude=dma_data.center_latitude,
         center_longitude=dma_data.center_longitude,
+        boundary_geojson=_serialize_boundary_geojson(dma_data.boundary_geojson),
         status=dma_data.status,
     )
     
@@ -180,7 +267,9 @@ async def update_dma(
                 detail="Utility managers can only update DMAs in their own utility",
             )
     
-    update_data = dma_data.dict(exclude_unset=True)
+    update_data = dma_data.model_dump(exclude_unset=True)
+    if "boundary_geojson" in update_data:
+        dma.boundary_geojson = _serialize_boundary_geojson(update_data.pop("boundary_geojson"))
     for field, value in update_data.items():
         setattr(dma, field, value)
     
@@ -221,7 +310,9 @@ async def patch_dma(
                 detail="Utility managers can only update DMAs in their own utility",
             )
     
-    update_data = dma_data.dict(exclude_unset=True)
+    update_data = dma_data.model_dump(exclude_unset=True)
+    if "boundary_geojson" in update_data:
+        dma.boundary_geojson = _serialize_boundary_geojson(update_data.pop("boundary_geojson"))
     for field, value in update_data.items():
         setattr(dma, field, value)
     

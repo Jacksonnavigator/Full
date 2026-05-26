@@ -6,6 +6,7 @@ import type { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojso
 import type { LatLngBoundsExpression } from "leaflet"
 import { Layers3, Route } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import CONFIG from "@/lib/config"
 import type { OperationsMapReport } from "./operations-map"
 
@@ -139,6 +140,126 @@ function getLocationLabel(report: OperationsMapReport) {
   return `${report.latitude.toFixed(5)}, ${report.longitude.toFixed(5)}`
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}
+
+function formatPropertyLabel(key: string) {
+  const normalized = key.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase())
+  const aliases: Record<string, string> = {
+    intdiammm: "Internal Diameter (mm)",
+    nomdiaminc: "Nominal Diameter (in)",
+    pipepurpos: "Pipe Purpose",
+    pipelength: "Pipe Length",
+    zonelocati: "Zone",
+    source_table: "Layer",
+  }
+  return aliases[key] || normalized
+}
+
+function collectGeometryCoordinates(geometry: Geometry | null | undefined): Array<[number, number]> {
+  const points: Array<[number, number]> = []
+  if (!geometry) return points
+
+  const visit = (coordinates: GeometryCoordinates | undefined) => {
+    if (!coordinates) return
+    if (
+      Array.isArray(coordinates) &&
+      coordinates.length >= 2 &&
+      typeof coordinates[0] === "number" &&
+      typeof coordinates[1] === "number"
+    ) {
+      points.push([Number(coordinates[1]), Number(coordinates[0])])
+      return
+    }
+    if (Array.isArray(coordinates)) {
+      coordinates.forEach((item) => visit(item as GeometryCoordinates))
+    }
+  }
+
+  if (geometry.type === "GeometryCollection") {
+    geometry.geometries?.forEach((item) => {
+      if ("coordinates" in item) visit(item.coordinates as GeometryCoordinates)
+    })
+  } else if ("coordinates" in geometry) {
+    visit(geometry.coordinates as GeometryCoordinates)
+  }
+
+  return points
+}
+
+function buildNetworkPopupHtml(feature: Feature) {
+  const geometryPoints = collectGeometryCoordinates(feature.geometry)
+  const startPoint = geometryPoints[0]
+  const endPoint = geometryPoints[geometryPoints.length - 1]
+
+  const rawProperties = feature.properties
+  const entries = Object.entries(
+    rawProperties && typeof rawProperties === "object" ? rawProperties : {}
+  ).filter(
+    ([key, value]) =>
+      value !== null &&
+      value !== "" &&
+      key !== "style"
+  )
+
+  const prioritizedKeys = [
+    "assetid",
+    "name",
+    "material",
+    "condition",
+    "intdiammm",
+    "nomdiaminc",
+    "pipepurpos",
+    "status",
+    "location",
+    "zonelocati",
+    "source_table",
+  ]
+
+  entries.sort((left, right) => {
+    const leftRank = prioritizedKeys.indexOf(left[0].toLowerCase())
+    const rightRank = prioritizedKeys.indexOf(right[0].toLowerCase())
+    if (leftRank === -1 && rightRank === -1) return left[0].localeCompare(right[0])
+    if (leftRank === -1) return 1
+    if (rightRank === -1) return -1
+    return leftRank - rightRank
+  })
+
+  const renderedRows = entries.slice(0, 14).map(([key, value]) => {
+    return `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding:4px 0;">
+      <span style="font-size:11px;color:#64748b;">${escapeHtml(formatPropertyLabel(key))}</span>
+      <span style="font-size:11px;color:#0f172a;font-weight:600;text-align:right;max-width:220px;word-break:break-word;">${escapeHtml(String(value))}</span>
+    </div>`
+  })
+
+  const startEndRows: string[] = []
+  if (startPoint) {
+    startEndRows.push(
+      `<div style="display:flex;justify-content:space-between;gap:10px;"><span style="font-size:11px;color:#64748b;">Start Point</span><span style="font-size:11px;color:#0f172a;font-weight:600;">${startPoint[0].toFixed(5)}, ${startPoint[1].toFixed(5)}</span></div>`
+    )
+  }
+  if (endPoint) {
+    startEndRows.push(
+      `<div style="display:flex;justify-content:space-between;gap:10px;"><span style="font-size:11px;color:#64748b;">End Point</span><span style="font-size:11px;color:#0f172a;font-weight:600;">${endPoint[0].toFixed(5)}, ${endPoint[1].toFixed(5)}</span></div>`
+    )
+  }
+
+  return `<div style="width:300px;max-height:240px;overflow:auto;font-family:Inter,ui-sans-serif,system-ui;">
+    <div style="position:sticky;top:0;background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 10px;margin:-4px -4px 8px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0f172a;">Pipe Segment</div>
+      <div style="font-size:11px;color:#64748b;margin-top:2px;">Network attributes from uploaded utility dataset</div>
+    </div>
+    <div style="display:grid;gap:2px;">${renderedRows.join("")}</div>
+    ${startEndRows.length ? `<div style="margin-top:8px;border-top:1px solid #e2e8f0;padding-top:6px;display:grid;gap:4px;">${startEndRows.join("")}</div>` : ""}
+  </div>`
+}
+
 function FitMapToData({ bounds }: { bounds: LatLngBoundsExpression | null }) {
   const map = useMap()
 
@@ -185,6 +306,7 @@ function SyncMapSize() {
 export function OperationsMapImpl({
   reports,
   center,
+  boundaryGeojson,
   networkPreviewUrl,
   networkFileName,
   title = "Leak operations map",
@@ -192,9 +314,11 @@ export function OperationsMapImpl({
   basemap: controlledBasemap,
   onBasemapChange,
   onReportSelect,
+  chromeMode = "standard",
 }: {
   reports: OperationsMapReport[]
   center?: [number, number] | null
+  boundaryGeojson?: GeoJsonObject | null
   networkPreviewUrl?: string | null
   networkFileName?: string | null
   title?: string
@@ -202,6 +326,7 @@ export function OperationsMapImpl({
   basemap?: BasemapKey
   onBasemapChange?: (basemap: BasemapKey) => void
   onReportSelect?: (reportId: string) => void
+  chromeMode?: "standard" | "command-center"
 }) {
   const [showNetwork, setShowNetwork] = useState(Boolean(networkPreviewUrl))
   const [localBasemap, setLocalBasemap] = useState<BasemapKey>("satellite")
@@ -209,6 +334,8 @@ export function OperationsMapImpl({
   const [networkLoading, setNetworkLoading] = useState(false)
   const [networkError, setNetworkError] = useState<string | null>(null)
   const basemap = controlledBasemap ?? localBasemap
+  const isCommandCenter = chromeMode === "command-center"
+  const isSatellite = basemap === "satellite"
 
   useEffect(() => {
     setShowNetwork(Boolean(networkPreviewUrl))
@@ -309,6 +436,7 @@ export function OperationsMapImpl({
   const bounds = useMemo<LatLngBoundsExpression | null>(() => {
     const points: Array<[number, number]> = [
       ...validReports.map((report) => [report.latitude, report.longitude] as [number, number]),
+      ...collectGeoJsonCoordinates(boundaryGeojson ?? null),
       ...collectGeoJsonCoordinates(networkData),
     ]
 
@@ -322,7 +450,7 @@ export function OperationsMapImpl({
     }
 
     return points
-  }, [networkData, validReports])
+  }, [boundaryGeojson, networkData, validReports])
 
   const legend = useMemo(
     () => [
@@ -338,10 +466,47 @@ export function OperationsMapImpl({
   return (
     <div className="overflow-hidden rounded-[30px] border border-slate-200/80 bg-white shadow-[0_32px_90px_-48px_rgba(15,23,42,0.45)]">
       <div className="relative">
+        {isCommandCenter ? (
+          <style jsx global>{`
+            .majiscope-map--command-center .leaflet-top.leaflet-left {
+              top: 5.5rem;
+              left: 0.5rem;
+            }
+
+            .majiscope-map--command-center .leaflet-control-zoom a {
+              background: rgba(15, 23, 42, 0.82);
+              color: rgba(255, 255, 255, 0.96);
+              border-color: rgba(255, 255, 255, 0.14);
+              box-shadow: 0 14px 34px -22px rgba(15, 23, 42, 0.9);
+            }
+
+            .majiscope-map--command-center .leaflet-control-zoom a:hover {
+              background: rgba(30, 41, 59, 0.92);
+            }
+
+            .majiscope-map--command-center .leaflet-bottom.leaflet-right {
+              bottom: 0.85rem;
+              right: 0.75rem;
+            }
+
+            .majiscope-map--command-center .leaflet-control-attribution {
+              background: rgba(15, 23, 42, 0.8);
+              color: rgba(255, 255, 255, 0.84);
+              border-radius: 9999px;
+              padding: 0.2rem 0.55rem;
+              box-shadow: 0 18px 45px -28px rgba(15, 23, 42, 0.92);
+            }
+
+            .majiscope-map--command-center .leaflet-control-attribution a {
+              color: rgba(255, 255, 255, 0.96);
+            }
+          `}</style>
+        ) : null}
+
         <MapContainer
           center={mapCenter}
           zoom={13}
-          className="w-full"
+          className={cn("w-full", isCommandCenter && "majiscope-map--command-center")}
           style={{ height: "80vh", minHeight: "760px", maxHeight: "980px", width: "100%" }}
         >
           <SyncMapSize />
@@ -351,6 +516,20 @@ export function OperationsMapImpl({
             url={BASEMAPS[basemap].url}
           />
 
+          {boundaryGeojson ? (
+            <GeoJSON
+              data={boundaryGeojson}
+              style={() => ({
+                color: "#0f766e",
+                weight: 3,
+                opacity: 0.95,
+                dashArray: "8 6",
+                fillColor: "#2dd4bf",
+                fillOpacity: 0.08,
+              })}
+            />
+          ) : null}
+
           {showNetwork && networkData ? (
             <GeoJSON
               data={networkData}
@@ -359,6 +538,13 @@ export function OperationsMapImpl({
                 weight: 3,
                 opacity: 0.8,
               })}
+              onEachFeature={(feature, layer) => {
+                if (!feature) return
+                const popupHtml = buildNetworkPopupHtml(feature as Feature)
+                if ("bindPopup" in layer && typeof layer.bindPopup === "function") {
+                  layer.bindPopup(popupHtml)
+                }
+              }}
             />
           ) : null}
 
@@ -420,18 +606,32 @@ export function OperationsMapImpl({
           })}
         </MapContainer>
 
-        <div className="pointer-events-none absolute inset-x-4 top-4 z-[1000] flex items-start justify-between gap-3">
-          <div className="pointer-events-auto rounded-xl border border-white/80 bg-white/92 px-3 py-2 shadow-lg shadow-slate-900/10 backdrop-blur">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-              {title}
+        <div
+          className={cn(
+            "pointer-events-none absolute top-4 z-[1000] flex items-start gap-3",
+            isCommandCenter ? "right-4 inset-x-auto" : "inset-x-4 justify-between"
+          )}
+        >
+          {!isCommandCenter ? (
+            <div className="pointer-events-auto rounded-xl border border-white/80 bg-white/92 px-3 py-2 shadow-lg shadow-slate-900/10 backdrop-blur">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                {title}
+              </div>
+              <div className="mt-1 text-xs text-slate-500">
+                {description}
+              </div>
             </div>
-            <div className="mt-1 text-xs text-slate-500">
-              {description}
-            </div>
-          </div>
+          ) : null}
 
-          <div className="pointer-events-auto rounded-xl border border-white/80 bg-white/92 px-3 py-2 shadow-lg shadow-slate-900/10 backdrop-blur">
-            <div className="mb-2 flex flex-wrap gap-2">
+          <div
+            className={cn(
+              "pointer-events-auto rounded-2xl border px-3 py-2 shadow-lg backdrop-blur-xl",
+              isSatellite
+                ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30"
+                : "border-white/80 bg-white/92 text-slate-900 shadow-slate-900/10"
+            )}
+          >
+            <div className="flex flex-nowrap items-center gap-2">
               {Object.entries(BASEMAPS).map(([key, value]) => (
                 <Button
                   key={key}
@@ -440,8 +640,10 @@ export function OperationsMapImpl({
                   variant={basemap === key ? "default" : "outline"}
                   className={
                     basemap === key
-                      ? "h-8 rounded-lg bg-slate-900 px-3 text-white hover:bg-slate-800"
-                      : "h-8 rounded-lg border-slate-200 bg-white px-3 text-slate-700 hover:bg-slate-50"
+                      ? "h-8 rounded-xl bg-cyan-600 px-3 text-white hover:bg-cyan-500"
+                      : isSatellite
+                        ? "h-8 rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
+                        : "h-8 rounded-xl border-slate-200 bg-white px-3 text-slate-700 hover:bg-slate-50"
                   }
                   onClick={() => {
                     const nextBasemap = key as BasemapKey
@@ -452,40 +654,50 @@ export function OperationsMapImpl({
                   {value.label}
                 </Button>
               ))}
+              <Button
+                type="button"
+                size="sm"
+                variant={showNetwork ? "default" : "outline"}
+                className={
+                  showNetwork
+                    ? "h-8 rounded-xl bg-cyan-600 px-3 text-white hover:bg-cyan-500"
+                    : isSatellite
+                      ? "h-8 rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
+                      : "h-8 rounded-xl border-slate-200 bg-white px-3 text-slate-700 hover:bg-slate-50"
+                }
+                onClick={() => setShowNetwork((current) => !current)}
+                disabled={!networkPreviewUrl}
+              >
+                <Layers3 className="mr-2 h-3.5 w-3.5" />
+                {showNetwork ? "Hide pipe network" : "Show pipe network"}
+              </Button>
             </div>
-
-            <Button
-              type="button"
-              size="sm"
-              variant={showNetwork ? "default" : "outline"}
-              className={
-                showNetwork
-                  ? "h-8 rounded-lg bg-cyan-600 px-3 text-white hover:bg-cyan-500"
-                  : "h-8 rounded-lg border-slate-200 bg-white px-3 text-slate-700 hover:bg-slate-50"
-              }
-              onClick={() => setShowNetwork((current) => !current)}
-              disabled={!networkPreviewUrl}
-            >
-              <Layers3 className="mr-2 h-3.5 w-3.5" />
-              {showNetwork ? "Hide pipe network" : "Show pipe network"}
-            </Button>
             {networkLoading ? (
-              <div className="mt-2 text-right text-[11px] text-slate-500">Loading network...</div>
+              <div className={cn("mt-2 text-right text-[11px]", isSatellite ? "text-white/72" : "text-slate-500")}>
+                Loading network...
+              </div>
             ) : null}
             {!networkLoading && showNetwork && networkError ? (
               <div className="mt-2 max-w-[240px] text-right text-[11px] text-rose-600">{networkError}</div>
             ) : null}
             {!networkLoading && !networkError && networkFileName ? (
-              <div className="mt-2 text-right text-[11px] text-slate-500">{networkFileName}</div>
+              <div className={cn("mt-2 text-right text-[11px]", isSatellite ? "text-white/72" : "text-slate-500")}>
+                {networkFileName}
+              </div>
             ) : null}
           </div>
         </div>
 
-        <div className="pointer-events-none absolute inset-x-4 bottom-4 z-[1000] flex flex-wrap gap-2">
+        <div className="pointer-events-none absolute inset-x-4 bottom-4 z-[1000] flex flex-wrap justify-center gap-2">
           {legend.map((item) => (
             <div
               key={item.label}
-              className="rounded-full border border-white/80 bg-white/92 px-3 py-1.5 text-xs font-medium text-slate-700 shadow-md shadow-slate-900/10 backdrop-blur"
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-xs font-medium shadow-md backdrop-blur-xl",
+                isSatellite
+                  ? "border-white/14 bg-slate-950/76 text-white shadow-slate-950/30"
+                  : "border-white/80 bg-white/92 text-slate-700 shadow-slate-900/10"
+              )}
             >
               <span
                 className="mr-2 inline-block h-2.5 w-2.5 rounded-full align-middle"

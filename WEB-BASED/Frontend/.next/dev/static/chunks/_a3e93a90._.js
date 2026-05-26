@@ -4435,7 +4435,7 @@ function DMADashboard() {
         columnNumber: 5
     }, this);
 }
-_s(DMADashboard, "YGYxISL4FZl5RKvw2ZyBnMFY6qk=", false, function() {
+_s(DMADashboard, "cgEDHKYkc12RuaTaCjpy+pR3nys=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"],

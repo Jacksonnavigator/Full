@@ -4,7 +4,7 @@ Request and response models for API validation
 """
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Any, Optional, List
 from pydantic import BaseModel, EmailStr, Field
 from app.constants.enums import EntityStatus
 
@@ -122,6 +122,30 @@ class UtilityResponse(UtilityBase):
         from_attributes = True
 
 
+class PipeNetworkIngestSummary(BaseModel):
+    """Upload-time ingestion and cleaning summary for utility pipe network files."""
+
+    total_features_read: int = 0
+    previewable_features: int = 0
+    skipped_features: int = 0
+    skipped_missing_geometry: int = 0
+    skipped_invalid_geometry: int = 0
+    skipped_unsupported_geometry: int = 0
+    missing_material: int = 0
+    missing_condition: int = 0
+    missing_diameter: int = 0
+    missing_location: int = 0
+    source_layers: List[str] = []
+    has_warnings: bool = False
+
+
+class PipeNetworkUploadResponse(BaseModel):
+    """Response payload for pipe-network upload endpoint."""
+
+    utility: UtilityResponse
+    ingest_summary: PipeNetworkIngestSummary
+
+
 class UtilityListResponse(BaseModel):
     """Schema for list of utilities"""
     total: int
@@ -207,6 +231,7 @@ class DMABase(BaseModel):
     description: Optional[str] = Field(None, max_length=1000)
     center_latitude: Optional[float] = Field(None, ge=-90, le=90)
     center_longitude: Optional[float] = Field(None, ge=-180, le=180)
+    boundary_geojson: Optional[dict[str, Any]] = None
     status: EntityStatus = EntityStatus.ACTIVE
 
 
@@ -221,6 +246,7 @@ class DMAUpdate(BaseModel):
     description: Optional[str] = Field(None, max_length=1000)
     center_latitude: Optional[float] = Field(None, ge=-90, le=90)
     center_longitude: Optional[float] = Field(None, ge=-180, le=180)
+    boundary_geojson: Optional[dict[str, Any]] = None
     status: Optional[EntityStatus] = None
 
 

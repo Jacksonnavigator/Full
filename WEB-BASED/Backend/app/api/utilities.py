@@ -9,13 +9,13 @@ import json
 import sqlite3
 import tempfile
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 import xml.etree.ElementTree as ET
 import zipfile
 from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Response
 from sqlalchemy.orm import Session
 from shapely import wkb
-from shapely.geometry import mapping
+from shapely.geometry import mapping, shape
 from app.database.session import get_db
 from app.models import Utility, UtilityPipeNetwork, DMA
 from app.schemas.user import (
@@ -24,6 +24,8 @@ from app.schemas.user import (
     UtilityResponse,
     UtilityListResponse,
     UtilityPublicContactResponse,
+    PipeNetworkIngestSummary,
+    PipeNetworkUploadResponse,
 )
 from app.security.dependencies import get_current_user, require_admin, require_utility_manager, CurrentUser
 from app.services.hierarchy import (
@@ -38,6 +40,7 @@ utilities_router = APIRouter(prefix="/api/utilities", tags=["utilities"])
 MAX_PIPE_NETWORK_SIZE = 50 * 1024 * 1024  # 50MB
 ALLOWED_PIPE_NETWORK_EXTENSIONS = {
     ".gpkg",
+    ".shp",
     ".geojson",
     ".json",
     ".kml",
@@ -45,6 +48,22 @@ ALLOWED_PIPE_NETWORK_EXTENSIONS = {
     ".zip",
     ".csv",
     ".txt",
+}
+
+PIPE_NETWORK_REQUIRED_NUMERIC_COLUMNS = (
+    "intdiammm",
+    "nomdiaminc",
+    "diameter",
+    "diam_mm",
+    "diameter_mm",
+    "diameter_m",
+    "diameter_in",
+)
+
+PIPE_NETWORK_REQUIRED_TEXT_COLUMNS = {
+    "material": ("material", "pipe_material"),
+    "condition": ("condition", "status_condition", "pipe_condition"),
+    "location": ("location", "zonelocati", "zone", "location_name", "address"),
 }
 
 
@@ -168,6 +187,54 @@ def _coerce_geojson(payload: Any):
     )
 
 
+def _deserialize_dma_boundary(raw_value: Optional[str]) -> Optional[dict[str, Any]]:
+    if not raw_value:
+        return None
+
+    try:
+        payload = json.loads(raw_value)
+    except json.JSONDecodeError:
+        return None
+
+    return payload if isinstance(payload, dict) else None
+
+
+def _filter_pipe_network_to_dma_boundary(
+    feature_collection: dict[str, Any],
+    boundary_geojson_raw: Optional[str],
+) -> dict[str, Any]:
+    boundary_geojson = _deserialize_dma_boundary(boundary_geojson_raw)
+    if not boundary_geojson:
+        return feature_collection
+
+    try:
+        boundary_shape = shape(boundary_geojson)
+    except Exception:
+        return feature_collection
+
+    filtered_features: list[dict[str, Any]] = []
+    for feature in feature_collection.get("features", []):
+        if not isinstance(feature, dict):
+            continue
+
+        geometry = feature.get("geometry")
+        if not geometry:
+            continue
+
+        try:
+            feature_shape = shape(geometry)
+        except Exception:
+            continue
+
+        if feature_shape.intersects(boundary_shape):
+            filtered_features.append(feature)
+
+    return {
+        "type": "FeatureCollection",
+        "features": filtered_features,
+    }
+
+
 def _decode_text_bytes(data: bytes) -> str:
     for encoding in ("utf-8-sig", "utf-8", "latin-1"):
         try:
@@ -272,6 +339,104 @@ def _tag_feature_collection_source(collection: dict[str, Any], source_name: str)
         **collection,
         "features": tagged_features,
     }
+
+
+def _normalize_property_key(key: str) -> str:
+    return key.strip().lower().replace("-", "_")
+
+
+def _is_missing_value(value: Any) -> bool:
+    if value is None:
+        return True
+    if isinstance(value, str) and not value.strip():
+        return True
+    return False
+
+
+def _has_any_property_value(properties: dict[str, Any], keys: tuple[str, ...]) -> bool:
+    for key in keys:
+        if key in properties and not _is_missing_value(properties[key]):
+            return True
+    return False
+
+
+def _summarize_feature_attributes(features: list[dict[str, Any]]) -> dict[str, int]:
+    missing_material = 0
+    missing_condition = 0
+    missing_diameter = 0
+    missing_location = 0
+
+    for feature in features:
+        raw_properties = feature.get("properties")
+        properties = (
+            {_normalize_property_key(str(key)): value for key, value in raw_properties.items()}
+            if isinstance(raw_properties, dict)
+            else {}
+        )
+
+        if not _has_any_property_value(properties, PIPE_NETWORK_REQUIRED_TEXT_COLUMNS["material"]):
+            missing_material += 1
+        if not _has_any_property_value(properties, PIPE_NETWORK_REQUIRED_TEXT_COLUMNS["condition"]):
+            missing_condition += 1
+        if not _has_any_property_value(properties, PIPE_NETWORK_REQUIRED_NUMERIC_COLUMNS):
+            missing_diameter += 1
+        if not _has_any_property_value(properties, PIPE_NETWORK_REQUIRED_TEXT_COLUMNS["location"]):
+            missing_location += 1
+
+    return {
+        "missing_material": missing_material,
+        "missing_condition": missing_condition,
+        "missing_diameter": missing_diameter,
+        "missing_location": missing_location,
+    }
+
+
+def _build_ingest_summary(
+    feature_collection: dict[str, Any],
+    *,
+    total_features_read: Optional[int] = None,
+    skipped_missing_geometry: int = 0,
+    skipped_invalid_geometry: int = 0,
+    skipped_unsupported_geometry: int = 0,
+    source_layers: Optional[list[str]] = None,
+) -> PipeNetworkIngestSummary:
+    features = [
+        feature
+        for feature in feature_collection.get("features", [])
+        if isinstance(feature, dict)
+    ]
+    previewable_features = len(features)
+    total = total_features_read if total_features_read is not None else previewable_features
+    skipped_features = max(
+        total - previewable_features,
+        skipped_missing_geometry + skipped_invalid_geometry + skipped_unsupported_geometry,
+    )
+    attribute_summary = _summarize_feature_attributes(features)
+
+    has_warnings = any(
+        [
+            skipped_features > 0,
+            attribute_summary["missing_material"] > 0,
+            attribute_summary["missing_condition"] > 0,
+            attribute_summary["missing_diameter"] > 0,
+            attribute_summary["missing_location"] > 0,
+        ]
+    )
+
+    return PipeNetworkIngestSummary(
+        total_features_read=total,
+        previewable_features=previewable_features,
+        skipped_features=skipped_features,
+        skipped_missing_geometry=skipped_missing_geometry,
+        skipped_invalid_geometry=skipped_invalid_geometry,
+        skipped_unsupported_geometry=skipped_unsupported_geometry,
+        missing_material=attribute_summary["missing_material"],
+        missing_condition=attribute_summary["missing_condition"],
+        missing_diameter=attribute_summary["missing_diameter"],
+        missing_location=attribute_summary["missing_location"],
+        source_layers=source_layers or [],
+        has_warnings=has_warnings,
+    )
 
 
 def _load_kml_geojson(data: bytes) -> dict[str, Any]:
@@ -486,6 +651,84 @@ def _load_plain_text_geojson(data: bytes) -> dict[str, Any]:
     )
 
 
+def _load_shapefile_geojson(
+    shp_data: bytes,
+    shx_data: Optional[bytes] = None,
+    dbf_data: Optional[bytes] = None,
+) -> dict[str, Any]:
+    try:
+        import shapefile  # pyshp
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Shapefile support is unavailable on this server. Install pyshp and retry.",
+        ) from exc
+
+    try:
+        reader = shapefile.Reader(
+            shp=io.BytesIO(shp_data),
+            shx=io.BytesIO(shx_data) if shx_data else None,
+            dbf=io.BytesIO(dbf_data) if dbf_data else None,
+            encoding="utf-8",
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Pipe network shapefile could not be parsed.",
+        ) from exc
+
+    features: list[dict[str, Any]] = []
+    if dbf_data:
+        try:
+            records = reader.shapeRecords()
+            for shape_record in records:
+                geometry = shape_record.shape.__geo_interface__
+                if not geometry:
+                    continue
+                raw_properties = shape_record.record.as_dict()
+                properties = {
+                    key: value
+                    for key, value in raw_properties.items()
+                    if value not in (None, "")
+                }
+                features.append(
+                    {
+                        "type": "Feature",
+                        "properties": properties,
+                        "geometry": geometry,
+                    }
+                )
+        except Exception:
+            pass
+
+    if not features:
+        try:
+            for shape in reader.shapes():
+                geometry = shape.__geo_interface__
+                if not geometry:
+                    continue
+                features.append(
+                    {
+                        "type": "Feature",
+                        "properties": {},
+                        "geometry": geometry,
+                    }
+                )
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Pipe network shapefile geometry could not be converted.",
+            ) from exc
+
+    if not features:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Pipe network shapefile did not contain previewable geometry.",
+        )
+
+    return {"type": "FeatureCollection", "features": features}
+
+
 def _load_zip_geojson(data: bytes, allow_kml: bool = True) -> dict[str, Any]:
     try:
         archive = zipfile.ZipFile(io.BytesIO(data))
@@ -495,13 +738,37 @@ def _load_zip_geojson(data: bytes, allow_kml: bool = True) -> dict[str, Any]:
             detail="Pipe network archive could not be opened.",
         ) from exc
 
-    supported_extensions = [".geojson", ".json", ".kml", ".csv", ".txt"] if allow_kml else [".geojson", ".json", ".csv", ".txt"]
+    supported_extensions = [".geojson", ".json", ".kml", ".csv", ".txt", ".shp", ".shx", ".dbf"] if allow_kml else [".geojson", ".json", ".csv", ".txt", ".shp", ".shx", ".dbf"]
     collections: list[dict[str, Any]] = []
-    for name in archive.namelist():
-        if name.endswith("/"):
-            continue
+    archive_names = [name for name in archive.namelist() if not name.endswith("/")]
+
+    shapefile_groups: dict[str, dict[str, bytes]] = {}
+    for name in archive_names:
         extension = Path(name).suffix.lower()
-        if extension not in supported_extensions:
+        if extension not in {".shp", ".shx", ".dbf"}:
+            continue
+        base_name = str(Path(name).with_suffix(""))
+        member_group = shapefile_groups.setdefault(base_name, {})
+        with archive.open(name) as member:
+            member_group[extension] = member.read()
+
+    for base_name, group in shapefile_groups.items():
+        shp_bytes = group.get(".shp")
+        if not shp_bytes:
+            continue
+        try:
+            shapefile_collection = _load_shapefile_geojson(
+                shp_bytes,
+                shx_data=group.get(".shx"),
+                dbf_data=group.get(".dbf"),
+            )
+            collections.append(_tag_feature_collection_source(shapefile_collection, f"{base_name}.shp"))
+        except HTTPException:
+            continue
+
+    for name in archive_names:
+        extension = Path(name).suffix.lower()
+        if extension not in supported_extensions or extension in {".shp", ".shx", ".dbf"}:
             continue
         with archive.open(name) as member:
             member_bytes = member.read()
@@ -557,7 +824,7 @@ def _gpkg_geometry_wkb(geometry_blob: bytes) -> bytes:
     return geometry_blob[header_length:]
 
 
-def _load_gpkg_geojson(data: bytes) -> dict[str, Any]:
+def _load_gpkg_geojson_with_stats(data: bytes) -> tuple[dict[str, Any], PipeNetworkIngestSummary]:
     temp_path: Optional[str] = None
     try:
         with tempfile.NamedTemporaryFile(suffix=".gpkg", delete=False) as temp_file:
@@ -578,11 +845,17 @@ def _load_gpkg_geojson(data: bytes) -> dict[str, Any]:
                 )
 
             features: list[dict[str, Any]] = []
+            source_layers: list[str] = []
+            total_features_read = 0
+            skipped_missing_geometry = 0
+            skipped_invalid_geometry = 0
+            skipped_unsupported_geometry = 0
 
             for table_name, geometry_column in geometry_layers:
                 columns = [row[1] for row in cursor.execute(f"PRAGMA table_info({_quote_sqlite_identifier(table_name)})").fetchall()]
                 if geometry_column not in columns:
                     continue
+                source_layers.append(table_name)
 
                 property_columns = [column for column in columns if column != geometry_column]
                 select_columns = [geometry_column, *property_columns]
@@ -593,13 +866,21 @@ def _load_gpkg_geojson(data: bytes) -> dict[str, Any]:
                 )
 
                 for row in cursor.execute(query):
+                    total_features_read += 1
                     geometry_blob = row[0]
                     if not geometry_blob:
+                        skipped_missing_geometry += 1
                         continue
 
                     try:
-                        geometry = mapping(wkb.loads(_gpkg_geometry_wkb(bytes(geometry_blob))))
+                        shape_geometry = wkb.loads(_gpkg_geometry_wkb(bytes(geometry_blob)))
+                        geometry = mapping(shape_geometry)
                     except Exception:
+                        skipped_invalid_geometry += 1
+                        continue
+
+                    if not isinstance(geometry, dict) or geometry.get("type") in {None, ""}:
+                        skipped_unsupported_geometry += 1
                         continue
 
                     properties = {
@@ -623,10 +904,19 @@ def _load_gpkg_geojson(data: bytes) -> dict[str, Any]:
                     detail="Pipe network GeoPackage could not be converted into previewable map features.",
                 )
 
-            return {
+            feature_collection = {
                 "type": "FeatureCollection",
                 "features": features,
             }
+            ingest_summary = _build_ingest_summary(
+                feature_collection,
+                total_features_read=total_features_read,
+                skipped_missing_geometry=skipped_missing_geometry,
+                skipped_invalid_geometry=skipped_invalid_geometry,
+                skipped_unsupported_geometry=skipped_unsupported_geometry,
+                source_layers=sorted(set(source_layers)),
+            )
+            return feature_collection, ingest_summary
         finally:
             connection.close()
     finally:
@@ -634,23 +924,37 @@ def _load_gpkg_geojson(data: bytes) -> dict[str, Any]:
             Path(temp_path).unlink(missing_ok=True)
 
 
-def _load_pipe_network_geojson(pipe_network: UtilityPipeNetwork):
-    extension = Path(pipe_network.file_name).suffix.lower()
+def _load_gpkg_geojson(data: bytes) -> dict[str, Any]:
+    feature_collection, _summary = _load_gpkg_geojson_with_stats(data)
+    return feature_collection
+
+
+def _load_pipe_network_geojson_with_summary(file_name: str, file_data: bytes) -> tuple[dict[str, Any], PipeNetworkIngestSummary]:
+    extension = Path(file_name).suffix.lower()
     try:
         if extension == ".gpkg":
-            return _load_gpkg_geojson(pipe_network.file_data)
+            return _load_gpkg_geojson_with_stats(file_data)
+        if extension == ".shp":
+            feature_collection = _load_shapefile_geojson(file_data)
+            return feature_collection, _build_ingest_summary(feature_collection)
         if extension in {".geojson", ".json"}:
-            return _coerce_geojson(json.loads(_decode_text_bytes(pipe_network.file_data)))
+            feature_collection = _coerce_geojson(json.loads(_decode_text_bytes(file_data)))
+            return feature_collection, _build_ingest_summary(feature_collection)
         if extension == ".kml":
-            return _load_kml_geojson(pipe_network.file_data)
+            feature_collection = _load_kml_geojson(file_data)
+            return feature_collection, _build_ingest_summary(feature_collection)
         if extension == ".kmz":
-            return _load_zip_geojson(pipe_network.file_data, allow_kml=True)
+            feature_collection = _load_zip_geojson(file_data, allow_kml=True)
+            return feature_collection, _build_ingest_summary(feature_collection)
         if extension == ".zip":
-            return _load_zip_geojson(pipe_network.file_data, allow_kml=True)
+            feature_collection = _load_zip_geojson(file_data, allow_kml=True)
+            return feature_collection, _build_ingest_summary(feature_collection)
         if extension == ".csv":
-            return _load_delimited_geojson(pipe_network.file_data)
+            feature_collection = _load_delimited_geojson(file_data)
+            return feature_collection, _build_ingest_summary(feature_collection)
         if extension == ".txt":
-            return _load_plain_text_geojson(pipe_network.file_data)
+            feature_collection = _load_plain_text_geojson(file_data)
+            return feature_collection, _build_ingest_summary(feature_collection)
     except HTTPException:
         raise
     except Exception as exc:
@@ -663,6 +967,14 @@ def _load_pipe_network_geojson(pipe_network: UtilityPipeNetwork):
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         detail="Pipe network file type is not previewable on the map.",
     )
+
+
+def _load_pipe_network_geojson(pipe_network: UtilityPipeNetwork):
+    feature_collection, _summary = _load_pipe_network_geojson_with_summary(
+        pipe_network.file_name,
+        pipe_network.file_data,
+    )
+    return feature_collection
 
 
 @utilities_router.get("", response_model=UtilityListResponse)
@@ -828,7 +1140,7 @@ async def delete_utility(
     db.commit()
 
 
-@utilities_router.post("/{utility_id}/pipe-network", response_model=UtilityResponse, status_code=status.HTTP_201_CREATED)
+@utilities_router.post("/{utility_id}/pipe-network", response_model=PipeNetworkUploadResponse, status_code=status.HTTP_201_CREATED)
 async def upload_pipe_network(
     utility_id: str,
     file: UploadFile = File(...),
@@ -870,6 +1182,8 @@ async def upload_pipe_network(
             detail="Pipe network file is too large",
         )
 
+    _feature_collection, ingest_summary = _load_pipe_network_geojson_with_summary(file.filename, file_data)
+
     pipe_network = db.query(UtilityPipeNetwork).filter(UtilityPipeNetwork.utility_id == utility.id).first()
     if not pipe_network:
         pipe_network = UtilityPipeNetwork(
@@ -885,7 +1199,10 @@ async def upload_pipe_network(
 
     db.commit()
     db.refresh(utility)
-    return _build_utility_response(utility)
+    return PipeNetworkUploadResponse(
+        utility=_build_utility_response(utility),
+        ingest_summary=ingest_summary,
+    )
 
 
 @utilities_router.get("/{utility_id}/pipe-network/download")
@@ -919,6 +1236,7 @@ async def download_pipe_network(
 @utilities_router.get("/{utility_id}/pipe-network/geojson")
 async def preview_pipe_network_geojson(
     utility_id: str,
+    dma_id: Optional[str] = Query(None),
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -938,7 +1256,25 @@ async def preview_pipe_network_geojson(
             detail="Pipe network file not found",
         )
 
-    return _load_pipe_network_geojson(pipe_network)
+    feature_collection = _load_pipe_network_geojson(pipe_network)
+
+    if not dma_id:
+        return feature_collection
+
+    dma = db.query(DMA).filter(DMA.id == dma_id, DMA.utility_id == utility.id).first()
+    if not dma:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="DMA boundary context could not be found for this utility",
+        )
+
+    if current_user.user_type == "dma_manager" and current_user.dma_id != dma.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have access to this DMA pipe network view",
+        )
+
+    return _filter_pipe_network_to_dma_boundary(feature_collection, dma.boundary_geojson)
 
 
 @utilities_router.delete("/{utility_id}/pipe-network", response_model=UtilityResponse)

@@ -15,8 +15,10 @@ const DMALocationPickerInner = dynamic(
 )
 
 export function DMALocationPicker(props: {
-  value: { latitude: number | null; longitude: number | null }
-  onChange: (next: { latitude: number; longitude: number }) => void
+  centerValue: { latitude: number | null; longitude: number | null }
+  boundaryPoints: Array<{ latitude: number; longitude: number }>
+  onCenterChange: (next: { latitude: number; longitude: number }) => void
+  onBoundaryChange: (next: Array<{ latitude: number; longitude: number }>) => void
 }) {
   return <DMALocationPickerInner {...props} />
 }

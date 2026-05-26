@@ -11,6 +11,11 @@ import { transformKeys } from "@/lib/transform-data"
 // Type imports for proper typing
 import type { ReportStatus, ReportPriority, EntityStatus } from "@/lib/types"
 
+export interface GeoJsonPolygon {
+  type: "Polygon"
+  coordinates: number[][][]
+}
+
 // Types
 export interface Utility {
   id: string
@@ -45,6 +50,7 @@ export interface DMA {
   utilityName?: string
   centerLatitude?: number | null
   centerLongitude?: number | null
+  boundaryGeojson?: GeoJsonPolygon | null
   managerId?: string | null
   managerName?: string
   status: EntityStatus

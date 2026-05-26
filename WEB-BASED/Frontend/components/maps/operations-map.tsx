@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import type { GeoJsonObject } from "geojson"
 
 const OperationsMapInner = dynamic(
   () => import("./operations-map-impl").then((module) => module.OperationsMapImpl),
@@ -33,6 +34,7 @@ export interface OperationsMapReport {
 export function OperationsMap(props: {
   reports: OperationsMapReport[]
   center?: [number, number] | null
+  boundaryGeojson?: GeoJsonObject | null
   networkPreviewUrl?: string | null
   networkFileName?: string | null
   title?: string
@@ -40,6 +42,7 @@ export function OperationsMap(props: {
   basemap?: "street" | "satellite"
   onBasemapChange?: (basemap: "street" | "satellite") => void
   onReportSelect?: (reportId: string) => void
+  chromeMode?: "standard" | "command-center"
 }) {
   return <OperationsMapInner {...props} />
 }

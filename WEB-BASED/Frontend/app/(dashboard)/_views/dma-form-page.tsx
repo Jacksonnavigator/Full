@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { DMALocationPicker } from "@/components/maps/dma-location-picker"
-import type { EntityStatus } from "@/lib/types"
+import type { EntityStatus, GeoJsonPolygon } from "@/lib/types"
 import { toast } from "sonner"
 import {
   ArrowLeft,
@@ -28,12 +28,66 @@ import {
   Pencil,
   Plus,
   Sparkles,
+  Trash2,
   XCircle,
 } from "lucide-react"
 
 interface DMAFormPageProps {
   mode: "create" | "edit"
   dmaId?: string
+}
+
+type BoundaryPointFormValue = {
+  id: string
+  latitude: string
+  longitude: string
+}
+
+type BoundaryPointCoordinate = {
+  latitude: number
+  longitude: number
+}
+
+function createBoundaryPoint(latitude = "", longitude = ""): BoundaryPointFormValue {
+  const fallbackId = `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  return {
+    id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : fallbackId,
+    latitude,
+    longitude,
+  }
+}
+
+function extractBoundaryPoints(boundaryGeojson?: GeoJsonPolygon | null): BoundaryPointFormValue[] {
+  const ring = boundaryGeojson?.coordinates?.[0]
+  if (!Array.isArray(ring) || !ring.length) return []
+
+  const normalizedRing =
+    ring.length > 1 &&
+    ring[0]?.[0] === ring[ring.length - 1]?.[0] &&
+    ring[0]?.[1] === ring[ring.length - 1]?.[1]
+      ? ring.slice(0, -1)
+      : ring
+
+  return normalizedRing
+    .filter((point): point is number[] => Array.isArray(point) && point.length >= 2)
+    .map((point) => createBoundaryPoint(String(point[1]), String(point[0])))
+}
+
+function parseBoundaryPointsForMap(points: BoundaryPointFormValue[]): BoundaryPointCoordinate[] {
+  return points.flatMap((point) => {
+    const latitude = Number(point.latitude)
+    const longitude = Number(point.longitude)
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      return []
+    }
+
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      return []
+    }
+
+    return [{ latitude, longitude }]
+  })
 }
 
 export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
@@ -47,6 +101,7 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
   const [formStatus, setFormStatus] = useState<EntityStatus>("active")
   const [formCenterLatitude, setFormCenterLatitude] = useState("")
   const [formCenterLongitude, setFormCenterLongitude] = useState("")
+  const [formBoundaryPoints, setFormBoundaryPoints] = useState<BoundaryPointFormValue[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isUtility = currentUser?.role === "utility_manager"
@@ -78,6 +133,7 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
       setFormStatus(editingDMA.status)
       setFormCenterLatitude(editingDMA.centerLatitude != null ? String(editingDMA.centerLatitude) : "")
       setFormCenterLongitude(editingDMA.centerLongitude != null ? String(editingDMA.centerLongitude) : "")
+      setFormBoundaryPoints(extractBoundaryPoints(editingDMA.boundaryGeojson))
       return
     }
 
@@ -86,7 +142,13 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
     setFormStatus("active")
     setFormCenterLatitude("")
     setFormCenterLongitude("")
+    setFormBoundaryPoints([])
   }, [editingDMA, mode])
+
+  const boundaryPointsForMap = useMemo(
+    () => parseBoundaryPointsForMap(formBoundaryPoints),
+    [formBoundaryPoints]
+  )
 
   async function handleSubmit() {
     if (!formName.trim()) {
@@ -120,9 +182,58 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
       return
     }
 
+    const hasAnyBoundaryInput = formBoundaryPoints.some(
+      (point) => point.latitude.trim() !== "" || point.longitude.trim() !== ""
+    )
+
+    const normalizedBoundaryPoints: BoundaryPointCoordinate[] = []
+    for (const point of formBoundaryPoints) {
+      const hasPointLatitude = point.latitude.trim() !== ""
+      const hasPointLongitude = point.longitude.trim() !== ""
+
+      if (!hasPointLatitude && !hasPointLongitude) {
+        continue
+      }
+
+      if (hasPointLatitude !== hasPointLongitude) {
+        toast.error("Each DMA boundary point requires both latitude and longitude")
+        return
+      }
+
+      const latitude = Number(point.latitude)
+      const longitude = Number(point.longitude)
+
+      if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
+        toast.error("Each DMA boundary latitude must be a valid number between -90 and 90")
+        return
+      }
+
+      if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+        toast.error("Each DMA boundary longitude must be a valid number between -180 and 180")
+        return
+      }
+
+      normalizedBoundaryPoints.push({ latitude, longitude })
+    }
+
+    if (hasAnyBoundaryInput && normalizedBoundaryPoints.length < 3) {
+      toast.error("DMA boundary requires at least three complete coordinate points")
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
+      const boundaryGeojson =
+        normalizedBoundaryPoints.length > 0
+          ? {
+              type: "Polygon" as const,
+              coordinates: [
+                normalizedBoundaryPoints.map((point) => [point.longitude, point.latitude]),
+              ],
+            }
+          : null
+
       const payload = {
         name: formName.trim(),
         description: formDescription.trim() || null,
@@ -130,6 +241,7 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
         utilityName: utilityName || "",
         centerLatitude: parsedLatitude,
         centerLongitude: parsedLongitude,
+        boundaryGeojson,
         status: formStatus,
       }
 
@@ -235,8 +347,8 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
             </h1>
             <p className="text-slate-500 mt-1">
               {mode === "edit"
-                ? "Update the DMA details, map center, and visibility information."
-                : "Create a new District Meter Area with a proper dashboard map center."}
+                ? "Update the DMA details, map center, boundary geometry, and visibility information."
+                : "Create a new District Meter Area with a precise dashboard center and a clear spatial boundary."}
             </p>
           </div>
         </div>
@@ -319,6 +431,96 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
               </div>
             </div>
 
+            <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <Label className="text-sm font-medium text-slate-700">DMA Boundary Geometry</Label>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Add as many boundary points as needed. You can type them manually or capture them from the map in boundary mode.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-xl"
+                  onClick={() => setFormBoundaryPoints((current) => [...current, createBoundaryPoint()])}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Geometry Boundary Point
+                </Button>
+              </div>
+
+              {formBoundaryPoints.length ? (
+                <div className="space-y-3">
+                  {formBoundaryPoints.map((point, index) => (
+                    <div
+                      key={point.id}
+                      className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 md:grid-cols-[minmax(0,0.85fr)_minmax(0,0.85fr)_auto]"
+                    >
+                      <div className="flex flex-col gap-2">
+                        <Label htmlFor={`boundary-latitude-${point.id}`} className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                          Point {index + 1} Latitude
+                        </Label>
+                        <Input
+                          id={`boundary-latitude-${point.id}`}
+                          type="number"
+                          step="0.000001"
+                          value={point.latitude}
+                          onChange={(event) =>
+                            setFormBoundaryPoints((current) =>
+                              current.map((entry) =>
+                                entry.id === point.id ? { ...entry, latitude: event.target.value } : entry
+                              )
+                            )
+                          }
+                          placeholder="-6.812345"
+                          className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <Label htmlFor={`boundary-longitude-${point.id}`} className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                          Point {index + 1} Longitude
+                        </Label>
+                        <Input
+                          id={`boundary-longitude-${point.id}`}
+                          type="number"
+                          step="0.000001"
+                          value={point.longitude}
+                          onChange={(event) =>
+                            setFormBoundaryPoints((current) =>
+                              current.map((entry) =>
+                                entry.id === point.id ? { ...entry, longitude: event.target.value } : entry
+                              )
+                            )
+                          }
+                          placeholder="39.287654"
+                          className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
+                        />
+                      </div>
+
+                      <div className="flex items-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-11 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                          onClick={() =>
+                            setFormBoundaryPoints((current) => current.filter((entry) => entry.id !== point.id))
+                          }
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
+                  No DMA boundary points added yet. Use the button above or click directly on the map in boundary mode.
+                </div>
+              )}
+            </div>
+
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-medium text-slate-700">Status</Label>
               <Select value={formStatus} onValueChange={(value) => setFormStatus(value as EntityStatus)}>
@@ -346,21 +548,30 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
 
         <div className="flex flex-col gap-4">
           <DMALocationPicker
-            value={{
+            centerValue={{
               latitude: formCenterLatitude.trim() ? Number(formCenterLatitude) : null,
               longitude: formCenterLongitude.trim() ? Number(formCenterLongitude) : null,
             }}
-            onChange={({ latitude, longitude }) => {
+            boundaryPoints={boundaryPointsForMap}
+            onCenterChange={({ latitude, longitude }) => {
               setFormCenterLatitude(latitude.toFixed(6))
               setFormCenterLongitude(longitude.toFixed(6))
+            }}
+            onBoundaryChange={(nextBoundaryPoints) => {
+              setFormBoundaryPoints(
+                nextBoundaryPoints.map((point) =>
+                  createBoundaryPoint(point.latitude.toFixed(6), point.longitude.toFixed(6))
+                )
+              )
             }}
           />
 
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
             <CardContent className="space-y-2 p-5 text-sm text-slate-600">
               <p className="font-semibold text-slate-800">Map Guidance</p>
-              <p>Click the map to set the DMA center used by dashboard maps and report visibility.</p>
-              <p>After selecting a point, you can still fine-tune the latitude and longitude manually.</p>
+              <p>Use the `DMA Center` button to capture the center point used by dashboards and operational centering.</p>
+              <p>Use the `DMA Boundaries` button to place multiple boundary points and watch the polygon form directly on the map.</p>
+              <p>The coordinate fields stay editable, so you can refine center and boundary values manually at any time.</p>
             </CardContent>
           </Card>
         </div>

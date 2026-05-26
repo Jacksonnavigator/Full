@@ -6,7 +6,7 @@ The live operational hierarchy is now:
     Admin -> Utility -> DMA -> Team -> Engineer
 """
 
-from sqlalchemy import Column, String, DateTime, Enum as SQLEnum, ForeignKey, UniqueConstraint, Float, LargeBinary, Integer
+from sqlalchemy import Column, String, DateTime, Enum as SQLEnum, ForeignKey, UniqueConstraint, Float, LargeBinary, Integer, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -159,6 +159,7 @@ class DMA(Base):
     # Geospatial fields for location-based report assignment
     center_latitude = Column(Float, nullable=True)
     center_longitude = Column(Float, nullable=True)
+    boundary_geojson = Column(Text, nullable=True)
     status = Column(SQLEnum(EntityStatusEnum), default=EntityStatusEnum.ACTIVE)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

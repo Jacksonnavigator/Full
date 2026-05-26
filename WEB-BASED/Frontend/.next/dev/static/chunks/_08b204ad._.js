@@ -1343,6 +1343,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$network$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Network$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/network.js [app-client] (ecmascript) <export default as Network>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$phone$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Phone$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/phone.js [app-client] (ecmascript) <export default as Phone>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$mail$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Mail$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/mail.js [app-client] (ecmascript) <export default as Mail>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/sonner/dist/index.mjs [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/utils.ts [app-client] (ecmascript)");
 ;
@@ -1413,6 +1414,7 @@ function UtilitiesPage() {
     const [utilityManagers, setUtilityManagers] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [uploadTargetUtility, setUploadTargetUtility] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [busyUtilityId, setBusyUtilityId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [uploadingUtilityId, setUploadingUtilityId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const uploadInputRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     // Form state
     const [formName, setFormName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
@@ -1462,7 +1464,7 @@ function UtilitiesPage() {
                     description: "Only Admins and Utility Managers can manage utilities"
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                    lineNumber: 158,
+                    lineNumber: 160,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1478,12 +1480,12 @@ function UtilitiesPage() {
                                         className: "h-8 w-8 text-slate-400"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 166,
+                                        lineNumber: 168,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 165,
+                                    lineNumber: 167,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1493,7 +1495,7 @@ function UtilitiesPage() {
                                             children: "Access Restricted"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 169,
+                                            lineNumber: 171,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1501,35 +1503,35 @@ function UtilitiesPage() {
                                             children: "Only Admins and Utility Managers can manage utilities"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 170,
+                                            lineNumber: 172,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 168,
+                                    lineNumber: 170,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                            lineNumber: 164,
+                            lineNumber: 166,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                        lineNumber: 163,
+                        lineNumber: 165,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                    lineNumber: 162,
+                    lineNumber: 164,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-            lineNumber: 157,
+            lineNumber: 159,
             columnNumber: 7
         }, this);
     }
@@ -1646,6 +1648,8 @@ function UtilitiesPage() {
         const formData = new FormData();
         formData.append("file", file);
         setBusyUtilityId(utility.id);
+        setUploadingUtilityId(utility.id);
+        const uploadingToastId = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].loading("Uploading the pipeline ...");
         try {
             const response = await fetch(`${__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CONFIG"].backend.fullUrl}/utilities/${utility.id}/pipe-network`, {
                 method: "POST",
@@ -1656,16 +1660,34 @@ function UtilitiesPage() {
             });
             const payload = await response.json().catch(()=>({}));
             if (!response.ok) {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].dismiss(uploadingToastId);
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(payload.detail || payload.error || "Failed to upload pipe network");
                 return;
             }
-            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Utility pipe network uploaded successfully");
+            const ingestSummary = payload?.ingest_summary || payload?.ingestSummary;
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].dismiss(uploadingToastId);
+            if (ingestSummary) {
+                const previewable = Number(ingestSummary.previewable_features || ingestSummary.previewableFeatures || 0);
+                const skipped = Number(ingestSummary.skipped_features || ingestSummary.skippedFeatures || 0);
+                const missingDiameter = Number(ingestSummary.missing_diameter || ingestSummary.missingDiameter || 0);
+                const missingCondition = Number(ingestSummary.missing_condition || ingestSummary.missingCondition || 0);
+                const missingLocation = Number(ingestSummary.missing_location || ingestSummary.missingLocation || 0);
+                if (skipped > 0 || missingDiameter > 0 || missingCondition > 0 || missingLocation > 0) {
+                    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].warning(`Pipe network uploaded with warnings: ${previewable.toLocaleString()} features ready, ${skipped.toLocaleString()} skipped. Missing fields - diameter: ${missingDiameter.toLocaleString()}, condition: ${missingCondition.toLocaleString()}, location: ${missingLocation.toLocaleString()}.`);
+                } else {
+                    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success(`Utility pipe network uploaded successfully with ${previewable.toLocaleString()} previewable features.`);
+                }
+            } else {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Utility pipe network uploaded successfully");
+            }
             await fetchUtilities();
         } catch (error) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].dismiss(uploadingToastId);
             console.error("Error uploading utility pipe network:", error);
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Failed to upload pipe network");
         } finally{
             setBusyUtilityId(null);
+            setUploadingUtilityId(null);
             setUploadTargetUtility(null);
         }
     }
@@ -1781,19 +1803,19 @@ function UtilitiesPage() {
                                                     className: "h-5 w-5 text-white"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 452,
+                                                    lineNumber: 479,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 451,
+                                                lineNumber: 478,
                                                 columnNumber: 15
                                             }, this),
                                             "Utility Management"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 450,
+                                        lineNumber: 477,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1801,13 +1823,13 @@ function UtilitiesPage() {
                                         children: isAdmin ? "Manage all utilities in the water infrastructure system" : "Manage your utility profile and upload its pipe network"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 456,
+                                        lineNumber: 483,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 449,
+                                lineNumber: 476,
                                 columnNumber: 11
                             }, this),
                             isAdmin ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1818,20 +1840,20 @@ function UtilitiesPage() {
                                         className: "h-4 w-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 465,
+                                        lineNumber: 492,
                                         columnNumber: 15
                                     }, this),
                                     "Add Utility"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 461,
+                                lineNumber: 488,
                                 columnNumber: 13
                             }, this) : null
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                        lineNumber: 448,
+                        lineNumber: 475,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1850,12 +1872,12 @@ function UtilitiesPage() {
                                                     className: "h-6 w-6 text-white"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 477,
+                                                    lineNumber: 504,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 476,
+                                                lineNumber: 503,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1865,7 +1887,7 @@ function UtilitiesPage() {
                                                         children: "Total Utilities"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 480,
+                                                        lineNumber: 507,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1873,29 +1895,29 @@ function UtilitiesPage() {
                                                         children: totalUtilities
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 481,
+                                                        lineNumber: 508,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 479,
+                                                lineNumber: 506,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 475,
+                                        lineNumber: 502,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 474,
+                                    lineNumber: 501,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 473,
+                                lineNumber: 500,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1911,12 +1933,12 @@ function UtilitiesPage() {
                                                     className: "h-6 w-6 text-white"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 491,
+                                                    lineNumber: 518,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 490,
+                                                lineNumber: 517,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1926,7 +1948,7 @@ function UtilitiesPage() {
                                                         children: "Active Utilities"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 494,
+                                                        lineNumber: 521,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1934,29 +1956,29 @@ function UtilitiesPage() {
                                                         children: activeUtilities
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 495,
+                                                        lineNumber: 522,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 493,
+                                                lineNumber: 520,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 489,
+                                        lineNumber: 516,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 488,
+                                    lineNumber: 515,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 487,
+                                lineNumber: 514,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1972,12 +1994,12 @@ function UtilitiesPage() {
                                                     className: "h-6 w-6 text-white"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 505,
+                                                    lineNumber: 532,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 504,
+                                                lineNumber: 531,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1987,7 +2009,7 @@ function UtilitiesPage() {
                                                         children: "Total DMAs"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 508,
+                                                        lineNumber: 535,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1995,41 +2017,41 @@ function UtilitiesPage() {
                                                         children: totalDmas
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 509,
+                                                        lineNumber: 536,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 507,
+                                                lineNumber: 534,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 503,
+                                        lineNumber: 530,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 502,
+                                    lineNumber: 529,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 501,
+                                lineNumber: 528,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                        lineNumber: 472,
+                        lineNumber: 499,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                lineNumber: 447,
+                lineNumber: 474,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2042,14 +2064,14 @@ function UtilitiesPage() {
                                 className: "absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-400/10 to-blue-500/10 blur-lg opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 520,
+                                lineNumber: 547,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__["Search"], {
                                 className: "absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 521,
+                                lineNumber: 548,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2059,13 +2081,13 @@ function UtilitiesPage() {
                                 className: "pl-11 h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 shadow-sm"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 522,
+                                lineNumber: 549,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                        lineNumber: 519,
+                        lineNumber: 546,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2075,7 +2097,7 @@ function UtilitiesPage() {
                                 className: "h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 530,
+                                lineNumber: 557,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2086,19 +2108,19 @@ function UtilitiesPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 531,
+                                lineNumber: 558,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                        lineNumber: 529,
+                        lineNumber: 556,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                lineNumber: 518,
+                lineNumber: 545,
                 columnNumber: 7
             }, this),
             filteredUtilities.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2114,12 +2136,12 @@ function UtilitiesPage() {
                                     className: "h-8 w-8 text-slate-400"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 541,
+                                    lineNumber: 568,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 540,
+                                lineNumber: 567,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2129,7 +2151,7 @@ function UtilitiesPage() {
                                         children: "No utilities found"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 544,
+                                        lineNumber: 571,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2137,13 +2159,13 @@ function UtilitiesPage() {
                                         children: "Get started by creating your first utility"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 545,
+                                        lineNumber: 572,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 543,
+                                lineNumber: 570,
                                 columnNumber: 15
                             }, this),
                             isAdmin ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2154,30 +2176,30 @@ function UtilitiesPage() {
                                         className: "h-4 w-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 552,
+                                        lineNumber: 579,
                                         columnNumber: 19
                                     }, this),
                                     "Add Utility"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 548,
+                                lineNumber: 575,
                                 columnNumber: 17
                             }, this) : null
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                        lineNumber: 539,
+                        lineNumber: 566,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                    lineNumber: 538,
+                    lineNumber: 565,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                lineNumber: 537,
+                lineNumber: 564,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
@@ -2188,7 +2210,7 @@ function UtilitiesPage() {
                                 className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("h-1", utility.status === "active" ? "bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400" : "bg-gradient-to-r from-red-400 via-rose-500 to-red-400")
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 572,
+                                lineNumber: 599,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2206,12 +2228,12 @@ function UtilitiesPage() {
                                                             className: "h-5 w-5 text-white"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                            lineNumber: 588,
+                                                            lineNumber: 615,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 582,
+                                                        lineNumber: 609,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2221,26 +2243,26 @@ function UtilitiesPage() {
                                                                 children: utility.name
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 591,
+                                                                lineNumber: 618,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$status$2d$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EntityStatusBadge"], {
                                                                 status: utility.status
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 592,
+                                                                lineNumber: 619,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 590,
+                                                        lineNumber: 617,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 581,
+                                                lineNumber: 608,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
@@ -2256,7 +2278,7 @@ function UtilitiesPage() {
                                                                     className: "h-4 w-4 text-slate-500"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                    lineNumber: 599,
+                                                                    lineNumber: 626,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2264,18 +2286,18 @@ function UtilitiesPage() {
                                                                     children: "Actions"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                    lineNumber: 600,
+                                                                    lineNumber: 627,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                            lineNumber: 598,
+                                                            lineNumber: 625,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 597,
+                                                        lineNumber: 624,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -2290,14 +2312,14 @@ function UtilitiesPage() {
                                                                         className: "mr-2 h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                        lineNumber: 605,
+                                                                        lineNumber: 632,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     "Edit"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 604,
+                                                                lineNumber: 631,
                                                                 columnNumber: 23
                                                             }, this),
                                                             isAdmin ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2308,32 +2330,32 @@ function UtilitiesPage() {
                                                                         className: "mr-2 h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                        lineNumber: 613,
+                                                                        lineNumber: 640,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     "Delete"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 609,
+                                                                lineNumber: 636,
                                                                 columnNumber: 25
                                                             }, this) : null
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 603,
+                                                        lineNumber: 630,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 596,
+                                                lineNumber: 623,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 580,
+                                        lineNumber: 607,
                                         columnNumber: 17
                                     }, this),
                                     utility.description && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2341,7 +2363,7 @@ function UtilitiesPage() {
                                         children: utility.description
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 622,
+                                        lineNumber: 649,
                                         columnNumber: 19
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2354,7 +2376,7 @@ function UtilitiesPage() {
                                                         className: "h-4 w-4 text-cyan-500"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 628,
+                                                        lineNumber: 655,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2362,13 +2384,13 @@ function UtilitiesPage() {
                                                         children: utility.managerName
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 629,
+                                                        lineNumber: 656,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 627,
+                                                lineNumber: 654,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2378,7 +2400,7 @@ function UtilitiesPage() {
                                                         className: "h-4 w-4 text-blue-500"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 632,
+                                                        lineNumber: 659,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2389,13 +2411,13 @@ function UtilitiesPage() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 633,
+                                                        lineNumber: 660,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 631,
+                                                lineNumber: 658,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2405,7 +2427,7 @@ function UtilitiesPage() {
                                                         className: "h-4 w-4 text-indigo-500"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 636,
+                                                        lineNumber: 663,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2413,19 +2435,19 @@ function UtilitiesPage() {
                                                         children: utility.reportsCount
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 637,
+                                                        lineNumber: 664,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 635,
+                                                lineNumber: 662,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 626,
+                                        lineNumber: 653,
                                         columnNumber: 17
                                     }, this),
                                     utility.contactPhone || utility.contactEmail || utility.contactAddress ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2436,7 +2458,7 @@ function UtilitiesPage() {
                                                 children: "Public Utility Contacts"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 643,
+                                                lineNumber: 670,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2449,7 +2471,7 @@ function UtilitiesPage() {
                                                                 className: "mt-0.5 h-4 w-4 text-emerald-500"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 647,
+                                                                lineNumber: 674,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2457,13 +2479,13 @@ function UtilitiesPage() {
                                                                 children: utility.contactPhone
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 648,
+                                                                lineNumber: 675,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 646,
+                                                        lineNumber: 673,
                                                         columnNumber: 25
                                                     }, this) : null,
                                                     utility.contactEmail ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2473,7 +2495,7 @@ function UtilitiesPage() {
                                                                 className: "mt-0.5 h-4 w-4 text-blue-500"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 653,
+                                                                lineNumber: 680,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2481,13 +2503,13 @@ function UtilitiesPage() {
                                                                 children: utility.contactEmail
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 654,
+                                                                lineNumber: 681,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 652,
+                                                        lineNumber: 679,
                                                         columnNumber: 25
                                                     }, this) : null,
                                                     utility.contactAddress ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2497,7 +2519,7 @@ function UtilitiesPage() {
                                                                 className: "mt-0.5 h-4 w-4 text-rose-500"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 659,
+                                                                lineNumber: 686,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2505,211 +2527,245 @@ function UtilitiesPage() {
                                                                 children: utility.contactAddress
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 660,
+                                                                lineNumber: 687,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 658,
+                                                        lineNumber: 685,
                                                         columnNumber: 25
                                                     }, this) : null
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 644,
+                                                lineNumber: 671,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 642,
+                                        lineNumber: 669,
                                         columnNumber: 19
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-4 text-sm text-slate-500",
                                         children: "Add the public phone, email, and address here so citizen apps can show the correct emergency utility contacts for this area."
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 666,
+                                        lineNumber: 693,
                                         columnNumber: 19
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4",
-                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "min-w-0",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "flex items-center gap-2",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 shadow-sm shadow-sky-500/20",
-                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$network$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Network$3e$__["Network"], {
-                                                                        className: "h-4 w-4 text-white"
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                        lineNumber: 676,
-                                                                        columnNumber: 27
-                                                                    }, this)
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                    lineNumber: 675,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-sm font-semibold text-slate-800",
-                                                                            children: "Utility Pipe Network"
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "min-w-0",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "flex items-center gap-2",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 shadow-sm shadow-sky-500/20",
+                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$network$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Network$3e$__["Network"], {
+                                                                            className: "h-4 w-4 text-white"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                            lineNumber: 679,
-                                                                            columnNumber: 27
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                            className: "text-xs text-slate-500",
-                                                                            children: "Upload the latest utility network map in a previewable GIS format."
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                            lineNumber: 680,
+                                                                            lineNumber: 703,
                                                                             columnNumber: 27
                                                                         }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                    lineNumber: 678,
-                                                                    columnNumber: 25
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                            lineNumber: 674,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        utility.pipeNetworkFileName ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "mt-3",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                    className: "break-words text-sm font-medium text-slate-700",
-                                                                    children: utility.pipeNetworkFileName
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                    lineNumber: 685,
-                                                                    columnNumber: 27
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                    className: "text-xs text-slate-500",
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                        lineNumber: 702,
+                                                                        columnNumber: 25
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                className: "text-sm font-semibold text-slate-800",
+                                                                                children: "Utility Pipe Network"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                                lineNumber: 706,
+                                                                                columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                className: "text-xs text-slate-500",
+                                                                                children: "Upload the latest utility network map in a previewable GIS format, including GeoPackage."
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                                lineNumber: 707,
+                                                                                columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                                                type: "button",
+                                                                                onClick: ()=>requestPipeNetworkUpload(utility),
+                                                                                disabled: busyUtilityId === utility.id,
+                                                                                className: "mt-1 text-xs font-semibold text-cyan-700 underline decoration-cyan-400 underline-offset-2 hover:text-cyan-800 disabled:cursor-not-allowed disabled:text-slate-400",
+                                                                                children: "Click here to upload or replace pipeline map"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                                lineNumber: 708,
+                                                                                columnNumber: 27
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                        lineNumber: 705,
+                                                                        columnNumber: 25
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                lineNumber: 701,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            utility.pipeNetworkFileName ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "mt-3",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                        className: "break-words text-sm font-medium text-slate-700",
+                                                                        children: utility.pipeNetworkFileName
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                        lineNumber: 720,
+                                                                        columnNumber: 27
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                        className: "text-xs text-slate-500",
+                                                                        children: [
+                                                                            (utility.pipeNetworkFileSize || 0) > 0 ? `${(utility.pipeNetworkFileSize / 1024 / 1024).toFixed(2)} MB` : "File size unavailable",
+                                                                            utility.pipeNetworkUploadedAt ? ` • Updated ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$date$2d$time$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatTanzaniaDateTime"])(utility.pipeNetworkUploadedAt)}` : ""
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                        lineNumber: 721,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                lineNumber: 719,
+                                                                columnNumber: 25
+                                                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                className: "mt-3 text-sm text-slate-500",
+                                                                children: "No pipe network file uploaded yet."
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                lineNumber: 727,
+                                                                columnNumber: 25
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                        lineNumber: 700,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "flex flex-col gap-2 sm:w-44",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                onClick: ()=>requestPipeNetworkUpload(utility),
+                                                                disabled: busyUtilityId === utility.id,
+                                                                className: "rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-lg shadow-sky-500/20 hover:from-sky-600 hover:to-cyan-700",
+                                                                children: uploadingUtilityId === utility.id ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                                     children: [
-                                                                        (utility.pipeNetworkFileSize || 0) > 0 ? `${(utility.pipeNetworkFileSize / 1024 / 1024).toFixed(2)} MB` : "File size unavailable",
-                                                                        utility.pipeNetworkUploadedAt ? ` • Updated ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$date$2d$time$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatTanzaniaDateTime"])(utility.pipeNetworkUploadedAt)}` : ""
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                                                            className: "mr-2 h-4 w-4 animate-spin"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                            lineNumber: 738,
+                                                                            columnNumber: 29
+                                                                        }, this),
+                                                                        "Uploading pipeline..."
                                                                     ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                    lineNumber: 686,
-                                                                    columnNumber: 27
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                            lineNumber: 684,
-                                                            columnNumber: 25
-                                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                            className: "mt-3 text-sm text-slate-500",
-                                                            children: "No pipe network file uploaded yet."
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                            lineNumber: 692,
-                                                            columnNumber: 25
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 673,
-                                                    columnNumber: 21
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "flex flex-col gap-2 sm:w-44",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                            onClick: ()=>requestPipeNetworkUpload(utility),
-                                                            disabled: busyUtilityId === utility.id,
-                                                            className: "rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-lg shadow-sky-500/20 hover:from-sky-600 hover:to-cyan-700",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
-                                                                    className: "mr-2 h-4 w-4"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                    lineNumber: 701,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                utility.pipeNetworkFileName ? "Replace File" : "Upload File"
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                            lineNumber: 696,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        utility.pipeNetworkFileName ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                                    variant: "outline",
-                                                                    onClick: ()=>handlePipeNetworkDownload(utility),
-                                                                    disabled: busyUtilityId === utility.id,
-                                                                    className: "rounded-xl",
+                                                                }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                                     children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
                                                                             className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                            lineNumber: 712,
+                                                                            lineNumber: 743,
                                                                             columnNumber: 29
                                                                         }, this),
-                                                                        "Download"
+                                                                        utility.pipeNetworkFileName ? "Replace File" : "Upload File"
                                                                     ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                    lineNumber: 706,
-                                                                    columnNumber: 27
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                                    variant: "outline",
-                                                                    onClick: ()=>handlePipeNetworkDelete(utility),
-                                                                    disabled: busyUtilityId === utility.id,
-                                                                    className: "rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
-                                                                            className: "mr-2 h-4 w-4"
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                            lineNumber: 721,
-                                                                            columnNumber: 29
-                                                                        }, this),
-                                                                        "Remove"
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                    lineNumber: 715,
-                                                                    columnNumber: 27
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true) : null
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 695,
-                                                    columnNumber: 21
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 672,
-                                            columnNumber: 19
-                                        }, this)
-                                    }, void 0, false, {
+                                                                }, void 0, true)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                lineNumber: 731,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            utility.pipeNetworkFileName ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                        variant: "outline",
+                                                                        onClick: ()=>handlePipeNetworkDownload(utility),
+                                                                        disabled: busyUtilityId === utility.id,
+                                                                        className: "rounded-xl",
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                                                                className: "mr-2 h-4 w-4"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                                lineNumber: 756,
+                                                                                columnNumber: 29
+                                                                            }, this),
+                                                                            "Download"
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                        lineNumber: 750,
+                                                                        columnNumber: 27
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                        variant: "outline",
+                                                                        onClick: ()=>handlePipeNetworkDelete(utility),
+                                                                        disabled: busyUtilityId === utility.id,
+                                                                        className: "rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700",
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                                                                className: "mr-2 h-4 w-4"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                                lineNumber: 765,
+                                                                                columnNumber: 29
+                                                                            }, this),
+                                                                            "Remove"
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                                        lineNumber: 759,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true) : null
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                        lineNumber: 730,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                lineNumber: 699,
+                                                columnNumber: 19
+                                            }, this),
+                                            uploadingUtilityId === utility.id ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "mt-3 text-xs font-medium text-cyan-700",
+                                                children: "Uploading the pipeline ... please wait."
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
+                                                lineNumber: 773,
+                                                columnNumber: 21
+                                            }, this) : null
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 671,
+                                        lineNumber: 698,
                                         columnNumber: 17
                                     }, this),
                                     utility.pipeNetworkFileName ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2722,40 +2778,40 @@ function UtilitiesPage() {
                                             emptyMessage: "Upload a supported utility pipe network file to preview it on the map. If a saved file cannot be drawn here, replace it with a previewable GIS file or download the stored copy for inspection."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 732,
+                                            lineNumber: 779,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 731,
+                                        lineNumber: 778,
                                         columnNumber: 19
                                     }, this) : null
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 579,
+                                lineNumber: 606,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, utility.id, true, {
                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                        lineNumber: 562,
+                        lineNumber: 589,
                         columnNumber: 13
                     }, this))
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                lineNumber: 560,
+                lineNumber: 587,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                 ref: uploadInputRef,
                 type: "file",
                 className: "hidden",
-                accept: ".geojson,.json,.kml,.kmz,.zip,.csv,.txt",
+                accept: ".gpkg,.shp,.geojson,.json,.kml,.kmz,.zip,.csv,.txt",
                 onChange: handlePipeNetworkUpload
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                lineNumber: 747,
+                lineNumber: 794,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -2774,30 +2830,30 @@ function UtilitiesPage() {
                                             className: "h-4 w-4 text-white"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 762,
+                                            lineNumber: 809,
                                             columnNumber: 19
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
                                             className: "h-4 w-4 text-white"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 764,
+                                            lineNumber: 811,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                        lineNumber: 760,
+                                        lineNumber: 807,
                                         columnNumber: 15
                                     }, this),
                                     editingUtility ? "Edit Utility" : "Add Utility"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                lineNumber: 759,
+                                lineNumber: 806,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                            lineNumber: 758,
+                            lineNumber: 805,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2812,7 +2868,7 @@ function UtilitiesPage() {
                                             children: "Utility Name"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 772,
+                                            lineNumber: 819,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2823,13 +2879,13 @@ function UtilitiesPage() {
                                             className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 773,
+                                            lineNumber: 820,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 771,
+                                    lineNumber: 818,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2840,7 +2896,7 @@ function UtilitiesPage() {
                                             children: "Region Authority"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 782,
+                                            lineNumber: 829,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -2853,12 +2909,12 @@ function UtilitiesPage() {
                                                         placeholder: "Select utility region"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 785,
+                                                        lineNumber: 832,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 784,
+                                                    lineNumber: 831,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -2870,7 +2926,7 @@ function UtilitiesPage() {
                                                             children: "No region selected yet"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                            lineNumber: 788,
+                                                            lineNumber: 835,
                                                             columnNumber: 19
                                                         }, this),
                                                         TANZANIA_REGIONS.map((region)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2879,25 +2935,25 @@ function UtilitiesPage() {
                                                                 children: region
                                                             }, region, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 790,
+                                                                lineNumber: 837,
                                                                 columnNumber: 21
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 787,
+                                                    lineNumber: 834,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 783,
+                                            lineNumber: 830,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 781,
+                                    lineNumber: 828,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2909,7 +2965,7 @@ function UtilitiesPage() {
                                             children: "Description"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 798,
+                                            lineNumber: 845,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -2921,13 +2977,13 @@ function UtilitiesPage() {
                                             className: "bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 resize-none"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 799,
+                                            lineNumber: 846,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 797,
+                                    lineNumber: 844,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2942,7 +2998,7 @@ function UtilitiesPage() {
                                                     children: "Public Contact Phone"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 810,
+                                                    lineNumber: 857,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2953,13 +3009,13 @@ function UtilitiesPage() {
                                                     className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 811,
+                                                    lineNumber: 858,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 809,
+                                            lineNumber: 856,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2971,7 +3027,7 @@ function UtilitiesPage() {
                                                     children: "Public Contact Email"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 820,
+                                                    lineNumber: 867,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2983,19 +3039,19 @@ function UtilitiesPage() {
                                                     className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 821,
+                                                    lineNumber: 868,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 819,
+                                            lineNumber: 866,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 808,
+                                    lineNumber: 855,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3007,7 +3063,7 @@ function UtilitiesPage() {
                                             children: "Public Contact Address"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 832,
+                                            lineNumber: 879,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -3019,13 +3075,13 @@ function UtilitiesPage() {
                                             className: "bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 resize-none"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 833,
+                                            lineNumber: 880,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 831,
+                                    lineNumber: 878,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3040,7 +3096,7 @@ function UtilitiesPage() {
                                                     children: "Region Center Latitude"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 844,
+                                                    lineNumber: 891,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3053,13 +3109,13 @@ function UtilitiesPage() {
                                                     className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 845,
+                                                    lineNumber: 892,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 843,
+                                            lineNumber: 890,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3071,7 +3127,7 @@ function UtilitiesPage() {
                                                     children: "Region Center Longitude"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 856,
+                                                    lineNumber: 903,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3084,19 +3140,19 @@ function UtilitiesPage() {
                                                     className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 857,
+                                                    lineNumber: 904,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 855,
+                                            lineNumber: 902,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 842,
+                                    lineNumber: 889,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3107,7 +3163,7 @@ function UtilitiesPage() {
                                             children: "Status"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 869,
+                                            lineNumber: 916,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3118,12 +3174,12 @@ function UtilitiesPage() {
                                                     className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl",
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                        lineNumber: 872,
+                                                        lineNumber: 919,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 871,
+                                                    lineNumber: 918,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3139,19 +3195,19 @@ function UtilitiesPage() {
                                                                         className: "h-4 w-4 text-emerald-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                        lineNumber: 877,
+                                                                        lineNumber: 924,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Active"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 876,
+                                                                lineNumber: 923,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                            lineNumber: 875,
+                                                            lineNumber: 922,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3164,43 +3220,43 @@ function UtilitiesPage() {
                                                                         className: "h-4 w-4 text-slate-400"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                        lineNumber: 883,
+                                                                        lineNumber: 930,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Inactive"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                                lineNumber: 882,
+                                                                lineNumber: 929,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                            lineNumber: 881,
+                                                            lineNumber: 928,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                    lineNumber: 874,
+                                                    lineNumber: 921,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                            lineNumber: 870,
+                                            lineNumber: 917,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 868,
+                                    lineNumber: 915,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                            lineNumber: 770,
+                            lineNumber: 817,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -3213,7 +3269,7 @@ function UtilitiesPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 892,
+                                    lineNumber: 939,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3225,7 +3281,7 @@ function UtilitiesPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 901,
+                                                lineNumber: 948,
                                                 columnNumber: 19
                                             }, this),
                                             "Save Changes"
@@ -3236,7 +3292,7 @@ function UtilitiesPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                                lineNumber: 906,
+                                                lineNumber: 953,
                                                 columnNumber: 19
                                             }, this),
                                             "Create Utility"
@@ -3244,24 +3300,24 @@ function UtilitiesPage() {
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                                    lineNumber: 895,
+                                    lineNumber: 942,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                            lineNumber: 891,
+                            lineNumber: 938,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                    lineNumber: 757,
+                    lineNumber: 804,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                lineNumber: 756,
+                lineNumber: 803,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$confirm$2d$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ConfirmDialog"], {
@@ -3273,17 +3329,17 @@ function UtilitiesPage() {
                 onConfirm: handleDelete
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-                lineNumber: 916,
+                lineNumber: 963,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/_views/utilities-page.tsx",
-        lineNumber: 445,
+        lineNumber: 472,
         columnNumber: 5
     }, this);
 }
-_s(UtilitiesPage, "vI8U0ba9fWnEWAHPNtmgyCPRlZQ=", false, function() {
+_s(UtilitiesPage, "WCTxwaPB/BhL+pJ++nWmZq90eC4=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$page$2d$access$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePageAccess"],
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"],

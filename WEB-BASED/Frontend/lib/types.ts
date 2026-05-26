@@ -52,6 +52,11 @@ export interface Utility {
   createdAt: string
 }
 
+export interface GeoJsonPolygon {
+  type: "Polygon"
+  coordinates: number[][][]
+}
+
 export interface DMA {
   id: string
   name: string
@@ -59,6 +64,7 @@ export interface DMA {
   utilityName: string
   centerLatitude?: number
   centerLongitude?: number
+  boundaryGeojson?: GeoJsonPolygon | null
   managerId: string
   managerName: string
   status: EntityStatus

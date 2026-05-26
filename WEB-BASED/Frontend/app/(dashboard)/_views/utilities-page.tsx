@@ -55,6 +55,7 @@ import {
   Network,
   Phone,
   Mail,
+  Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -112,6 +113,7 @@ export default function UtilitiesPage() {
   const [utilityManagers, setUtilityManagers] = useState<User[]>([])
   const [uploadTargetUtility, setUploadTargetUtility] = useState<Utility | null>(null)
   const [busyUtilityId, setBusyUtilityId] = useState<string | null>(null)
+  const [uploadingUtilityId, setUploadingUtilityId] = useState<string | null>(null)
   const uploadInputRef = useRef<HTMLInputElement | null>(null)
 
   // Form state
@@ -310,6 +312,8 @@ export default function UtilitiesPage() {
     const formData = new FormData()
     formData.append("file", file)
     setBusyUtilityId(utility.id)
+    setUploadingUtilityId(utility.id)
+    const uploadingToastId = toast.loading("Uploading the pipeline ...")
 
     try {
       const response = await fetch(`${CONFIG.backend.fullUrl}/utilities/${utility.id}/pipe-network`, {
@@ -322,17 +326,40 @@ export default function UtilitiesPage() {
 
       const payload = await response.json().catch(() => ({}))
       if (!response.ok) {
+        toast.dismiss(uploadingToastId)
         toast.error(payload.detail || payload.error || "Failed to upload pipe network")
         return
       }
 
-      toast.success("Utility pipe network uploaded successfully")
+      const ingestSummary = payload?.ingest_summary || payload?.ingestSummary
+      toast.dismiss(uploadingToastId)
+      if (ingestSummary) {
+        const previewable = Number(ingestSummary.previewable_features || ingestSummary.previewableFeatures || 0)
+        const skipped = Number(ingestSummary.skipped_features || ingestSummary.skippedFeatures || 0)
+        const missingDiameter = Number(ingestSummary.missing_diameter || ingestSummary.missingDiameter || 0)
+        const missingCondition = Number(ingestSummary.missing_condition || ingestSummary.missingCondition || 0)
+        const missingLocation = Number(ingestSummary.missing_location || ingestSummary.missingLocation || 0)
+
+        if (skipped > 0 || missingDiameter > 0 || missingCondition > 0 || missingLocation > 0) {
+          toast.warning(
+            `Pipe network uploaded with warnings: ${previewable.toLocaleString()} features ready, ${skipped.toLocaleString()} skipped. Missing fields - diameter: ${missingDiameter.toLocaleString()}, condition: ${missingCondition.toLocaleString()}, location: ${missingLocation.toLocaleString()}.`
+          )
+        } else {
+          toast.success(
+            `Utility pipe network uploaded successfully with ${previewable.toLocaleString()} previewable features.`
+          )
+        }
+      } else {
+        toast.success("Utility pipe network uploaded successfully")
+      }
       await fetchUtilities()
     } catch (error) {
+      toast.dismiss(uploadingToastId)
       console.error("Error uploading utility pipe network:", error)
       toast.error("Failed to upload pipe network")
     } finally {
       setBusyUtilityId(null)
+      setUploadingUtilityId(null)
       setUploadTargetUtility(null)
     }
   }
@@ -678,6 +705,14 @@ export default function UtilitiesPage() {
                         <div>
                           <p className="text-sm font-semibold text-slate-800">Utility Pipe Network</p>
                           <p className="text-xs text-slate-500">Upload the latest utility network map in a previewable GIS format, including GeoPackage.</p>
+                          <button
+                            type="button"
+                            onClick={() => requestPipeNetworkUpload(utility)}
+                            disabled={busyUtilityId === utility.id}
+                            className="mt-1 text-xs font-semibold text-cyan-700 underline decoration-cyan-400 underline-offset-2 hover:text-cyan-800 disabled:cursor-not-allowed disabled:text-slate-400"
+                          >
+                            Click here to upload or replace pipeline map
+                          </button>
                         </div>
                       </div>
                       {utility.pipeNetworkFileName ? (
@@ -698,8 +733,17 @@ export default function UtilitiesPage() {
                         disabled={busyUtilityId === utility.id}
                         className="rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-lg shadow-sky-500/20 hover:from-sky-600 hover:to-cyan-700"
                       >
-                        <Upload className="mr-2 h-4 w-4" />
-                        {utility.pipeNetworkFileName ? "Replace File" : "Upload File"}
+                        {uploadingUtilityId === utility.id ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Uploading pipeline...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            {utility.pipeNetworkFileName ? "Replace File" : "Upload File"}
+                          </>
+                        )}
                       </Button>
                       {utility.pipeNetworkFileName ? (
                         <>
@@ -725,6 +769,9 @@ export default function UtilitiesPage() {
                       ) : null}
                     </div>
                   </div>
+                  {uploadingUtilityId === utility.id ? (
+                    <p className="mt-3 text-xs font-medium text-cyan-700">Uploading the pipeline ... please wait.</p>
+                  ) : null}
                 </div>
 
                 {utility.pipeNetworkFileName ? (
@@ -748,7 +795,7 @@ export default function UtilitiesPage() {
         ref={uploadInputRef}
         type="file"
         className="hidden"
-        accept=".gpkg,.geojson,.json,.kml,.kmz,.zip,.csv,.txt"
+        accept=".gpkg,.shp,.geojson,.json,.kml,.kmz,.zip,.csv,.txt"
         onChange={handlePipeNetworkUpload}
       />
 

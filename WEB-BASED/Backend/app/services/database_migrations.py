@@ -39,6 +39,20 @@ def run_startup_migrations(engine: Engine) -> None:
     _migrate_report_workflow_columns(engine)
     _migrate_utility_contact_columns(engine)
     _migrate_geographic_assignment_columns(engine)
+    _migrate_dma_boundary_columns(engine)
+
+
+def _migrate_dma_boundary_columns(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "dma" not in inspector.get_table_names():
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("dma")}
+    if "boundary_geojson" in columns:
+        return
+
+    with engine.begin() as connection:
+        connection.exec_driver_sql("ALTER TABLE dma ADD COLUMN boundary_geojson TEXT")
 
 
 def _needs_branchless_migration(inspector) -> bool:
