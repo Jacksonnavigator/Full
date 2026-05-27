@@ -5,15 +5,19 @@ Centralized environment and application settings
 
 import os
 from typing import Any, List
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+RUNTIME_ENVIRONMENT = os.getenv("ENVIRONMENT", "development").strip().lower()
+SETTINGS_ENV_FILE = None if RUNTIME_ENVIRONMENT == "production" else ".env"
 
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=SETTINGS_ENV_FILE,
         case_sensitive=False,
         extra="ignore",
     )
@@ -21,19 +25,19 @@ class Settings(BaseSettings):
     # ===== Application Settings =====
     app_name: str = "Majiscope Backend"
     app_version: str = "1.0.0"
-    environment: str = os.getenv("ENVIRONMENT", "development")
-    debug: bool = environment == "development"
+    environment: str = Field(default="development", alias="ENVIRONMENT")
+    debug: bool = Field(default=False, alias="DEBUG")
 
     # ===== Database Settings =====
-    database_url: str = os.getenv(
-        "DATABASE_URL",
-        "postgresql+psycopg://user:password@localhost:5432/majiscope"
+    database_url: str = Field(
+        default="postgresql+psycopg://user:password@localhost:5432/majiscope",
+        alias="DATABASE_URL",
     )
 
     # ===== Security Settings =====
-    secret_key: str = os.getenv(
-        "SECRET_KEY",
-        "your-secret-key-change-in-production-12345"
+    secret_key: str = Field(
+        default="your-secret-key-change-in-production-12345",
+        alias="SECRET_KEY",
     )
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
@@ -41,12 +45,12 @@ class Settings(BaseSettings):
 
     # ===== Frontend Configuration =====
     # IMPORTANT: This is used for CORS and rendering frontend URLs
-    frontend_url: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
-    public_backend_url: str = os.getenv("PUBLIC_BACKEND_URL", "").rstrip("/")
+    frontend_url: str = Field(default="http://localhost:3000", alias="FRONTEND_URL")
+    public_backend_url: str = Field(default="", alias="PUBLIC_BACKEND_URL")
     cors_origins_raw: str = Field(default="", alias="CORS_ORIGINS")
-    cors_origin_regex: str = os.getenv(
-        "CORS_ORIGIN_REGEX",
-        r"^https:\/\/.*\.onrender\.com$|^http:\/\/localhost:3000$|^http:\/\/127\.0\.0\.1:3000$"
+    cors_origin_regex: str = Field(
+        default=r"^https:\/\/.*\.onrender\.com$|^http:\/\/localhost:3000$|^http:\/\/127\.0\.0\.1:3000$",
+        alias="CORS_ORIGIN_REGEX",
     )
     
     # ===== CORS Settings =====
@@ -63,18 +67,18 @@ class Settings(BaseSettings):
     cors_allow_headers: List[str] = ["*"]
 
     # ===== Invitation & Email Settings =====
-    invite_token_expiry_hours: int = int(os.getenv("INVITE_TOKEN_EXPIRY_HOURS", "72"))
-    password_reset_token_expiry_hours: int = int(os.getenv("PASSWORD_RESET_TOKEN_EXPIRY_HOURS", "2"))
-    resend_api_key: str = os.getenv("RESEND_API_KEY", "")
-    resend_from_email: str = os.getenv("RESEND_FROM_EMAIL", "")
-    resend_from_name: str = os.getenv("RESEND_FROM_NAME", "Majiscope")
-    smtp_host: str = os.getenv("SMTP_HOST", "")
-    smtp_port: int = int(os.getenv("SMTP_PORT", "587"))
-    smtp_username: str = os.getenv("SMTP_USERNAME", "")
-    smtp_password: str = os.getenv("SMTP_PASSWORD", "")
-    smtp_from_email: str = os.getenv("SMTP_FROM_EMAIL", "")
-    smtp_from_name: str = os.getenv("SMTP_FROM_NAME", "Majiscope")
-    smtp_use_tls: bool = os.getenv("SMTP_USE_TLS", "true").strip().lower() in {"1", "true", "yes", "on"}
+    invite_token_expiry_hours: int = Field(default=72, alias="INVITE_TOKEN_EXPIRY_HOURS")
+    password_reset_token_expiry_hours: int = Field(default=2, alias="PASSWORD_RESET_TOKEN_EXPIRY_HOURS")
+    resend_api_key: str = Field(default="", alias="RESEND_API_KEY")
+    resend_from_email: str = Field(default="", alias="RESEND_FROM_EMAIL")
+    resend_from_name: str = Field(default="Majiscope", alias="RESEND_FROM_NAME")
+    smtp_host: str = Field(default="", alias="SMTP_HOST")
+    smtp_port: int = Field(default=587, alias="SMTP_PORT")
+    smtp_username: str = Field(default="", alias="SMTP_USERNAME")
+    smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
+    smtp_from_email: str = Field(default="", alias="SMTP_FROM_EMAIL")
+    smtp_from_name: str = Field(default="Majiscope", alias="SMTP_FROM_NAME")
+    smtp_use_tls: bool = Field(default=True, alias="SMTP_USE_TLS")
 
     # ===== Password Hashing =====
     password_hash_algorithm: str = "bcrypt"
@@ -84,18 +88,14 @@ class Settings(BaseSettings):
     api_prefix: str = "/api"
     
     # ===== Server Settings =====
-    host: str = os.getenv("HOST", "0.0.0.0")
-    port: int = int(os.getenv("PORT", "8000"))
+    host: str = Field(default="0.0.0.0", alias="HOST")
+    port: int = Field(default=8000, alias="PORT")
 
     # ===== Optional startup import =====
-    legacy_duwasa_import_on_startup: bool = os.getenv("LEGACY_DUWASA_IMPORT_ON_STARTUP", "false").strip().lower() in {"1", "true", "yes", "on"}
-    legacy_duwasa_import_csv_path: str = os.getenv("LEGACY_DUWASA_IMPORT_CSV_PATH", "")
-    legacy_duwasa_import_strict: bool = os.getenv("LEGACY_DUWASA_IMPORT_STRICT", "false").strip().lower() in {"1", "true", "yes", "on"}
-    legacy_duwasa_import_limit: int | None = (
-        int(os.getenv("LEGACY_DUWASA_IMPORT_LIMIT", "").strip())
-        if os.getenv("LEGACY_DUWASA_IMPORT_LIMIT", "").strip()
-        else None
-    )
+    legacy_duwasa_import_on_startup: bool = Field(default=False, alias="LEGACY_DUWASA_IMPORT_ON_STARTUP")
+    legacy_duwasa_import_csv_path: str = Field(default="", alias="LEGACY_DUWASA_IMPORT_CSV_PATH")
+    legacy_duwasa_import_strict: bool = Field(default=False, alias="LEGACY_DUWASA_IMPORT_STRICT")
+    legacy_duwasa_import_limit: int | None = Field(default=None, alias="LEGACY_DUWASA_IMPORT_LIMIT")
 
     @field_validator("debug", mode="before")
     @classmethod
@@ -109,6 +109,23 @@ class Settings(BaseSettings):
             if normalized in {"0", "false", "no", "off", "release", "production"}:
                 return False
         return bool(value)
+
+    @field_validator("smtp_use_tls", "legacy_duwasa_import_on_startup", "legacy_duwasa_import_strict", mode="before")
+    @classmethod
+    def parse_boolean_values(cls, value: Any) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.strip().lower() in {"1", "true", "yes", "on"}
+        return bool(value)
+
+    @model_validator(mode="after")
+    def normalize_runtime_fields(self) -> "Settings":
+        self.environment = self.environment.strip().lower()
+        self.public_backend_url = self.public_backend_url.rstrip("/")
+        if "debug" not in self.__pydantic_fields_set__:
+            self.debug = self.environment == "development"
+        return self
 
     def get_cors_origins(self) -> List[str]:
         """

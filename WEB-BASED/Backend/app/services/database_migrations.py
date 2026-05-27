@@ -17,6 +17,11 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
 
+def _run_postgres_ddl_without_timeout(connection, statement: str) -> None:
+    connection.exec_driver_sql("SET LOCAL statement_timeout = 0")
+    connection.exec_driver_sql(statement)
+
+
 def _is_lock_or_statement_timeout(exc: OperationalError) -> bool:
     message = str(exc).lower()
     return (
@@ -62,18 +67,14 @@ def _migrate_dma_boundary_columns(engine: Engine) -> None:
     if "boundary_geojson" in columns:
         return
 
-    try:
-        with engine.begin() as connection:
-            connection.exec_driver_sql("ALTER TABLE dma ADD COLUMN boundary_geojson TEXT")
-    except OperationalError as exc:
-        if _is_lock_or_statement_timeout(exc):
-            print(
-                "[startup-migrations] Skipping dma boundary column migration for now "
-                "because the dma table is locked or timed out. "
-                "Run the ALTER TABLE manually during a quiet window if needed."
+    with engine.begin() as connection:
+        if engine.dialect.name.startswith("postgresql"):
+            _run_postgres_ddl_without_timeout(
+                connection,
+                'ALTER TABLE dma ADD COLUMN IF NOT EXISTS boundary_geojson TEXT',
             )
-            return
-        raise
+        else:
+            connection.exec_driver_sql("ALTER TABLE dma ADD COLUMN boundary_geojson TEXT")
 
 
 def _needs_branchless_migration(inspector) -> bool:
@@ -506,6 +507,8 @@ def _migrate_geographic_assignment_columns(engine: Engine) -> None:
 
         try:
             with engine.begin() as connection:
+                if engine.dialect.name.startswith("postgresql"):
+                    connection.exec_driver_sql("SET LOCAL statement_timeout = 0")
                 for statement in statements:
                     connection.execute(text(statement))
         except OperationalError as exc:
