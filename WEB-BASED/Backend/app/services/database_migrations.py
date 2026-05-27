@@ -14,6 +14,7 @@ import shutil
 
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import OperationalError
 
 
 def run_startup_migrations(engine: Engine) -> None:
@@ -464,14 +465,39 @@ def _migrate_geographic_assignment_columns(engine: Engine) -> None:
     if "report" not in inspector.get_table_names():
         return
 
+    columns = {
+        column["name"]: column
+        for column in inspector.get_columns("report")
+    }
+
     if engine.dialect.name == "sqlite":
         _migrate_sqlite_nullable_report_assignment(engine)
         return
 
     if engine.dialect.name.startswith("postgresql"):
-        with engine.begin() as connection:
-            connection.execute(text('ALTER TABLE "report" ALTER COLUMN utility_id DROP NOT NULL'))
-            connection.execute(text('ALTER TABLE "report" ALTER COLUMN dma_id DROP NOT NULL'))
+        statements: list[str] = []
+        if columns.get("utility_id", {}).get("nullable") is False:
+            statements.append('ALTER TABLE "report" ALTER COLUMN utility_id DROP NOT NULL')
+        if columns.get("dma_id", {}).get("nullable") is False:
+            statements.append('ALTER TABLE "report" ALTER COLUMN dma_id DROP NOT NULL')
+
+        if not statements:
+            return
+
+        try:
+            with engine.begin() as connection:
+                for statement in statements:
+                    connection.execute(text(statement))
+        except OperationalError as exc:
+            message = str(exc).lower()
+            if "statement timeout" in message or "lock timeout" in message or "querycanceled" in message:
+                print(
+                    "[startup-migrations] Skipping nullable geographic assignment migration for now "
+                    "because the report table is locked or timed out. "
+                    "Run the ALTER TABLE manually during a quiet window if needed."
+                )
+                return
+            raise
 
 
 def _migrate_sqlite_nullable_report_assignment(engine: Engine) -> None:
