@@ -17,6 +17,16 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
 
+def _is_lock_or_statement_timeout(exc: OperationalError) -> bool:
+    message = str(exc).lower()
+    return (
+        "statement timeout" in message
+        or "lock timeout" in message
+        or "querycanceled" in message
+        or "canceling statement" in message
+    )
+
+
 def run_startup_migrations(engine: Engine) -> None:
     inspector = inspect(engine)
     existing_tables = set(inspector.get_table_names())
@@ -52,8 +62,18 @@ def _migrate_dma_boundary_columns(engine: Engine) -> None:
     if "boundary_geojson" in columns:
         return
 
-    with engine.begin() as connection:
-        connection.exec_driver_sql("ALTER TABLE dma ADD COLUMN boundary_geojson TEXT")
+    try:
+        with engine.begin() as connection:
+            connection.exec_driver_sql("ALTER TABLE dma ADD COLUMN boundary_geojson TEXT")
+    except OperationalError as exc:
+        if _is_lock_or_statement_timeout(exc):
+            print(
+                "[startup-migrations] Skipping dma boundary column migration for now "
+                "because the dma table is locked or timed out. "
+                "Run the ALTER TABLE manually during a quiet window if needed."
+            )
+            return
+        raise
 
 
 def _needs_branchless_migration(inspector) -> bool:
@@ -489,8 +509,7 @@ def _migrate_geographic_assignment_columns(engine: Engine) -> None:
                 for statement in statements:
                     connection.execute(text(statement))
         except OperationalError as exc:
-            message = str(exc).lower()
-            if "statement timeout" in message or "lock timeout" in message or "querycanceled" in message:
+            if _is_lock_or_statement_timeout(exc):
                 print(
                     "[startup-migrations] Skipping nullable geographic assignment migration for now "
                     "because the report table is locked or timed out. "
