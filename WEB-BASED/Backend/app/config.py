@@ -91,6 +91,10 @@ class Settings(BaseSettings):
     host: str = Field(default="0.0.0.0", alias="HOST")
     port: int = Field(default=8000, alias="PORT")
 
+    # ===== Runtime database startup behavior =====
+    run_startup_migrations: bool = Field(default=True, alias="RUN_STARTUP_MIGRATIONS")
+    run_startup_schema_sync: bool = Field(default=True, alias="RUN_STARTUP_SCHEMA_SYNC")
+
     # ===== Optional startup import =====
     legacy_duwasa_import_on_startup: bool = Field(default=False, alias="LEGACY_DUWASA_IMPORT_ON_STARTUP")
     legacy_duwasa_import_csv_path: str = Field(default="", alias="LEGACY_DUWASA_IMPORT_CSV_PATH")
@@ -110,7 +114,14 @@ class Settings(BaseSettings):
                 return False
         return bool(value)
 
-    @field_validator("smtp_use_tls", "legacy_duwasa_import_on_startup", "legacy_duwasa_import_strict", mode="before")
+    @field_validator(
+        "smtp_use_tls",
+        "run_startup_migrations",
+        "run_startup_schema_sync",
+        "legacy_duwasa_import_on_startup",
+        "legacy_duwasa_import_strict",
+        mode="before",
+    )
     @classmethod
     def parse_boolean_values(cls, value: Any) -> bool:
         if isinstance(value, bool):
@@ -125,6 +136,10 @@ class Settings(BaseSettings):
         self.public_backend_url = self.public_backend_url.rstrip("/")
         if "debug" not in self.__pydantic_fields_set__:
             self.debug = self.environment == "development"
+        if "run_startup_migrations" not in self.__pydantic_fields_set__:
+            self.run_startup_migrations = self.environment != "production"
+        if "run_startup_schema_sync" not in self.__pydantic_fields_set__:
+            self.run_startup_schema_sync = self.environment != "production"
         return self
 
     def get_cors_origins(self) -> List[str]:
