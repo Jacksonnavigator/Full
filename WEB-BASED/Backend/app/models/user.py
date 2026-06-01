@@ -121,7 +121,11 @@ class UtilityManager(Base):
     utility = relationship("Utility", back_populates="manager", foreign_keys=[utility_id])
     activity_logs = relationship("ActivityLog", back_populates="utility_mgr", foreign_keys="ActivityLog.utility_mgr_id")
     notifications = relationship("Notification", back_populates="utility_mgr")
-    uploaded_pipe_networks = relationship("UtilityPipeNetwork", foreign_keys="UtilityPipeNetwork.uploaded_by_manager_id")
+    uploaded_pipe_networks = relationship(
+        "UtilityPipeNetwork",
+        back_populates="uploaded_by_manager",
+        foreign_keys="UtilityPipeNetwork.uploaded_by_manager_id",
+    )
 
 
 class UtilityPipeNetwork(Base):
@@ -140,7 +144,11 @@ class UtilityPipeNetwork(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     utility = relationship("Utility", back_populates="pipe_network_file", foreign_keys=[utility_id])
-    uploaded_by_manager = relationship("UtilityManager", foreign_keys=[uploaded_by_manager_id])
+    uploaded_by_manager = relationship(
+        "UtilityManager",
+        back_populates="uploaded_pipe_networks",
+        foreign_keys=[uploaded_by_manager_id],
+    )
 
 
 # ============================================================
