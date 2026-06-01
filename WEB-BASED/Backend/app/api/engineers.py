@@ -7,11 +7,12 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlalchemy import func
+from sqlalchemy.orm import Session, joinedload
 
 from app.config import settings
 from app.database.session import get_db
-from app.models import DMA, Engineer, Team
+from app.models import DMA, Engineer, Report, Team
 from app.schemas.user import (
     EngineerCreate,
     EngineerInvitationBulkCreate,
@@ -43,7 +44,7 @@ def _build_onboarding_status(engineer: Engineer) -> str:
     return "pending_setup"
 
 
-def build_engineer_response(engineer: Engineer) -> dict[str, Any]:
+def build_engineer_response(engineer: Engineer, assigned_reports: int | None = None) -> dict[str, Any]:
     """Build engineer response with live hierarchy details."""
     dma = engineer.dma
     team = engineer.team if engineer.team_id else None
@@ -59,7 +60,7 @@ def build_engineer_response(engineer: Engineer) -> dict[str, Any]:
         "team_name": team.name if team else None,
         "status": engineer.status.value if hasattr(engineer.status, "value") else engineer.status,
         "role": engineer.role,
-        "assigned_reports": len(engineer.reports) if engineer.reports else 0,
+        "assigned_reports": assigned_reports if assigned_reports is not None else (len(engineer.reports) if engineer.reports else 0),
         "onboarding_status": _build_onboarding_status(engineer),
         "invite_expires_at": engineer.invite_expires_at,
         "setup_completed_at": engineer.setup_completed_at,
@@ -395,28 +396,48 @@ async def list_engineers(
     db: Session = Depends(get_db),
 ):
     """List engineers with optional team and DMA filters."""
-    query = db.query(Engineer).options(
-        joinedload(Engineer.dma),
-        joinedload(Engineer.team),
-        selectinload(Engineer.reports),
-    )
+    base_query = db.query(Engineer)
 
     if current_user.user_type == "dma_manager" and current_user.dma_id:
-        query = query.filter(Engineer.dma_id == current_user.dma_id)
+        base_query = base_query.filter(Engineer.dma_id == current_user.dma_id)
     elif current_user.user_type == "utility_manager" and current_user.utility_id:
-        query = query.join(DMA, DMA.id == Engineer.dma_id).filter(DMA.utility_id == current_user.utility_id)
+        base_query = base_query.join(DMA, DMA.id == Engineer.dma_id).filter(DMA.utility_id == current_user.utility_id)
     elif team_id:
-        query = query.filter(Engineer.team_id == team_id)
+        base_query = base_query.filter(Engineer.team_id == team_id)
 
     if current_user.user_type in {"user", "utility_manager"} and dma_id:
-        query = query.filter(Engineer.dma_id == dma_id)
+        base_query = base_query.filter(Engineer.dma_id == dma_id)
 
-    total = query.count()
-    engineers = query.offset(skip).limit(limit).all()
+    total = base_query.count()
+
+    engineers = (
+        base_query
+        .options(
+            joinedload(Engineer.dma),
+            joinedload(Engineer.team),
+        )
+        .order_by(Engineer.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    engineer_ids = [engineer.id for engineer in engineers]
+    assigned_report_counts = {}
+    if engineer_ids:
+        assigned_report_counts = dict(
+            db.query(Report.assigned_engineer_id, func.count(Report.id))
+            .filter(Report.assigned_engineer_id.in_(engineer_ids))
+            .group_by(Report.assigned_engineer_id)
+            .all()
+        )
 
     return {
         "total": total,
-        "items": [build_engineer_response(engineer) for engineer in engineers],
+        "items": [
+            build_engineer_response(engineer, assigned_report_counts.get(engineer.id, 0))
+            for engineer in engineers
+        ],
     }
 
 
