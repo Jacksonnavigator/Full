@@ -32,7 +32,32 @@ def _is_lock_or_statement_timeout(exc: OperationalError) -> bool:
     )
 
 
-def run_startup_migrations(engine: Engine) -> None:
+def run_safe_startup_migrations(engine: Engine) -> None:
+    """
+    Idempotent ADD COLUMN / index migrations safe to run on every deploy,
+    including production. These use IF NOT EXISTS style DDL and avoid
+    long-running table rewrites.
+    """
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+
+    if not existing_tables:
+        return
+
+    _migrate_account_invitation_columns(engine)
+    _migrate_account_password_reset_columns(engine)
+    _migrate_notification_columns(engine)
+    _migrate_activity_log_constraints(engine)
+    _migrate_report_workflow_columns(engine)
+    _migrate_utility_contact_columns(engine)
+    _migrate_dma_boundary_columns(engine)
+
+
+def run_heavy_startup_migrations(engine: Engine) -> None:
+    """
+    Migrations that may lock large tables or rewrite schema. Only run when
+    RUN_STARTUP_MIGRATIONS=true (typically local/dev).
+    """
     inspector = inspect(engine)
     existing_tables = set(inspector.get_table_names())
 
@@ -48,14 +73,13 @@ def run_startup_migrations(engine: Engine) -> None:
         elif dialect.startswith("postgresql"):
             _migrate_postgres_branchless_schema(engine, inspector)
 
-    _migrate_account_invitation_columns(engine)
-    _migrate_account_password_reset_columns(engine)
-    _migrate_notification_columns(engine)
-    _migrate_activity_log_constraints(engine)
-    _migrate_report_workflow_columns(engine)
-    _migrate_utility_contact_columns(engine)
     _migrate_geographic_assignment_columns(engine)
-    _migrate_dma_boundary_columns(engine)
+
+
+def run_startup_migrations(engine: Engine) -> None:
+    """Run all startup migrations (safe + heavy). Used in local/dev."""
+    run_safe_startup_migrations(engine)
+    run_heavy_startup_migrations(engine)
 
 
 def _migrate_dma_boundary_columns(engine: Engine) -> None:

@@ -28,7 +28,7 @@ from app.api import (
     health_router,
     uploads_router,
 )
-from app.services.database_migrations import run_startup_migrations
+from app.services.database_migrations import run_heavy_startup_migrations, run_safe_startup_migrations
 from import_legacy_duwasa_reports import DEFAULT_CSV_PATH, import_legacy_duwasa_data
 
 # ============================================================
@@ -47,12 +47,14 @@ async def lifespan(app: FastAPI):
     print(f"   Frontend URL: {settings.frontend_url}")
     print(f"   CORS Origins: {settings.get_cors_origins()}")
     print(f"   CORS Origin Regex: {settings.cors_origin_regex}")
-    print(f"   Startup Migrations Enabled: {settings.run_startup_migrations}")
+    print(f"   Safe Startup Migrations: always on")
+    print(f"   Heavy Startup Migrations Enabled: {settings.run_startup_migrations}")
     print(f"   Startup Schema Sync Enabled: {settings.run_startup_schema_sync}")
     print(f"   Legacy DUWASA Startup Import: {settings.legacy_duwasa_import_on_startup}")
     print("=" * 60)
+    run_safe_startup_migrations(engine)
     if settings.run_startup_migrations:
-        run_startup_migrations(engine)
+        run_heavy_startup_migrations(engine)
     if settings.run_startup_schema_sync:
         Base.metadata.create_all(bind=engine)
     if settings.legacy_duwasa_import_on_startup:
