@@ -135,6 +135,14 @@ const TONE_STYLES: Record<
   },
 }
 
+function hasUsableCoordinates(report: { latitude: number; longitude: number }) {
+  return (
+    Number.isFinite(report.latitude) &&
+    Number.isFinite(report.longitude) &&
+    !(report.latitude === 0 && report.longitude === 0)
+  )
+}
+
 function passesDateFilter(dateValue: string | undefined, filter: DateFilter) {
   if (filter === "all") return true
   if (!dateValue) return false
@@ -402,12 +410,13 @@ export default function MapPage() {
     fetchDMAs,
     fetchTeams,
     fetchEngineers,
-    fetchReports,
+    fetchReportsForMap,
+    reportsListTotal,
   } = useDataStore()
 
   const [loading, setLoading] = useState(true)
   const [basemap, setBasemap] = useState<"street" | "satellite">("satellite")
-  const [dateFilter, setDateFilter] = useState<DateFilter>("30d")
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all")
   const [selectedUtilityId, setSelectedUtilityId] = useState("all")
   const [selectedDMAId, setSelectedDMAId] = useState("all")
 
@@ -426,7 +435,7 @@ export default function MapPage() {
           fetchDMAs(isUtility ? currentUser.utilityId ?? undefined : undefined),
           fetchTeams(isDMA ? currentUser.dmaId ?? undefined : undefined),
           fetchEngineers(isDMA ? currentUser.dmaId ?? undefined : undefined),
-          fetchReports(
+          fetchReportsForMap(
             isDMA
               ? { dmaId: currentUser.dmaId ?? "" }
               : isUtility
@@ -444,7 +453,7 @@ export default function MapPage() {
     currentUser,
     fetchDMAs,
     fetchEngineers,
-    fetchReports,
+    fetchReportsForMap,
     fetchTeams,
     fetchUtilities,
     isDMA,
@@ -520,14 +529,19 @@ export default function MapPage() {
     })
   }, [dateFilter, scopedReports, selectedDMAId, selectedUtilityId])
 
-  const reportsWithCoordinates = useMemo(
+  // Map shows every loaded report with GPS in scope (date filter does not hide dots).
+  const mapReports = useMemo(
     () =>
-      filteredReports.filter(
-        (report) =>
-          Number.isFinite(report.latitude) &&
-          Number.isFinite(report.longitude) &&
-          !(report.latitude === 0 && report.longitude === 0)
-      ),
+      scopedReports.filter((report) => {
+        const matchesUtility = selectedUtilityId === "all" ? true : report.utilityId === selectedUtilityId
+        const matchesDMA = selectedDMAId === "all" ? true : report.dmaId === selectedDMAId
+        return matchesUtility && matchesDMA && hasUsableCoordinates(report)
+      }),
+    [scopedReports, selectedDMAId, selectedUtilityId]
+  )
+
+  const reportsWithCoordinates = useMemo(
+    () => filteredReports.filter(hasUsableCoordinates),
     [filteredReports]
   )
 
@@ -655,7 +669,8 @@ export default function MapPage() {
     [filteredReports]
   )
   const resolutionRate = filteredReports.length > 0 ? Math.round((resolvedCount / filteredReports.length) * 100) : 0
-  const reportsWithoutCoordinatesCount = filteredReports.length - reportsWithCoordinates.length
+  const reportsWithoutCoordinatesCount = scopedReports.length - mapReports.length
+  const allMapReportsLoaded = reportsListTotal === null || reports.length >= reportsListTotal
 
   const severityMixData = useMemo(
     () =>
@@ -928,133 +943,16 @@ export default function MapPage() {
   const scopeLabel = activeDMA?.name || activeUtility?.name || "National operations view"
   const scopeLevelLabel = isDMA ? "DMA operations zone" : isUtility ? "Utility operations zone" : "National operations zone"
   const dateFilterLabel = DATE_FILTERS.find((filter) => filter.value === dateFilter)?.label ?? "Last 30 days"
-  const overlayTheme: OverlayTheme = basemap === "satellite" ? "dark" : "light"
-  const dominantSeverity = findDominantItem(severityMixData)
-  const dominantStage = findDominantItem(workflowStageData)
-  const responsibilityFocus = ownershipBreakdown[0]?.name ?? "No active owner"
-  const hotspotCount = hotspotWatch.length
-  const highRiskHotspots = hotspotWatch.filter((hotspot) => hotspot.highSeverity > 0).length
-
-  const mobileOverlayButtons = [
-    {
-      key: "view",
-      icon: MapPinned,
-      label: "View",
-      value: formatCompactValue(reportsWithCoordinates.length),
-      caption: "Mapped leaks",
-      tone: "blue" as OverlayTone,
-      side: "top" as const,
-      content: (
-        <PopupShell
-          title="Operational Coverage"
-          description="Current reporting coverage for the selected scope, date window, and mapped leakage activity."
-        >
-          <div className="space-y-3">
-            <DetailRow label="Scope" value={scopeLabel} tone="blue" />
-            <DetailRow label="Scope level" value={scopeLevelLabel} tone="slate" />
-            <DetailRow label="Date window" value={dateFilterLabel} tone="slate" />
-            <DetailRow label="Filtered reports" value={filteredReports.length.toLocaleString()} tone="blue" />
-            <DetailRow label="Plotted on map" value={reportsWithCoordinates.length.toLocaleString()} tone="emerald" />
-            <DetailRow label="Missing coordinates" value={reportsWithoutCoordinatesCount.toLocaleString()} tone="amber" />
-          </div>
-        </PopupShell>
-      ),
-    },
-    {
-      key: "open",
-      icon: AlertTriangle,
-      label: "Open",
-      value: formatCompactValue(openReportsCount),
-      caption: "Workflow",
-      tone: "amber" as OverlayTone,
-      side: "top" as const,
-      content: (
-        <PopupShell
-          title="Open Leakage Workload"
-          description="Live leakage workload currently waiting for assignment, field action, review, or closure."
-        >
-          <div className="space-y-3">
-            <DetailRow label="Open reports" value={openReportsCount.toLocaleString()} tone="amber" />
-            <DetailRow label="Unassigned" value={unassignedCount.toLocaleString()} tone="rose" />
-            <DetailRow label="Active field work" value={activeFieldCount.toLocaleString()} tone="blue" />
-            <DetailRow label="Awaiting DMA" value={pendingApprovalsCount.toLocaleString()} tone="violet" />
-            <DetailRow label="Overdue" value={overdueCount.toLocaleString()} tone="rose" />
-          </div>
-        </PopupShell>
-      ),
-    },
-    {
-      key: "severity",
-      icon: ShieldAlert,
-      label: "Severity",
-      value: dominantSeverity?.name ?? "Clear",
-      caption: `${highSeverityCount} high-risk`,
-      tone: "rose" as OverlayTone,
-      side: "top" as const,
-      content: (
-        <PopupShell
-          title="Leak Severity Distribution"
-          description="Distribution of reported leakage conditions using the current priority model already active in operations."
-        >
-          <ProgressList
-            items={severityMixData}
-            tone="rose"
-            emptyMessage="Severity insights will appear here once filtered leak reports are available."
-          />
-        </PopupShell>
-      ),
-    },
-    {
-      key: "hotspots",
-      icon: Flame,
-      label: "Hotspots",
-      value: formatCompactValue(hotspotCount),
-      caption: `${highRiskHotspots} severe`,
-      tone: "violet" as OverlayTone,
-      side: "top" as const,
-      content: (
-        <PopupShell
-          title="Recurring Hotspots"
-          description="Repeated leakage corridors and high-risk clusters requiring closer operational attention."
-        >
-          <div className="space-y-3">
-            {hotspotWatch.length > 0 ? (
-              hotspotWatch.map((hotspot, index) => (
-                <div key={`${hotspot.latitude}-${hotspot.longitude}-${index}`} className="rounded-2xl border border-slate-200/80 bg-white/80 p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        {hotspot.address || "Repeated leakage corridor"}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">{hotspot.scopeName}</p>
-                    </div>
-                    <span className="rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
-                      {hotspot.count} reports
-                    </span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">
-                      Open: {hotspot.openCount}
-                    </span>
-                    <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700">
-                      High severity: {hotspot.highSeverity}
-                    </span>
-                    <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-blue-700">
-                      {hotspot.latitude.toFixed(4)}, {hotspot.longitude.toFixed(4)}
-                    </span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-slate-500">
-                No repeated leakage corridors are standing out in the current filtered map scope right now.
-              </p>
-            )}
-          </div>
-        </PopupShell>
-      ),
-    },
-  ]
+  const mapFitKey = useMemo(
+    () =>
+      [
+        selectedUtilityId,
+        selectedDMAId,
+        mapReports.length,
+        activeDMA?.id ?? "no-dma",
+      ].join("|"),
+    [activeDMA?.id, mapReports.length, selectedDMAId, selectedUtilityId]
+  )
 
   if (loading && !reports.length) {
     return (
@@ -1069,7 +967,7 @@ export default function MapPage() {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-[28px] border border-slate-200/80 bg-white/90 px-4 py-4 shadow-sm backdrop-blur">
+      <section className="relative z-30 rounded-[28px] border border-slate-200/80 bg-white/90 px-4 py-4 shadow-sm backdrop-blur">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-700">
@@ -1078,16 +976,30 @@ export default function MapPage() {
             </div>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">Leak Monitoring Map</h1>
             <p className="mt-2 text-sm text-slate-600">
-              {scopeLabel} sits at the center, while workflow intelligence opens only when needed from the map-side rails.
+              {scopeLabel} · {mapReports.length.toLocaleString()} leak
+              {mapReports.length === 1 ? "" : "s"} with GPS on the map
+              {allMapReportsLoaded ? "" : ` (loading… ${reports.length.toLocaleString()} fetched so far)`}
+              {dateFilter !== "all"
+                ? ` · ${reportsWithCoordinates.length.toLocaleString()} in ${dateFilterLabel.toLowerCase()}`
+                : ""}
+              {reportsWithoutCoordinatesCount > 0
+                ? ` · ${reportsWithoutCoordinatesCount.toLocaleString()} in scope without GPS`
+                : ""}
             </p>
+            {!allMapReportsLoaded ? (
+              <p className="mt-1 text-xs text-amber-700">
+                Still loading report pages from the server. All reports with coordinates in your access scope will
+                appear when loading finishes.
+              </p>
+            ) : null}
           </div>
 
-          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-[140px_170px_170px_auto] xl:items-center">
+          <div className="relative z-30 grid gap-2 md:grid-cols-2 xl:grid-cols-[140px_170px_170px_auto] xl:items-center">
             <Select value={dateFilter} onValueChange={(value) => setDateFilter(value as DateFilter)}>
               <SelectTrigger className="h-10 rounded-2xl border-slate-200 bg-white/90 px-3 text-sm">
                 <SelectValue placeholder="Date filter" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[5000]">
                 {DATE_FILTERS.map((filter) => (
                   <SelectItem key={filter.value} value={filter.value}>
                     {filter.label}
@@ -1104,7 +1016,7 @@ export default function MapPage() {
               <SelectTrigger className="h-10 rounded-2xl border-slate-200 bg-white/90 px-3 text-sm">
                 <SelectValue placeholder="Utility / Region" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[5000]">
                 <SelectItem value="all">All utilities</SelectItem>
                 {visibleUtilities.map((utility) => (
                   <SelectItem key={utility.id} value={utility.id}>
@@ -1118,7 +1030,7 @@ export default function MapPage() {
               <SelectTrigger className="h-10 rounded-2xl border-slate-200 bg-white/90 px-3 text-sm">
                 <SelectValue placeholder="DMA / District" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[5000]">
                 <SelectItem value="all">All DMAs</SelectItem>
                 {visibleDMAs.map((dma) => (
                   <SelectItem key={dma.id} value={dma.id}>
@@ -1133,7 +1045,7 @@ export default function MapPage() {
               variant="outline"
               className="h-10 rounded-2xl border-slate-200 bg-white/90 px-4 text-sm text-slate-700 hover:bg-slate-50 xl:justify-self-end"
               onClick={() => {
-                setDateFilter("30d")
+                setDateFilter("all")
                 setSelectedUtilityId(
                   isUtility
                     ? currentUser?.utilityId ?? "all"
@@ -1150,9 +1062,9 @@ export default function MapPage() {
         </div>
       </section>
 
-      <div className="relative">
+      <div className="relative z-0">
         <OperationsMap
-          reports={reportsWithCoordinates.map((report) => ({
+          reports={mapReports.map((report) => ({
             id: report.id,
             trackingId: report.trackingId,
             description: report.description,
@@ -1177,338 +1089,8 @@ export default function MapPage() {
           onBasemapChange={setBasemap}
           onReportSelect={(reportId) => router.push(`/dashboard/reports/${reportId}`)}
           chromeMode="command-center"
+          boundsFitKey={mapFitKey}
         />
-
-        <div className="pointer-events-none absolute left-5 top-24 bottom-5 z-[1200] hidden w-[230px] xl:flex flex-col gap-3">
-          <OverlayButton
-            icon={MapPinned}
-            label="Map scope"
-            value={formatCompactValue(reportsWithCoordinates.length)}
-            caption="Plotted leak points"
-            tone="blue"
-            theme={overlayTheme}
-          >
-            <PopupShell
-              title="Operational Coverage"
-              description="Current reporting coverage for the selected scope, date window, and mapped leakage activity."
-            >
-              <div className="space-y-3">
-                <DetailRow label="Scope" value={scopeLabel} tone="blue" />
-                <DetailRow label="Scope level" value={scopeLevelLabel} tone="slate" />
-                <DetailRow label="Date window" value={dateFilterLabel} tone="slate" />
-                <DetailRow label="Filtered reports" value={filteredReports.length.toLocaleString()} tone="blue" />
-                <DetailRow label="Plotted on map" value={reportsWithCoordinates.length.toLocaleString()} tone="emerald" />
-                <DetailRow label="Missing coordinates" value={reportsWithoutCoordinatesCount.toLocaleString()} tone="amber" />
-              </div>
-            </PopupShell>
-          </OverlayButton>
-
-          <OverlayButton
-            icon={AlertTriangle}
-            label="Open workflow"
-            value={formatCompactValue(openReportsCount)}
-            caption="Actionable leaks"
-            tone="amber"
-            theme={overlayTheme}
-          >
-            <PopupShell
-              title="Open Leakage Workload"
-              description="Live leakage workload currently waiting for assignment, field action, review, or closure."
-            >
-              <div className="space-y-3">
-                <DetailRow label="Open reports" value={openReportsCount.toLocaleString()} tone="amber" />
-                <DetailRow label="Unassigned" value={unassignedCount.toLocaleString()} tone="rose" />
-                <DetailRow label="Active field work" value={activeFieldCount.toLocaleString()} tone="blue" />
-                <DetailRow label="Awaiting DMA" value={pendingApprovalsCount.toLocaleString()} tone="violet" />
-                <DetailRow label="Overdue" value={overdueCount.toLocaleString()} tone="rose" />
-              </div>
-            </PopupShell>
-          </OverlayButton>
-
-          <OverlayButton
-            icon={ClipboardCheck}
-            label="Review queue"
-            value={formatCompactValue(pendingApprovalsCount)}
-            caption="Needs DMA action"
-            tone="violet"
-            theme={overlayTheme}
-          >
-            <PopupShell
-              title="DMA Review Queue"
-              description="Reports currently waiting for DMA decision together with resolution and severity pressure in scope."
-            >
-              <div className="space-y-3">
-                <DetailRow label="Awaiting DMA" value={pendingApprovalsCount.toLocaleString()} tone="violet" />
-                <DetailRow label="High-severity leaks" value={highSeverityCount.toLocaleString()} tone="rose" />
-                <DetailRow label="Resolved in view" value={resolvedCount.toLocaleString()} tone="emerald" />
-                <DetailRow label="Resolution rate" value={`${resolutionRate}%`} tone="emerald" />
-              </div>
-            </PopupShell>
-          </OverlayButton>
-
-          <OverlayButton
-            icon={Layers3}
-            label="Network overlay"
-            value={activeUtility?.pipeNetworkFileName ? "Live" : "None"}
-            caption={activeUtility?.pipeNetworkFileName ? "Pipe network ready" : "No utility network"}
-            tone={activeUtility?.pipeNetworkFileName ? "emerald" : "slate"}
-            theme={overlayTheme}
-          >
-            <PopupShell
-              title="Pipe Network Availability"
-              description="Utility pipe network readiness for the current operational area and map overlay controls."
-            >
-              <div className="space-y-3">
-                <DetailRow
-                  label="Overlay status"
-                  value={activeUtility?.pipeNetworkFileName ? "Available on map" : "Not uploaded"}
-                  tone={activeUtility?.pipeNetworkFileName ? "emerald" : "slate"}
-                />
-                <DetailRow
-                  label="Network file"
-                  value={activeUtility?.pipeNetworkFileName || "No pipe network file"}
-                  tone="blue"
-                />
-                <p className="text-sm text-slate-500">
-                  Use the built-in map control in the upper-right corner of the map to show or hide the utility pipe network without leaving this page.
-                </p>
-              </div>
-            </PopupShell>
-          </OverlayButton>
-        </div>
-
-        <div className="pointer-events-none absolute right-5 top-24 bottom-5 z-[1200] hidden w-[230px] xl:flex flex-col gap-3">
-          <OverlayButton
-            icon={ShieldAlert}
-            label="Severity mix"
-            value={dominantSeverity?.name ?? "Clear"}
-            caption={`${highSeverityCount} high-severity leaks`}
-            tone="rose"
-            theme={overlayTheme}
-            side="left"
-            align="end"
-          >
-            <PopupShell
-              title="Leak Severity Distribution"
-              description="Distribution of reported leakage conditions using the current priority model already active in operations."
-            >
-              <ProgressList
-                items={severityMixData}
-                tone="rose"
-                emptyMessage="Severity insights will appear here once filtered leak reports are available."
-              />
-            </PopupShell>
-          </OverlayButton>
-
-          <OverlayButton
-            icon={Route}
-            label="Workflow stage"
-            value={dominantStage?.name ?? "Clear"}
-            caption={`${workflowStageData.length} active stages`}
-            tone="blue"
-            theme={overlayTheme}
-            side="left"
-            align="end"
-          >
-            <PopupShell
-              title="Workflow Status Distribution"
-              description="Current distribution of reports across intake, field execution, review, rework, and resolution stages."
-            >
-              <ProgressList
-                items={workflowStageData}
-                tone="blue"
-                emptyMessage="Workflow stage counts will appear here as soon as the map scope has data."
-              />
-            </PopupShell>
-          </OverlayButton>
-
-          <OverlayButton
-            icon={Users}
-            label={isDMA ? "Team load" : isUtility ? "DMA load" : "Utility load"}
-            value={truncateLabel(responsibilityFocus, 18)}
-            caption={`${ownershipBreakdown.length} active groups`}
-            tone="emerald"
-            theme={overlayTheme}
-            side="left"
-            align="end"
-          >
-            <PopupShell
-              title={isDMA ? "Team Responsibility Overview" : isUtility ? "DMA Responsibility Overview" : "Utility Responsibility Overview"}
-              description={
-                isDMA
-                  ? "Current report ownership across teams in the selected DMA, including reports waiting for DMA review."
-                  : isUtility
-                    ? "Current report ownership across DMAs in the selected utility."
-                    : "Current report ownership across utilities in the selected national view."
-              }
-            >
-              <div className="space-y-4">
-                <div className="space-y-3">
-                  {ownershipBreakdown.length > 0 ? (
-                    ownershipBreakdown.map((item) => (
-                      <div key={item.key} className="rounded-2xl border border-slate-200/80 bg-white/80 p-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm font-semibold text-slate-900">{item.name}</p>
-                            <p className="mt-1 text-xs text-slate-500">{item.value.toLocaleString()} reports in scope</p>
-                          </div>
-                          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                            Open {item.open}
-                          </span>
-                        </div>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">
-                            Pending DMA: {item.pending}
-                          </span>
-                          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
-                            Resolved: {item.resolved}
-                          </span>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-slate-500">Ownership distribution will appear here once reports are in scope.</p>
-                  )}
-                </div>
-
-                {isDMA ? (
-                  <div className="space-y-3 rounded-2xl border border-slate-200/80 bg-slate-50/85 p-3">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">Pending DMA Review</p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        Open any pending report below to review its dedicated report page.
-                      </p>
-                    </div>
-                    {pendingReportsForResponsibility.length > 0 ? (
-                      <div className="space-y-2">
-                        {pendingReportsForResponsibility.map((report) => (
-                          <button
-                            key={report.id}
-                            type="button"
-                            onClick={() => router.push(`/dashboard/reports/${report.id}`)}
-                            className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-3 text-left transition-colors hover:border-cyan-300 hover:bg-cyan-50/70"
-                          >
-                            <p className="text-sm font-medium text-slate-900">{getReportDisplayName(report)}</p>
-                            <div className="mt-1 flex flex-wrap gap-2 text-[11px] text-slate-500">
-                              <span>{report.teamName || "Unassigned team"}</span>
-                              <span>{report.priority ? `Priority: ${report.priority}` : "Priority not set"}</span>
-                              <span>Updated: {formatTanzaniaDate(report.updatedAt)}</span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-slate-500">No reports are currently waiting for DMA review in this map scope.</p>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-            </PopupShell>
-          </OverlayButton>
-
-          <OverlayButton
-            icon={Flame}
-            label="Hotspot watch"
-            value={formatCompactValue(hotspotCount)}
-            caption={`${highRiskHotspots} severe corridors`}
-            tone="violet"
-            theme={overlayTheme}
-            side="left"
-            align="end"
-          >
-            <PopupShell
-              title="Recurring Hotspots"
-              description="Repeated leakage corridors and high-risk clusters requiring closer operational attention."
-            >
-              <div className="space-y-3">
-                {hotspotWatch.length > 0 ? (
-                  hotspotWatch.map((hotspot, index) => (
-                    <div key={`${hotspot.latitude}-${hotspot.longitude}-${index}`} className="rounded-2xl border border-slate-200/80 bg-white/80 p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-900">
-                            {hotspot.address || "Repeated leakage corridor"}
-                          </p>
-                          <p className="mt-1 text-xs text-slate-500">{hotspot.scopeName}</p>
-                        </div>
-                        <span className="rounded-full bg-rose-50 px-2.5 py-1 text-[11px] font-semibold text-rose-700">
-                          {hotspot.count} reports
-                        </span>
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">
-                          Open: {hotspot.openCount}
-                        </span>
-                        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700">
-                          High severity: {hotspot.highSeverity}
-                        </span>
-                        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-blue-700">
-                          {hotspot.latitude.toFixed(4)}, {hotspot.longitude.toFixed(4)}
-                        </span>
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
-                          Updated: {formatTanzaniaDate(hotspot.latestUpdate)}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-slate-500">
-                    No repeated leakage corridors are standing out in the current filtered map scope right now.
-                  </p>
-                )}
-              </div>
-            </PopupShell>
-          </OverlayButton>
-        </div>
-
-        <div className="pointer-events-none absolute inset-x-3 bottom-20 z-[1200] xl:hidden">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {mobileOverlayButtons.map((item) => (
-              <div key={item.key} className="min-w-[168px] flex-1">
-                <OverlayButton
-                  icon={item.icon}
-                  label={item.label}
-                  value={item.value}
-                  caption={item.caption}
-                  tone={item.tone}
-                  side={item.side}
-                  align="center"
-                  theme={overlayTheme}
-                  className="min-h-[84px]"
-                >
-                  {item.content}
-                </OverlayButton>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="pointer-events-none absolute left-1/2 top-5 z-[1200] hidden -translate-x-1/2 xl:flex">
-          <div
-            className={cn(
-              "pointer-events-auto flex items-center gap-2 rounded-full border px-4 py-2 shadow-lg backdrop-blur-xl",
-              basemap === "satellite"
-                ? "border-white/12 bg-slate-950/78 shadow-slate-950/30"
-                : "border-slate-200/85 bg-white/90 shadow-slate-900/10"
-            )}
-          >
-            <span
-              className={cn(
-                "rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]",
-                basemap === "satellite" ? "bg-cyan-500/16 text-cyan-100" : "bg-cyan-50 text-cyan-700"
-              )}
-            >
-              {scopeLevelLabel}
-            </span>
-            <span className={cn("text-sm font-medium", basemap === "satellite" ? "text-white" : "text-slate-900")}>
-              {scopeLabel}
-            </span>
-            <span className={cn("text-xs", basemap === "satellite" ? "text-white/35" : "text-slate-300")}>•</span>
-            <span className={cn("text-xs", basemap === "satellite" ? "text-white/68" : "text-slate-500")}>
-              {dateFilterLabel}
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   )

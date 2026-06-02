@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { CircleMarker, GeoJSON, MapContainer, Popup, TileLayer, useMap } from "react-leaflet"
 import type { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson"
 import type { LatLngBoundsExpression } from "leaflet"
@@ -260,13 +260,26 @@ function buildNetworkPopupHtml(feature: Feature) {
   </div>`
 }
 
-function FitMapToData({ bounds }: { bounds: LatLngBoundsExpression | null }) {
+function FitMapToData({
+  bounds,
+  fitKey,
+}: {
+  bounds: LatLngBoundsExpression | null
+  fitKey: string
+}) {
   const map = useMap()
+  const lastAppliedFitKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!bounds) return
-    map.fitBounds(bounds, { padding: [28, 28] })
-  }, [bounds, map])
+    if (lastAppliedFitKeyRef.current === fitKey) return
+    lastAppliedFitKeyRef.current = fitKey
+    map.fitBounds(bounds, {
+      padding: [36, 36],
+      maxZoom: 15,
+      animate: false,
+    })
+  }, [bounds, fitKey, map])
 
   return null
 }
@@ -315,6 +328,7 @@ export function OperationsMapImpl({
   onBasemapChange,
   onReportSelect,
   chromeMode = "standard",
+  boundsFitKey = "initial",
 }: {
   reports: OperationsMapReport[]
   center?: [number, number] | null
@@ -327,6 +341,7 @@ export function OperationsMapImpl({
   onBasemapChange?: (basemap: BasemapKey) => void
   onReportSelect?: (reportId: string) => void
   chromeMode?: "standard" | "command-center"
+  boundsFitKey?: string
 }) {
   const [showNetwork, setShowNetwork] = useState(Boolean(networkPreviewUrl))
   const [localBasemap, setLocalBasemap] = useState<BasemapKey>("satellite")
@@ -433,24 +448,23 @@ export function OperationsMapImpl({
     return [averageLatitude, averageLongitude]
   }, [center, networkData, validReports])
 
-  const bounds = useMemo<LatLngBoundsExpression | null>(() => {
+  const fitBounds = useMemo<LatLngBoundsExpression | null>(() => {
     const points: Array<[number, number]> = [
       ...validReports.map((report) => [report.latitude, report.longitude] as [number, number]),
       ...collectGeoJsonCoordinates(boundaryGeojson ?? null),
-      ...collectGeoJsonCoordinates(networkData),
     ]
 
     if (!points.length) return null
     if (points.length === 1) {
       const [lat, lng] = points[0]
       return [
-        [lat - 0.01, lng - 0.01],
-        [lat + 0.01, lng + 0.01],
+        [lat - 0.008, lng - 0.008],
+        [lat + 0.008, lng + 0.008],
       ]
     }
 
     return points
-  }, [boundaryGeojson, networkData, validReports])
+  }, [boundaryGeojson, validReports])
 
   const legend = useMemo(
     () => [
@@ -506,11 +520,13 @@ export function OperationsMapImpl({
         <MapContainer
           center={mapCenter}
           zoom={13}
+          minZoom={10}
+          maxZoom={18}
           className={cn("w-full", isCommandCenter && "majiscope-map--command-center")}
-          style={{ height: "80vh", minHeight: "760px", maxHeight: "980px", width: "100%" }}
+          style={{ height: "58vh", minHeight: "420px", maxHeight: "620px", width: "100%" }}
         >
           <SyncMapSize />
-          <FitMapToData bounds={bounds} />
+          <FitMapToData bounds={fitBounds} fitKey={boundsFitKey} />
           <TileLayer
             attribution={BASEMAPS[basemap].attribution}
             url={BASEMAPS[basemap].url}
@@ -554,12 +570,13 @@ export function OperationsMapImpl({
               <CircleMarker
                 key={report.id}
                 center={[report.latitude, report.longitude]}
-                radius={7}
+                radius={9}
+                zIndexOffset={1200}
                 pathOptions={{
                   fillColor: meta.fill,
                   color: meta.stroke,
-                  fillOpacity: 0.9,
-                  weight: 2,
+                  fillOpacity: 0.95,
+                  weight: 2.5,
                 }}
               >
                 <Popup>
@@ -609,19 +626,33 @@ export function OperationsMapImpl({
         <div
           className={cn(
             "pointer-events-none absolute top-4 z-[1000] flex items-start gap-3",
-            isCommandCenter ? "right-4 inset-x-auto" : "inset-x-4 justify-between"
+            isCommandCenter ? "left-4 right-4 justify-between" : "inset-x-4 justify-between"
           )}
         >
-          {!isCommandCenter ? (
+          {isCommandCenter ? (
+            <div
+              className={cn(
+                "pointer-events-none rounded-xl border px-3 py-2 shadow-lg backdrop-blur",
+                isSatellite
+                  ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30"
+                  : "border-white/80 bg-white/92 text-slate-900 shadow-slate-900/10"
+              )}
+            >
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] opacity-80">
+                Leak reports
+              </div>
+              <div className="mt-1 text-sm font-semibold">
+                {validReports.length.toLocaleString()} on map
+              </div>
+            </div>
+          ) : (
             <div className="pointer-events-auto rounded-xl border border-white/80 bg-white/92 px-3 py-2 shadow-lg shadow-slate-900/10 backdrop-blur">
               <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {title}
               </div>
-              <div className="mt-1 text-xs text-slate-500">
-                {description}
-              </div>
+              <div className="mt-1 text-xs text-slate-500">{description}</div>
             </div>
-          ) : null}
+          )}
 
           <div
             className={cn(

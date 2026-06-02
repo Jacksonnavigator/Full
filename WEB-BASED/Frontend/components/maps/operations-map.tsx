@@ -43,6 +43,7 @@ export function OperationsMap(props: {
   onBasemapChange?: (basemap: "street" | "satellite") => void
   onReportSelect?: (reportId: string) => void
   chromeMode?: "standard" | "command-center"
+  boundsFitKey?: string
 }) {
   return <OperationsMapInner {...props} />
 }

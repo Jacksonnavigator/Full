@@ -210,6 +210,7 @@ interface DataState {
   engineers: Engineer[]
   teams: Team[]
   reports: Report[]
+  reportsListTotal: number | null
   logs: ActivityLog[]
   notifications: Notification[]
   
@@ -225,6 +226,7 @@ interface DataState {
   fetchEngineers: (dmaId?: string) => Promise<void>
   fetchTeams: (dmaId?: string) => Promise<void>
   fetchReports: (filters?: { utilityId?: string; dmaId?: string; status?: string }) => Promise<void>
+  fetchReportsForMap: (filters?: { utilityId?: string; dmaId?: string }) => Promise<void>
   fetchLogs: (utilityId?: string, dmaId?: string) => Promise<void>
   fetchNotifications: (userId: string) => Promise<void>
   getUnreadNotificationCount: () => number
@@ -280,6 +282,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   engineers: [],
   teams: [],
   reports: [],
+  reportsListTotal: null,
   logs: [],
   notifications: [],
   isLoading: false,
@@ -379,15 +382,67 @@ export const useDataStore = create<DataState>((set, get) => ({
       params.set("limit", "500")
 
       const endpoint = `/reports${params.toString() ? `?${params}` : ""}`
-      const response = await apiClient.get(endpoint)
+      const response = await apiClient.get<{ total?: number; items?: unknown[] }>(endpoint)
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
-        set({ reports: transformed })
+        set({
+          reports: transformed,
+          reportsListTotal:
+            typeof response.data.total === "number" ? response.data.total : transformed.length,
+        })
       } else {
         console.error("Error fetching reports:", response.error)
       }
     } catch (error) {
       console.error("Error fetching reports:", error)
+    }
+  },
+
+  // Load every report with GPS for the map (paginates until the API total is reached).
+  fetchReportsForMap: async (filters?: { utilityId?: string; dmaId?: string }) => {
+    const pageSize = 500
+    const maxPages = 500
+    const collected: Report[] = []
+    let total = 0
+    let skip = 0
+    let page = 0
+
+    try {
+      while (page < maxPages) {
+        const params = new URLSearchParams()
+        if (filters?.utilityId) params.set("utility_id", filters.utilityId)
+        if (filters?.dmaId) params.set("dma_id", filters.dmaId)
+        params.set("has_coordinates", "true")
+        params.set("limit", String(pageSize))
+        params.set("skip", String(skip))
+
+        const endpoint = `/reports?${params}`
+        const response = await apiClient.get<{ total?: number; items?: unknown[] }>(endpoint)
+        if (!response.success || !response.data) {
+          console.error("Error fetching reports for map:", response.error)
+          break
+        }
+
+        if (page === 0 && typeof response.data.total === "number") {
+          total = response.data.total
+        }
+
+        const batch = (response.data.items || []).map(transformKeys) as Report[]
+        collected.push(...batch)
+
+        if (batch.length < pageSize) break
+        if (total > 0 && collected.length >= total) break
+
+        skip += pageSize
+        page += 1
+      }
+
+      set({
+        reports: collected,
+        reportsListTotal: total || collected.length,
+      })
+    } catch (error) {
+      console.error("Error fetching reports for map:", error)
     }
   },
 

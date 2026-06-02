@@ -4,6 +4,7 @@ CRUD operations for reports in the simplified DMA -> Team -> Engineer flow.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session, joinedload, selectinload
 from app.database.session import get_db
 from app.models import Report, Team, Engineer, DMA, Utility, ImageUpload, ImageTypeEnum, ActivityLog
@@ -609,6 +610,10 @@ async def list_reports(
     user_id: str = Query(None, alias="user_id"),  # Add user_id filter for engineers
     skip: int = Query(0, ge=0),
     limit: int = Query(250, ge=1, le=500),
+    has_coordinates: bool = Query(
+        False,
+        description="When true, only reports with usable GPS (non-null, not 0,0) are returned.",
+    ),
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -649,6 +654,13 @@ async def list_reports(
     
     if status_filter:
         query = query.filter(Report.status == status_filter)
+
+    if has_coordinates:
+        query = query.filter(
+            Report.latitude.isnot(None),
+            Report.longitude.isnot(None),
+            or_(Report.latitude != 0, Report.longitude != 0),
+        )
     
     total = query.count()
     reports = (
