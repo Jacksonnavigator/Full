@@ -300,6 +300,8 @@ export function OperationsMapImpl({
   onReportSelect,
   chromeMode = "standard",
   boundsFitKey = "initial",
+  fillHeight = false,
+  showLegend = true,
 }: {
   reports: OperationsMapReport[]
   center?: [number, number] | null
@@ -313,6 +315,8 @@ export function OperationsMapImpl({
   onReportSelect?: (reportId: string) => void
   chromeMode?: "standard" | "command-center"
   boundsFitKey?: string
+  fillHeight?: boolean
+  showLegend?: boolean
 }) {
   const [showNetwork, setShowNetwork] = useState(Boolean(networkPreviewUrl))
   const [localBasemap, setLocalBasemap] = useState<BasemapKey>("satellite")
@@ -447,8 +451,13 @@ export function OperationsMapImpl({
   )
 
   return (
-    <div className="overflow-hidden rounded-[30px] border border-slate-200/80 bg-white shadow-[0_32px_90px_-48px_rgba(15,23,42,0.45)]">
-      <div className="relative">
+    <div
+      className={cn(
+        "overflow-hidden bg-slate-300",
+        fillHeight ? "h-full" : "rounded-[30px] border border-slate-200/80 bg-white shadow-[0_32px_90px_-48px_rgba(15,23,42,0.45)]"
+      )}
+    >
+      <div className={cn("relative", fillHeight && "h-full")}>
         {isCommandCenter ? (
           <style jsx global>{`
             .majiscope-map--command-center .leaflet-top.leaflet-left {
@@ -492,7 +501,11 @@ export function OperationsMapImpl({
           minZoom={10}
           maxZoom={18}
           className={cn("w-full", isCommandCenter && "majiscope-map--command-center")}
-          style={{ height: "min(72vh, 760px)", minHeight: "520px", maxHeight: "760px", width: "100%" }}
+          style={
+            fillHeight
+              ? { height: "100%", width: "100%" }
+              : { height: "min(72vh, 760px)", minHeight: "520px", maxHeight: "760px", width: "100%" }
+          }
         >
           <SyncMapSize />
           <FitMapToData bounds={fitBounds} fitKey={boundsFitKey} />
@@ -688,25 +701,27 @@ export function OperationsMapImpl({
           </div>
         </div>
 
-        <div className="pointer-events-none absolute inset-x-4 bottom-4 z-[1000] flex flex-wrap justify-center gap-2">
-          {legend.map((item) => (
-            <div
-              key={item.label}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium shadow-md backdrop-blur-xl",
-                isSatellite
-                  ? "border-white/14 bg-slate-950/76 text-white shadow-slate-950/30"
-                  : "border-white/80 bg-white/92 text-slate-700 shadow-slate-900/10"
-              )}
-            >
-              <span
-                className="mr-2 inline-block h-2.5 w-2.5 rounded-full align-middle"
-                style={{ backgroundColor: item.fill, boxShadow: `0 0 0 2px ${item.stroke}` }}
-              />
-              {item.label}
-            </div>
-          ))}
-        </div>
+        {showLegend ? (
+          <div className="pointer-events-none absolute inset-x-4 bottom-4 z-[1000] flex flex-wrap justify-center gap-2">
+            {legend.map((item) => (
+              <div
+                key={item.label}
+                className={cn(
+                  "rounded-full border px-3 py-1.5 text-xs font-medium shadow-md backdrop-blur-xl",
+                  isSatellite
+                    ? "border-white/14 bg-slate-950/76 text-white shadow-slate-950/30"
+                    : "border-white/80 bg-white/92 text-slate-700 shadow-slate-900/10"
+                )}
+              >
+                <span
+                  className="mr-2 inline-block h-2.5 w-2.5 rounded-full align-middle"
+                  style={{ backgroundColor: item.fill, boxShadow: `0 0 0 2px ${item.stroke}` }}
+                />
+                {item.label}
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   )
