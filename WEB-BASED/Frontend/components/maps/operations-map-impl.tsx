@@ -78,55 +78,26 @@ function collectGeoJsonCoordinates(geojson: GeoJsonObject | null): Array<[number
 }
 
 function getStatusMeta(status: string) {
-  switch (status) {
-    case "new":
-      return {
-        label: "New intake",
-        fill: "#ef4444",
-        stroke: "#991b1b",
-      }
-    case "assigned":
-      return {
-        label: "Assigned",
-        fill: "#f59e0b",
-        stroke: "#b45309",
-      }
-    case "in_progress":
-      return {
-        label: "In progress",
-        fill: "#0ea5e9",
-        stroke: "#0369a1",
-      }
-    case "pending_approval":
-      return {
-        label: "Awaiting DMA approval",
-        fill: "#8b5cf6",
-        stroke: "#6d28d9",
-      }
-    case "approved":
-      return {
-        label: "Approved",
-        fill: "#10b981",
-        stroke: "#047857",
-      }
-    case "closed":
-      return {
-        label: "Closed",
-        fill: "#334155",
-        stroke: "#0f172a",
-      }
-    case "rejected":
-      return {
-        label: "Rework required",
-        fill: "#f97316",
-        stroke: "#c2410c",
-      }
-    default:
-      return {
-        label: "Reported leakage",
-        fill: "#64748b",
-        stroke: "#334155",
-      }
+  if (status === "pending_approval") {
+    return {
+      label: "Awaiting approval",
+      fill: "#a855f7",
+      stroke: "#6d28d9",
+    }
+  }
+
+  if (status === "approved" || status === "closed") {
+    return {
+      label: status === "closed" ? "Closed" : "Repaired",
+      fill: "#22c55e",
+      stroke: "#15803d",
+    }
+  }
+
+  return {
+    label: "Open",
+    fill: "#ef4444",
+    stroke: "#991b1b",
   }
 }
 
@@ -469,8 +440,6 @@ export function OperationsMapImpl({
   const legend = useMemo(
     () => [
       getStatusMeta("new"),
-      getStatusMeta("assigned"),
-      getStatusMeta("in_progress"),
       getStatusMeta("pending_approval"),
       getStatusMeta("approved"),
     ],
@@ -523,7 +492,7 @@ export function OperationsMapImpl({
           minZoom={10}
           maxZoom={18}
           className={cn("w-full", isCommandCenter && "majiscope-map--command-center")}
-          style={{ height: "58vh", minHeight: "420px", maxHeight: "620px", width: "100%" }}
+          style={{ height: "min(72vh, 760px)", minHeight: "520px", maxHeight: "760px", width: "100%" }}
         >
           <SyncMapSize />
           <FitMapToData bounds={fitBounds} fitKey={boundsFitKey} />

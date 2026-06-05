@@ -1,1 +1,5 @@
-export { default } from "../../_views/map-page"
+import { redirect } from "next/navigation"
+
+export default function MapRedirectPage() {
+  redirect("/dashboard")
+}
