@@ -211,7 +211,7 @@ export function ReportStatusMapImpl({
               "new"
             const color = getReportColor(primaryStatus)
             const count = cluster.reports.length
-            const radius = Math.min(10 + count * 2, 22)
+            const radius = Math.min(5 + count * 0.8, 10)
             return (
               <CircleMarker
                 key={`${cluster.latitude}-${cluster.longitude}-${clusterIndex}`}

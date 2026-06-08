@@ -237,6 +237,22 @@ export function OperationsDashboard() {
     return null
   }, [activeDMA, activeUtility, mapReports])
 
+  // Refetch reports when admin changes filters
+  useEffect(() => {
+    if (!isAdmin) return
+    if (selectedUtilityId === "all" && selectedDMAId === "all") return
+
+    const filters = {
+      utilityId: selectedUtilityId === "all" ? undefined : selectedUtilityId,
+      dmaId: selectedDMAId === "all" ? undefined : selectedDMAId,
+    }
+
+    setLoading(true)
+    void fetchReportsForMap(
+      Object.values(filters).some((v) => v !== undefined) ? (filters as any) : undefined
+    ).finally(() => setLoading(false))
+  }, [isAdmin, selectedUtilityId, selectedDMAId, fetchReportsForMap])
+
   const scopeTitle = activeDMA?.name || activeUtility?.name || "National Leak Monitoring"
   const orgLabel =
     activeUtility?.name ||
@@ -365,7 +381,7 @@ export function OperationsDashboard() {
             networkFileName={activeUtility?.pipeNetworkFileName ?? visibleUtilities[0]?.pipeNetworkFileName}
             title={scopeTitle}
             description={`${kpis.total.toLocaleString()} reports in scope`}
-            basemap="satellite"
+            basemap="street"
             chromeMode="command-center"
             boundsFitKey={mapFitKey}
             fillHeight
