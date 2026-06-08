@@ -15,9 +15,9 @@ const DEFAULT_CENTER: [number, number] = [-6.369, 34.8888]
 const BASEMAPS = {
   street: {
     label: "Street",
-    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
     attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      "Tiles &copy; Esri &mdash; Source: Esri, HERE, Garmin, FAO, NOAA, USGS, and the GIS User Community",
   },
   satellite: {
     label: "Satellite",
@@ -315,7 +315,7 @@ export function OperationsMapImpl({
   boundsFitKey?: string
 }) {
   const [showNetwork, setShowNetwork] = useState(Boolean(networkPreviewUrl))
-  const [localBasemap, setLocalBasemap] = useState<BasemapKey>("satellite")
+  const [localBasemap, setLocalBasemap] = useState<BasemapKey>("street")
   const [networkData, setNetworkData] = useState<GeoJsonObject | null>(null)
   const [networkLoading, setNetworkLoading] = useState(false)
   const [networkError, setNetworkError] = useState<string | null>(null)
@@ -539,13 +539,13 @@ export function OperationsMapImpl({
               <CircleMarker
                 key={report.id}
                 center={[report.latitude, report.longitude]}
-                radius={9}
+                radius={4}
                 zIndexOffset={1200}
                 pathOptions={{
                   fillColor: meta.fill,
                   color: meta.stroke,
                   fillOpacity: 0.95,
-                  weight: 2.5,
+                  weight: 1.25,
                 }}
               >
                 <Popup>

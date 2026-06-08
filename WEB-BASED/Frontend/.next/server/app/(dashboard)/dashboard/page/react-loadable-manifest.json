@@ -1,16 +1,9 @@
 {
-  "13009": {
-    "id": 13009,
+  "6596": {
+    "id": 6596,
     "files": [
-      "static/chunks/03d754940759d1a3.js",
-      "static/chunks/842401ca3d1f9047.js"
-    ]
-  },
-  "6765": {
-    "id": 6765,
-    "files": [
-      "static/chunks/042f470fe0bf074e.js",
-      "static/chunks/c8a7b8f2b3513065.js"
+      "static/chunks/901fae47656ee178.js",
+      "static/chunks/5638d7ae35a4fa58.js"
     ]
   }
 }

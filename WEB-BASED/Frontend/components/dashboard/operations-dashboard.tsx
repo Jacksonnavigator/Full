@@ -74,6 +74,7 @@ export function OperationsDashboard() {
     dmas,
     reports,
     reportsListTotal,
+    initialized,
     fetchUtilities,
     fetchDMAs,
     fetchReportsForMap,
@@ -185,25 +186,39 @@ export function OperationsDashboard() {
 
   const kpis = useMemo(() => computeLeakKpis(filteredReports), [filteredReports])
 
-  const activeUtility = useMemo(
-    () => utilities.find((utility) => utility.id === selectedUtilityId) ?? null,
-    [selectedUtilityId, utilities]
-  )
-
   const activeDMA = useMemo(
     () => dmas.find((dma) => dma.id === selectedDMAId) ?? null,
     [dmas, selectedDMAId]
   )
 
-  const activeNetworkPreviewUrl = useMemo(() => {
-    const utility = activeUtility ?? visibleUtilities[0] ?? null
-    if (!utility?.pipeNetworkPreviewUrl) return null
-    if (!activeDMA?.id || !activeDMA.boundaryGeojson) return utility.pipeNetworkPreviewUrl
+  const activeUtilityId = useMemo(() => {
+    if (selectedUtilityId !== "all") return selectedUtilityId
+    if (activeDMA?.utilityId) return activeDMA.utilityId
+    if (isUtility) return currentUser?.utilityId ?? null
+    if (isDMA) return currentDMA?.utilityId ?? null
+    return visibleUtilities.length === 1 ? visibleUtilities[0].id : null
+  }, [
+    activeDMA?.utilityId,
+    currentDMA?.utilityId,
+    currentUser?.utilityId,
+    isDMA,
+    isUtility,
+    selectedUtilityId,
+    visibleUtilities,
+  ])
 
-    const params = new URLSearchParams()
-    params.set("dma_id", activeDMA.id)
-    return `${utility.pipeNetworkPreviewUrl}?${params}`
-  }, [activeDMA, activeUtility, visibleUtilities])
+  const activeUtility = useMemo(
+    () => utilities.find((utility) => utility.id === activeUtilityId) ?? null,
+    [activeUtilityId, utilities]
+  )
+
+  const activeNetworkPreviewUrl = useMemo(() => {
+    if (!activeUtility?.pipeNetworkPreviewUrl) return null
+    if (!activeDMA?.id || !activeDMA.boundaryGeojson) return activeUtility.pipeNetworkPreviewUrl
+
+    const separator = activeUtility.pipeNetworkPreviewUrl.includes("?") ? "&" : "?"
+    return `${activeUtility.pipeNetworkPreviewUrl}${separator}dma_id=${encodeURIComponent(activeDMA.id)}`
+  }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility?.pipeNetworkPreviewUrl])
 
   const mapCenter = useMemo<[number, number] | null>(() => {
     if (activeDMA?.centerLatitude != null && activeDMA?.centerLongitude != null) {
@@ -223,7 +238,6 @@ export function OperationsDashboard() {
   // Refetch reports when admin changes filters
   useEffect(() => {
     if (!isAdmin) return
-    if (selectedUtilityId === "all" && selectedDMAId === "all") return
 
     const filters = {
       utilityId: selectedUtilityId === "all" ? undefined : selectedUtilityId,
@@ -234,7 +248,7 @@ export function OperationsDashboard() {
     void fetchReportsForMap(
       Object.values(filters).some((v) => v !== undefined) ? (filters as any) : undefined
     ).finally(() => setLoading(false))
-  }, [isAdmin, selectedUtilityId, selectedDMAId, fetchReportsForMap])
+  }, [fetchReportsForMap, initialized, isAdmin, selectedDMAId, selectedUtilityId])
 
   const scopeTitle = activeDMA?.name || activeUtility?.name || "National Leak Monitoring"
   const orgLabel =
@@ -362,15 +376,10 @@ export function OperationsDashboard() {
             center={mapCenter}
             boundaryGeojson={activeDMA?.boundaryGeojson ?? null}
             networkPreviewUrl={activeNetworkPreviewUrl}
-            networkFileName={activeUtility?.pipeNetworkFileName ?? visibleUtilities[0]?.pipeNetworkFileName}
+            networkFileName={activeUtility?.pipeNetworkFileName}
             title={scopeTitle}
-<<<<<<< HEAD
-            description={`${kpis.total.toLocaleString()} reports in scope`}
-            basemap="street"
-=======
             description={`${kpis.total.toLocaleString()} reports in current scope`}
-            basemap="satellite"
->>>>>>> parent of 5ba0136 (new)
+            basemap="street"
             chromeMode="command-center"
             boundsFitKey={mapFitKey}
             onReportSelect={(reportId) => router.push(`/dashboard/reports/${reportId}`)}
