@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Droplets,
   Loader2,
+  MapPinned,
   Siren,
 } from "lucide-react"
 import { useAuthStore } from "@/store/auth-store"
@@ -34,51 +35,33 @@ function KpiCard({
   label: string
   value: number
   icon: typeof Droplets
-  tone: "neutral" | "green" | "amber" | "red"
+  tone: "slate" | "green" | "red" | "amber"
 }) {
-  const styles = {
-    neutral: {
-      card: "bg-white border-slate-300 text-slate-950",
-      value: "text-slate-950",
-      icon: "bg-slate-100 text-slate-600",
-    },
-    green: {
-      card: "bg-white border-emerald-300 text-emerald-950",
-      value: "text-emerald-600",
-      icon: "bg-emerald-50 text-emerald-600",
-    },
-    amber: {
-      card: "bg-white border-amber-300 text-amber-950",
-      value: "text-amber-600",
-      icon: "bg-amber-50 text-amber-600",
-    },
-    red: {
-      card: "bg-white border-rose-300 text-rose-950",
-      value: "text-rose-600",
-      icon: "bg-rose-50 text-rose-600",
-    },
+  const toneClasses = {
+    slate: "border-slate-200 bg-white text-slate-950",
+    green: "border-emerald-200 bg-emerald-50/70 text-emerald-950",
+    red: "border-rose-200 bg-rose-50/70 text-rose-950",
+    amber: "border-amber-200 bg-amber-50/70 text-amber-950",
   } as const
 
-  const palette = styles[tone]
+  const iconClasses = {
+    slate: "bg-slate-100 text-slate-700",
+    green: "bg-emerald-100 text-emerald-700",
+    red: "bg-rose-100 text-rose-700",
+    amber: "bg-amber-100 text-amber-700",
+  } as const
 
   return (
-    <div
-      className={cn(
-        "flex min-h-[92px] flex-1 flex-col justify-between rounded-md border px-3 py-3 shadow-sm",
-        palette.card
-      )}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-[10px] font-bold uppercase leading-tight tracking-[0.14em] text-slate-500">
-          {label}
-        </p>
-        <div className={cn("rounded-md p-1.5", palette.icon)}>
-          <Icon className="h-4 w-4" />
+    <div className={cn("rounded-[24px] border px-4 py-4 shadow-sm", toneClasses[tone])}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight">{value.toLocaleString()}</p>
+        </div>
+        <div className={cn("rounded-2xl p-2.5", iconClasses[tone])}>
+          <Icon className="h-5 w-5" />
         </div>
       </div>
-      <p className={cn("text-[2rem] font-bold leading-none tracking-tight", palette.value)}>
-        {value.toLocaleString()}
-      </p>
     </div>
   )
 }
@@ -267,8 +250,8 @@ export function OperationsDashboard() {
 
   if (loading && !reports.length) {
     return (
-      <div className="flex h-full min-h-[480px] items-center justify-center bg-slate-200">
-        <div className="flex items-center gap-3 rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-600 shadow-sm">
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-600 shadow-sm">
           <Loader2 className="h-4 w-4 animate-spin" />
           Loading leakage dashboard...
         </div>
@@ -277,88 +260,89 @@ export function OperationsDashboard() {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-slate-200">
-      {/* ArcGIS-style title bar */}
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-300 bg-slate-100 px-4 py-3">
-        <div className="min-w-0">
-          <h1 className="truncate text-xl font-semibold text-slate-900">{scopeTitle}</h1>
-          <p className="mt-0.5 text-sm text-slate-600">
-            {orgLabel} · {mapReports.length.toLocaleString()} leaks with GPS on the map
-            {!allMapReportsLoaded ? ` · loading ${reports.length.toLocaleString()} records` : ""}
-          </p>
+    <div className="space-y-4">
+      <section className="rounded-[28px] border border-slate-200/80 bg-white/90 px-4 py-4 shadow-sm backdrop-blur">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-700">
+              <MapPinned className="h-4 w-4" />
+              Leakage reporting dashboard
+            </div>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">{scopeTitle}</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              {orgLabel} · {mapReports.length.toLocaleString()} leak
+              {mapReports.length === 1 ? "" : "s"} with GPS on the map
+              {!allMapReportsLoaded ? ` · loading ${reports.length.toLocaleString()} records` : ""}
+            </p>
+          </div>
+
+          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-[180px_180px]">
+            <Select
+              value={selectedUtilityId}
+              onValueChange={setSelectedUtilityId}
+              disabled={!isAdmin || !visibleUtilities.length}
+            >
+              <SelectTrigger className="h-10 rounded-2xl border-slate-200 bg-white px-3 text-sm">
+                <SelectValue placeholder="Utility / Region" />
+              </SelectTrigger>
+              <SelectContent className="z-[5000]">
+                {isAdmin ? <SelectItem value="all">All utilities</SelectItem> : null}
+                {visibleUtilities.map((utility) => (
+                  <SelectItem key={utility.id} value={utility.id}>
+                    {utility.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedDMAId} onValueChange={setSelectedDMAId} disabled={isDMA || !visibleDMAs.length}>
+              <SelectTrigger className="h-10 rounded-2xl border-slate-200 bg-white px-3 text-sm">
+                <SelectValue placeholder="DMA / District" />
+              </SelectTrigger>
+              <SelectContent className="z-[5000]">
+                {!isDMA ? <SelectItem value="all">All DMAs</SelectItem> : null}
+                {visibleDMAs.map((dma) => (
+                  <SelectItem key={dma.id} value={dma.id}>
+                    {dma.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
+      </section>
 
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <Select
-            value={selectedUtilityId}
-            onValueChange={setSelectedUtilityId}
-            disabled={!isAdmin || !visibleUtilities.length}
-          >
-            <SelectTrigger className="h-9 w-[168px] rounded-md border-slate-300 bg-white text-sm shadow-sm">
-              <SelectValue placeholder="Utility" />
-            </SelectTrigger>
-            <SelectContent className="z-[5000]">
-              {isAdmin ? <SelectItem value="all">All utilities</SelectItem> : null}
-              {visibleUtilities.map((utility) => (
-                <SelectItem key={utility.id} value={utility.id}>
-                  {utility.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={selectedDMAId}
-            onValueChange={setSelectedDMAId}
-            disabled={isDMA || !visibleDMAs.length}
-          >
-            <SelectTrigger className="h-9 w-[168px] rounded-md border-slate-300 bg-white text-sm shadow-sm">
-              <SelectValue placeholder="DMA" />
-            </SelectTrigger>
-            <SelectContent className="z-[5000]">
-              {!isDMA ? <SelectItem value="all">All DMAs</SelectItem> : null}
-              {visibleDMAs.map((dma) => (
-                <SelectItem key={dma.id} value={dma.id}>
-                  {dma.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </header>
-
-      {/* ArcGIS-style body: narrow KPI rail + dominant map */}
-      <div className="flex min-h-0 flex-1">
-        <aside className="flex w-[15%] min-w-[200px] max-w-[240px] shrink-0 flex-col gap-2 border-r border-slate-300 bg-slate-200 p-2">
-          <KpiCard label="Total Leak Reports" value={kpis.total} icon={Droplets} tone="neutral" />
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <KpiCard label="Total Leak Reports" value={kpis.total} icon={Droplets} tone="slate" />
           <KpiCard label="Leaks Repaired" value={kpis.repaired} icon={CheckCircle2} tone="green" />
           <KpiCard label="Urgent Leaks" value={kpis.urgent} icon={Siren} tone="amber" />
           <KpiCard label="Unattended Leaks" value={kpis.unattended} icon={AlertTriangle} tone="red" />
 
-          <div className="mt-auto rounded-md border border-slate-300 bg-white px-3 py-3 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">Map legend</p>
-            <div className="mt-2 space-y-1.5 text-xs text-slate-700">
+          <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-4 shadow-sm sm:col-span-2 xl:col-span-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Map legend</p>
+            <div className="mt-3 space-y-2 text-sm text-slate-700">
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                <span className="h-3 w-3 rounded-full bg-red-500" />
                 Open / rejected
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-purple-500" />
+                <span className="h-3 w-3 rounded-full bg-purple-500" />
                 Pending approval
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
-                Repaired
+                <span className="h-3 w-3 rounded-full bg-green-500" />
+                Repaired (approved / closed)
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                <span className="h-3 w-3 rounded-full bg-blue-500" />
                 Pipe network
               </div>
             </div>
           </div>
         </aside>
 
-        <section className="relative min-h-0 min-w-0 flex-1">
+        <section className="min-h-[520px]">
           <OperationsMap
             reports={mapReports.map((report) => ({
               id: report.id,
@@ -380,12 +364,15 @@ export function OperationsDashboard() {
             networkPreviewUrl={activeNetworkPreviewUrl}
             networkFileName={activeUtility?.pipeNetworkFileName ?? visibleUtilities[0]?.pipeNetworkFileName}
             title={scopeTitle}
+<<<<<<< HEAD
             description={`${kpis.total.toLocaleString()} reports in scope`}
             basemap="street"
+=======
+            description={`${kpis.total.toLocaleString()} reports in current scope`}
+            basemap="satellite"
+>>>>>>> parent of 5ba0136 (new)
             chromeMode="command-center"
             boundsFitKey={mapFitKey}
-            fillHeight
-            showLegend={false}
             onReportSelect={(reportId) => router.push(`/dashboard/reports/${reportId}`)}
           />
         </section>

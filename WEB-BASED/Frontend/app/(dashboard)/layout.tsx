@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
@@ -14,9 +14,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
-  const pathname = usePathname()
   const { isAuthenticated, currentUser } = useAuthStore()
-  const isOperationsDashboard = pathname === "/dashboard"
   const { initialize, initialized } = useDataStore()
   const [hydrated, setHydrated] = useState(false)
 
@@ -55,16 +53,10 @@ export default function DashboardLayout({
     <SidebarProvider>
       <div className="flex w-full h-screen">
         <AppSidebar />
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex flex-col flex-1">
           <TopNavbar />
-          <SidebarInset className="relative m-0 min-h-0 flex-1 overflow-hidden rounded-none">
-            <main
-              className={
-                isOperationsDashboard
-                  ? "flex h-[calc(100svh-3.5rem)] min-h-0 flex-col overflow-hidden"
-                  : "flex-1 overflow-y-auto overflow-x-hidden p-6"
-              }
-            >
+          <SidebarInset className="relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none">
+            <main className="flex-1 overflow-y-auto overflow-x-hidden p-6">
               {children}
             </main>
           </SidebarInset>
