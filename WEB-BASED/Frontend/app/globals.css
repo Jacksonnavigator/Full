@@ -1,4 +1,266 @@
-@import "leaflet/dist/leaflet.css";
+/* Leaflet core layout styles are kept local so the app does not fail when
+   Turbopack cannot resolve leaflet/dist/leaflet.css during dev refreshes. */
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.leaflet-container {
+  position: relative;
+  overflow: hidden;
+  background: #d8dee6;
+  outline-offset: 1px;
+  font-family: inherit;
+}
+
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.leaflet-tile::selection {
+  background: transparent;
+}
+
+.leaflet-container .leaflet-overlay-pane svg {
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+  max-width: none !important;
+  max-height: none !important;
+  width: auto;
+  padding: 0;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+  touch-action: pan-x pan-y;
+}
+
+.leaflet-container.leaflet-touch-drag {
+  touch-action: pinch-zoom;
+}
+
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+  touch-action: none;
+}
+
+.leaflet-container {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.leaflet-pane {
+  z-index: 400;
+}
+
+.leaflet-tile-pane {
+  z-index: 200;
+}
+
+.leaflet-overlay-pane {
+  z-index: 400;
+}
+
+.leaflet-shadow-pane {
+  z-index: 500;
+}
+
+.leaflet-marker-pane {
+  z-index: 600;
+}
+
+.leaflet-tooltip-pane {
+  z-index: 650;
+}
+
+.leaflet-popup-pane {
+  z-index: 700;
+}
+
+.leaflet-map-pane canvas {
+  z-index: 100;
+}
+
+.leaflet-map-pane svg {
+  z-index: 200;
+}
+
+.leaflet-vml-shape {
+  width: 1px;
+  height: 1px;
+}
+
+.lvml {
+  behavior: url(#default#VML);
+  display: inline-block;
+  position: absolute;
+}
+
+.leaflet-control {
+  position: relative;
+  z-index: 800;
+  pointer-events: auto;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.leaflet-top {
+  top: 0;
+}
+
+.leaflet-right {
+  right: 0;
+}
+
+.leaflet-bottom {
+  bottom: 0;
+}
+
+.leaflet-left {
+  left: 0;
+}
+
+.leaflet-control {
+  float: left;
+  clear: both;
+}
+
+.leaflet-right .leaflet-control {
+  float: right;
+}
+
+.leaflet-top .leaflet-control {
+  margin-top: 10px;
+}
+
+.leaflet-bottom .leaflet-control {
+  margin-bottom: 10px;
+}
+
+.leaflet-left .leaflet-control {
+  margin-left: 10px;
+}
+
+.leaflet-right .leaflet-control {
+  margin-right: 10px;
+}
+
+.leaflet-fade-anim .leaflet-popup {
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+  opacity: 1;
+}
+
+.leaflet-zoom-animated {
+  transform-origin: 0 0;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+  transition: transform 0.25s cubic-bezier(0, 0, 0.25, 1);
+}
+
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+  transition: none;
+}
+
+.leaflet-grab {
+  cursor: grab;
+}
+
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-marker-draggable {
+  cursor: move;
+  cursor: grabbing;
+}
+
+.leaflet-control-zoom a {
+  display: block;
+  width: 26px;
+  height: 26px;
+  line-height: 26px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.leaflet-popup {
+  position: absolute;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.leaflet-popup-content-wrapper {
+  padding: 1px;
+  text-align: left;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.18);
+}
+
+.leaflet-popup-content {
+  margin: 13px 19px;
+  line-height: 1.4;
+}
+
+.leaflet-popup-tip-container {
+  width: 40px;
+  height: 20px;
+  position: absolute;
+  left: 50%;
+  margin-left: -20px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.leaflet-popup-tip {
+  width: 17px;
+  height: 17px;
+  padding: 1px;
+  margin: -10px auto 0;
+  pointer-events: auto;
+  transform: rotate(45deg);
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.18);
+}
+
+.leaflet-popup-close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: none;
+  text-align: center;
+  width: 24px;
+  height: 24px;
+  font: 16px/24px Tahoma, Verdana, sans-serif;
+  color: #757575;
+  text-decoration: none;
+  background: transparent;
+}
 
 @tailwind base;
 @tailwind components;
@@ -16,40 +278,40 @@ button[data-next-mark="true"] {
 
 @layer base {
   :root {
-    /* Balanced light theme with calmer blue-gray surfaces */
-    --background: 210 34% 94%;
+    /* Matte enterprise light theme with lower glare and neutral gray-blue surfaces */
+    --background: 210 17% 88%;
     --foreground: 222 47% 10%;
-    --card: 0 0% 100%;
+    --card: 210 20% 96%;
     --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
+    --popover: 210 20% 96%;
     --popover-foreground: 222 47% 11%;
-    --primary: 187 92% 45%;
+    --primary: 202 58% 31%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 30% 91%;
+    --secondary: 210 15% 86%;
     --secondary-foreground: 222 47% 11%;
-    --muted: 210 28% 90%;
-    --muted-foreground: 215 18% 34%;
-    --accent: 187 92% 45%;
+    --muted: 210 14% 85%;
+    --muted-foreground: 215 13% 36%;
+    --accent: 202 58% 31%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --destructive: 346 75% 42%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 24% 82%;
-    --input: 214 24% 82%;
-    --ring: 187 92% 45%;
-    --chart-1: 187 92% 45%;
-    --chart-2: 160 84% 39%;
-    --chart-3: 38 92% 50%;
-    --chart-4: 0 84% 60%;
-    --chart-5: 199 89% 48%;
+    --border: 214 16% 78%;
+    --input: 214 16% 78%;
+    --ring: 202 58% 31%;
+    --chart-1: 208 56% 36%;
+    --chart-2: 152 44% 34%;
+    --chart-3: 38 52% 38%;
+    --chart-4: 346 55% 38%;
+    --chart-5: 198 42% 38%;
     --radius: 0.75rem;
-    --sidebar-background: 205 30% 94%;
+    --sidebar-background: 210 16% 92%;
     --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 187 92% 45%;
+    --sidebar-primary: 202 58% 31%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 28% 90%;
+    --sidebar-accent: 210 15% 85%;
     --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 24% 82%;
-    --sidebar-ring: 187 92% 45%;
+    --sidebar-border: 214 16% 78%;
+    --sidebar-ring: 202 58% 31%;
   }
 
   .dark {
@@ -145,20 +407,20 @@ button[data-next-mark="true"] {
 
   /* Gradient text */
   .gradient-text {
-    @apply bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-sky-700 via-blue-700 to-teal-700 bg-clip-text text-transparent;
   }
 
   /* Glow effects */
   .glow {
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 18px hsl(var(--primary) / 0.16);
   }
 
   .glow-sm {
-    box-shadow: 0 0 10px hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.12);
   }
 
   .glow-lg {
-    box-shadow: 0 0 40px hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 32px hsl(var(--primary) / 0.18);
   }
 
   /* Shimmer animation */
@@ -298,10 +560,10 @@ button[data-next-mark="true"] {
 /* Glow pulse animation */
 @keyframes glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 20px hsl(187 92% 50% / 0.3);
+    box-shadow: 0 0 18px hsl(var(--primary) / 0.16);
   }
   50% {
-    box-shadow: 0 0 40px hsl(187 92% 50% / 0.5);
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.24);
   }
 }
 
@@ -313,7 +575,7 @@ button[data-next-mark="true"] {
 .gradient-border {
   position: relative;
   background: linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
-              linear-gradient(135deg, hsl(var(--primary) / 0.5), hsl(221 83% 53% / 0.5), hsl(var(--primary) / 0.5)) border-box;
+              linear-gradient(135deg, hsl(var(--primary) / 0.35), hsl(215 55% 42% / 0.35), hsl(var(--primary) / 0.35)) border-box;
   border: 1px solid transparent;
 }
 
@@ -357,7 +619,7 @@ button[data-next-mark="true"] {
 
 /* Modern button styles */
 .btn-primary {
-  @apply relative overflow-hidden bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300;
+  @apply relative overflow-hidden bg-gradient-to-r from-sky-700 to-blue-700 text-white font-medium shadow-md shadow-slate-900/10 transition-all duration-300 hover:from-sky-800 hover:to-blue-800 hover:shadow-lg hover:shadow-slate-900/15;
 }
 
 .btn-primary::before {
@@ -381,7 +643,7 @@ button[data-next-mark="true"] {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.025),
     transparent
   );
   transition: left 0.5s ease;

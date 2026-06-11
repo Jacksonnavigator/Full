@@ -50,24 +50,24 @@ export function AppSidebar() {
   return (
     <Sidebar 
       collapsible="icon" 
-      className="border-r-0 bg-white shadow-xl shadow-slate-200/50"
+      className="border-r border-slate-300/80 bg-sidebar shadow-[8px_0_24px_-26px_rgba(15,23,42,0.38)]"
     >
-      {/* Premium gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-cyan-50/30 pointer-events-none" />
+      {/* Calm enterprise surface */}
+      <div className="absolute inset-0 bg-slate-200/45 pointer-events-none" />
       
       {/* Decorative top accent */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-slate-400/70" />
       
-      {/* Ambient glow effects - only show when not collapsed */}
+      {/* Subtle depth effects - only show when not collapsed */}
       {!isCollapsed && (
         <>
-          <div className="absolute top-20 -left-20 w-40 h-40 bg-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-40 -right-20 w-40 h-40 bg-blue-400/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-24 -left-24 h-44 w-44 rounded-full bg-slate-900/[0.025] blur-3xl pointer-events-none" />
+          <div className="absolute bottom-40 -right-24 h-44 w-44 rounded-full bg-slate-900/[0.02] blur-3xl pointer-events-none" />
         </>
       )}
 
       <SidebarHeader className={cn(
-        "border-b border-slate-100 relative bg-slate-900/5 backdrop-blur-sm",
+        "border-b border-slate-300/80 relative bg-slate-200/55 backdrop-blur-sm",
         isCollapsed ? "px-2 py-4" : "px-5 py-6"
       )}>
         <Link href="/dashboard" className={cn(
@@ -81,13 +81,13 @@ export function AppSidebar() {
             {/* Animated glow ring */}
             {!isCollapsed && (
               <>
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 opacity-20 animate-pulse" />
-                <div className="absolute inset-1 rounded-xl bg-gradient-to-br from-cyan-400/20 to-blue-600/20 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                <div className="absolute inset-0 rounded-2xl bg-slate-800/[0.04]" />
+                <div className="absolute inset-1 rounded-xl bg-slate-800/[0.025]" />
               </>
             )}
             
             <div className={cn(
-              "relative flex items-center justify-center rounded-xl border border-cyan-100 shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-shadow duration-500 bg-gradient-to-br from-white via-cyan-50 to-white",
+              "relative flex items-center justify-center rounded-xl border border-slate-300 bg-slate-100 shadow-sm shadow-slate-900/[0.04] transition-shadow duration-500 hover:shadow-slate-900/[0.08]",
               isCollapsed ? "h-10 w-10" : "h-full w-full rounded-2xl"
             )}>
               <img 
@@ -111,7 +111,7 @@ export function AppSidebar() {
                   underlineClassName="mt-1 h-0.5"
                 />
               </div>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-cyan-600/60 mt-2">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-600 mt-2">
                 Water Intelligence
               </span>
             </div>
@@ -125,7 +125,7 @@ export function AppSidebar() {
       )}>
         <SidebarGroup className="flex-1 flex flex-col h-full">
           <SidebarGroupLabel className={cn(
-            "text-slate-400 text-[10px] uppercase tracking-[0.15em] font-semibold mb-2",
+            "text-slate-500 text-[10px] uppercase tracking-[0.15em] font-semibold mb-2",
             isCollapsed ? "px-0 text-center hidden" : "px-2"
           )}>
             {!isCollapsed && "Navigation"}
@@ -150,8 +150,8 @@ export function AppSidebar() {
                         "relative transition-all duration-300 ease-out",
                         isCollapsed ? "h-11 w-11 justify-center rounded-xl mx-auto" : "h-12 w-full rounded-xl justify-start px-4",
                         isActive 
-                          ? "bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-600 text-white shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:shadow-xl" 
-                          : "text-slate-600 hover:text-slate-900 hover:bg-gradient-to-r hover:from-slate-50 hover:to-cyan-50",
+                          ? "bg-gradient-to-r from-sky-700 to-blue-700 text-white shadow-md shadow-slate-900/15 hover:from-sky-800 hover:to-blue-800 hover:shadow-lg hover:shadow-slate-900/20" 
+                          : "text-slate-600 hover:text-slate-950 hover:bg-slate-300/55",
                         "group overflow-hidden"
                       )}
                       style={{ animationDelay: `${index * 50}ms` }}
@@ -166,16 +166,16 @@ export function AppSidebar() {
                         <div className={cn(
                           "relative flex items-center justify-center rounded-lg transition-all duration-300",
                           isActive 
-                            ? "bg-white/20 h-8 w-8" 
+                            ? "bg-white/[0.16] h-8 w-8" 
                             : isCollapsed 
-                              ? "h-8 w-8 bg-slate-100 group-hover:bg-cyan-100"
-                              : "h-8 w-8 bg-slate-100 group-hover:bg-cyan-100"
+                              ? "h-8 w-8 bg-slate-300/70 group-hover:bg-slate-400/40"
+                              : "h-8 w-8 bg-slate-300/70 group-hover:bg-slate-400/40"
                         )}>
                           <item.icon className={cn(
                             "transition-all duration-300",
                             isActive 
                               ? "h-5 w-5 text-white drop-shadow-sm" 
-                              : "h-5 w-5 text-cyan-600 group-hover:scale-110"
+                              : "h-5 w-5 text-slate-700 group-hover:scale-110"
                           )} />
                         </div>
                         
@@ -190,12 +190,12 @@ export function AppSidebar() {
                         
                         {/* Active shimmer effect */}
                         {isActive && !isCollapsed && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                         )}
                         
                         {/* Hover glow line */}
                         {!isActive && !isCollapsed && (
-                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 bg-gradient-to-b from-cyan-400 to-blue-500 rounded-r-full group-hover:h-6 transition-all duration-300" />
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-0 bg-slate-600 rounded-r-full group-hover:h-6 transition-all duration-300" />
                         )}
                       </Link>
                     </SidebarMenuButton>
@@ -208,11 +208,11 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className={cn(
-        "border-t border-slate-100 bg-gradient-to-b from-slate-50/50 to-white relative",
+        "border-t border-slate-300/80 bg-slate-200/55 relative",
         isCollapsed ? "p-2" : "p-4"
       )}>
         {/* Decorative bottom accent */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-200 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent" />
         
         <SidebarMenu>
           <SidebarMenuItem>
@@ -222,15 +222,15 @@ export function AppSidebar() {
                   size="lg"
                   className={cn(
                     "transition-all duration-300 rounded-xl",
-                    isCollapsed ? "p-2 h-11 w-11 justify-center mx-auto data-[state=open]:bg-cyan-50" : "p-3 data-[state=open]:bg-cyan-50 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50"
+                    isCollapsed ? "p-2 h-11 w-11 justify-center mx-auto data-[state=open]:bg-slate-300/60" : "p-3 data-[state=open]:bg-slate-300/60 hover:bg-slate-300/50"
                   )}
                 >
                   <div className="relative">
                     <Avatar className={cn(
-                      "border-2 border-cyan-200 shadow-md shadow-cyan-500/10",
+                      "border-2 border-slate-300 shadow-md shadow-slate-900/[0.06]",
                       isCollapsed ? "h-9 w-9" : "h-11 w-11"
                     )}>
-                      <AvatarFallback className="bg-gradient-to-br from-cyan-500 via-blue-500 to-cyan-600 text-white text-sm font-bold">
+                      <AvatarFallback className="bg-slate-800 text-white text-sm font-bold">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
@@ -247,7 +247,7 @@ export function AppSidebar() {
                       <span className="truncate font-semibold text-slate-800">
                         {currentUser.name}
                       </span>
-                      <span className="truncate text-xs text-cyan-600 flex items-center gap-1.5 font-medium">
+                      <span className="truncate text-xs text-slate-600 flex items-center gap-1.5 font-medium">
                         <Sparkles className="h-3 w-3" />
                         {ROLE_SHORT_LABELS[currentUser.role]}
                       </span>
@@ -259,12 +259,12 @@ export function AppSidebar() {
               <DropdownMenuContent
                 side="top"
                 align={isCollapsed ? "center" : "start"}
-                className="w-60 bg-white/95 backdrop-blur-xl border-slate-200 shadow-xl shadow-slate-200/50 rounded-xl"
+                className="w-60 bg-card/95 backdrop-blur-xl border-slate-200 shadow-xl shadow-slate-900/10 rounded-xl"
               >
-                <div className="p-3 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-t-lg">
+                <div className="p-3 bg-slate-100 rounded-t-lg">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 border-2 border-cyan-200">
-                      <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold">
+                    <Avatar className="h-10 w-10 border-2 border-slate-300">
+                      <AvatarFallback className="bg-gradient-to-br from-sky-700 to-blue-700 text-white text-xs font-bold">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
@@ -293,4 +293,3 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
-

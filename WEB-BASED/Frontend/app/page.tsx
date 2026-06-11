@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
-import { Droplets } from "lucide-react"
 
 export default function RootPage() {
   const router = useRouter()
@@ -27,7 +26,7 @@ export default function RootPage() {
   return (
     <div className="flex h-screen flex-col items-center justify-center bg-gradient-to-br from-blue-950 via-blue-900 to-blue-800">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md">
-        <Droplets className="h-7 w-7 text-cyan-300" />
+        <div className="h-7 w-7 animate-spin rounded-full border-2 border-cyan-200/30 border-t-cyan-200" />
       </div>
       <p className="mt-4 text-sm text-blue-200/60">Loading MajiScope...</p>
     </div>

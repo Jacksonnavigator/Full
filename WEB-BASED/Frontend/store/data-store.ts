@@ -402,16 +402,17 @@ export const useDataStore = create<DataState>((set, get) => ({
   fetchReportsForMap: async (filters?: { utilityId?: string; dmaId?: string }) => {
     const pageSize = 500
     const maxPages = 500
-    const collected: Report[] = []
-    let total = 0
-    let skip = 0
-    let page = 0
 
-    try {
+    const loadReportsForScope = async (scope?: { utilityId?: string; dmaId?: string }) => {
+      const collected: Report[] = []
+      let total = 0
+      let skip = 0
+      let page = 0
+
       while (page < maxPages) {
         const params = new URLSearchParams()
-        if (filters?.utilityId) params.set("utility_id", filters.utilityId)
-        if (filters?.dmaId) params.set("dma_id", filters.dmaId)
+        if (scope?.utilityId) params.set("utility_id", scope.utilityId)
+        if (scope?.dmaId) params.set("dma_id", scope.dmaId)
         params.set("has_coordinates", "true")
         params.set("limit", String(pageSize))
         params.set("skip", String(skip))
@@ -437,9 +438,39 @@ export const useDataStore = create<DataState>((set, get) => ({
         page += 1
       }
 
-      set({
+      return {
         reports: collected,
-        reportsListTotal: total || collected.length,
+        total: total || collected.length,
+      }
+    }
+
+    try {
+      let result = await loadReportsForScope(filters)
+
+      if (!filters?.utilityId && !filters?.dmaId && result.reports.length === 0) {
+        const utilities = get().utilities
+        if (utilities.length > 0) {
+          const byId = new Map<string, Report>()
+          let total = 0
+
+          for (const utility of utilities) {
+            const utilityResult = await loadReportsForScope({ utilityId: utility.id })
+            total += utilityResult.total
+            utilityResult.reports.forEach((report) => {
+              byId.set(report.id, report)
+            })
+          }
+
+          result = {
+            reports: Array.from(byId.values()),
+            total: total || byId.size,
+          }
+        }
+      }
+
+      set({
+        reports: result.reports,
+        reportsListTotal: result.total,
       })
     } catch (error) {
       console.error("Error fetching reports for map:", error)

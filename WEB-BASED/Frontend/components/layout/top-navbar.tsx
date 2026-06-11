@@ -194,11 +194,11 @@ export function TopNavbar() {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case "admin":
-        return "from-amber-500 to-orange-600"
+        return "from-amber-600 to-orange-700"
       case "utility_manager":
-        return "from-cyan-500 to-blue-600"
+        return "from-sky-700 to-blue-700"
       case "dma_manager":
-        return "from-emerald-500 to-teal-600"
+        return "from-emerald-600 to-teal-700"
       default:
         return "from-slate-500 to-slate-600"
     }
@@ -219,14 +219,11 @@ export function TopNavbar() {
 
   return (
     <header className="sticky top-0 z-30 w-full overflow-hidden">
-      {/* Gradient Background with Glass Effect */}
-      <div className="relative flex h-16 w-full items-center justify-between gap-4 border-b border-slate-300 bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 px-4 text-slate-800 shadow-sm backdrop-blur-xl sm:px-6">
-        {/* Animated Background Patterns */}
+      {/* Calm command bar */}
+      <div className="relative flex h-16 w-full items-center justify-between gap-4 border-b border-slate-300/80 bg-slate-200/85 px-4 text-slate-800 shadow-sm shadow-slate-900/[0.025] backdrop-blur-xl sm:px-6">
+        {/* Subtle background texture */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {/* Gradient Orbs */}
-          <div className="absolute -left-20 -top-20 h-40 w-40 rounded-full bg-cyan-500/10 blur-3xl" />
-          <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-blue-500/10 blur-3xl" />
-          <div className="absolute left-1/2 top-0 h-px w-1/2 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+          <div className="absolute left-1/2 top-0 h-px w-1/2 bg-gradient-to-r from-transparent via-slate-500/35 to-transparent" />
           
           {/* Subtle Grid Pattern */}
           <div 
@@ -242,14 +239,13 @@ export function TopNavbar() {
         <div className="relative z-10 flex min-w-0 items-center gap-3 sm:gap-4">
           {/* Sidebar Trigger with Glow */}
           <div className="relative shrink-0">
-            <SidebarTrigger className="-ml-1 text-slate-600 transition-all duration-300 hover:text-cyan-600 hover:drop-shadow-[0_0_8px_rgba(8,145,178,0.28)]" />
+            <SidebarTrigger className="-ml-1 text-slate-600 transition-all duration-300 hover:text-slate-900" />
           </div>
 
           {/* Styled MajiScope Name - Mobile Only */}
           <div className="flex min-w-0 items-center gap-2.5 md:hidden">
             <div className="relative shrink-0">
-              <div className="absolute inset-0 animate-pulse rounded-lg bg-gradient-to-br from-cyan-400/30 to-blue-500/30 blur-md" />
-              <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-slate-800 to-slate-700 ring-1 ring-white/10">
+              <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-slate-800 ring-1 ring-slate-500/20">
                 <Image
                   src="/logo1.png"
                   alt="MajiScope Logo"
@@ -273,10 +269,10 @@ export function TopNavbar() {
         <div className="relative z-10 flex flex-1 items-center justify-center gap-1.5 sm:gap-3">
           {/* Quick Stats - Desktop Only */}
           {uiPreferences.showHeaderStats ? (
-            <div className="hidden items-center gap-4 rounded-xl bg-white/75 px-4 py-2 shadow-sm ring-1 ring-slate-200 xl:flex">
+            <div className="hidden items-center gap-4 rounded-xl bg-slate-100/85 px-4 py-2 shadow-sm shadow-slate-900/[0.025] ring-1 ring-slate-300/80 xl:flex">
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100/75">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Resolved</span>
@@ -285,8 +281,8 @@ export function TopNavbar() {
             </div>
             <div className="h-8 w-px bg-slate-200" />
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20">
-                <Clock className="h-3.5 w-3.5 text-amber-600" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100/75">
+                <Clock className="h-3.5 w-3.5 text-amber-700" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Pending</span>
@@ -295,8 +291,8 @@ export function TopNavbar() {
             </div>
             <div className="h-8 w-px bg-slate-200" />
             <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/20">
-                <TrendingUp className="h-3.5 w-3.5 text-cyan-600" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200">
+                <TrendingUp className="h-3.5 w-3.5 text-slate-700" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Efficiency</span>
@@ -310,7 +306,7 @@ export function TopNavbar() {
             variant="ghost"
             size="icon"
             onClick={() => setTheme(isDarkMode ? "light" : "dark")}
-            className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-white/80 hover:text-cyan-700"
+            className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900"
             aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
           >
             {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -321,7 +317,7 @@ export function TopNavbar() {
             variant="ghost"
             size="icon"
             onClick={handleHelp}
-            className="relative hidden h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-white/80 hover:text-cyan-700 sm:flex"
+            className="relative hidden h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 sm:flex"
             aria-label="Open help and support"
           >
             <HelpCircle className="h-4 w-4" />
@@ -333,13 +329,12 @@ export function TopNavbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-white/80 hover:text-cyan-700"
+                className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900"
               >
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 ? (
                   <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
-                    <span className="relative inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-1 text-[9px] font-bold text-white">
+                    <span className="relative inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-800 px-1 text-[9px] font-bold text-white">
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   </span>
@@ -348,15 +343,15 @@ export function TopNavbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="w-80 rounded-xl border-white/10 bg-slate-900/95 p-0 backdrop-blur-xl"
+              className="z-[9999] w-80 rounded-xl border-white/10 bg-slate-900/95 p-0 backdrop-blur-xl"
             >
               <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <Bell className="h-4 w-4 text-cyan-400" />
+                  <Bell className="h-4 w-4 text-sky-300" />
                   <span className="font-semibold text-white">Notifications</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-medium text-cyan-400">
+                  <span className="rounded-full bg-sky-500/15 px-2 py-0.5 text-xs font-medium text-sky-300">
                     {unreadCount} unread
                   </span>
                   {unreadCount > 0 ? (
@@ -365,7 +360,7 @@ export function TopNavbar() {
                       size="sm"
                       onClick={() => void handleMarkAllRead()}
                       disabled={markingAllRead}
-                      className="h-7 rounded-lg px-2 text-xs text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300"
+                      className="h-7 rounded-lg px-2 text-xs text-sky-300 hover:bg-sky-500/10 hover:text-sky-200"
                     >
                       {markingAllRead ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCheck className="h-3.5 w-3.5" />}
                     </Button>
@@ -385,25 +380,25 @@ export function TopNavbar() {
                       type="button"
                       onClick={() => void handleOpenNotification(notification.id, notification.title, notification.type, notification.link, notification.data)}
                       className={`flex w-full gap-3 rounded-lg p-3 text-left transition-colors hover:bg-white/5 ${
-                        notification.read ? "" : "bg-cyan-500/5"
+                        notification.read ? "" : "bg-sky-500/5"
                       }`}
                     >
                       <div
                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                          notification.read ? "bg-slate-500/20" : "bg-cyan-500/20"
+                          notification.read ? "bg-slate-500/20" : "bg-sky-500/15"
                         }`}
                       >
                         {notification.read ? (
                           <Clock className="h-4 w-4 text-slate-300" />
                         ) : (
-                          <Bell className="h-4 w-4 text-cyan-400" />
+                          <Bell className="h-4 w-4 text-sky-300" />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p className="truncate text-sm font-medium text-white">{notification.title}</p>
                           {!notification.read ? (
-                            <span className="rounded-full bg-cyan-500/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-cyan-300">
+                            <span className="rounded-full bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-sky-200">
                               New
                             </span>
                           ) : null}
@@ -430,7 +425,7 @@ export function TopNavbar() {
                 <Button
                   variant="ghost"
                   onClick={handleOpenNotificationsPage}
-                  className="w-full justify-center rounded-lg text-sm text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300"
+                  className="w-full justify-center rounded-lg text-sm text-sky-300 hover:bg-sky-500/10 hover:text-sky-200"
                 >
                   View all notifications
                 </Button>
@@ -448,14 +443,11 @@ export function TopNavbar() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-white/80 sm:px-3"
+                className="relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-card sm:px-3"
               >
-                {/* Avatar with Glow */}
                 <div className="relative">
-                  <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-50 blur-sm" />
-                  
-                  <Avatar className="relative h-12 w-12 ring-2 ring-cyan-200">
-                    <AvatarFallback className="bg-gradient-to-br from-cyan-600 to-blue-600 text-lg font-semibold text-white">
+                  <Avatar className="relative h-12 w-12 ring-2 ring-slate-300">
+                    <AvatarFallback className="bg-gradient-to-br from-sky-700 to-blue-700 text-lg font-semibold text-white">
                       {currentUser?.name
                         ?.split(" ")
                         .map((n) => n[0])
@@ -492,15 +484,15 @@ export function TopNavbar() {
               {/* Profile Header */}
               <div className="relative overflow-hidden border-b border-white/10 p-4">
                 {/* Background Gradient */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-blue-500/10" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-sky-700/10 via-transparent to-blue-700/10" />
                 
                 <div className="relative flex items-center gap-3">
                   <div className="relative">
-                    <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-50 blur" />
+                    <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-sky-700 to-blue-700 opacity-35 blur" />
                 
                     
                     <Avatar className="relative h-8 w-8 ring-2 ring-white/20">
-                      <AvatarFallback className="bg-gradient-to-br from-cyan-600 to-blue-600 text-sm font-semibold text-white">
+                      <AvatarFallback className="bg-gradient-to-br from-sky-700 to-blue-700 text-sm font-semibold text-white">
                         {currentUser?.name
                           ?.split(" ")
                           .map((n) => n[0])
@@ -531,8 +523,8 @@ export function TopNavbar() {
                     onClick={handleProfile}
                     className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20">
-                      <User className="h-4 w-4 text-cyan-400" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/15">
+                      <User className="h-4 w-4 text-sky-300" />
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">View Profile</span>
@@ -544,8 +536,8 @@ export function TopNavbar() {
                     onClick={handleSettings}
                     className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20">
-                      <Settings className="h-4 w-4 text-cyan-400" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/15">
+                      <Settings className="h-4 w-4 text-sky-300" />
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Settings</span>

@@ -149,7 +149,7 @@ export default function UtilitiesPage() {
         setUtilityManagers(users)
       }
     } catch (error) {
-      console.error("Error fetching managers:", error)
+      console.warn("Utility managers could not be loaded:", error)
     }
   }
 

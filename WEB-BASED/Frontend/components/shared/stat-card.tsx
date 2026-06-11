@@ -15,11 +15,11 @@ interface StatCardProps {
 }
 
 const GRADIENT_MAP = {
-  blue: "from-blue-600 to-blue-700",
-  emerald: "from-emerald-600 to-emerald-700",
-  amber: "from-amber-500 to-amber-600",
-  red: "from-red-500 to-red-600",
-  cyan: "from-cyan-600 to-cyan-700",
+  blue: "from-sky-700 to-blue-800",
+  emerald: "from-emerald-700 to-teal-800",
+  amber: "from-amber-600 to-orange-700",
+  red: "from-rose-700 to-red-800",
+  cyan: "from-cyan-700 to-sky-800",
 }
 
 export function StatCard({
@@ -56,7 +56,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl bg-gradient-to-br p-5 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5",
+        "relative overflow-hidden rounded-xl bg-gradient-to-br p-5 text-white shadow-md shadow-slate-900/10 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-900/15",
         GRADIENT_MAP[gradient],
         className
       )}
@@ -82,12 +82,12 @@ export function StatCard({
             </div>
           )}
         </div>
-        <div className="rounded-xl bg-white/15 p-3">
+        <div className="rounded-xl bg-white/12 p-3 ring-1 ring-white/10">
           <Icon className="h-6 w-6 text-white" />
         </div>
       </div>
       {/* Decorative circle */}
-      <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-white/5" />
+      <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-white/[0.04]" />
     </div>
   )
 }

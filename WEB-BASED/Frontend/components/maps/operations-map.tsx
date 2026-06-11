@@ -36,6 +36,7 @@ export function OperationsMap(props: {
   center?: [number, number] | null
   boundaryGeojson?: GeoJsonObject | null
   networkPreviewUrl?: string | null
+  networkPreviewUrls?: string[]
   networkFileName?: string | null
   title?: string
   description?: string

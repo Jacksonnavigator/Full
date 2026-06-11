@@ -200,6 +200,11 @@ export function ReportStatusMapImpl({
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            maxNativeZoom={18}
+            maxZoom={19}
+            keepBuffer={6}
+            updateWhenIdle={false}
+            detectRetina
           />
           {clusteredReports.map((cluster, clusterIndex) => {
             const primaryStatus =

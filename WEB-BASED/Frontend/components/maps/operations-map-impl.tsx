@@ -18,12 +18,14 @@ const BASEMAPS = {
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
     attribution:
       "Tiles &copy; Esri &mdash; Source: Esri, HERE, Garmin, FAO, NOAA, USGS, and the GIS User Community",
+    maxNativeZoom: 17,
   },
   satellite: {
     label: "Satellite",
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     attribution:
       "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+    maxNativeZoom: 17,
   },
 } as const
 
@@ -81,23 +83,23 @@ function getStatusMeta(status: string) {
   if (status === "pending_approval") {
     return {
       label: "Awaiting approval",
-      fill: "#a855f7",
-      stroke: "#6d28d9",
+      fill: "#7c3aed",
+      stroke: "#5b21b6",
     }
   }
 
   if (status === "approved" || status === "closed") {
     return {
       label: status === "closed" ? "Closed" : "Repaired",
-      fill: "#22c55e",
-      stroke: "#15803d",
+      fill: "#15803d",
+      stroke: "#166534",
     }
   }
 
   return {
     label: "Open",
-    fill: "#ef4444",
-    stroke: "#991b1b",
+    fill: "#be123c",
+    stroke: "#881337",
   }
 }
 
@@ -292,6 +294,7 @@ export function OperationsMapImpl({
   center,
   boundaryGeojson,
   networkPreviewUrl,
+  networkPreviewUrls = [],
   networkFileName,
   title = "Leak operations map",
   description = "Monitor leak points, routing status, and pipe coverage from one field view.",
@@ -305,6 +308,7 @@ export function OperationsMapImpl({
   center?: [number, number] | null
   boundaryGeojson?: GeoJsonObject | null
   networkPreviewUrl?: string | null
+  networkPreviewUrls?: string[]
   networkFileName?: string | null
   title?: string
   description?: string
@@ -314,9 +318,18 @@ export function OperationsMapImpl({
   chromeMode?: "standard" | "command-center"
   boundsFitKey?: string
 }) {
-  const [showNetwork, setShowNetwork] = useState(Boolean(networkPreviewUrl))
+  const networkUrls = useMemo(() => {
+    const urls = new Set<string>()
+    if (networkPreviewUrl) urls.add(networkPreviewUrl)
+    networkPreviewUrls.forEach((url) => {
+      if (url) urls.add(url)
+    })
+    return Array.from(urls)
+  }, [networkPreviewUrl, networkPreviewUrls])
+
+  const [showNetwork, setShowNetwork] = useState(networkUrls.length > 0)
   const [localBasemap, setLocalBasemap] = useState<BasemapKey>("street")
-  const [networkData, setNetworkData] = useState<GeoJsonObject | null>(null)
+  const [networkLayers, setNetworkLayers] = useState<GeoJsonObject[]>([])
   const [networkLoading, setNetworkLoading] = useState(false)
   const [networkError, setNetworkError] = useState<string | null>(null)
   const basemap = controlledBasemap ?? localBasemap
@@ -324,16 +337,16 @@ export function OperationsMapImpl({
   const isSatellite = basemap === "satellite"
 
   useEffect(() => {
-    setShowNetwork(Boolean(networkPreviewUrl))
-  }, [networkPreviewUrl])
+    setShowNetwork(networkUrls.length > 0)
+  }, [networkUrls])
 
   useEffect(() => {
     let cancelled = false
 
     async function loadNetworkPreview() {
-      if (!showNetwork || !networkPreviewUrl) {
+      if (!showNetwork || !networkUrls.length) {
         if (!cancelled) {
-          setNetworkData(null)
+          setNetworkLayers([])
           setNetworkError(null)
           setNetworkLoading(false)
         }
@@ -350,27 +363,38 @@ export function OperationsMapImpl({
       setNetworkError(null)
 
       try {
-        const response = await fetch(`${CONFIG.backend.baseUrl}${networkPreviewUrl}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        const loadedLayers: GeoJsonObject[] = []
+        const failedLoads: string[] = []
 
-        const payload = await response.json().catch(() => ({}))
-        if (!response.ok) {
-          if (!cancelled) {
-            setNetworkData(null)
-            setNetworkError(payload?.detail || "The utility pipe network preview could not be loaded.")
+        for (const url of networkUrls) {
+          const response = await fetch(`${CONFIG.backend.baseUrl}${url}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+
+          const payload = await response.json().catch(() => ({}))
+          if (!response.ok) {
+            failedLoads.push(payload?.detail || "A utility pipe network preview could not be loaded.")
+            continue
           }
-          return
+
+          loadedLayers.push(payload as GeoJsonObject)
         }
 
         if (!cancelled) {
-          setNetworkData(payload as GeoJsonObject)
+          setNetworkLayers(loadedLayers)
+          setNetworkError(
+            loadedLayers.length
+              ? failedLoads.length
+                ? `${failedLoads.length} pipe network${failedLoads.length === 1 ? "" : "s"} could not be loaded.`
+                : null
+              : failedLoads[0] || "The utility pipe network preview could not be loaded."
+          )
         }
       } catch (error) {
         if (!cancelled) {
-          setNetworkData(null)
+          setNetworkLayers([])
           setNetworkError(error instanceof Error ? error.message : "The pipe network preview could not be loaded.")
         }
       } finally {
@@ -385,7 +409,7 @@ export function OperationsMapImpl({
     return () => {
       cancelled = true
     }
-  }, [networkPreviewUrl, showNetwork])
+  }, [networkUrls, showNetwork])
 
   const validReports = useMemo(
     () =>
@@ -403,7 +427,7 @@ export function OperationsMapImpl({
       return center
     }
 
-    const networkPoints = collectGeoJsonCoordinates(networkData)
+    const networkPoints = networkLayers.flatMap((layer) => collectGeoJsonCoordinates(layer))
     if (!validReports.length && networkPoints.length) {
       const averageLatitude = networkPoints.reduce((sum, point) => sum + point[0], 0) / networkPoints.length
       const averageLongitude = networkPoints.reduce((sum, point) => sum + point[1], 0) / networkPoints.length
@@ -417,12 +441,13 @@ export function OperationsMapImpl({
     const averageLatitude = validReports.reduce((sum, report) => sum + report.latitude, 0) / validReports.length
     const averageLongitude = validReports.reduce((sum, report) => sum + report.longitude, 0) / validReports.length
     return [averageLatitude, averageLongitude]
-  }, [center, networkData, validReports])
+  }, [center, networkLayers, validReports])
 
   const fitBounds = useMemo<LatLngBoundsExpression | null>(() => {
     const points: Array<[number, number]> = [
       ...validReports.map((report) => [report.latitude, report.longitude] as [number, number]),
       ...collectGeoJsonCoordinates(boundaryGeojson ?? null),
+      ...networkLayers.flatMap((layer) => collectGeoJsonCoordinates(layer)),
     ]
 
     if (!points.length) return null
@@ -435,10 +460,10 @@ export function OperationsMapImpl({
     }
 
     return points
-  }, [boundaryGeojson, validReports])
+  }, [boundaryGeojson, networkLayers, validReports])
 
   return (
-    <div className="overflow-hidden rounded-[30px] border border-slate-200/80 bg-white shadow-[0_32px_90px_-48px_rgba(15,23,42,0.45)]">
+    <div className="overflow-hidden rounded-[30px] border border-slate-300/85 bg-slate-100 shadow-[0_28px_80px_-52px_rgba(15,23,42,0.4)]">
       <div className="relative">
         {isCommandCenter ? (
           <style jsx global>{`
@@ -474,6 +499,10 @@ export function OperationsMapImpl({
             .majiscope-map--command-center .leaflet-control-attribution a {
               color: rgba(255, 255, 255, 0.96);
             }
+
+            .majiscope-map--command-center .leaflet-tile-pane {
+              filter: none;
+            }
           `}</style>
         ) : null}
 
@@ -481,7 +510,9 @@ export function OperationsMapImpl({
           center={mapCenter}
           zoom={13}
           minZoom={10}
-          maxZoom={18}
+          maxZoom={19}
+          zoomSnap={0.5}
+          zoomDelta={0.5}
           className={cn("w-full", isCommandCenter && "majiscope-map--command-center")}
           style={{ height: "min(72vh, 760px)", minHeight: "520px", maxHeight: "760px", width: "100%" }}
         >
@@ -491,6 +522,11 @@ export function OperationsMapImpl({
             key={basemap}
             attribution={BASEMAPS[basemap].attribution}
             url={BASEMAPS[basemap].url}
+            maxNativeZoom={BASEMAPS[basemap].maxNativeZoom}
+            maxZoom={19}
+            keepBuffer={6}
+            updateWhenIdle={false}
+            detectRetina
           />
 
           {boundaryGeojson ? (
@@ -499,31 +535,34 @@ export function OperationsMapImpl({
               style={() => ({
                 color: "#0f766e",
                 weight: 3,
-                opacity: 0.95,
+                opacity: 0.82,
                 dashArray: "8 6",
                 fillColor: "#2dd4bf",
-                fillOpacity: 0.08,
+                fillOpacity: 0.05,
               })}
             />
           ) : null}
 
-          {showNetwork && networkData ? (
-            <GeoJSON
-              data={networkData}
-              style={() => ({
-                color: "#2563eb",
-                weight: 3,
-                opacity: 0.8,
-              })}
-              onEachFeature={(feature, layer) => {
-                if (!feature) return
-                const popupHtml = buildNetworkPopupHtml(feature as Feature)
-                if ("bindPopup" in layer && typeof layer.bindPopup === "function") {
-                  layer.bindPopup(popupHtml)
-                }
-              }}
-            />
-          ) : null}
+          {showNetwork
+            ? networkLayers.map((networkLayer, index) => (
+                <GeoJSON
+                  key={`network-${index}`}
+                  data={networkLayer}
+                  style={() => ({
+                    color: "#1d4ed8",
+                    weight: 3,
+                    opacity: 0.68,
+                  })}
+                  onEachFeature={(feature, layer) => {
+                    if (!feature) return
+                    const popupHtml = buildNetworkPopupHtml(feature as Feature)
+                    if ("bindPopup" in layer && typeof layer.bindPopup === "function") {
+                      layer.bindPopup(popupHtml)
+                    }
+                  }}
+                />
+              ))
+            : null}
 
           {validReports.map((report) => {
             const meta = getStatusMeta(report.status)
@@ -536,7 +575,7 @@ export function OperationsMapImpl({
                 pathOptions={{
                   fillColor: meta.fill,
                   color: meta.stroke,
-                  fillOpacity: 0.95,
+                fillOpacity: 0.88,
                   weight: 1.25,
                 }}
               >
@@ -596,7 +635,7 @@ export function OperationsMapImpl({
                 "pointer-events-none rounded-xl border px-3 py-2 shadow-lg backdrop-blur",
                 isSatellite
                   ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30"
-                  : "border-white/80 bg-white/92 text-slate-900 shadow-slate-900/10"
+                  : "border-slate-300/80 bg-slate-100/88 text-slate-900 shadow-slate-900/8"
               )}
             >
               <div className="text-[11px] font-semibold uppercase tracking-[0.22em] opacity-80">
@@ -607,7 +646,7 @@ export function OperationsMapImpl({
               </div>
             </div>
           ) : (
-            <div className="pointer-events-auto rounded-xl border border-white/80 bg-white/92 px-3 py-2 shadow-lg shadow-slate-900/10 backdrop-blur">
+            <div className="pointer-events-auto rounded-xl border border-slate-300/80 bg-slate-100/88 px-3 py-2 shadow-lg shadow-slate-900/8 backdrop-blur">
               <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {title}
               </div>
@@ -620,7 +659,7 @@ export function OperationsMapImpl({
               "pointer-events-auto rounded-2xl border px-3 py-2 shadow-lg backdrop-blur-xl",
               isSatellite
                 ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30"
-                : "border-white/80 bg-white/92 text-slate-900 shadow-slate-900/10"
+                : "border-slate-300/80 bg-slate-100/88 text-slate-900 shadow-slate-900/8"
             )}
           >
             <div className="flex flex-nowrap items-center gap-2">
@@ -632,10 +671,10 @@ export function OperationsMapImpl({
                   variant={basemap === key ? "default" : "outline"}
                   className={
                     basemap === key
-                      ? "h-8 rounded-xl bg-cyan-600 px-3 text-white hover:bg-cyan-500"
+                      ? "h-8 rounded-xl bg-slate-800 px-3 text-white hover:bg-slate-900"
                       : isSatellite
                         ? "h-8 rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
-                        : "h-8 rounded-xl border-slate-200 bg-white px-3 text-slate-700 hover:bg-slate-50"
+                        : "h-8 rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
                   }
                   onClick={() => {
                     const nextBasemap = key as BasemapKey
@@ -652,13 +691,13 @@ export function OperationsMapImpl({
                 variant={showNetwork ? "default" : "outline"}
                 className={
                   showNetwork
-                    ? "h-8 rounded-xl bg-cyan-600 px-3 text-white hover:bg-cyan-500"
+                    ? "h-8 rounded-xl bg-slate-800 px-3 text-white hover:bg-slate-900"
                     : isSatellite
                       ? "h-8 rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
-                      : "h-8 rounded-xl border-slate-200 bg-white px-3 text-slate-700 hover:bg-slate-50"
+                      : "h-8 rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
                 }
                 onClick={() => setShowNetwork((current) => !current)}
-                disabled={!networkPreviewUrl}
+                disabled={!networkUrls.length}
               >
                 <Layers3 className="mr-2 h-3.5 w-3.5" />
                 {showNetwork ? "Hide pipe network" : "Show pipe network"}
@@ -671,11 +710,6 @@ export function OperationsMapImpl({
             ) : null}
             {!networkLoading && showNetwork && networkError ? (
               <div className="mt-2 max-w-[240px] text-right text-[11px] text-rose-600">{networkError}</div>
-            ) : null}
-            {!networkLoading && !networkError && networkFileName ? (
-              <div className={cn("mt-2 text-right text-[11px]", isSatellite ? "text-white/72" : "text-slate-500")}>
-                {networkFileName}
-              </div>
             ) : null}
           </div>
         </div>

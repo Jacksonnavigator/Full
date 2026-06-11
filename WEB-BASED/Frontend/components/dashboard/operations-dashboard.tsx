@@ -48,21 +48,21 @@ function KpiCard({
   tone: "slate" | "green" | "red" | "amber"
 }) {
   const toneClasses = {
-    slate: "border-slate-200 bg-white text-slate-950",
-    green: "border-emerald-200 bg-emerald-50/70 text-emerald-950",
-    red: "border-rose-200 bg-rose-50/70 text-rose-950",
-    amber: "border-amber-200 bg-amber-50/70 text-amber-950",
+    slate: "border-slate-300/80 bg-slate-100/85 text-slate-950",
+    green: "border-emerald-200/80 bg-emerald-50/55 text-emerald-950",
+    red: "border-rose-200/80 bg-rose-50/55 text-rose-950",
+    amber: "border-amber-200/80 bg-amber-50/55 text-amber-950",
   } as const
 
   const iconClasses = {
-    slate: "bg-slate-100 text-slate-700",
-    green: "bg-emerald-100 text-emerald-700",
-    red: "bg-rose-100 text-rose-700",
-    amber: "bg-amber-100 text-amber-700",
+    slate: "bg-slate-300/65 text-slate-700",
+    green: "bg-emerald-100/75 text-emerald-700",
+    red: "bg-rose-100/75 text-rose-700",
+    amber: "bg-amber-100/75 text-amber-700",
   } as const
 
   return (
-    <div className={cn("rounded-[20px] border px-3 py-3 shadow-sm", toneClasses[tone])}>
+    <div className={cn("rounded-[20px] border px-3 py-3 shadow-sm shadow-slate-900/[0.03]", toneClasses[tone])}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
@@ -101,7 +101,7 @@ function ComparisonBarChartCard({
   const chartHeight = Math.max(270, Math.min(560, rows.length * 52 + 98))
 
   return (
-    <div className="overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
       <div className="border-b border-slate-200 px-3 py-2.5">
         <div>
           <p className="text-xs font-semibold text-slate-900">{title}</p>
@@ -140,7 +140,7 @@ function ComparisonBarChartCard({
                 <Tooltip
                   cursor={{ fill: "rgba(148, 163, 184, 0.12)" }}
                   contentStyle={{
-                    background: "#ffffff",
+                    background: "#f1f5f9",
                     border: "1px solid #cbd5e1",
                     borderRadius: 10,
                     color: "#0f172a",
@@ -156,8 +156,8 @@ function ComparisonBarChartCard({
                   wrapperStyle={{ fontSize: 11, color: "#475569", paddingTop: 8 }}
                   formatter={(value) => (value === "reported" ? "Reported" : "Resolved")}
                 />
-                <Bar dataKey="reported" fill="#d946ef" radius={0} barSize={8} />
-                <Bar dataKey="resolved" fill="#22c55e" radius={0} barSize={8} />
+                <Bar dataKey="reported" fill="#7c3aed" radius={0} barSize={8} />
+                <Bar dataKey="resolved" fill="#15803d" radius={0} barSize={8} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -200,8 +200,8 @@ export function OperationsDashboard() {
 
       setLoading(true)
       try {
+        await fetchUtilities()
         await Promise.all([
-          fetchUtilities(),
           fetchDMAs(isUtility ? currentUser.utilityId ?? undefined : undefined),
           fetchReportsForMap(
             isDMA
@@ -408,6 +408,15 @@ export function OperationsDashboard() {
     return `${activeUtility.pipeNetworkPreviewUrl}${separator}dma_id=${encodeURIComponent(activeDMA.id)}`
   }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility?.pipeNetworkPreviewUrl])
 
+  const networkPreviewUrls = useMemo(() => {
+    if (activeNetworkPreviewUrl) return [activeNetworkPreviewUrl]
+    if (!isAdmin || selectedUtilityId !== "all" || selectedDMAId !== "all") return []
+
+    return utilities
+      .map((utility) => utility.pipeNetworkPreviewUrl)
+      .filter((url): url is string => Boolean(url))
+  }, [activeNetworkPreviewUrl, isAdmin, selectedDMAId, selectedUtilityId, utilities])
+
   const mapCenter = useMemo<[number, number] | null>(() => {
     if (activeDMA?.centerLatitude != null && activeDMA?.centerLongitude != null) {
       return [activeDMA.centerLatitude, activeDMA.centerLongitude]
@@ -453,7 +462,7 @@ export function OperationsDashboard() {
   if (loading && !reports.length) {
     return (
       <div className="flex min-h-[70vh] items-center justify-center">
-        <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-600 shadow-sm">
+          <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-card px-5 py-3 text-sm font-medium text-slate-600 shadow-sm">
           <Loader2 className="h-4 w-4 animate-spin" />
           Loading leakage dashboard...
         </div>
@@ -463,10 +472,10 @@ export function OperationsDashboard() {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-[28px] border border-slate-200/80 bg-white/90 px-4 py-4 shadow-sm backdrop-blur">
+      <section className="rounded-[28px] border border-slate-300/80 bg-slate-100/85 px-4 py-4 shadow-sm shadow-slate-900/[0.025] backdrop-blur">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-700">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-600">
               <MapPinned className="h-4 w-4" />
               Leakage reporting dashboard
             </div>
@@ -484,7 +493,7 @@ export function OperationsDashboard() {
               onValueChange={setSelectedUtilityId}
               disabled={!isAdmin || !visibleUtilities.length}
             >
-              <SelectTrigger className="h-10 rounded-2xl border-slate-200 bg-white px-3 text-sm">
+              <SelectTrigger className="h-10 rounded-2xl border-slate-300 bg-slate-100 px-3 text-sm">
                 <SelectValue placeholder="Utility / Region" />
               </SelectTrigger>
               <SelectContent className="z-[5000]">
@@ -498,7 +507,7 @@ export function OperationsDashboard() {
             </Select>
 
             <Select value={selectedDMAId} onValueChange={setSelectedDMAId} disabled={isDMA || !visibleDMAs.length}>
-              <SelectTrigger className="h-10 rounded-2xl border-slate-200 bg-white px-3 text-sm">
+              <SelectTrigger className="h-10 rounded-2xl border-slate-300 bg-slate-100 px-3 text-sm">
                 <SelectValue placeholder="DMA / District" />
               </SelectTrigger>
               <SelectContent className="z-[5000]">
@@ -521,23 +530,23 @@ export function OperationsDashboard() {
           <KpiCard label="Urgent Leaks" value={kpis.urgent} icon={Siren} tone="amber" />
           <KpiCard label="Unattended Leaks" value={kpis.unattended} icon={AlertTriangle} tone="red" />
 
-          <div className="rounded-[20px] border border-slate-200 bg-white px-3 py-3 shadow-sm sm:col-span-2 xl:col-span-1">
+          <div className="rounded-[20px] border border-slate-300/80 bg-slate-100/85 px-3 py-3 shadow-sm shadow-slate-900/[0.025] sm:col-span-2 xl:col-span-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Map legend</p>
             <div className="mt-3 space-y-2 text-xs text-slate-700">
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-rose-600" />
                 Open / rejected
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-purple-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-violet-600" />
                 Pending approval
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-600" />
                 Repaired (approved / closed)
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-blue-700" />
                 Pipe network
               </div>
             </div>
@@ -564,6 +573,7 @@ export function OperationsDashboard() {
             center={mapCenter}
             boundaryGeojson={activeDMA?.boundaryGeojson ?? null}
             networkPreviewUrl={activeNetworkPreviewUrl}
+            networkPreviewUrls={networkPreviewUrls}
             networkFileName={activeUtility?.pipeNetworkFileName}
             title={scopeTitle}
             description={`${kpis.total.toLocaleString()} reports in current scope`}
