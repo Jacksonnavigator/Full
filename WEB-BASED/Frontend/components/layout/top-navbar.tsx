@@ -220,7 +220,7 @@ export function TopNavbar() {
   return (
     <header className="sticky top-0 z-30 w-full overflow-hidden">
       {/* Gradient Background with Glass Effect */}
-      <div className="relative flex h-16 w-full items-center justify-between gap-4 border-b border-gray-300 bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 px-4 backdrop-blur-xl sm:px-6">
+      <div className="relative flex h-16 w-full items-center justify-between gap-4 border-b border-slate-300 bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 px-4 text-slate-800 shadow-sm backdrop-blur-xl sm:px-6">
         {/* Animated Background Patterns */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           {/* Gradient Orbs */}
@@ -242,7 +242,7 @@ export function TopNavbar() {
         <div className="relative z-10 flex min-w-0 items-center gap-3 sm:gap-4">
           {/* Sidebar Trigger with Glow */}
           <div className="relative shrink-0">
-            <SidebarTrigger className="-ml-1 text-white/70 transition-all duration-300 hover:text-cyan-400 hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]" />
+            <SidebarTrigger className="-ml-1 text-slate-600 transition-all duration-300 hover:text-cyan-600 hover:drop-shadow-[0_0_8px_rgba(8,145,178,0.28)]" />
           </div>
 
           {/* Styled MajiScope Name - Mobile Only */}
@@ -273,34 +273,34 @@ export function TopNavbar() {
         <div className="relative z-10 flex flex-1 items-center justify-center gap-1.5 sm:gap-3">
           {/* Quick Stats - Desktop Only */}
           {uiPreferences.showHeaderStats ? (
-            <div className="hidden items-center gap-4 rounded-xl bg-white/5 px-4 py-2 ring-1 ring-white/10 xl:flex">
+            <div className="hidden items-center gap-4 rounded-xl bg-white/75 px-4 py-2 shadow-sm ring-1 ring-slate-200 xl:flex">
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Resolved</span>
-                <span className="text-sm font-bold text-white">{resolvedCount.toLocaleString("en-US")}</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Resolved</span>
+                <span className="text-sm font-bold text-slate-900">{resolvedCount.toLocaleString("en-US")}</span>
               </div>
             </div>
-            <div className="h-8 w-px bg-white/10" />
+            <div className="h-8 w-px bg-slate-200" />
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20">
-                <Clock className="h-3.5 w-3.5 text-amber-400" />
+                <Clock className="h-3.5 w-3.5 text-amber-600" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Pending</span>
-                <span className="text-sm font-bold text-white">{pendingCount.toLocaleString("en-US")}</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Pending</span>
+                <span className="text-sm font-bold text-slate-900">{pendingCount.toLocaleString("en-US")}</span>
               </div>
             </div>
-            <div className="h-8 w-px bg-white/10" />
+            <div className="h-8 w-px bg-slate-200" />
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/20">
-                <TrendingUp className="h-3.5 w-3.5 text-cyan-400" />
+                <TrendingUp className="h-3.5 w-3.5 text-cyan-600" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Efficiency</span>
-                <span className="text-sm font-bold text-emerald-400">{efficiency.toFixed(1)}%</span>
+                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Efficiency</span>
+                <span className="text-sm font-bold text-emerald-600">{efficiency.toFixed(1)}%</span>
               </div>
             </div>
             </div>
@@ -310,7 +310,7 @@ export function TopNavbar() {
             variant="ghost"
             size="icon"
             onClick={() => setTheme(isDarkMode ? "light" : "dark")}
-            className="relative h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400"
+            className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-white/80 hover:text-cyan-700"
             aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
           >
             {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -321,7 +321,7 @@ export function TopNavbar() {
             variant="ghost"
             size="icon"
             onClick={handleHelp}
-            className="relative hidden h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400 sm:flex"
+            className="relative hidden h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-white/80 hover:text-cyan-700 sm:flex"
             aria-label="Open help and support"
           >
             <HelpCircle className="h-4 w-4" />
@@ -333,7 +333,7 @@ export function TopNavbar() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400"
+                className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-white/80 hover:text-cyan-700"
               >
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 ? (
@@ -441,20 +441,20 @@ export function TopNavbar() {
 
         <div className="relative z-10 ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           {/* Divider */}
-          <div className="hidden h-8 w-px bg-white/10 sm:block" />
+                <div className="hidden h-8 w-px bg-slate-200 sm:block" />
 
           {/* User Profile Dropdown - Always at Right */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-white/10 sm:px-3"
+                className="relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-white/80 sm:px-3"
               >
                 {/* Avatar with Glow */}
                 <div className="relative">
                   <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-50 blur-sm" />
                   
-                  <Avatar className="relative h-12 w-12 ring-2 ring-white/20">
+                  <Avatar className="relative h-12 w-12 ring-2 ring-cyan-200">
                     <AvatarFallback className="bg-gradient-to-br from-cyan-600 to-blue-600 text-lg font-semibold text-white">
                       {currentUser?.name
                         ?.split(" ")
@@ -465,14 +465,14 @@ export function TopNavbar() {
                   </Avatar>
                   
                   {/* Online Indicator */}
-                  <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-slate-900 bg-emerald-500">
+                  <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-white bg-emerald-500">
                     <span className="h-1.5 w-1.5 rounded-full bg-white" />
                   </span>
                 </div>
 
                 {/* User Info - Desktop */}
                 <div className="hidden flex-col items-start sm:flex">
-                  <span className="text-sm font-semibold text-white">
+                  <span className="text-sm font-semibold text-slate-900">
                     {currentUser?.name || "User"}
                   </span>
                   <span className={`inline-flex items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeColor(currentUser?.role || "")} px-1.5 py-0.5 text-[9px] font-medium text-white`}>
@@ -481,7 +481,7 @@ export function TopNavbar() {
                   </span>
                 </div>
 
-                <ChevronDown className="hidden h-4 w-4 text-slate-400 transition-transform duration-200 group-data-[state=open]:rotate-180 sm:block" />
+                <ChevronDown className="hidden h-4 w-4 text-slate-500 transition-transform duration-200 group-data-[state=open]:rotate-180 sm:block" />
               </Button>
             </DropdownMenuTrigger>
 

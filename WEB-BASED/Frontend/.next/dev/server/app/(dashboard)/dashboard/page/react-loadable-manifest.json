@@ -1,18 +1,10 @@
 {
-  "[project]/components/maps/report-status-map-impl.tsx [app-client] (ecmascript, next/dynamic entry)": {
-    "id": "[project]/components/maps/report-status-map-impl.tsx [app-client] (ecmascript, next/dynamic entry)",
+  "[project]/components/maps/operations-map-impl.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/components/maps/operations-map-impl.tsx [app-client] (ecmascript, next/dynamic entry)",
     "files": [
-      "static/chunks/node_modules_1182e0f3._.js",
-      "static/chunks/components_maps_report-status-map-impl_tsx_651ac321._.js",
-      "static/chunks/components_maps_report-status-map-impl_tsx_c41b3450._.js"
-    ]
-  },
-  "[project]/components/maps/utility-pipe-network-map-impl.tsx [app-client] (ecmascript, next/dynamic entry)": {
-    "id": "[project]/components/maps/utility-pipe-network-map-impl.tsx [app-client] (ecmascript, next/dynamic entry)",
-    "files": [
-      "static/chunks/node_modules_d197b402._.js",
-      "static/chunks/components_maps_utility-pipe-network-map-impl_tsx_07b58bc0._.js",
-      "static/chunks/components_maps_utility-pipe-network-map-impl_tsx_c41b3450._.js"
+      "static/chunks/node_modules_b3c9b4e4._.js",
+      "static/chunks/components_maps_operations-map-impl_tsx_888b57a6._.js",
+      "static/chunks/components_maps_operations-map-impl_tsx_ed2e59ec._.js"
     ]
   }
 }

@@ -25,6 +25,16 @@ import {
   computeLeakKpis,
   hasUsableCoordinates,
 } from "@/lib/report-metrics"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
 
 function KpiCard({
   label,
@@ -52,15 +62,110 @@ function KpiCard({
   } as const
 
   return (
-    <div className={cn("rounded-[24px] border px-4 py-4 shadow-sm", toneClasses[tone])}>
+    <div className={cn("rounded-[20px] border px-3 py-3 shadow-sm", toneClasses[tone])}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight">{value.toLocaleString()}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight">{value.toLocaleString()}</p>
         </div>
-        <div className={cn("rounded-2xl p-2.5", iconClasses[tone])}>
-          <Icon className="h-5 w-5" />
+        <div className={cn("rounded-xl p-2", iconClasses[tone])}>
+          <Icon className="h-4 w-4" />
         </div>
+      </div>
+    </div>
+  )
+}
+
+type ComparisonBarRow = {
+  label: string
+  reported: number
+  resolved: number
+}
+
+function ComparisonBarChartCard({
+  title,
+  subtitle,
+  rows,
+}: {
+  title: string
+  subtitle: string
+  rows: ComparisonBarRow[]
+}) {
+  const maxValue = Math.max(...rows.flatMap((row) => [row.reported, row.resolved]), 1)
+  const formatAxisLabel = (value: string) => (value.length > 18 ? `${value.slice(0, 17)}…` : value)
+  const chartData = rows.map((row) => ({
+    name: row.label,
+    reported: row.reported,
+    resolved: row.resolved,
+  }))
+  const chartHeight = Math.max(270, Math.min(560, rows.length * 52 + 98))
+
+  return (
+    <div className="overflow-hidden rounded-[18px] border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-200 px-3 py-2.5">
+        <div>
+          <p className="text-xs font-semibold text-slate-900">{title}</p>
+          <p className="mt-1 text-[11px] text-slate-500">{subtitle}</p>
+        </div>
+      </div>
+
+      <div className="max-h-[600px] overflow-y-auto px-2 py-3">
+        {rows.length ? (
+          <div style={{ height: chartHeight }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                layout="vertical"
+                margin={{ top: 8, right: 8, left: -10, bottom: 8 }}
+                barCategoryGap={12}
+                barGap={2}
+              >
+                <CartesianGrid stroke="#dbe3ee" horizontal vertical />
+                <XAxis
+                  type="number"
+                  domain={[0, Math.ceil(maxValue * 1.05)]}
+                  tick={{ fontSize: 10, fill: "#64748b" }}
+                  axisLine={{ stroke: "#cbd5e1" }}
+                  tickLine={{ stroke: "#cbd5e1" }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={108}
+                  tick={{ fontSize: 10, fill: "#334155" }}
+                  tickFormatter={formatAxisLabel}
+                  axisLine={{ stroke: "#cbd5e1" }}
+                  tickLine={false}
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(148, 163, 184, 0.12)" }}
+                  contentStyle={{
+                    background: "#ffffff",
+                    border: "1px solid #cbd5e1",
+                    borderRadius: 10,
+                    color: "#0f172a",
+                  }}
+                  formatter={(value: number, name: string) => [
+                    value.toLocaleString(),
+                    name === "reported" ? "Reported" : "Resolved",
+                  ]}
+                  labelStyle={{ color: "#0f172a", fontWeight: 600 }}
+                />
+                <Legend
+                  iconType="circle"
+                  wrapperStyle={{ fontSize: 11, color: "#475569", paddingTop: 8 }}
+                  formatter={(value) => (value === "reported" ? "Reported" : "Resolved")}
+                />
+                <Bar dataKey="reported" fill="#d946ef" radius={0} barSize={8} />
+                <Bar dataKey="resolved" fill="#22c55e" radius={0} barSize={8} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-4 text-center text-xs text-slate-500">
+            No reports available for this scope yet.
+          </div>
+        )}
       </div>
     </div>
   )
@@ -83,6 +188,7 @@ export function OperationsDashboard() {
   const [loading, setLoading] = useState(true)
   const [selectedUtilityId, setSelectedUtilityId] = useState("all")
   const [selectedDMAId, setSelectedDMAId] = useState("all")
+  const [basemap, setBasemap] = useState<"street" | "satellite">("street")
 
   const isAdmin = currentUser?.role === "admin"
   const isUtility = currentUser?.role === "utility_manager"
@@ -185,6 +291,88 @@ export function OperationsDashboard() {
   )
 
   const kpis = useMemo(() => computeLeakKpis(filteredReports), [filteredReports])
+
+  const comparisonRows = useMemo<ComparisonBarRow[]>(() => {
+    const isResolved = (status: string) => status === "approved" || status === "closed"
+
+    if (isAdmin) {
+      const rows = new Map<string, ComparisonBarRow>()
+
+      utilities.forEach((utility) => {
+        rows.set(utility.id, {
+          label: utility.name,
+          reported: 0,
+          resolved: 0,
+        })
+      })
+
+      scopedReports.forEach((report) => {
+        const key = report.utilityId || `utility:${report.utilityName || "Unassigned utility"}`
+        const current =
+          rows.get(key) ??
+          {
+            label: report.utilityName || "Unassigned utility",
+            reported: 0,
+            resolved: 0,
+          }
+
+        current.reported += 1
+        if (isResolved(report.status)) current.resolved += 1
+        rows.set(key, current)
+      })
+
+      return Array.from(rows.values()).sort((left, right) => right.reported - left.reported)
+    }
+
+    if (isUtility && currentUser?.utilityId) {
+      const rows = new Map<string, ComparisonBarRow>()
+
+      dmas
+        .filter((dma) => dma.utilityId === currentUser.utilityId)
+        .forEach((dma) => {
+          rows.set(dma.id, {
+            label: dma.name,
+            reported: 0,
+            resolved: 0,
+          })
+        })
+
+      scopedReports.forEach((report) => {
+        const key = report.dmaId || `dma:${report.dmaName || "Unassigned DMA"}`
+        const current =
+          rows.get(key) ??
+          {
+            label: report.dmaName || "Unassigned DMA",
+            reported: 0,
+            resolved: 0,
+          }
+
+        current.reported += 1
+        if (isResolved(report.status)) current.resolved += 1
+        rows.set(key, current)
+      })
+
+      return Array.from(rows.values()).sort((left, right) => right.reported - left.reported)
+    }
+
+    if (isDMA) {
+      return [
+        {
+          label: currentDMA?.name || "Current DMA",
+          reported: scopedReports.length,
+          resolved: scopedReports.filter((report) => isResolved(report.status)).length,
+        },
+      ]
+    }
+
+    return []
+  }, [currentDMA?.name, currentUser?.utilityId, dmas, isAdmin, isDMA, isUtility, scopedReports, utilities])
+
+  const comparisonSubtitle = isAdmin
+    ? "Reported vs resolved per utility"
+    : isUtility
+      ? "Reported vs resolved per DMA"
+      : "Reported vs resolved"
 
   const activeDMA = useMemo(
     () => dmas.find((dma) => dma.id === selectedDMAId) ?? null,
@@ -326,30 +514,30 @@ export function OperationsDashboard() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[260px_minmax(0,1fr)]">
-        <aside className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[168px_minmax(0,1fr)_260px]">
+        <aside className="grid gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1">
           <KpiCard label="Total Leak Reports" value={kpis.total} icon={Droplets} tone="slate" />
           <KpiCard label="Leaks Repaired" value={kpis.repaired} icon={CheckCircle2} tone="green" />
           <KpiCard label="Urgent Leaks" value={kpis.urgent} icon={Siren} tone="amber" />
           <KpiCard label="Unattended Leaks" value={kpis.unattended} icon={AlertTriangle} tone="red" />
 
-          <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-4 shadow-sm sm:col-span-2 xl:col-span-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">Map legend</p>
-            <div className="mt-3 space-y-2 text-sm text-slate-700">
+          <div className="rounded-[20px] border border-slate-200 bg-white px-3 py-3 shadow-sm sm:col-span-2 xl:col-span-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Map legend</p>
+            <div className="mt-3 space-y-2 text-xs text-slate-700">
               <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-red-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
                 Open / rejected
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-purple-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-purple-500" />
                 Pending approval
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-green-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
                 Repaired (approved / closed)
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-blue-500" />
+                <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
                 Pipe network
               </div>
             </div>
@@ -379,12 +567,21 @@ export function OperationsDashboard() {
             networkFileName={activeUtility?.pipeNetworkFileName}
             title={scopeTitle}
             description={`${kpis.total.toLocaleString()} reports in current scope`}
-            basemap="street"
+            basemap={basemap}
+            onBasemapChange={setBasemap}
             chromeMode="command-center"
             boundsFitKey={mapFitKey}
             onReportSelect={(reportId) => router.push(`/dashboard/reports/${reportId}`)}
           />
         </section>
+
+        <aside className="grid gap-3">
+          <ComparisonBarChartCard
+            title="Reported vs resolved"
+            subtitle={comparisonSubtitle}
+            rows={comparisonRows}
+          />
+        </aside>
       </div>
     </div>
   )

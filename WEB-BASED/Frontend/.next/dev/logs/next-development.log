@@ -1,44 +1,17 @@
-[00:00:00.738] Server  LOG     ✓ Ready in 528ms
-[00:00:03.849] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:12.470] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:30.437] Browser WARN    Image with src "/logo1.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:08:23.233] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:08:23.420] Browser WARN    Image with src "/logo1.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
-[00:19:47.740] Server  LOG       Reload env: .env
-[00:19:53.178] Server  LOG       Reload env: .env.local
-[00:19:53.343] Server  LOG     ✓ Compiled in 69ms
-[00:28:00.677] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching utilities: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching DMAs: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching teams: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching engineers: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching reports: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching utilities: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching DMAs: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching engineers: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching teams: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching reports: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching utilities: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching DMAs: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching teams: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching engineers: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching reports: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching utilities: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching DMAs: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching engineers: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching teams: The operation was aborted. 
-[00:28:00.677] Browser ERROR   Error fetching reports: The operation was aborted. 
-[00:29:00.552] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:30:00.672] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:31:00.554] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:32:00.553] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:33:00.553] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:34:00.539] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:35:00.541] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:36:00.540] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:37:00.611] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:38:00.540] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:39:00.612] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:40:00.540] Browser ERROR   Error fetching notifications: The operation was aborted. 
-[00:41:00.596] Browser ERROR   Error fetching notifications: The operation was aborted. 
+[00:00:03.608] Server  LOG     ✓ Ready in 2.6s
+[00:02:10.667] Server  LOG     ○ Compiling /dashboard ...
+[00:02:15.825] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:19:10.746] Server  LOG     ✓ Compiled in 2.9s
+[00:19:14.207] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:19:43.836] Server  LOG     ✓ Compiled in 694ms
+[00:25:37.129] Server  LOG     ✓ Compiled in 854ms
+[00:27:42.394] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:30:30.438] Server  LOG     ✓ Compiled in 426ms
+[00:31:17.761] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:33:36.394] Server  LOG     ✓ Compiled in 428ms
+[01:11:03.420] Server  LOG     ✓ Compiled in 2.5s
+[01:11:56.565] Server  LOG     ✓ Compiled in 804ms
+[01:12:30.772] Server  LOG     ✓ Compiled in 291ms
+[01:13:29.959] Server  LOG     ✓ Compiled in 271ms
+[01:14:15.247] Server  LOG     ✓ Compiled in 278ms
+[01:17:04.584] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold

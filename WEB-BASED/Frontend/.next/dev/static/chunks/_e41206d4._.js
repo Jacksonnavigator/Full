@@ -73,12 +73,6 @@ const PAGE_ACCESS_MAP = {
         'dma_manager',
         'user'
     ],
-    // Map monitoring - operational roles only
-    '/map': [
-        'admin',
-        'utility_manager',
-        'dma_manager'
-    ],
     // Analytics - admin and utility managers
     '/analytics': [
         'admin',
@@ -4278,7 +4272,7 @@ function DMAManagersPage() {
         columnNumber: 5
     }, this);
 }
-_s(DMAManagersPage, "KdwBnP9YvL3nbWBIx2OI5LJtL6I=", false, function() {
+_s(DMAManagersPage, "fCLHQkTwMkFdMR5RSu8tX/W9j3w=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$page$2d$access$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePageAccess"],
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"],

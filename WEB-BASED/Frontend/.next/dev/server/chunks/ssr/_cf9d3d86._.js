@@ -73,12 +73,6 @@ const PAGE_ACCESS_MAP = {
         'dma_manager',
         'user'
     ],
-    // Map monitoring - operational roles only
-    '/map': [
-        'admin',
-        'utility_manager',
-        'dma_manager'
-    ],
     // Analytics - admin and utility managers
     '/analytics': [
         'admin',

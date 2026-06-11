@@ -437,15 +437,6 @@ export function OperationsMapImpl({
     return points
   }, [boundaryGeojson, validReports])
 
-  const legend = useMemo(
-    () => [
-      getStatusMeta("new"),
-      getStatusMeta("pending_approval"),
-      getStatusMeta("approved"),
-    ],
-    []
-  )
-
   return (
     <div className="overflow-hidden rounded-[30px] border border-slate-200/80 bg-white shadow-[0_32px_90px_-48px_rgba(15,23,42,0.45)]">
       <div className="relative">
@@ -497,6 +488,7 @@ export function OperationsMapImpl({
           <SyncMapSize />
           <FitMapToData bounds={fitBounds} fitKey={boundsFitKey} />
           <TileLayer
+            key={basemap}
             attribution={BASEMAPS[basemap].attribution}
             url={BASEMAPS[basemap].url}
           />
@@ -688,25 +680,6 @@ export function OperationsMapImpl({
           </div>
         </div>
 
-        <div className="pointer-events-none absolute inset-x-4 bottom-4 z-[1000] flex flex-wrap justify-center gap-2">
-          {legend.map((item) => (
-            <div
-              key={item.label}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium shadow-md backdrop-blur-xl",
-                isSatellite
-                  ? "border-white/14 bg-slate-950/76 text-white shadow-slate-950/30"
-                  : "border-white/80 bg-white/92 text-slate-700 shadow-slate-900/10"
-              )}
-            >
-              <span
-                className="mr-2 inline-block h-2.5 w-2.5 rounded-full align-middle"
-                style={{ backgroundColor: item.fill, boxShadow: `0 0 0 2px ${item.stroke}` }}
-              />
-              {item.label}
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   )

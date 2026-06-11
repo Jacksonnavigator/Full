@@ -22,7 +22,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 // ============================================================
 // Environment variables loaded from .env.local
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
-const rawBackendUrl = ("TURBOPACK compile-time value", "https://full-nfjr.onrender.com") || "";
+const rawBackendUrl = ("TURBOPACK compile-time value", "https://majiscope.onrender.com") || "";
 const usingFallbackBackendUrl = !rawBackendUrl;
 const BACKEND_URL = (rawBackendUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 const BACKEND_API_PREFIX = '/api';
@@ -508,6 +508,7 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
         engineers: [],
         teams: [],
         reports: [],
+        reportsListTotal: null,
         logs: [],
         notifications: [],
         isLoading: false,
@@ -620,13 +621,54 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                 if (response.success && response.data) {
                     const transformed = (response.data.items || []).map(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["transformKeys"]);
                     set({
-                        reports: transformed
+                        reports: transformed,
+                        reportsListTotal: typeof response.data.total === "number" ? response.data.total : transformed.length
                     });
                 } else {
                     console.error("Error fetching reports:", response.error);
                 }
             } catch (error) {
                 console.error("Error fetching reports:", error);
+            }
+        },
+        // Load every report with GPS for the map (paginates until the API total is reached).
+        fetchReportsForMap: async (filters)=>{
+            const pageSize = 500;
+            const maxPages = 500;
+            const collected = [];
+            let total = 0;
+            let skip = 0;
+            let page = 0;
+            try {
+                while(page < maxPages){
+                    const params = new URLSearchParams();
+                    if (filters?.utilityId) params.set("utility_id", filters.utilityId);
+                    if (filters?.dmaId) params.set("dma_id", filters.dmaId);
+                    params.set("has_coordinates", "true");
+                    params.set("limit", String(pageSize));
+                    params.set("skip", String(skip));
+                    const endpoint = `/reports?${params}`;
+                    const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get(endpoint);
+                    if (!response.success || !response.data) {
+                        console.error("Error fetching reports for map:", response.error);
+                        break;
+                    }
+                    if (page === 0 && typeof response.data.total === "number") {
+                        total = response.data.total;
+                    }
+                    const batch = (response.data.items || []).map(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["transformKeys"]);
+                    collected.push(...batch);
+                    if (batch.length < pageSize) break;
+                    if (total > 0 && collected.length >= total) break;
+                    skip += pageSize;
+                    page += 1;
+                }
+                set({
+                    reports: collected,
+                    reportsListTotal: total || collected.length
+                });
+            } catch (error) {
+                console.error("Error fetching reports for map:", error);
             }
         },
         // Fetch logs
@@ -2232,7 +2274,6 @@ __turbopack_context__.s([
 // ============================================================
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layout$2d$dashboard$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__LayoutDashboard$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/layout-dashboard.js [app-client] (ecmascript) <export default as LayoutDashboard>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$globe$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Globe$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/globe.js [app-client] (ecmascript) <export default as Globe>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Map$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/map.js [app-client] (ecmascript) <export default as Map>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2d$pin$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MapPin$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/map-pin.js [app-client] (ecmascript) <export default as MapPin>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/users.js [app-client] (ecmascript) <export default as Users>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$user$2d$cog$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__UserCog$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/user-cog.js [app-client] (ecmascript) <export default as UserCog>");
@@ -2316,16 +2357,6 @@ const NAV_ITEMS = [
         title: "Reported Leakage",
         href: "/dashboard/reports",
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"],
-        roles: [
-            "admin",
-            "utility_manager",
-            "dma_manager"
-        ]
-    },
-    {
-        title: "Map",
-        href: "/dashboard/map",
-        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$map$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Map$3e$__["Map"],
         roles: [
             "admin",
             "utility_manager",
@@ -3843,7 +3874,7 @@ function TopNavbar() {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
         className: "sticky top-0 z-30 w-full overflow-hidden",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "relative flex h-16 w-full items-center justify-between gap-4 border-b border-gray-300 bg-gradient-to-r from-gray-300 via-gray-200 to-gray-300 px-4 backdrop-blur-xl sm:px-6",
+            className: "relative flex h-16 w-full items-center justify-between gap-4 border-b border-slate-300 bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 px-4 text-slate-800 shadow-sm backdrop-blur-xl sm:px-6",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "pointer-events-none absolute inset-0 overflow-hidden",
@@ -3893,7 +3924,7 @@ function TopNavbar() {
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "relative shrink-0",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SidebarTrigger"], {
-                                className: "-ml-1 text-white/70 transition-all duration-300 hover:text-cyan-400 hover:drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]"
+                                className: "-ml-1 text-slate-600 transition-all duration-300 hover:text-cyan-600 hover:drop-shadow-[0_0_8px_rgba(8,145,178,0.28)]"
                             }, void 0, false, {
                                 fileName: "[project]/components/layout/top-navbar.tsx",
                                 lineNumber: 245,
@@ -3968,7 +3999,7 @@ function TopNavbar() {
                     className: "relative z-10 flex flex-1 items-center justify-center gap-1.5 sm:gap-3",
                     children: [
                         uiPreferences.showHeaderStats ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "hidden items-center gap-4 rounded-xl bg-white/5 px-4 py-2 ring-1 ring-white/10 xl:flex",
+                            className: "hidden items-center gap-4 rounded-xl bg-white/75 px-4 py-2 shadow-sm ring-1 ring-slate-200 xl:flex",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "flex items-center gap-2",
@@ -3976,7 +4007,7 @@ function TopNavbar() {
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20",
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__["CheckCircle2"], {
-                                                className: "h-3.5 w-3.5 text-emerald-400"
+                                                className: "h-3.5 w-3.5 text-emerald-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
                                                 lineNumber: 279,
@@ -3991,7 +4022,7 @@ function TopNavbar() {
                                             className: "flex flex-col",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-[10px] font-medium uppercase tracking-wider text-slate-400",
+                                                    className: "text-[10px] font-medium uppercase tracking-wider text-slate-500",
                                                     children: "Resolved"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
@@ -3999,7 +4030,7 @@ function TopNavbar() {
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-sm font-bold text-white",
+                                                    className: "text-sm font-bold text-slate-900",
                                                     children: resolvedCount.toLocaleString("en-US")
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
@@ -4019,7 +4050,7 @@ function TopNavbar() {
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "h-8 w-px bg-white/10"
+                                    className: "h-8 w-px bg-slate-200"
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
                                     lineNumber: 286,
@@ -4031,7 +4062,7 @@ function TopNavbar() {
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20",
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
-                                                className: "h-3.5 w-3.5 text-amber-400"
+                                                className: "h-3.5 w-3.5 text-amber-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
                                                 lineNumber: 289,
@@ -4046,7 +4077,7 @@ function TopNavbar() {
                                             className: "flex flex-col",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-[10px] font-medium uppercase tracking-wider text-slate-400",
+                                                    className: "text-[10px] font-medium uppercase tracking-wider text-slate-500",
                                                     children: "Pending"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
@@ -4054,7 +4085,7 @@ function TopNavbar() {
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-sm font-bold text-white",
+                                                    className: "text-sm font-bold text-slate-900",
                                                     children: pendingCount.toLocaleString("en-US")
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
@@ -4074,7 +4105,7 @@ function TopNavbar() {
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "h-8 w-px bg-white/10"
+                                    className: "h-8 w-px bg-slate-200"
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
                                     lineNumber: 296,
@@ -4086,7 +4117,7 @@ function TopNavbar() {
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/20",
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trending$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__TrendingUp$3e$__["TrendingUp"], {
-                                                className: "h-3.5 w-3.5 text-cyan-400"
+                                                className: "h-3.5 w-3.5 text-cyan-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
                                                 lineNumber: 299,
@@ -4101,7 +4132,7 @@ function TopNavbar() {
                                             className: "flex flex-col",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-[10px] font-medium uppercase tracking-wider text-slate-400",
+                                                    className: "text-[10px] font-medium uppercase tracking-wider text-slate-500",
                                                     children: "Efficiency"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
@@ -4109,7 +4140,7 @@ function TopNavbar() {
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-sm font-bold text-emerald-400",
+                                                    className: "text-sm font-bold text-emerald-600",
                                                     children: [
                                                         efficiency.toFixed(1),
                                                         "%"
@@ -4141,7 +4172,7 @@ function TopNavbar() {
                             variant: "ghost",
                             size: "icon",
                             onClick: ()=>setTheme(isDarkMode ? "light" : "dark"),
-                            className: "relative h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400",
+                            className: "relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-white/80 hover:text-cyan-700",
                             "aria-label": isDarkMode ? "Switch to light mode" : "Switch to dark mode",
                             children: isDarkMode ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$sun$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Sun$3e$__["Sun"], {
                                 className: "h-4 w-4"
@@ -4165,7 +4196,7 @@ function TopNavbar() {
                             variant: "ghost",
                             size: "icon",
                             onClick: handleHelp,
-                            className: "relative hidden h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400 sm:flex",
+                            className: "relative hidden h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-white/80 hover:text-cyan-700 sm:flex",
                             "aria-label": "Open help and support",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$question$2d$mark$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__HelpCircle$3e$__["HelpCircle"], {
                                 className: "h-4 w-4"
@@ -4188,7 +4219,7 @@ function TopNavbar() {
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                         variant: "ghost",
                                         size: "icon",
-                                        className: "relative h-9 w-9 rounded-xl text-slate-400 transition-all duration-300 hover:bg-white/10 hover:text-cyan-400",
+                                        className: "relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-white/80 hover:text-cyan-700",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$bell$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Bell$3e$__["Bell"], {
                                                 className: "h-4 w-4"
@@ -4504,11 +4535,11 @@ function TopNavbar() {
                     className: "relative z-10 ml-auto flex shrink-0 items-center gap-2 sm:gap-3",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "hidden h-8 w-px bg-white/10 sm:block"
+                            className: "hidden h-8 w-px bg-slate-200 sm:block"
                         }, void 0, false, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
                             lineNumber: 444,
-                            columnNumber: 11
+                            columnNumber: 17
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
                             children: [
@@ -4516,7 +4547,7 @@ function TopNavbar() {
                                     asChild: true,
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                         variant: "ghost",
-                                        className: "relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-white/10 sm:px-3",
+                                        className: "relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-white/80 sm:px-3",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "relative",
@@ -4529,7 +4560,7 @@ function TopNavbar() {
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Avatar"], {
-                                                        className: "relative h-12 w-12 ring-2 ring-white/20",
+                                                        className: "relative h-12 w-12 ring-2 ring-cyan-200",
                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AvatarFallback"], {
                                                             className: "bg-gradient-to-br from-cyan-600 to-blue-600 text-lg font-semibold text-white",
                                                             children: currentUser?.name?.split(" ").map((n)=>n[0]).join("").toUpperCase() || "U"
@@ -4544,7 +4575,7 @@ function TopNavbar() {
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-slate-900 bg-emerald-500",
+                                                        className: "absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-white bg-emerald-500",
                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             className: "h-1.5 w-1.5 rounded-full bg-white"
                                                         }, void 0, false, {
@@ -4567,7 +4598,7 @@ function TopNavbar() {
                                                 className: "hidden flex-col items-start sm:flex",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: "text-sm font-semibold text-white",
+                                                        className: "text-sm font-semibold text-slate-900",
                                                         children: currentUser?.name || "User"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/top-navbar.tsx",
@@ -4598,7 +4629,7 @@ function TopNavbar() {
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
-                                                className: "hidden h-4 w-4 text-slate-400 transition-transform duration-200 group-data-[state=open]:rotate-180 sm:block"
+                                                className: "hidden h-4 w-4 text-slate-500 transition-transform duration-200 group-data-[state=open]:rotate-180 sm:block"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
                                                 lineNumber: 484,
@@ -5095,9 +5126,9 @@ function DashboardLayout({ children }) {
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SidebarInset"], {
-                            className: "relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none",
+                            className: "relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none bg-slate-100",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
-                                className: "flex-1 overflow-y-auto overflow-x-hidden p-6",
+                                className: "flex-1 overflow-y-auto overflow-x-hidden bg-slate-100 p-6 text-slate-900",
                                 children: children
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/layout.tsx",

@@ -37,8 +37,8 @@ const DEFAULT_CENTER = [
 const BASEMAPS = {
     street: {
         label: "Street",
-        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+        attribution: "Tiles &copy; Esri &mdash; Source: Esri, HERE, Garmin, FAO, NOAA, USGS, and the GIS User Community"
     },
     satellite: {
         label: "Satellite",
@@ -83,56 +83,25 @@ function collectGeoJsonCoordinates(geojson) {
     return points;
 }
 function getStatusMeta(status) {
-    switch(status){
-        case "new":
-            return {
-                label: "New intake",
-                fill: "#ef4444",
-                stroke: "#991b1b"
-            };
-        case "assigned":
-            return {
-                label: "Assigned",
-                fill: "#f59e0b",
-                stroke: "#b45309"
-            };
-        case "in_progress":
-            return {
-                label: "In progress",
-                fill: "#0ea5e9",
-                stroke: "#0369a1"
-            };
-        case "pending_approval":
-            return {
-                label: "Awaiting DMA approval",
-                fill: "#8b5cf6",
-                stroke: "#6d28d9"
-            };
-        case "approved":
-            return {
-                label: "Approved",
-                fill: "#10b981",
-                stroke: "#047857"
-            };
-        case "closed":
-            return {
-                label: "Closed",
-                fill: "#334155",
-                stroke: "#0f172a"
-            };
-        case "rejected":
-            return {
-                label: "Rework required",
-                fill: "#f97316",
-                stroke: "#c2410c"
-            };
-        default:
-            return {
-                label: "Reported leakage",
-                fill: "#64748b",
-                stroke: "#334155"
-            };
+    if (status === "pending_approval") {
+        return {
+            label: "Awaiting approval",
+            fill: "#a855f7",
+            stroke: "#6d28d9"
+        };
     }
+    if (status === "approved" || status === "closed") {
+        return {
+            label: status === "closed" ? "Closed" : "Repaired",
+            fill: "#22c55e",
+            stroke: "#15803d"
+        };
+    }
+    return {
+        label: "Open",
+        fill: "#ef4444",
+        stroke: "#991b1b"
+    };
 }
 function getLocationLabel(report) {
     if (report.address?.trim()) return report.address;
@@ -232,26 +201,32 @@ function buildNetworkPopupHtml(feature) {
     ${startEndRows.length ? `<div style="margin-top:8px;border-top:1px solid #e2e8f0;padding-top:6px;display:grid;gap:4px;">${startEndRows.join("")}</div>` : ""}
   </div>`;
 }
-function FitMapToData({ bounds }) {
+function FitMapToData({ bounds, fitKey }) {
     _s();
     const map = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMap"])();
+    const lastAppliedFitKeyRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "FitMapToData.useEffect": ()=>{
             if (!bounds) return;
+            if (lastAppliedFitKeyRef.current === fitKey) return;
+            lastAppliedFitKeyRef.current = fitKey;
             map.fitBounds(bounds, {
                 padding: [
-                    28,
-                    28
-                ]
+                    36,
+                    36
+                ],
+                maxZoom: 15,
+                animate: false
             });
         }
     }["FitMapToData.useEffect"], [
         bounds,
+        fitKey,
         map
     ]);
     return null;
 }
-_s(FitMapToData, "IoceErwr5KVGS9kN4RQ1bOkYMAg=", false, function() {
+_s(FitMapToData, "L60MmAzc0xN4rMFkiz08FugOmUc=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMap"]
     ];
@@ -298,10 +273,10 @@ _s1(SyncMapSize, "IoceErwr5KVGS9kN4RQ1bOkYMAg=", false, function() {
     ];
 });
 _c1 = SyncMapSize;
-function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl, networkFileName, title = "Leak operations map", description = "Monitor leak points, routing status, and pipe coverage from one field view.", basemap: controlledBasemap, onBasemapChange, onReportSelect, chromeMode = "standard" }) {
+function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl, networkFileName, title = "Leak operations map", description = "Monitor leak points, routing status, and pipe coverage from one field view.", basemap: controlledBasemap, onBasemapChange, onReportSelect, chromeMode = "standard", boundsFitKey = "initial" }) {
     _s2();
     const [showNetwork, setShowNetwork] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(Boolean(networkPreviewUrl));
-    const [localBasemap, setLocalBasemap] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("satellite");
+    const [localBasemap, setLocalBasemap] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("street");
     const [networkData, setNetworkData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [networkLoading, setNetworkLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [networkError, setNetworkError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
@@ -419,86 +394,78 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
         networkData,
         validReports
     ]);
-    const bounds = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "OperationsMapImpl.useMemo[bounds]": ()=>{
+    const fitBounds = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "OperationsMapImpl.useMemo[fitBounds]": ()=>{
             const points = [
                 ...validReports.map({
-                    "OperationsMapImpl.useMemo[bounds]": (report)=>[
+                    "OperationsMapImpl.useMemo[fitBounds]": (report)=>[
                             report.latitude,
                             report.longitude
                         ]
-                }["OperationsMapImpl.useMemo[bounds]"]),
-                ...collectGeoJsonCoordinates(boundaryGeojson ?? null),
-                ...collectGeoJsonCoordinates(networkData)
+                }["OperationsMapImpl.useMemo[fitBounds]"]),
+                ...collectGeoJsonCoordinates(boundaryGeojson ?? null)
             ];
             if (!points.length) return null;
             if (points.length === 1) {
                 const [lat, lng] = points[0];
                 return [
                     [
-                        lat - 0.01,
-                        lng - 0.01
+                        lat - 0.008,
+                        lng - 0.008
                     ],
                     [
-                        lat + 0.01,
-                        lng + 0.01
+                        lat + 0.008,
+                        lng + 0.008
                     ]
                 ];
             }
             return points;
         }
-    }["OperationsMapImpl.useMemo[bounds]"], [
+    }["OperationsMapImpl.useMemo[fitBounds]"], [
         boundaryGeojson,
-        networkData,
         validReports
     ]);
-    const legend = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "OperationsMapImpl.useMemo[legend]": ()=>[
-                getStatusMeta("new"),
-                getStatusMeta("assigned"),
-                getStatusMeta("in_progress"),
-                getStatusMeta("pending_approval"),
-                getStatusMeta("approved")
-            ]
-    }["OperationsMapImpl.useMemo[legend]"], []);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "overflow-hidden rounded-[30px] border border-slate-200/80 bg-white shadow-[0_32px_90px_-48px_rgba(15,23,42,0.45)]",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "relative",
             children: [
                 isCommandCenter ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                    id: "744284ae7876464",
+                    id: "ea45824d4e495276",
                     children: ".majiscope-map--command-center .leaflet-top.leaflet-left{top:5.5rem;left:.5rem}.majiscope-map--command-center .leaflet-control-zoom a{color:#fffffff5;background:#0f172ad1;border-color:#ffffff24;box-shadow:0 14px 34px -22px #0f172ae6}.majiscope-map--command-center .leaflet-control-zoom a:hover{background:#1e293beb}.majiscope-map--command-center .leaflet-bottom.leaflet-right{bottom:.85rem;right:.75rem}.majiscope-map--command-center .leaflet-control-attribution{color:#ffffffd6;background:#0f172acc;border-radius:9999px;padding:.2rem .55rem;box-shadow:0 18px 45px -28px #0f172aeb}.majiscope-map--command-center .leaflet-control-attribution a{color:#fffffff5}"
                 }, void 0, false, void 0, this) : null,
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$MapContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MapContainer"], {
                     center: mapCenter,
                     zoom: 13,
+                    minZoom: 10,
+                    maxZoom: 18,
                     className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("w-full", isCommandCenter && "majiscope-map--command-center"),
                     style: {
-                        height: "80vh",
-                        minHeight: "760px",
-                        maxHeight: "980px",
+                        height: "min(72vh, 760px)",
+                        minHeight: "520px",
+                        maxHeight: "760px",
                         width: "100%"
                     },
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SyncMapSize, {}, void 0, false, {
                             fileName: "[project]/components/maps/operations-map-impl.tsx",
-                            lineNumber: 512,
+                            lineNumber: 488,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(FitMapToData, {
-                            bounds: bounds
+                            bounds: fitBounds,
+                            fitKey: boundsFitKey
                         }, void 0, false, {
                             fileName: "[project]/components/maps/operations-map-impl.tsx",
-                            lineNumber: 513,
+                            lineNumber: 489,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$TileLayer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TileLayer"], {
                             attribution: BASEMAPS[basemap].attribution,
                             url: BASEMAPS[basemap].url
-                        }, void 0, false, {
+                        }, basemap, false, {
                             fileName: "[project]/components/maps/operations-map-impl.tsx",
-                            lineNumber: 514,
+                            lineNumber: 490,
                             columnNumber: 11
                         }, this),
                         boundaryGeojson ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$GeoJSON$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["GeoJSON"], {
@@ -513,7 +480,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                 })
                         }, void 0, false, {
                             fileName: "[project]/components/maps/operations-map-impl.tsx",
-                            lineNumber: 520,
+                            lineNumber: 497,
                             columnNumber: 13
                         }, this) : null,
                         showNetwork && networkData ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$GeoJSON$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["GeoJSON"], {
@@ -532,7 +499,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                             }
                         }, void 0, false, {
                             fileName: "[project]/components/maps/operations-map-impl.tsx",
-                            lineNumber: 534,
+                            lineNumber: 511,
                             columnNumber: 13
                         }, this) : null,
                         validReports.map((report)=>{
@@ -542,12 +509,13 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                     report.latitude,
                                     report.longitude
                                 ],
-                                radius: 7,
+                                radius: 4,
+                                zIndexOffset: 1200,
                                 pathOptions: {
                                     fillColor: meta.fill,
                                     color: meta.stroke,
-                                    fillOpacity: 0.9,
-                                    weight: 2
+                                    fillOpacity: 0.95,
+                                    weight: 1.25
                                 },
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Popup$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Popup"], {
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -561,7 +529,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                         children: meta.label
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                        lineNumber: 568,
+                                                        lineNumber: 546,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -569,7 +537,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                         children: report.trackingId
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                        lineNumber: 571,
+                                                        lineNumber: 549,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -577,13 +545,13 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                         children: report.description
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                        lineNumber: 572,
+                                                        lineNumber: 550,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                lineNumber: 567,
+                                                lineNumber: 545,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -596,20 +564,20 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                                 className: "mt-0.5 h-3.5 w-3.5 text-slate-400"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                                lineNumber: 577,
+                                                                lineNumber: 555,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 children: getLocationLabel(report)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                                lineNumber: 578,
+                                                                lineNumber: 556,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                        lineNumber: 576,
+                                                        lineNumber: 554,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -620,7 +588,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                                 children: report.utilityName
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                                lineNumber: 582,
+                                                                lineNumber: 560,
                                                                 columnNumber: 27
                                                             }, this) : null,
                                                             report.dmaName ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -628,7 +596,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                                 children: report.dmaName
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                                lineNumber: 587,
+                                                                lineNumber: 565,
                                                                 columnNumber: 27
                                                             }, this) : null,
                                                             report.priority ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -636,19 +604,19 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                                 children: report.priority
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                                lineNumber: 592,
+                                                                lineNumber: 570,
                                                                 columnNumber: 27
                                                             }, this) : null
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                        lineNumber: 580,
+                                                        lineNumber: 558,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                lineNumber: 575,
+                                                lineNumber: 553,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -658,36 +626,63 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                 children: "Open report"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                lineNumber: 599,
+                                                lineNumber: 577,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                        lineNumber: 566,
+                                        lineNumber: 544,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                    lineNumber: 565,
+                                    lineNumber: 543,
                                     columnNumber: 17
                                 }, this)
                             }, report.id, false, {
                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                lineNumber: 554,
+                                lineNumber: 531,
                                 columnNumber: 15
                             }, this);
                         })
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                    lineNumber: 506,
+                    lineNumber: 480,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("pointer-events-none absolute top-4 z-[1000] flex items-start gap-3", isCommandCenter ? "right-4 inset-x-auto" : "inset-x-4 justify-between"),
+                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("pointer-events-none absolute top-4 z-[1000] flex items-start gap-3", isCommandCenter ? "left-4 right-4 justify-between" : "inset-x-4 justify-between"),
                     children: [
-                        !isCommandCenter ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        isCommandCenter ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("pointer-events-none rounded-xl border px-3 py-2 shadow-lg backdrop-blur", isSatellite ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30" : "border-white/80 bg-white/92 text-slate-900 shadow-slate-900/10"),
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "text-[11px] font-semibold uppercase tracking-[0.22em] opacity-80",
+                                    children: "Leak reports"
+                                }, void 0, false, {
+                                    fileName: "[project]/components/maps/operations-map-impl.tsx",
+                                    lineNumber: 602,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "mt-1 text-sm font-semibold",
+                                    children: [
+                                        validReports.length.toLocaleString(),
+                                        " on map"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/components/maps/operations-map-impl.tsx",
+                                    lineNumber: 605,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/components/maps/operations-map-impl.tsx",
+                            lineNumber: 594,
+                            columnNumber: 13
+                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "pointer-events-auto rounded-xl border border-white/80 bg-white/92 px-3 py-2 shadow-lg shadow-slate-900/10 backdrop-blur",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -695,7 +690,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                     children: title
                                 }, void 0, false, {
                                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                    lineNumber: 617,
+                                    lineNumber: 611,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -703,15 +698,15 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                     children: description
                                 }, void 0, false, {
                                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                    lineNumber: 620,
+                                    lineNumber: 614,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/maps/operations-map-impl.tsx",
-                            lineNumber: 616,
+                            lineNumber: 610,
                             columnNumber: 13
-                        }, this) : null,
+                        }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("pointer-events-auto rounded-2xl border px-3 py-2 shadow-lg backdrop-blur-xl", isSatellite ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30" : "border-white/80 bg-white/92 text-slate-900 shadow-slate-900/10"),
                             children: [
@@ -731,7 +726,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                 children: value.label
                                             }, key, false, {
                                                 fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                lineNumber: 636,
+                                                lineNumber: 628,
                                                 columnNumber: 17
                                             }, this)),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -746,20 +741,20 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                                     className: "mr-2 h-3.5 w-3.5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                                    lineNumber: 671,
+                                                    lineNumber: 663,
                                                     columnNumber: 17
                                                 }, this),
                                                 showNetwork ? "Hide pipe network" : "Show pipe network"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                            lineNumber: 657,
+                                            lineNumber: 649,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                    lineNumber: 634,
+                                    lineNumber: 626,
                                     columnNumber: 13
                                 }, this),
                                 networkLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -767,7 +762,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                     children: "Loading network..."
                                 }, void 0, false, {
                                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                    lineNumber: 676,
+                                    lineNumber: 668,
                                     columnNumber: 15
                                 }, this) : null,
                                 !networkLoading && showNetwork && networkError ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -775,7 +770,7 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                     children: networkError
                                 }, void 0, false, {
                                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                    lineNumber: 681,
+                                    lineNumber: 673,
                                     columnNumber: 15
                                 }, this) : null,
                                 !networkLoading && !networkError && networkFileName ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -783,62 +778,34 @@ function OperationsMapImpl({ reports, center, boundaryGeojson, networkPreviewUrl
                                     children: networkFileName
                                 }, void 0, false, {
                                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                    lineNumber: 684,
+                                    lineNumber: 676,
                                     columnNumber: 15
                                 }, this) : null
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/maps/operations-map-impl.tsx",
-                            lineNumber: 626,
+                            lineNumber: 618,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/maps/operations-map-impl.tsx",
-                    lineNumber: 609,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "pointer-events-none absolute inset-x-4 bottom-4 z-[1000] flex flex-wrap justify-center gap-2",
-                    children: legend.map((item)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("rounded-full border px-3 py-1.5 text-xs font-medium shadow-md backdrop-blur-xl", isSatellite ? "border-white/14 bg-slate-950/76 text-white shadow-slate-950/30" : "border-white/80 bg-white/92 text-slate-700 shadow-slate-900/10"),
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                    className: "mr-2 inline-block h-2.5 w-2.5 rounded-full align-middle",
-                                    style: {
-                                        backgroundColor: item.fill,
-                                        boxShadow: `0 0 0 2px ${item.stroke}`
-                                    }
-                                }, void 0, false, {
-                                    fileName: "[project]/components/maps/operations-map-impl.tsx",
-                                    lineNumber: 702,
-                                    columnNumber: 15
-                                }, this),
-                                item.label
-                            ]
-                        }, item.label, true, {
-                            fileName: "[project]/components/maps/operations-map-impl.tsx",
-                            lineNumber: 693,
-                            columnNumber: 13
-                        }, this))
-                }, void 0, false, {
-                    fileName: "[project]/components/maps/operations-map-impl.tsx",
-                    lineNumber: 691,
+                    lineNumber: 587,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/maps/operations-map-impl.tsx",
-            lineNumber: 468,
+            lineNumber: 442,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/maps/operations-map-impl.tsx",
-        lineNumber: 467,
+        lineNumber: 441,
         columnNumber: 5
     }, this);
 }
-_s2(OperationsMapImpl, "AkLbOFeeW16pSa2v70E3xG8Bs90=");
+_s2(OperationsMapImpl, "lfSWuwCpwO5D/d1snOnW2d/kAKs=");
 _c2 = OperationsMapImpl;
 var _c, _c1, _c2;
 __turbopack_context__.k.register(_c, "FitMapToData");

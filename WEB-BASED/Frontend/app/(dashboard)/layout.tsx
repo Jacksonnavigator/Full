@@ -55,8 +55,8 @@ export default function DashboardLayout({
         <AppSidebar />
         <div className="flex flex-col flex-1">
           <TopNavbar />
-          <SidebarInset className="relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none">
-            <main className="flex-1 overflow-y-auto overflow-x-hidden p-6">
+          <SidebarInset className="relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none bg-slate-100">
+            <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-100 p-6 text-slate-900">
               {children}
             </main>
           </SidebarInset>

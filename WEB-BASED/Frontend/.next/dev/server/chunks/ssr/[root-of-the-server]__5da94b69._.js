@@ -39,7 +39,7 @@ __turbopack_context__.s([
 // ============================================================
 // Environment variables loaded from .env.local
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
-const rawBackendUrl = ("TURBOPACK compile-time value", "https://full-nfjr.onrender.com") || "";
+const rawBackendUrl = ("TURBOPACK compile-time value", "https://majiscope.onrender.com") || "";
 const usingFallbackBackendUrl = !rawBackendUrl;
 const BACKEND_URL = (rawBackendUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 const BACKEND_API_PREFIX = '/api';

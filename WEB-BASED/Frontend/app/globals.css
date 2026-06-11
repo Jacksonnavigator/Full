@@ -16,25 +16,25 @@ button[data-next-mark="true"] {
 
 @layer base {
   :root {
-    /* Modern light theme with cyan accent and pale blue background */
-    --background: 210 100% 98%;
-    --foreground: 222 47% 11%;
+    /* Balanced light theme with calmer blue-gray surfaces */
+    --background: 210 34% 94%;
+    --foreground: 222 47% 10%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     --primary: 187 92% 45%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
+    --secondary: 210 30% 91%;
     --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 210 28% 90%;
+    --muted-foreground: 215 18% 34%;
     --accent: 187 92% 45%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --border: 214 24% 82%;
+    --input: 214 24% 82%;
     --ring: 187 92% 45%;
     --chart-1: 187 92% 45%;
     --chart-2: 160 84% 39%;
@@ -42,13 +42,13 @@ button[data-next-mark="true"] {
     --chart-4: 0 84% 60%;
     --chart-5: 199 89% 48%;
     --radius: 0.75rem;
-    --sidebar-background: 200 50% 98%;
+    --sidebar-background: 205 30% 94%;
     --sidebar-foreground: 222 47% 11%;
     --sidebar-primary: 187 92% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent: 210 28% 90%;
     --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 32% 90%;
+    --sidebar-border: 214 24% 82%;
     --sidebar-ring: 187 92% 45%;
   }
 
