@@ -379,6 +379,13 @@ export function OperationsDashboard() {
     [dmas, selectedDMAId]
   )
 
+  const visibleBoundaryGeojsons = useMemo(() => {
+    if (selectedDMAId !== "all") return []
+    return visibleDMAs
+      .map((dma) => dma.boundaryGeojson)
+      .filter((geojson): geojson is NonNullable<typeof geojson> => Boolean(geojson))
+  }, [selectedDMAId, visibleDMAs])
+
   const activeUtilityId = useMemo(() => {
     if (selectedUtilityId !== "all") return selectedUtilityId
     if (activeDMA?.utilityId) return activeDMA.utilityId
@@ -455,8 +462,8 @@ export function OperationsDashboard() {
   const allMapReportsLoaded = reportsListTotal === null || reports.length >= reportsListTotal
 
   const mapFitKey = useMemo(
-    () => [selectedUtilityId, selectedDMAId, mapReports.length, activeDMA?.id ?? "none"].join("|"),
-    [activeDMA?.id, mapReports.length, selectedDMAId, selectedUtilityId]
+    () => [selectedUtilityId, selectedDMAId, mapReports.length, activeDMA?.id ?? "none", visibleBoundaryGeojsons.length].join("|"),
+    [activeDMA?.id, mapReports.length, selectedDMAId, selectedUtilityId, visibleBoundaryGeojsons.length]
   )
 
   if (loading && !reports.length) {
@@ -572,6 +579,7 @@ export function OperationsDashboard() {
             }))}
             center={mapCenter}
             boundaryGeojson={activeDMA?.boundaryGeojson ?? null}
+            boundaryGeojsons={visibleBoundaryGeojsons}
             networkPreviewUrl={activeNetworkPreviewUrl}
             networkPreviewUrls={networkPreviewUrls}
             networkFileName={activeUtility?.pipeNetworkFileName}

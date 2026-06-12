@@ -327,7 +327,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   // Fetch DMAs
   fetchDMAs: async (utilityId?: string) => {
     try {
-      const endpoint = utilityId ? `/dmas?utilityId=${utilityId}` : "/dmas"
+      const endpoint = utilityId ? `/dmas?utility_id=${utilityId}` : "/dmas"
       const response = await apiClient.get(endpoint)
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)

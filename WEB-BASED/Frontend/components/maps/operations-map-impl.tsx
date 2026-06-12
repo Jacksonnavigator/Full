@@ -4,13 +4,18 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { CircleMarker, GeoJSON, MapContainer, Popup, TileLayer, useMap } from "react-leaflet"
 import type { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson"
 import type { LatLngBoundsExpression } from "leaflet"
-import { Layers3, Route } from "lucide-react"
+import { Layers3, MapPinned, Route } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import CONFIG from "@/lib/config"
 import type { OperationsMapReport } from "./operations-map"
 
 const DEFAULT_CENTER: [number, number] = [-6.369, 34.8888]
+
+const DMA_BOUNDARY_STYLE = {
+  color: "#f04e23",
+  fillColor: "#f97316",
+} as const
 
 const BASEMAPS = {
   street: {
@@ -291,6 +296,7 @@ export function OperationsMapImpl({
   reports,
   center,
   boundaryGeojson,
+  boundaryGeojsons = [],
   networkPreviewUrl,
   networkPreviewUrls = [],
   networkFileName,
@@ -305,6 +311,7 @@ export function OperationsMapImpl({
   reports: OperationsMapReport[]
   center?: [number, number] | null
   boundaryGeojson?: GeoJsonObject | null
+  boundaryGeojsons?: GeoJsonObject[]
   networkPreviewUrl?: string | null
   networkPreviewUrls?: string[]
   networkFileName?: string | null
@@ -325,7 +332,14 @@ export function OperationsMapImpl({
     return Array.from(urls)
   }, [networkPreviewUrl, networkPreviewUrls])
 
+  const boundaryLayers = useMemo(
+    () => (boundaryGeojson ? [boundaryGeojson] : boundaryGeojsons),
+    [boundaryGeojson, boundaryGeojsons]
+  )
+  const hasBoundaryOverlays = boundaryLayers.length > 0
+
   const [showNetwork, setShowNetwork] = useState(networkUrls.length > 0)
+  const [showBoundaries, setShowBoundaries] = useState(hasBoundaryOverlays)
   const [localBasemap, setLocalBasemap] = useState<BasemapKey>("street")
   const [networkLayers, setNetworkLayers] = useState<GeoJsonObject[]>([])
   const [networkLoading, setNetworkLoading] = useState(false)
@@ -337,6 +351,10 @@ export function OperationsMapImpl({
   useEffect(() => {
     setShowNetwork(networkUrls.length > 0)
   }, [networkUrls])
+
+  useEffect(() => {
+    setShowBoundaries(hasBoundaryOverlays)
+  }, [hasBoundaryOverlays])
 
   useEffect(() => {
     let cancelled = false
@@ -444,7 +462,7 @@ export function OperationsMapImpl({
   const fitBounds = useMemo<LatLngBoundsExpression | null>(() => {
     const points: Array<[number, number]> = [
       ...validReports.map((report) => [report.latitude, report.longitude] as [number, number]),
-      ...collectGeoJsonCoordinates(boundaryGeojson ?? null),
+      ...(showBoundaries ? boundaryLayers.flatMap((geojson) => collectGeoJsonCoordinates(geojson)) : []),
       ...networkLayers.flatMap((layer) => collectGeoJsonCoordinates(layer)),
     ]
 
@@ -458,7 +476,7 @@ export function OperationsMapImpl({
     }
 
     return points
-  }, [boundaryGeojson, networkLayers, validReports])
+  }, [boundaryLayers, networkLayers, showBoundaries, validReports])
 
   return (
     <div className="overflow-hidden rounded-[30px] border border-slate-300/85 bg-slate-100 shadow-[0_28px_80px_-52px_rgba(15,23,42,0.4)]">
@@ -536,20 +554,6 @@ export function OperationsMapImpl({
             url={BASEMAPS[basemap].url}
           />
 
-          {boundaryGeojson ? (
-            <GeoJSON
-              data={boundaryGeojson}
-              style={() => ({
-                color: "#0f766e",
-                weight: 3,
-                opacity: 0.82,
-                dashArray: "8 6",
-                fillColor: "#2dd4bf",
-                fillOpacity: 0.05,
-              })}
-            />
-          ) : null}
-
           {showNetwork
             ? networkLayers.map((networkLayer, index) => (
                 <GeoJSON
@@ -567,6 +571,22 @@ export function OperationsMapImpl({
                       layer.bindPopup(popupHtml)
                     }
                   }}
+                />
+              ))
+            : null}
+
+          {showBoundaries
+            ? boundaryLayers.map((geojson, index) => (
+                <GeoJSON
+                  key={`dma-boundary-${index}`}
+                  data={geojson}
+                  style={() => ({
+                    color: DMA_BOUNDARY_STYLE.color,
+                    weight: 4,
+                    opacity: 0.98,
+                    fillColor: DMA_BOUNDARY_STYLE.fillColor,
+                    fillOpacity: 0.025,
+                  })}
                 />
               ))
             : null}
@@ -708,6 +728,23 @@ export function OperationsMapImpl({
               >
                 <Layers3 className="mr-2 h-3.5 w-3.5" />
                 {showNetwork ? "Hide pipe network" : "Show pipe network"}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={showBoundaries ? "default" : "outline"}
+                className={
+                  showBoundaries
+                    ? "h-8 rounded-xl bg-orange-600 px-3 text-white hover:bg-orange-700"
+                    : isSatellite
+                      ? "h-8 rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
+                      : "h-8 rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
+                }
+                onClick={() => setShowBoundaries((current) => !current)}
+                disabled={!hasBoundaryOverlays}
+              >
+                <MapPinned className="mr-2 h-3.5 w-3.5" />
+                {showBoundaries ? "Hide DMA boundaries" : "Show DMA boundaries"}
               </Button>
             </div>
             {networkLoading ? (
