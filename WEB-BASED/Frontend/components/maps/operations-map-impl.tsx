@@ -15,17 +15,15 @@ const DEFAULT_CENTER: [number, number] = [-6.369, 34.8888]
 const BASEMAPS = {
   street: {
     label: "Street",
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     attribution:
-      "Tiles &copy; Esri &mdash; Source: Esri, HERE, Garmin, FAO, NOAA, USGS, and the GIS User Community",
-    maxNativeZoom: 17,
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   },
   satellite: {
     label: "Satellite",
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     attribution:
       "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
-    maxNativeZoom: 17,
   },
 } as const
 
@@ -489,15 +487,33 @@ export function OperationsMapImpl({
             }
 
             .majiscope-map--command-center .leaflet-control-attribution {
-              background: rgba(15, 23, 42, 0.8);
-              color: rgba(255, 255, 255, 0.84);
+              max-width: min(32vw, 300px);
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              background: rgba(15, 23, 42, 0.68);
+              color: rgba(255, 255, 255, 0.78);
               border-radius: 9999px;
-              padding: 0.2rem 0.55rem;
+              padding: 0.12rem 0.42rem;
+              font-size: 9.5px;
+              line-height: 1.25;
               box-shadow: 0 18px 45px -28px rgba(15, 23, 42, 0.92);
+              opacity: 0.72;
+              transition:
+                max-width 180ms ease,
+                opacity 180ms ease,
+                background-color 180ms ease;
+            }
+
+            .majiscope-map--command-center .leaflet-control-attribution:hover,
+            .majiscope-map--command-center .leaflet-control-attribution:focus-within {
+              max-width: min(64vw, 720px);
+              background: rgba(15, 23, 42, 0.82);
+              opacity: 0.96;
             }
 
             .majiscope-map--command-center .leaflet-control-attribution a {
-              color: rgba(255, 255, 255, 0.96);
+              color: rgba(255, 255, 255, 0.9);
             }
 
             .majiscope-map--command-center .leaflet-tile-pane {
@@ -509,10 +525,6 @@ export function OperationsMapImpl({
         <MapContainer
           center={mapCenter}
           zoom={13}
-          minZoom={10}
-          maxZoom={19}
-          zoomSnap={0.5}
-          zoomDelta={0.5}
           className={cn("w-full", isCommandCenter && "majiscope-map--command-center")}
           style={{ height: "min(72vh, 760px)", minHeight: "520px", maxHeight: "760px", width: "100%" }}
         >
@@ -522,11 +534,6 @@ export function OperationsMapImpl({
             key={basemap}
             attribution={BASEMAPS[basemap].attribution}
             url={BASEMAPS[basemap].url}
-            maxNativeZoom={BASEMAPS[basemap].maxNativeZoom}
-            maxZoom={19}
-            keepBuffer={6}
-            updateWhenIdle={false}
-            detectRetina
           />
 
           {boundaryGeojson ? (

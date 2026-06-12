@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { VariantProps, cva } from 'class-variance-authority'
-import { PanelLeft } from 'lucide-react'
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
 import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
@@ -272,24 +272,39 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  const { state, toggleSidebar } = useSidebar()
+  const isCollapsed = state === 'collapsed'
+  const Icon = isCollapsed ? PanelLeftOpen : PanelLeftClose
+  const label = isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
 
   return (
-    <Button
-      ref={ref}
-      data-sidebar="trigger"
-      variant="ghost"
-      size="icon"
-      className={cn('h-7 w-7', className)}
-      onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
-      }}
-      {...props}
-    >
-      <PanelLeft />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          ref={ref}
+          data-sidebar="trigger"
+          variant="ghost"
+          size="icon"
+          aria-label={label}
+          title={label}
+          className={cn(
+            'h-9 w-9 rounded-xl border border-slate-300/80 bg-slate-100/80 text-slate-700 shadow-sm shadow-slate-900/[0.035] transition-all duration-200 hover:border-slate-400 hover:bg-white hover:text-slate-950 focus-visible:ring-2 focus-visible:ring-sky-500/45',
+            className,
+          )}
+          onClick={(event) => {
+            onClick?.(event)
+            toggleSidebar()
+          }}
+          {...props}
+        >
+          <Icon className="h-4 w-4" />
+          <span className="sr-only">{label}</span>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="right" align="center">
+        {label}
+      </TooltipContent>
+    </Tooltip>
   )
 })
 SidebarTrigger.displayName = 'SidebarTrigger'
@@ -298,27 +313,35 @@ const SidebarRail = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<'button'>
 >(({ className, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  const { state, toggleSidebar } = useSidebar()
+  const isCollapsed = state === 'collapsed'
+  const Icon = isCollapsed ? PanelLeftOpen : PanelLeftClose
+  const label = isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
 
   return (
     <button
       ref={ref}
       data-sidebar="rail"
-      aria-label="Toggle Sidebar"
-      tabIndex={-1}
+      aria-label={label}
+      tabIndex={0}
       onClick={toggleSidebar}
-      title="Toggle Sidebar"
+      title={label}
       className={cn(
-        'absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] hover:after:bg-sidebar-border group-data-[side=left]:-right-4 group-data-[side=right]:left-0 sm:flex',
+        'absolute inset-y-0 z-20 hidden w-6 -translate-x-1/2 items-center justify-center transition-all ease-linear focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/45 group-data-[side=left]:-right-5 group-data-[side=right]:left-0 sm:flex',
         '[[data-side=left]_&]:cursor-w-resize [[data-side=right]_&]:cursor-e-resize',
         '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
-        'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full group-data-[collapsible=offcanvas]:hover:bg-sidebar',
+        'group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:hover:bg-sidebar',
         '[[data-side=left][data-collapsible=offcanvas]_&]:-right-2',
         '[[data-side=right][data-collapsible=offcanvas]_&]:-left-2',
         className,
       )}
       {...props}
-    />
+    >
+      <span className="flex h-10 w-5 items-center justify-center rounded-r-xl border border-l-0 border-slate-300/80 bg-slate-100/90 text-slate-600 shadow-md shadow-slate-900/[0.06] transition-all duration-200 hover:w-6 hover:border-sky-300 hover:bg-white hover:text-sky-700 group-data-[state=collapsed]:bg-sky-50 group-data-[state=collapsed]:text-sky-700">
+        <Icon className="h-3.5 w-3.5" />
+      </span>
+      <span className="sr-only">{label}</span>
+    </button>
   )
 })
 SidebarRail.displayName = 'SidebarRail'
