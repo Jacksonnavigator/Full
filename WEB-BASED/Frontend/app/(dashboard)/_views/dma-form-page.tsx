@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, type ChangeEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
@@ -24,11 +24,13 @@ import {
   ArrowLeft,
   Building2,
   CheckCircle2,
+  Loader2,
   MapPin,
   Pencil,
   Plus,
   Sparkles,
   Trash2,
+  Upload,
   XCircle,
 } from "lucide-react"
 
@@ -46,6 +48,18 @@ type BoundaryPointFormValue = {
 type BoundaryPointCoordinate = {
   latitude: number
   longitude: number
+}
+
+type BoundaryExtractionResponse = {
+  center?: BoundaryPointCoordinate
+  boundaryPoints?: BoundaryPointCoordinate[]
+  source?: {
+    fileName?: string
+    layerName?: string
+    geometryType?: string
+    pointCount?: number
+  }
+  error?: string
 }
 
 function createBoundaryPoint(latitude = "", longitude = ""): BoundaryPointFormValue {
@@ -103,6 +117,7 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
   const [formCenterLongitude, setFormCenterLongitude] = useState("")
   const [formBoundaryPoints, setFormBoundaryPoints] = useState<BoundaryPointFormValue[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isExtractingBoundary, setIsExtractingBoundary] = useState(false)
 
   const isUtility = currentUser?.role === "utility_manager"
   const utilityFromList = currentUser?.utilityId ? utilities.find((u) => u.id === currentUser.utilityId) : null
@@ -258,6 +273,49 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
       toast.error(mode === "edit" ? "Failed to update DMA" : "Failed to create DMA")
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  async function handleBoundaryFileUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+
+    if (!file) return
+
+    setIsExtractingBoundary(true)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/dma-boundary/extract", {
+        method: "POST",
+        body: formData,
+      })
+      const payload = (await response.json().catch(() => ({}))) as BoundaryExtractionResponse
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Failed to extract DMA boundary geometry")
+      }
+
+      if (!payload.center || !Array.isArray(payload.boundaryPoints) || payload.boundaryPoints.length < 3) {
+        throw new Error("The uploaded file did not contain enough boundary points.")
+      }
+
+      setFormCenterLatitude(payload.center.latitude.toFixed(6))
+      setFormCenterLongitude(payload.center.longitude.toFixed(6))
+      setFormBoundaryPoints(
+        payload.boundaryPoints.map((point) =>
+          createBoundaryPoint(point.latitude.toFixed(6), point.longitude.toFixed(6))
+        )
+      )
+
+      const pointCount = payload.source?.pointCount ?? payload.boundaryPoints.length
+      toast.success(`Boundary extracted from ${file.name} with ${pointCount.toLocaleString()} points.`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to extract DMA boundary geometry")
+    } finally {
+      setIsExtractingBoundary(false)
     }
   }
 
@@ -432,22 +490,43 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
             </div>
 
             <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
                   <Label className="text-sm font-medium text-slate-700">DMA Boundary Geometry</Label>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Add as many boundary points as needed. You can type them manually or capture them from the map in boundary mode.
+                  <p className="text-xs text-slate-500">
+                    If you already have a boundary file, upload it here and the system will extract the boundary points and center automatically.
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    If you do not have a file, use the map controls on the top right to set the DMA center and capture boundary points manually.
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Supported upload formats: GeoPackage (.gpkg), GeoJSON (.geojson), or JSON (.json).
                   </p>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-xl"
-                  onClick={() => setFormBoundaryPoints((current) => [...current, createBoundaryPoint()])}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Geometry Boundary Point
-                </Button>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    id="dma-boundary-file"
+                    type="file"
+                    accept=".gpkg,.geojson,.json"
+                    className="hidden"
+                    onChange={handleBoundaryFileUpload}
+                    disabled={isExtractingBoundary}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-xl"
+                    disabled={isExtractingBoundary}
+                    onClick={() => document.getElementById("dma-boundary-file")?.click()}
+                  >
+                    {isExtractingBoundary ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="mr-2 h-4 w-4" />
+                    )}
+                    {isExtractingBoundary ? "Extracting..." : "Upload Boundary File"}
+                  </Button>
+                </div>
               </div>
 
               {formBoundaryPoints.length ? (
@@ -521,32 +600,37 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
               )}
             </div>
 
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-slate-700">Status</Label>
-              <Select value={formStatus} onValueChange={(value) => setFormStatus(value as EntityStatus)}>
-                <SelectTrigger className="h-12 rounded-xl border-slate-200/80 bg-slate-50/80">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
-                  <SelectItem value="active" className="rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      Active
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="inactive" className="rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <XCircle className="h-4 w-4 text-slate-400" />
-                      Inactive
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </CardContent>
         </Card>
 
         <div className="flex flex-col gap-4">
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+            <CardContent className="p-5">
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium text-slate-700">DMA Status</Label>
+                <Select value={formStatus} onValueChange={(value) => setFormStatus(value as EntityStatus)}>
+                  <SelectTrigger className="h-12 rounded-xl border-slate-200/80 bg-slate-50/80">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
+                    <SelectItem value="active" className="rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                        Active
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="inactive" className="rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-slate-400" />
+                        Inactive
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
           <DMALocationPicker
             centerValue={{
               latitude: formCenterLatitude.trim() ? Number(formCenterLatitude) : null,

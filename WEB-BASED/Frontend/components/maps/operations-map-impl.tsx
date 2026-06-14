@@ -554,27 +554,6 @@ export function OperationsMapImpl({
             url={BASEMAPS[basemap].url}
           />
 
-          {showNetwork
-            ? networkLayers.map((networkLayer, index) => (
-                <GeoJSON
-                  key={`network-${index}`}
-                  data={networkLayer}
-                  style={() => ({
-                    color: "#1d4ed8",
-                    weight: 3,
-                    opacity: 0.68,
-                  })}
-                  onEachFeature={(feature, layer) => {
-                    if (!feature) return
-                    const popupHtml = buildNetworkPopupHtml(feature as Feature)
-                    if ("bindPopup" in layer && typeof layer.bindPopup === "function") {
-                      layer.bindPopup(popupHtml)
-                    }
-                  }}
-                />
-              ))
-            : null}
-
           {showBoundaries
             ? boundaryLayers.map((geojson, index) => (
                 <GeoJSON
@@ -591,63 +570,83 @@ export function OperationsMapImpl({
               ))
             : null}
 
+          {showNetwork
+            ? networkLayers.map((networkLayer, index) => (
+                <GeoJSON
+                  key={`network-${index}`}
+                  data={networkLayer}
+                  style={() => ({
+                    color: "#2563eb",
+                    weight: 3,
+                    opacity: 0.8,
+                  })}
+                  onEachFeature={(feature, layer) => {
+                    if (!feature) return
+                    const popupHtml = buildNetworkPopupHtml(feature as Feature)
+                    if ("bindPopup" in layer && typeof layer.bindPopup === "function") {
+                      layer.bindPopup(popupHtml)
+                    }
+                  }}
+                />
+              ))
+            : null}
+
           {validReports.map((report) => {
-            const meta = getStatusMeta(report.status)
-            return (
-              <CircleMarker
-                key={report.id}
-                center={[report.latitude, report.longitude]}
-                radius={4}
-                zIndexOffset={1200}
-                pathOptions={{
-                  fillColor: meta.fill,
-                  color: meta.stroke,
-                fillOpacity: 0.88,
-                  weight: 1.25,
-                }}
-              >
-                <Popup>
-                  <div className="w-[250px] space-y-3">
-                    <div className="space-y-1">
-                      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                        {meta.label}
+              const meta = getStatusMeta(report.status)
+              return (
+                <CircleMarker
+                  key={report.id}
+                  center={[report.latitude, report.longitude]}
+                  radius={4}
+                  pathOptions={{
+                    fillColor: meta.fill,
+                    color: meta.stroke,
+                    fillOpacity: 0.88,
+                    weight: 1.25,
+                  }}
+                >
+                  <Popup>
+                    <div className="w-[250px] space-y-3">
+                      <div className="space-y-1">
+                        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                          {meta.label}
+                        </div>
+                        <h3 className="text-sm font-semibold text-slate-900">{report.trackingId}</h3>
+                        <p className="line-clamp-3 text-sm text-slate-600">{report.description}</p>
                       </div>
-                      <h3 className="text-sm font-semibold text-slate-900">{report.trackingId}</h3>
-                      <p className="line-clamp-3 text-sm text-slate-600">{report.description}</p>
-                    </div>
 
-                    <div className="space-y-2 text-xs text-slate-600">
-                      <div className="flex items-start gap-2">
-                        <Route className="mt-0.5 h-3.5 w-3.5 text-slate-400" />
-                        <span>{getLocationLabel(report)}</span>
+                      <div className="space-y-2 text-xs text-slate-600">
+                        <div className="flex items-start gap-2">
+                          <Route className="mt-0.5 h-3.5 w-3.5 text-slate-400" />
+                          <span>{getLocationLabel(report)}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {report.utilityName ? (
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-700">
+                              {report.utilityName}
+                            </span>
+                          ) : null}
+                          {report.dmaName ? (
+                            <span className="rounded-full bg-cyan-50 px-2.5 py-1 font-medium text-cyan-800">
+                              {report.dmaName}
+                            </span>
+                          ) : null}
+                          {report.priority ? (
+                            <span className="rounded-full bg-amber-50 px-2.5 py-1 font-medium capitalize text-amber-800">
+                              {report.priority}
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {report.utilityName ? (
-                          <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-700">
-                            {report.utilityName}
-                          </span>
-                        ) : null}
-                        {report.dmaName ? (
-                          <span className="rounded-full bg-cyan-50 px-2.5 py-1 font-medium text-cyan-800">
-                            {report.dmaName}
-                          </span>
-                        ) : null}
-                        {report.priority ? (
-                          <span className="rounded-full bg-amber-50 px-2.5 py-1 font-medium capitalize text-amber-800">
-                            {report.priority}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
 
-                    <Button type="button" className="w-full" onClick={() => onReportSelect?.(report.id)}>
-                      Open report
-                    </Button>
-                  </div>
-                </Popup>
-              </CircleMarker>
-            )
-          })}
+                      <Button type="button" className="w-full" onClick={() => onReportSelect?.(report.id)}>
+                        Open report
+                      </Button>
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              )
+            })}
         </MapContainer>
 
         <div
