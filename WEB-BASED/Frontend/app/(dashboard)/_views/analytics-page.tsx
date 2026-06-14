@@ -39,6 +39,8 @@ const DATE_FILTERS: { value: DateFilter; label: string }[] = [
   { value: "90d", label: "Last 90 days" },
 ]
 
+const CHART_AXIS_TICK = { fill: "var(--chart-axis-text)", fontSize: 11 }
+
 function passesDateFilter(dateValue: string | undefined, filter: DateFilter) {
   if (filter === "all") return true
   if (!dateValue) return false
@@ -308,8 +310,8 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={statusChartData} layout="vertical" margin={{ left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
+                <XAxis type="number" tick={CHART_AXIS_TICK} />
+                <YAxis type="category" dataKey="name" width={120} tick={CHART_AXIS_TICK} />
                 <Tooltip />
                 <Bar dataKey="count" fill="#2563eb" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -325,8 +327,8 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={priorityChartData} layout="vertical" margin={{ left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 11 }} />
+                <XAxis type="number" tick={CHART_AXIS_TICK} />
+                <YAxis type="category" dataKey="name" width={90} tick={CHART_AXIS_TICK} />
                 <Tooltip />
                 <Bar dataKey="count" fill="#f59e0b" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -344,8 +346,8 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={utilityChartData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="name" tick={CHART_AXIS_TICK} />
+                <YAxis tick={CHART_AXIS_TICK} />
                 <Tooltip />
                 <Bar dataKey="count" fill="#0891b2" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -362,8 +364,8 @@ export default function AnalyticsPage() {
           <ResponsiveContainer width="100%" height={340}>
             <BarChart data={dmaChartData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={70} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <XAxis dataKey="name" tick={CHART_AXIS_TICK} interval={0} angle={-20} textAnchor="end" height={70} />
+              <YAxis tick={CHART_AXIS_TICK} />
               <Tooltip />
               <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -379,8 +381,8 @@ export default function AnalyticsPage() {
           <ResponsiveContainer width="100%" height={320}>
             <LineChart data={monthlyTrendData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <XAxis dataKey="month" tick={CHART_AXIS_TICK} />
+              <YAxis tick={CHART_AXIS_TICK} />
               <Tooltip />
               <Line type="monotone" dataKey="count" stroke="#0f766e" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>

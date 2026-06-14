@@ -476,13 +476,13 @@ export default function EngineersPage() {
         </div>
 
         {canManage && (
-          <Card className="border-dashed border-teal-200 bg-teal-50/60 shadow-none">
-            <CardContent className="flex flex-col gap-3 p-4 text-sm text-slate-600 lg:flex-row lg:items-center lg:justify-between">
+          <Card className="border-dashed border-teal-200 bg-teal-50/60 shadow-none dark:border-teal-400/35 dark:bg-slate-900/85 dark:shadow-sm dark:shadow-black/20">
+            <CardContent className="flex flex-col gap-3 p-4 text-sm text-slate-600 dark:text-slate-200 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="font-semibold text-slate-800">Bulk invitation template</p>
-                <p className="mt-1">Use the CSV template to invite many engineers at once. Fill only <span className="font-medium">email</span>, <span className="font-medium">role</span>, and <span className="font-medium">team_name</span>. MajiScope keeps the account inside your current DMA, sends the invitation email when a provider is configured, and gives you a secure invite link when manual sharing is needed.</p>
+                <p className="font-semibold text-slate-800 dark:text-white">Bulk invitation template</p>
+                <p className="mt-1 text-slate-600 dark:text-slate-300">Use the CSV template to invite many engineers at once. Fill only <span className="font-medium text-slate-800 dark:text-white">email</span>, <span className="font-medium text-slate-800 dark:text-white">role</span>, and <span className="font-medium text-slate-800 dark:text-white">team_name</span>. MajiScope keeps the account inside your current DMA, sends the invitation email when a provider is configured, and gives you a secure invite link when manual sharing is needed.</p>
               </div>
-              <div className="rounded-xl bg-white px-4 py-3 text-xs text-slate-500">Active teams available for import: <span className="font-semibold text-slate-800">{availableTeams.length}</span></div>
+              <div className="rounded-xl bg-white px-4 py-3 text-xs text-slate-500 shadow-sm shadow-slate-900/[0.03] dark:border dark:border-teal-400/20 dark:bg-slate-950/80 dark:text-slate-300 dark:shadow-black/20">Active teams available for import: <span className="font-semibold text-slate-800 dark:text-white">{availableTeams.length}</span></div>
             </CardContent>
           </Card>
         )}

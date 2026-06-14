@@ -36,6 +36,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { getNotificationTag, resolveNotificationDestinationWithData } from "@/lib/notifications"
 import { formatTanzaniaShortDate } from "@/lib/date-time"
 import { DEFAULT_WEB_UI_PREFERENCES, loadWebUiPreferences, subscribeToWebUiPreferences } from "@/lib/user-preferences"
@@ -52,7 +53,7 @@ export function TopNavbar() {
     markNotificationRead,
     markAllNotificationsRead,
   } = useDataStore()
-  const { theme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [notificationsLoading, setNotificationsLoading] = useState(false)
   const [markingAllRead, setMarkingAllRead] = useState(false)
@@ -61,7 +62,7 @@ export function TopNavbar() {
 
   const unreadCount = getUnreadNotificationCount()
   const recentNotifications = useMemo(() => notifications.slice(0, 5), [notifications])
-  const isDarkMode = mounted && theme === "dark"
+  const isDarkMode = mounted && resolvedTheme === "dark"
 
   useEffect(() => {
     setMounted(true)
@@ -220,7 +221,7 @@ export function TopNavbar() {
   return (
     <header className="sticky top-0 z-30 w-full overflow-hidden">
       {/* Calm command bar */}
-      <div className="relative flex h-16 w-full items-center justify-between gap-4 border-b border-slate-300/80 bg-slate-200/85 px-4 text-slate-800 shadow-sm shadow-slate-900/[0.025] backdrop-blur-xl sm:px-6">
+      <div className="relative flex h-16 w-full items-center justify-between gap-4 border-b border-slate-300/80 bg-slate-200/85 px-4 text-slate-800 shadow-sm shadow-slate-900/[0.025] backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/88 dark:text-slate-100 dark:shadow-black/30 sm:px-6">
         {/* Subtle background texture */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-1/2 top-0 h-px w-1/2 bg-gradient-to-r from-transparent via-slate-500/35 to-transparent" />
@@ -239,7 +240,7 @@ export function TopNavbar() {
         <div className="relative z-10 flex min-w-0 items-center gap-3 sm:gap-4">
           {/* Sidebar Trigger with Glow */}
           <div className="relative shrink-0">
-            <SidebarTrigger className="-ml-1 text-slate-600 transition-all duration-300 hover:text-slate-900" />
+            <SidebarTrigger className="-ml-1 text-slate-600 transition-all duration-300 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white" />
           </div>
 
           {/* Styled MajiScope Name - Mobile Only */}
@@ -269,7 +270,7 @@ export function TopNavbar() {
         <div className="relative z-10 flex flex-1 items-center justify-center gap-1.5 sm:gap-3">
           {/* Quick Stats - Desktop Only */}
           {uiPreferences.showHeaderStats ? (
-            <div className="hidden items-center gap-4 rounded-xl bg-slate-100/85 px-4 py-2 shadow-sm shadow-slate-900/[0.025] ring-1 ring-slate-300/80 xl:flex">
+            <div className="hidden items-center gap-4 rounded-xl bg-slate-100/85 px-4 py-2 shadow-sm shadow-slate-900/[0.025] ring-1 ring-slate-300/80 dark:bg-slate-900/80 dark:shadow-black/20 dark:ring-slate-800 xl:flex">
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100/75">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
@@ -302,45 +303,67 @@ export function TopNavbar() {
             </div>
           ) : null}
           {/* Theme Toggle MORDERN */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(isDarkMode ? "light" : "dark")}
-            className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900"
-            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
-
-          {/* Help Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleHelp}
-            className="relative hidden h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 sm:flex"
-            aria-label="Open help and support"
-          >
-            <HelpCircle className="h-4 w-4" />
-          </Button>
-
-          {/* Notifications Dropdown */}
-          <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
-            <DropdownMenuTrigger asChild>
+          <Tooltip>
+            <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900"
+                onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+                className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
               >
-                <Bell className="h-4 w-4" />
-                {unreadCount > 0 ? (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center">
-                    <span className="relative inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-800 px-1 text-[9px] font-bold text-white">
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  </span>
-                ) : null}
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-            </DropdownMenuTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            </TooltipContent>
+          </Tooltip>
+
+          {/* Help Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleHelp}
+                className="relative hidden h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white sm:flex"
+                aria-label="Open help and support"
+              >
+                <HelpCircle className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Open help and support
+            </TooltipContent>
+          </Tooltip>
+
+          {/* Notifications Dropdown */}
+          <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                      aria-label="Open notifications"
+                    >
+                      <Bell className="h-4 w-4" />
+                      {unreadCount > 0 ? (
+                        <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center">
+                          <span className="relative inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-slate-800 px-1 text-[9px] font-bold text-white">
+                            {unreadCount > 9 ? "9+" : unreadCount}
+                          </span>
+                        </span>
+                      ) : null}
+                    </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                Open notifications
+              </TooltipContent>
+            </Tooltip>
             <DropdownMenuContent
               align="end"
               className="z-[9999] w-80 rounded-xl border-white/10 bg-slate-900/95 p-0 backdrop-blur-xl"
@@ -436,17 +459,17 @@ export function TopNavbar() {
 
         <div className="relative z-10 ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
           {/* Divider */}
-                <div className="hidden h-8 w-px bg-slate-200 sm:block" />
+                <div className="hidden h-8 w-px bg-slate-200 dark:bg-slate-800 sm:block" />
 
           {/* User Profile Dropdown - Always at Right */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-card sm:px-3"
+                className="relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-card dark:hover:bg-slate-900 sm:px-3"
               >
                 <div className="relative">
-                  <Avatar className="relative h-12 w-12 ring-2 ring-slate-300">
+                  <Avatar className="relative h-12 w-12 ring-2 ring-slate-300 dark:ring-slate-700">
                     <AvatarFallback className="bg-gradient-to-br from-sky-700 to-blue-700 text-lg font-semibold text-white">
                       {currentUser?.name
                         ?.split(" ")
@@ -457,14 +480,14 @@ export function TopNavbar() {
                   </Avatar>
                   
                   {/* Online Indicator */}
-                  <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-white bg-emerald-500">
+                  <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-white bg-emerald-500 dark:border-slate-950">
                     <span className="h-1.5 w-1.5 rounded-full bg-white" />
                   </span>
                 </div>
 
                 {/* User Info - Desktop */}
                 <div className="hidden flex-col items-start sm:flex">
-                  <span className="text-sm font-semibold text-slate-900">
+                  <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                     {currentUser?.name || "User"}
                   </span>
                   <span className={`inline-flex items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeColor(currentUser?.role || "")} px-1.5 py-0.5 text-[9px] font-medium text-white`}>
@@ -473,7 +496,7 @@ export function TopNavbar() {
                   </span>
                 </div>
 
-                <ChevronDown className="hidden h-4 w-4 text-slate-500 transition-transform duration-200 group-data-[state=open]:rotate-180 sm:block" />
+                <ChevronDown className="hidden h-4 w-4 text-slate-500 transition-transform duration-200 group-data-[state=open]:rotate-180 dark:text-slate-400 sm:block" />
               </Button>
             </DropdownMenuTrigger>
 

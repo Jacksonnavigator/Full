@@ -82,6 +82,8 @@ type ComparisonBarRow = {
   resolved: number
 }
 
+const CHART_AXIS_TICK = { fill: "var(--chart-axis-text)", fontSize: 10 }
+
 function ComparisonBarChartCard({
   title,
   subtitle,
@@ -124,7 +126,7 @@ function ComparisonBarChartCard({
                 <XAxis
                   type="number"
                   domain={[0, Math.ceil(maxValue * 1.05)]}
-                  tick={{ fontSize: 10, fill: "#64748b" }}
+                  tick={CHART_AXIS_TICK}
                   axisLine={{ stroke: "#cbd5e1" }}
                   tickLine={{ stroke: "#cbd5e1" }}
                 />
@@ -132,7 +134,7 @@ function ComparisonBarChartCard({
                   type="category"
                   dataKey="name"
                   width={108}
-                  tick={{ fontSize: 10, fill: "#334155" }}
+                  tick={CHART_AXIS_TICK}
                   tickFormatter={formatAxisLabel}
                   axisLine={{ stroke: "#cbd5e1" }}
                   tickLine={false}

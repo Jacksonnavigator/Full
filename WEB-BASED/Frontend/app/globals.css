@@ -328,10 +328,11 @@ button[data-next-mark="true"] {
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 214 16% 78%;
     --sidebar-ring: 202 58% 31%;
+    --chart-axis-text: #64748b;
   }
 
   .dark {
-    --background: 222 47% 8%;
+    --background: 222 47% 7%;
     --foreground: 210 40% 96%;
     --card: 222 42% 11%;
     --card-foreground: 210 40% 96%;
@@ -363,7 +364,235 @@ button[data-next-mark="true"] {
     --sidebar-accent-foreground: 210 40% 96%;
     --sidebar-border: 217 25% 20%;
     --sidebar-ring: 187 92% 45%;
+    --chart-axis-text: #ffffff;
   }
+}
+
+/* Dark mode is layered on top of the existing light design. The current
+   hardcoded light classes remain the default; these overrides activate only
+   when next-themes adds the .dark class to the document. */
+.dark .bg-white,
+.dark .bg-white\/70,
+.dark .bg-white\/80,
+.dark .bg-white\/90,
+.dark .bg-slate-50,
+.dark .bg-slate-50\/50,
+.dark .bg-slate-50\/70,
+.dark .bg-slate-50\/80,
+.dark .bg-slate-100,
+.dark .bg-slate-100\/50,
+.dark .bg-slate-100\/70,
+.dark .bg-slate-100\/80,
+.dark .bg-slate-100\/85,
+.dark .bg-slate-100\/88 {
+  background-color: rgb(15 23 42 / 0.92) !important;
+}
+
+.dark .bg-slate-200,
+.dark .bg-slate-200\/45,
+.dark .bg-slate-200\/55,
+.dark .bg-slate-200\/85 {
+  background-color: rgb(2 6 23 / 0.88) !important;
+}
+
+.dark .bg-slate-300,
+.dark .bg-slate-300\/50,
+.dark .bg-slate-300\/55,
+.dark .bg-slate-300\/60,
+.dark .bg-slate-300\/65,
+.dark .bg-slate-300\/70 {
+  background-color: rgb(30 41 59 / 0.86) !important;
+}
+
+.dark .bg-red-50,
+.dark .bg-red-50\/20,
+.dark .bg-red-50\/30,
+.dark .bg-red-50\/40,
+.dark .bg-red-50\/50,
+.dark .bg-red-50\/60,
+.dark .bg-rose-50,
+.dark .bg-rose-50\/20,
+.dark .bg-rose-50\/30,
+.dark .bg-rose-50\/40,
+.dark .bg-rose-50\/50,
+.dark .bg-rose-50\/60,
+.dark .bg-blue-50,
+.dark .bg-blue-50\/20,
+.dark .bg-blue-50\/30,
+.dark .bg-blue-50\/40,
+.dark .bg-blue-50\/50,
+.dark .bg-blue-50\/60,
+.dark .bg-cyan-50,
+.dark .bg-cyan-50\/20,
+.dark .bg-cyan-50\/30,
+.dark .bg-cyan-50\/40,
+.dark .bg-cyan-50\/50,
+.dark .bg-cyan-50\/60,
+.dark .bg-violet-50,
+.dark .bg-violet-50\/20,
+.dark .bg-violet-50\/30,
+.dark .bg-violet-50\/40,
+.dark .bg-violet-50\/50,
+.dark .bg-violet-50\/60,
+.dark .bg-purple-50,
+.dark .bg-purple-50\/20,
+.dark .bg-purple-50\/30,
+.dark .bg-purple-50\/40,
+.dark .bg-purple-50\/50,
+.dark .bg-purple-50\/60,
+.dark .bg-amber-50,
+.dark .bg-amber-50\/20,
+.dark .bg-amber-50\/30,
+.dark .bg-amber-50\/40,
+.dark .bg-amber-50\/50,
+.dark .bg-amber-50\/60,
+.dark .bg-orange-50,
+.dark .bg-orange-50\/20,
+.dark .bg-orange-50\/30,
+.dark .bg-orange-50\/40,
+.dark .bg-orange-50\/50,
+.dark .bg-orange-50\/60,
+.dark .bg-emerald-50,
+.dark .bg-emerald-50\/20,
+.dark .bg-emerald-50\/30,
+.dark .bg-emerald-50\/40,
+.dark .bg-emerald-50\/50,
+.dark .bg-emerald-50\/60,
+.dark .bg-green-50,
+.dark .bg-green-50\/20,
+.dark .bg-green-50\/30,
+.dark .bg-green-50\/40,
+.dark .bg-green-50\/50,
+.dark .bg-green-50\/60 {
+  background-color: rgb(15 23 42 / 0.9) !important;
+}
+
+.dark [class*="from-"][class*="-50"][class*="to-white"],
+.dark [class*="from-slate-50"][class*="to-slate-100"],
+.dark [class*="from-slate-50"][class*="to-white"],
+.dark [class*="from-violet-50"][class*="to-purple-50"],
+.dark [class*="from-purple-50"][class*="to-violet-50"],
+.dark [class*="from-cyan-50"][class*="to-blue-50"],
+.dark [class*="from-blue-50"][class*="to-cyan-50"],
+.dark [class*="from-emerald-50"][class*="to-teal-50"],
+.dark [class*="from-amber-50"][class*="to-orange-50"] {
+  background-image: none !important;
+  background-color: rgb(15 23 42 / 0.94) !important;
+}
+
+.dark [class*="hover:bg-red-50"]:hover,
+.dark [class*="hover:bg-rose-50"]:hover,
+.dark [class*="hover:bg-blue-50"]:hover,
+.dark [class*="hover:bg-violet-50"]:hover,
+.dark [class*="hover:bg-purple-50"]:hover,
+.dark [class*="hover:bg-amber-50"]:hover,
+.dark [class*="hover:bg-orange-50"]:hover,
+.dark [class*="hover:bg-emerald-50"]:hover,
+.dark [class*="hover:bg-green-50"]:hover {
+  background-color: rgb(30 41 59 / 0.92) !important;
+}
+
+.dark .text-slate-950,
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700 {
+  color: rgb(241 245 249) !important;
+}
+
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: rgb(148 163 184) !important;
+}
+
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-200\/60,
+.dark .border-slate-200\/80,
+.dark .border-slate-300,
+.dark .border-slate-300\/80,
+.dark .border-slate-300\/85 {
+  border-color: rgb(51 65 85 / 0.86) !important;
+}
+
+.dark .ring-slate-300,
+.dark .ring-slate-300\/80 {
+  --tw-ring-color: rgb(51 65 85 / 0.86) !important;
+}
+
+.dark .shadow-slate-200\/20,
+.dark .shadow-slate-200\/50,
+.dark .shadow-slate-900\/8,
+.dark .shadow-slate-900\/10,
+.dark .shadow-slate-900\/15,
+.dark .shadow-slate-900\/20,
+.dark .shadow-slate-900\/\[0\.025\],
+.dark .shadow-slate-900\/\[0\.03\],
+.dark .shadow-slate-900\/\[0\.04\],
+.dark .shadow-slate-900\/\[0\.06\] {
+  --tw-shadow-color: rgb(0 0 0 / 0.34) !important;
+  --tw-shadow: var(--tw-shadow-colored) !important;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  color-scheme: dark;
+}
+
+.dark thead,
+.dark th,
+.dark [role="columnheader"] {
+  color: rgb(255 255 255) !important;
+}
+
+.dark [class*="uppercase"][class*="tracking"] {
+  color: rgb(255 255 255) !important;
+}
+
+.dark th svg,
+.dark [role="columnheader"] svg {
+  color: rgb(255 255 255) !important;
+}
+
+.dark [class*="overflow-hidden"][class*="shadow"] p.text-sm.font-medium,
+.dark [class*="overflow-hidden"][class*="shadow"] p.text-2xl,
+.dark [class*="overflow-hidden"][class*="shadow"] p.text-lg,
+.dark [class*="overflow-hidden"][class*="shadow"] p.font-semibold,
+.dark [class*="overflow-hidden"][class*="shadow"] h3,
+.dark [class*="overflow-hidden"][class*="shadow"] h4 {
+  color: rgb(255 255 255) !important;
+}
+
+.dark [role="dialog"] {
+  background-color: rgb(15 23 42 / 0.98) !important;
+  border-color: rgb(51 65 85 / 0.9) !important;
+  color: rgb(241 245 249) !important;
+  box-shadow: 0 28px 90px -32px rgb(0 0 0 / 0.9) !important;
+}
+
+.dark [role="dialog"] [class*="from-"][class*="-50"],
+.dark [role="dialog"] [class*="to-"][class*="-50"],
+.dark [role="dialog"] [class*="to-white"] {
+  background-image: none !important;
+  background-color: rgb(30 41 59 / 0.78) !important;
+}
+
+.dark [role="dialog"] input,
+.dark [role="dialog"] textarea,
+.dark [role="dialog"] button[role="combobox"] {
+  background-color: rgb(15 23 42 / 0.92) !important;
+  border-color: rgb(51 65 85 / 0.9) !important;
+  color: rgb(241 245 249) !important;
+}
+
+.dark [role="dialog"] p,
+.dark [role="dialog"] span,
+.dark [role="dialog"] label,
+.dark [role="dialog"] h2,
+.dark [role="dialog"] h3,
+.dark [role="dialog"] h4 {
+  color: inherit;
 }
 
 @layer base {
