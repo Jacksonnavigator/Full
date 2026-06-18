@@ -54,6 +54,7 @@ export interface Utility {
   managerName: string
   centerLatitude?: number | null
   centerLongitude?: number | null
+  boundaryGeojson?: GeoJsonPolygon | null
   status: EntityStatus
   dmasCount: number
   createdAt: string

@@ -32,8 +32,30 @@ export interface OperationsMapReport {
   reporterName?: string | null
 }
 
+export interface OperationsMapAggregateMarker {
+  id: string
+  label: string
+  latitude: number
+  longitude: number
+  reported: number
+  resolved: number
+  level: "utility" | "dma"
+}
+
+export interface OperationsMapBoundaryOverlay {
+  id: string
+  label: string
+  level: "utility" | "dma"
+  geojson: GeoJsonObject
+  reported?: number
+  resolved?: number
+  color?: string
+}
+
 export function OperationsMap(props: {
   reports: OperationsMapReport[]
+  aggregateMarkers?: OperationsMapAggregateMarker[]
+  boundaryOverlays?: OperationsMapBoundaryOverlay[]
   center?: [number, number] | null
   boundaryGeojson?: GeoJsonObject | null
   boundaryGeojsons?: GeoJsonObject[]
@@ -44,6 +66,7 @@ export function OperationsMap(props: {
   description?: string
   basemap?: "street" | "satellite"
   onBasemapChange?: (basemap: "street" | "satellite") => void
+  onZoomChange?: (zoom: number) => void
   onReportSelect?: (reportId: string) => void
   chromeMode?: "standard" | "command-center"
   boundsFitKey?: string

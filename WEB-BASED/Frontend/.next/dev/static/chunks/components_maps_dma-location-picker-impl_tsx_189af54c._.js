@@ -228,7 +228,12 @@ function DMALocationPickerImpl({ centerValue, boundaryPoints, onCenterChange, on
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$TileLayer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TileLayer"], {
                         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        maxNativeZoom: 18,
+                        maxZoom: 19,
+                        keepBuffer: 6,
+                        updateWhenIdle: false,
+                        detectRetina: true
                     }, void 0, false, {
                         fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
                         lineNumber: 154,
@@ -239,7 +244,7 @@ function DMALocationPickerImpl({ centerValue, boundaryPoints, onCenterChange, on
                         boundaryPoints: boundaryPoints
                     }, void 0, false, {
                         fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
-                        lineNumber: 158,
+                        lineNumber: 163,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ClickHandler, {
@@ -249,7 +254,7 @@ function DMALocationPickerImpl({ centerValue, boundaryPoints, onCenterChange, on
                         onBoundaryChange: onBoundaryChange
                     }, void 0, false, {
                         fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
-                        lineNumber: 159,
+                        lineNumber: 164,
                         columnNumber: 9
                     }, this),
                     boundaryLatLngs.length >= 3 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Polygon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Polygon"], {
@@ -263,7 +268,7 @@ function DMALocationPickerImpl({ centerValue, boundaryPoints, onCenterChange, on
                         }
                     }, void 0, false, {
                         fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
-                        lineNumber: 167,
+                        lineNumber: 172,
                         columnNumber: 11
                     }, this) : boundaryLatLngs.length >= 2 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Polyline$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Polyline"], {
                         positions: boundaryLatLngs,
@@ -274,7 +279,7 @@ function DMALocationPickerImpl({ centerValue, boundaryPoints, onCenterChange, on
                         }
                     }, void 0, false, {
                         fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
-                        lineNumber: 178,
+                        lineNumber: 183,
                         columnNumber: 11
                     }, this) : null,
                     boundaryPoints.map((point, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$CircleMarker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CircleMarker"], {
@@ -301,12 +306,12 @@ function DMALocationPickerImpl({ centerValue, boundaryPoints, onCenterChange, on
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
-                                lineNumber: 200,
+                                lineNumber: 205,
                                 columnNumber: 13
                             }, this)
                         }, `${point.latitude}-${point.longitude}-${index}`, false, {
                             fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
-                            lineNumber: 189,
+                            lineNumber: 194,
                             columnNumber: 11
                         }, this)),
                     centerValue.latitude !== null && centerValue.longitude !== null ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$CircleMarker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CircleMarker"], {
@@ -330,12 +335,12 @@ function DMALocationPickerImpl({ centerValue, boundaryPoints, onCenterChange, on
                             children: "DMA center"
                         }, void 0, false, {
                             fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
-                            lineNumber: 217,
+                            lineNumber: 222,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
-                        lineNumber: 207,
+                        lineNumber: 212,
                         columnNumber: 11
                     }, this) : null
                 ]
@@ -349,7 +354,7 @@ function DMALocationPickerImpl({ centerValue, boundaryPoints, onCenterChange, on
                 children: mode === "center" ? "Center mode is active. Click once on the map to capture the DMA center coordinates." : "Boundary mode is active. Click around the DMA area to build the polygon point by point. The outline will grow as you add points."
             }, void 0, false, {
                 fileName: "[project]/components/maps/dma-location-picker-impl.tsx",
-                lineNumber: 224,
+                lineNumber: 229,
                 columnNumber: 7
             }, this)
         ]

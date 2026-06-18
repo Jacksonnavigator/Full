@@ -46,6 +46,14 @@
       "namedRegex": "^/dashboard/reports/(?<nxtPreportId>[^/]+?)(?:/)?$"
     },
     {
+      "page": "/dashboard/utilities/[utilityId]/edit",
+      "regex": "^/dashboard/utilities/([^/]+?)/edit(?:/)?$",
+      "routeKeys": {
+        "nxtPutilityId": "nxtPutilityId"
+      },
+      "namedRegex": "^/dashboard/utilities/(?<nxtPutilityId>[^/]+?)/edit(?:/)?$"
+    },
+    {
       "page": "/reports/[reportId]",
       "regex": "^/reports/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -92,6 +100,12 @@
       "regex": "^/api/dma\\-boundary/extract(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/dma\\-boundary/extract(?:/)?$"
+    },
+    {
+      "page": "/api/utility-boundary/extract",
+      "regex": "^/api/utility\\-boundary/extract(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/utility\\-boundary/extract(?:/)?$"
     },
     {
       "page": "/branches",
@@ -206,6 +220,12 @@
       "regex": "^/dashboard/utilities(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dashboard/utilities(?:/)?$"
+    },
+    {
+      "page": "/dashboard/utilities/new",
+      "regex": "^/dashboard/utilities/new(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/utilities/new(?:/)?$"
     },
     {
       "page": "/dmas",

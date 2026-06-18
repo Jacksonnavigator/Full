@@ -7,11 +7,15 @@ The live hierarchy is:
 
 from __future__ import annotations
 
+import json
 import math
 import re
 from typing import Optional, Tuple
 
 from sqlalchemy.orm import Session
+from shapely.geometry import Point, shape
+from shapely.geometry.base import BaseGeometry
+from shapely.errors import GEOSException
 
 from app.models import DMA, Utility, EntityStatusEnum
 
@@ -143,6 +147,103 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     a = math.sin(dlat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2) ** 2
     c = 2 * math.asin(math.sqrt(a))
     return 6371 * c
+
+
+def _load_boundary_shape(raw_boundary: Optional[str]) -> Optional[BaseGeometry]:
+    if not raw_boundary:
+        return None
+
+    try:
+        boundary_geojson = json.loads(raw_boundary)
+        boundary_shape = shape(boundary_geojson)
+    except (TypeError, ValueError, GEOSException):
+        return None
+
+    if boundary_shape.is_empty or not boundary_shape.is_valid:
+        return None
+
+    return boundary_shape
+
+
+def _boundary_match_score(boundary_shape: BaseGeometry) -> float:
+    """
+    Prefer the smallest containing polygon when boundaries overlap.
+
+    GeoJSON is stored in WGS84 degrees, so area is not a true square-meter
+    measure, but it is stable enough for choosing the more specific polygon.
+    """
+    return float(boundary_shape.area)
+
+
+def find_utility_by_boundary(latitude: float, longitude: float, db: Session) -> Optional[Utility]:
+    report_point = Point(longitude, latitude)
+    matches: list[tuple[float, Utility]] = []
+
+    utilities = db.query(Utility).filter(Utility.status == EntityStatusEnum.ACTIVE).all()
+    for utility in utilities:
+        boundary_shape = _load_boundary_shape(getattr(utility, "boundary_geojson", None))
+        if not boundary_shape:
+            continue
+        if boundary_shape.covers(report_point):
+            matches.append((_boundary_match_score(boundary_shape), utility))
+
+    if not matches:
+        return None
+
+    matches.sort(key=lambda item: item[0])
+    return matches[0][1]
+
+
+def has_complete_active_utility_boundaries(db: Session) -> bool:
+    utilities = db.query(Utility).filter(Utility.status == EntityStatusEnum.ACTIVE).all()
+    if not utilities:
+        return False
+    return all(_load_boundary_shape(getattr(utility, "boundary_geojson", None)) for utility in utilities)
+
+
+def find_dma_within_utility_by_boundary(
+    latitude: float,
+    longitude: float,
+    utility: Optional[Utility],
+    db: Session,
+) -> Optional[DMA]:
+    if not utility:
+        return None
+
+    report_point = Point(longitude, latitude)
+    matches: list[tuple[float, DMA]] = []
+
+    dmas = (
+        db.query(DMA)
+        .filter(DMA.utility_id == utility.id, DMA.status == EntityStatusEnum.ACTIVE)
+        .all()
+    )
+    for dma in dmas:
+        boundary_shape = _load_boundary_shape(getattr(dma, "boundary_geojson", None))
+        if not boundary_shape:
+            continue
+        if boundary_shape.covers(report_point):
+            matches.append((_boundary_match_score(boundary_shape), dma))
+
+    if not matches:
+        return None
+
+    matches.sort(key=lambda item: item[0])
+    return matches[0][1]
+
+
+def has_complete_active_dma_boundaries_within_utility(utility: Optional[Utility], db: Session) -> bool:
+    if not utility:
+        return False
+
+    dmas = (
+        db.query(DMA)
+        .filter(DMA.utility_id == utility.id, DMA.status == EntityStatusEnum.ACTIVE)
+        .all()
+    )
+    if not dmas:
+        return False
+    return all(_load_boundary_shape(getattr(dma, "boundary_geojson", None)) for dma in dmas)
 
 
 def _utility_anchor(utility: Utility) -> Tuple[Optional[float], Optional[float]]:

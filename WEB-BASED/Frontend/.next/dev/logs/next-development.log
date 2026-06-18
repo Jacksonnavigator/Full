@@ -1,43 +1,4 @@
-[00:00:00.863] Server  LOG     ✓ Ready in 585ms
-[00:00:07.269] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:03:07.861] Server  LOG     ✓ Compiled in 353ms
-[00:03:15.914] Server  LOG     ✓ Compiled in 379ms
-[00:03:28.839] Server  LOG     ✓ Compiled in 314ms
-[00:06:24.782] Server  LOG     ✓ Compiled in 345ms
-[00:06:33.263] Server  LOG     ✓ Compiled in 294ms
-[00:11:17.531] Server  LOG     ✓ Compiled in 357ms
-[00:11:17.892] Browser ERROR   The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
-
-Previous: %s
-Incoming: %s useEffect [true, 905, All utilities and DMAs, 905, Water Leakage Monitoring, function() {
-    [native code]
-}] [function() {
-    [native code]
-}]
-[00:11:30.610] Server  LOG     ✓ Compiled in 392ms
-[00:11:31.198] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:11:46.864] Server  LOG     ✓ Compiled in 368ms
-[00:14:09.081] Server  LOG     ✓ Compiled in 346ms
-[00:15:45.349] Server  LOG     ✓ Compiled in 361ms
-[00:20:09.440] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:21:13.694] Server  LOG     ✓ Compiled in 378ms
-[00:21:26.598] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:25:53.990] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:26:24.256] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:28:24.276] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:30:56.992] Server  LOG     ✓ Compiled in 349ms
-[00:46:49.300] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[03:07:13.610] Server  LOG     ✓ Compiled in 402ms
-[03:08:36.058] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
-[03:08:36.168] Browser ERROR   Unable to resolve media: {}
-[03:08:46.764] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
-[03:08:46.872] Browser ERROR   Unable to resolve media: {}
-[03:15:32.959] Server  LOG     ✓ Compiled in 333ms
-[03:15:59.418] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
-[03:15:59.518] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
-[03:15:59.533] Browser ERROR   Unable to resolve media: {}
-[03:15:59.631] Browser ERROR   Unable to resolve media: {}
-[03:16:39.160] Server  LOG     ✓ Compiled in 319ms
-[03:16:53.698] Server  LOG     ✓ Compiled in 306ms
-[03:17:04.815] Server  LOG     ✓ Compiled in 376ms
-[03:17:47.063] Server  LOG     ✓ Compiled in 318ms
+[00:00:00.928] Server  LOG     ✓ Ready in 661ms
+[00:00:17.617] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:17.701] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:18.492] Browser WARN    Image with src "/logo1.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.

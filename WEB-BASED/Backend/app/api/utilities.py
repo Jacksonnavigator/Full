@@ -106,6 +106,7 @@ def _build_utility_response(utility: Utility) -> UtilityResponse:
         contact_address=utility.contact_address,
         center_latitude=utility.center_latitude,
         center_longitude=utility.center_longitude,
+        boundary_geojson=_deserialize_boundary_geojson(utility.boundary_geojson),
         status=utility.status,
         pipe_network_file_name=pipe_network.file_name if pipe_network else None,
         pipe_network_file_size=pipe_network.file_size if pipe_network else None,
@@ -190,7 +191,7 @@ def _coerce_geojson(payload: Any):
     )
 
 
-def _deserialize_dma_boundary(raw_value: Optional[str]) -> Optional[dict[str, Any]]:
+def _deserialize_boundary_geojson(raw_value: Optional[str]) -> Optional[dict[str, Any]]:
     if not raw_value:
         return None
 
@@ -202,11 +203,81 @@ def _deserialize_dma_boundary(raw_value: Optional[str]) -> Optional[dict[str, An
     return payload if isinstance(payload, dict) else None
 
 
+def _serialize_boundary_geojson(boundary_geojson: Optional[dict[str, Any]]) -> Optional[str]:
+    if boundary_geojson is None:
+        return None
+
+    if not isinstance(boundary_geojson, dict):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Utility boundary must be a valid GeoJSON polygon object.",
+        )
+
+    if boundary_geojson.get("type") != "Polygon":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Utility boundary must use GeoJSON Polygon geometry.",
+        )
+
+    coordinates = boundary_geojson.get("coordinates")
+    if not isinstance(coordinates, list) or not coordinates:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Utility boundary polygon must include coordinate rings.",
+        )
+
+    outer_ring = coordinates[0]
+    if not isinstance(outer_ring, list):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Utility boundary polygon must include an outer coordinate ring.",
+        )
+
+    normalized_ring: list[list[float]] = []
+    distinct_points: set[tuple[float, float]] = set()
+
+    for raw_point in outer_ring:
+        if not isinstance(raw_point, (list, tuple)) or len(raw_point) < 2:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Each utility boundary point must contain longitude and latitude values.",
+            )
+
+        try:
+            longitude = float(raw_point[0])
+            latitude = float(raw_point[1])
+        except (TypeError, ValueError):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Utility boundary points must be valid numeric coordinates.",
+            ) from None
+
+        if longitude < -180 or longitude > 180 or latitude < -90 or latitude > 90:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Utility boundary coordinates must be within valid longitude and latitude ranges.",
+            )
+
+        normalized_ring.append([longitude, latitude])
+        distinct_points.add((longitude, latitude))
+
+    if len(distinct_points) < 3:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Utility boundary polygon must contain at least three distinct points.",
+        )
+
+    if normalized_ring[0] != normalized_ring[-1]:
+        normalized_ring.append(normalized_ring[0])
+
+    return json.dumps({"type": "Polygon", "coordinates": [normalized_ring]})
+
+
 def _filter_pipe_network_to_dma_boundary(
     feature_collection: dict[str, Any],
     boundary_geojson_raw: Optional[str],
 ) -> dict[str, Any]:
-    boundary_geojson = _deserialize_dma_boundary(boundary_geojson_raw)
+    boundary_geojson = _deserialize_boundary_geojson(boundary_geojson_raw)
     if not boundary_geojson:
         return feature_collection
 
@@ -1068,6 +1139,7 @@ async def create_utility(
         contact_address=utility_data.contact_address,
         center_latitude=utility_data.center_latitude,
         center_longitude=utility_data.center_longitude,
+        boundary_geojson=_serialize_boundary_geojson(utility_data.boundary_geojson),
         status=utility_data.status,
     )
     
@@ -1098,7 +1170,10 @@ async def update_utility(
         )
 
     _ensure_utility_access(utility, current_user, db)
-    update_data = utility_data.dict(exclude_unset=True)
+    update_data = utility_data.model_dump(exclude_unset=True)
+    raw_boundary_geojson = update_data.pop("boundary_geojson", None)
+    if raw_boundary_geojson is not None:
+        utility.boundary_geojson = _serialize_boundary_geojson(raw_boundary_geojson)
     for field, value in update_data.items():
         setattr(utility, field, value)
     
@@ -1128,7 +1203,10 @@ async def patch_utility(
         )
 
     _ensure_utility_access(utility, current_user, db)
-    update_data = utility_data.dict(exclude_unset=True)
+    update_data = utility_data.model_dump(exclude_unset=True)
+    raw_boundary_geojson = update_data.pop("boundary_geojson", None)
+    if raw_boundary_geojson is not None:
+        utility.boundary_geojson = _serialize_boundary_geojson(raw_boundary_geojson)
     for field, value in update_data.items():
         setattr(utility, field, value)
     

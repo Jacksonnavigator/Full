@@ -236,6 +236,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/(dashboard)/dashboard/utilities/[utilityId]/edit/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/dashboard/utilities/[utilityId]/edit">> = Specific
+  const handler = {} as typeof import("../../app/(dashboard)/dashboard/utilities/[utilityId]/edit/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/(dashboard)/dashboard/utilities/new/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/dashboard/utilities/new">> = Specific
+  const handler = {} as typeof import("../../app/(dashboard)/dashboard/utilities/new/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/(dashboard)/dashboard/utilities/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/dashboard/utilities">> = Specific
@@ -411,6 +429,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/upload-payload/[imageId]">> = Specific
   const handler = {} as typeof import("../../app/api/upload-payload/[imageId]/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../app/api/utility-boundary/extract/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/utility-boundary/extract">> = Specific
+  const handler = {} as typeof import("../../app/api/utility-boundary/extract/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

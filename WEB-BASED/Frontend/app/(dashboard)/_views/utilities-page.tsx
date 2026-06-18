@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, type ChangeEvent } from "react"
+import { useRouter } from "next/navigation"
 import { useDataStore, type Utility } from "@/store/data-store"
 import { useAuthStore } from "@/store/auth-store"
 import { usePageAccess } from "@/hooks/use-page-access"
@@ -13,23 +14,7 @@ import { UtilityPipeNetworkMap } from "@/components/maps/utility-pipe-network-ma
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,10 +31,8 @@ import {
   MapPin,
   Users,
   FileText,
-  Sparkles,
   AlertTriangle,
   CheckCircle2,
-  XCircle,
   Upload,
   Download,
   Network,
@@ -59,7 +42,6 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import type { EntityStatus } from "@/lib/types"
 
 interface User {
   id: string
@@ -68,64 +50,19 @@ interface User {
   role: string
 }
 
-const TANZANIA_REGIONS = [
-  "Arusha",
-  "Dar es Salaam",
-  "Dodoma",
-  "Geita",
-  "Iringa",
-  "Kagera",
-  "Katavi",
-  "Kigoma",
-  "Kilimanjaro",
-  "Lindi",
-  "Manyara",
-  "Mara",
-  "Mbeya",
-  "Morogoro",
-  "Mtwara",
-  "Mwanza",
-  "Njombe",
-  "Pemba North",
-  "Pemba South",
-  "Pwani",
-  "Rukwa",
-  "Ruvuma",
-  "Shinyanga",
-  "Simiyu",
-  "Singida",
-  "Songwe",
-  "Tabora",
-  "Tanga",
-  "Unguja North",
-  "Unguja South",
-]
-
 export default function UtilitiesPage() {
   usePageAccess() // Check if user has access to this page
 
+  const router = useRouter()
   const { currentUser } = useAuthStore()
-  const { utilities, dmas, fetchUtilities, fetchDMAs, addUtility, updateUtility } = useDataStore()
+  const { utilities, dmas, fetchUtilities, fetchDMAs } = useDataStore()
   const [search, setSearch] = useState("")
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingUtility, setEditingUtility] = useState<Utility | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [utilityManagers, setUtilityManagers] = useState<User[]>([])
   const [uploadTargetUtility, setUploadTargetUtility] = useState<Utility | null>(null)
   const [busyUtilityId, setBusyUtilityId] = useState<string | null>(null)
   const [uploadingUtilityId, setUploadingUtilityId] = useState<string | null>(null)
   const uploadInputRef = useRef<HTMLInputElement | null>(null)
-
-  // Form state
-  const [formName, setFormName] = useState("")
-  const [formDescription, setFormDescription] = useState("")
-  const [formRegionName, setFormRegionName] = useState("")
-  const [formContactPhone, setFormContactPhone] = useState("")
-  const [formContactEmail, setFormContactEmail] = useState("")
-  const [formContactAddress, setFormContactAddress] = useState("")
-  const [formCenterLatitude, setFormCenterLatitude] = useState("")
-  const [formCenterLongitude, setFormCenterLongitude] = useState("")
-  const [formStatus, setFormStatus] = useState<EntityStatus>("active")
 
   const isAdmin = currentUser?.role === "admin"
   const isUtilityManager = currentUser?.role === "utility_manager"
@@ -198,95 +135,11 @@ export default function UtilitiesPage() {
 
   function openCreateDialog() {
     if (!isAdmin) return
-    setEditingUtility(null)
-    setFormName("")
-    setFormDescription("")
-    setFormRegionName("")
-    setFormContactPhone("")
-    setFormContactEmail("")
-    setFormContactAddress("")
-    setFormCenterLatitude("")
-    setFormCenterLongitude("")
-    setFormStatus("active")
-    setDialogOpen(true)
+    router.push("/dashboard/utilities/new")
   }
 
   function openEditDialog(utility: Utility) {
-    setEditingUtility(utility)
-    setFormName(utility.name)
-    setFormDescription(utility.description || "")
-    setFormRegionName(utility.regionName || "")
-    setFormContactPhone(utility.contactPhone || "")
-    setFormContactEmail(utility.contactEmail || "")
-    setFormContactAddress(utility.contactAddress || "")
-    setFormCenterLatitude(
-      utility.centerLatitude !== null && utility.centerLatitude !== undefined ? String(utility.centerLatitude) : ""
-    )
-    setFormCenterLongitude(
-      utility.centerLongitude !== null && utility.centerLongitude !== undefined ? String(utility.centerLongitude) : ""
-    )
-    setFormStatus(utility.status)
-    setDialogOpen(true)
-  }
-
-  async function handleSubmit() {
-    if (!formName.trim()) {
-      toast.error("Utility name is required")
-      return
-    }
-
-    const normalizedContactPhone = formContactPhone.trim() || undefined
-    const normalizedContactEmail = formContactEmail.trim() || undefined
-    const normalizedContactAddress = formContactAddress.trim() || undefined
-    const normalizedCenterLatitude = formCenterLatitude.trim() ? Number(formCenterLatitude) : undefined
-    const normalizedCenterLongitude = formCenterLongitude.trim() ? Number(formCenterLongitude) : undefined
-
-    if ((formCenterLatitude.trim() && !formCenterLongitude.trim()) || (!formCenterLatitude.trim() && formCenterLongitude.trim())) {
-      toast.error("Please provide both utility center latitude and longitude")
-      return
-    }
-
-    if ((formCenterLatitude.trim() && Number.isNaN(normalizedCenterLatitude)) || (formCenterLongitude.trim() && Number.isNaN(normalizedCenterLongitude))) {
-      toast.error("Utility center coordinates must be valid numbers")
-      return
-    }
-
-    try {
-      if (editingUtility) {
-        await updateUtility(editingUtility.id, {
-          name: formName,
-          regionName: formRegionName.trim() || undefined,
-          description: formDescription,
-          contactPhone: normalizedContactPhone,
-          contactEmail: normalizedContactEmail,
-          contactAddress: normalizedContactAddress,
-          centerLatitude: normalizedCenterLatitude,
-          centerLongitude: normalizedCenterLongitude,
-          status: formStatus,
-        })
-        toast.success("Utility updated successfully")
-      } else {
-        if (!isAdmin) {
-          toast.error("Only admins can create utilities")
-          return
-        }
-        await addUtility({
-          name: formName,
-          regionName: formRegionName.trim() || undefined,
-          description: formDescription,
-          contactPhone: normalizedContactPhone,
-          contactEmail: normalizedContactEmail,
-          contactAddress: normalizedContactAddress,
-          centerLatitude: normalizedCenterLatitude,
-          centerLongitude: normalizedCenterLongitude,
-          status: formStatus,
-        })
-        toast.success("Utility created successfully")
-      }
-      setDialogOpen(false)
-    } catch {
-      toast.error("Operation failed")
-    }
+    router.push(`/dashboard/utilities/${utility.id}/edit`)
   }
 
   function requestPipeNetworkUpload(utility: Utility) {
@@ -489,7 +342,6 @@ export default function UtilitiesPage() {
               onClick={openCreateDialog}
               className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 rounded-xl h-11 px-6"
             >
-              <Plus className="h-4 w-4 mr-2" />
               Add Utility
             </Button>
           ) : null}
@@ -576,7 +428,6 @@ export default function UtilitiesPage() {
                   onClick={openCreateDialog}
                   className="mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/25 rounded-xl"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
                   Add Utility
                 </Button>
               ) : null}
@@ -798,166 +649,6 @@ export default function UtilitiesPage() {
         accept=".gpkg,.shp,.geojson,.json,.kml,.kmz,.zip,.csv,.txt"
         onChange={handlePipeNetworkUpload}
       />
-
-      {/* Modern Create/Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden bg-white/95 backdrop-blur-xl border-slate-200/50 shadow-2xl shadow-slate-200/50 rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                {editingUtility ? (
-                  <Pencil className="h-4 w-4 text-white" />
-                ) : (
-                  <Plus className="h-4 w-4 text-white" />
-                )}
-              </div>
-              {editingUtility ? "Edit Utility" : "Add Utility"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col gap-5 overflow-y-auto py-4 pr-1">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="utility-name" className="text-sm font-medium text-slate-700">Utility Name</Label>
-              <Input
-                id="utility-name"
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                placeholder="e.g., DAWASA"
-                className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-slate-700">Region Authority</Label>
-              <Select value={formRegionName || "__none__"} onValueChange={(value) => setFormRegionName(value === "__none__" ? "" : value)}>
-                <SelectTrigger className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl">
-                  <SelectValue placeholder="Select utility region" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
-                  <SelectItem value="__none__" className="rounded-lg">No region selected yet</SelectItem>
-                  {TANZANIA_REGIONS.map((region) => (
-                    <SelectItem key={region} value={region} className="rounded-lg">
-                      {region}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="utility-desc" className="text-sm font-medium text-slate-700">Description</Label>
-              <Textarea
-                id="utility-desc"
-                value={formDescription}
-                onChange={(e) => setFormDescription(e.target.value)}
-                placeholder="Brief description of the utility"
-                rows={3}
-                className="bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 resize-none"
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="utility-phone" className="text-sm font-medium text-slate-700">Public Contact Phone</Label>
-                <Input
-                  id="utility-phone"
-                  value={formContactPhone}
-                  onChange={(e) => setFormContactPhone(e.target.value)}
-                  placeholder="e.g. +255712345678"
-                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="utility-email" className="text-sm font-medium text-slate-700">Public Contact Email</Label>
-                <Input
-                  id="utility-email"
-                  type="email"
-                  value={formContactEmail}
-                  onChange={(e) => setFormContactEmail(e.target.value)}
-                  placeholder="e.g. support@utility.co.tz"
-                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="utility-contact-address" className="text-sm font-medium text-slate-700">Public Contact Address</Label>
-              <Textarea
-                id="utility-contact-address"
-                value={formContactAddress}
-                onChange={(e) => setFormContactAddress(e.target.value)}
-                placeholder="Office address to show in the public emergency contacts screen"
-                rows={2}
-                className="bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 resize-none"
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="utility-center-latitude" className="text-sm font-medium text-slate-700">Region Center Latitude</Label>
-                <Input
-                  id="utility-center-latitude"
-                  type="number"
-                  step="0.000001"
-                  value={formCenterLatitude}
-                  onChange={(e) => setFormCenterLatitude(e.target.value)}
-                  placeholder="e.g. -6.173056"
-                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="utility-center-longitude" className="text-sm font-medium text-slate-700">Region Center Longitude</Label>
-                <Input
-                  id="utility-center-longitude"
-                  type="number"
-                  step="0.000001"
-                  value={formCenterLongitude}
-                  onChange={(e) => setFormCenterLongitude(e.target.value)}
-                  placeholder="e.g. 35.741944"
-                  className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-slate-700">Status</Label>
-              <Select value={formStatus} onValueChange={(v) => setFormStatus(v as EntityStatus)}>
-                <SelectTrigger className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
-                  <SelectItem value="active" className="rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      Active
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="inactive" className="rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <XCircle className="h-4 w-4 text-slate-400" />
-                      Inactive
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-cyan-500/25 rounded-xl"
-            >
-              {editingUtility ? (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Save Changes
-                </>
-              ) : (
-                <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Utility
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Delete Confirmation */}
       <ConfirmDialog

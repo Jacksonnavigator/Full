@@ -6,6 +6,7 @@
 
 import { create } from "zustand"
 import { apiClient } from "@/lib/api-client"
+import CONFIG from "@/lib/config"
 import { transformKeys } from "@/lib/transform-data"
 
 // Type imports for proper typing
@@ -27,6 +28,7 @@ export interface Utility {
   contactAddress?: string | null
   centerLatitude?: number | null
   centerLongitude?: number | null
+  boundaryGeojson?: GeoJsonPolygon | null
   managerId?: string | null
   managerName?: string
   status: EntityStatus
@@ -40,6 +42,40 @@ export interface Utility {
   pipeNetworkUploadedAt?: string | null
   createdAt: string
   updatedAt: string
+}
+
+function serializeUtilityPayload(data: Partial<Utility>) {
+  return {
+    ...(data.name !== undefined ? { name: data.name } : {}),
+    ...(data.regionName !== undefined ? { region_name: data.regionName } : {}),
+    ...(data.description !== undefined ? { description: data.description } : {}),
+    ...(data.contactPhone !== undefined ? { contact_phone: data.contactPhone } : {}),
+    ...(data.contactEmail !== undefined ? { contact_email: data.contactEmail } : {}),
+    ...(data.contactAddress !== undefined ? { contact_address: data.contactAddress } : {}),
+    ...(data.centerLatitude !== undefined ? { center_latitude: data.centerLatitude } : {}),
+    ...(data.centerLongitude !== undefined ? { center_longitude: data.centerLongitude } : {}),
+    ...(data.boundaryGeojson !== undefined ? { boundary_geojson: data.boundaryGeojson } : {}),
+    ...(data.status !== undefined ? { status: data.status } : {}),
+  }
+}
+
+async function writeUtility(endpoint: string, method: "POST" | "PUT", data: Partial<Utility>) {
+  const token = typeof localStorage !== "undefined" ? localStorage.getItem(CONFIG.storage.tokenKey) : null
+  const response = await fetch(`${CONFIG.backend.fullUrl}${endpoint}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(serializeUtilityPayload(data)),
+  })
+  const payload = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(payload?.detail || payload?.error || `Failed to ${method === "POST" ? "create" : "update"} utility`)
+  }
+
+  return transformKeys(payload?.data || payload) as Utility
 }
 
 export interface DMA {
@@ -235,8 +271,8 @@ interface DataState {
   markAllNotificationsRead: () => Promise<number>
   
   // CRUD: Utilities
-  addUtility: (data: Partial<Utility>) => Promise<void>
-  updateUtility: (id: string, data: Partial<Utility>) => Promise<void>
+  addUtility: (data: Partial<Utility>) => Promise<Utility>
+  updateUtility: (id: string, data: Partial<Utility>) => Promise<Utility>
   deleteUtility: (id: string) => Promise<void>
   
   // CRUD: DMAs
@@ -313,7 +349,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   // Fetch utilities
   fetchUtilities: async () => {
     try {
-      const response = await apiClient.get("/utilities")
+      const response = await apiClient.get("/utilities?limit=100")
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
         set({ utilities: transformed })
@@ -562,9 +598,9 @@ export const useDataStore = create<DataState>((set, get) => ({
   // CRUD: Utilities
   addUtility: async (data: Partial<Utility>) => {
     try {
-      const response = await apiClient.post("/utilities", data)
-      if (!response.success) throw new Error(response.error || "Failed to create utility")
+      const createdUtility = await writeUtility("/utilities", "POST", data)
       await get().fetchUtilities()
+      return createdUtility
     } catch (error) {
       console.error("Error creating utility:", error)
       throw error
@@ -573,9 +609,9 @@ export const useDataStore = create<DataState>((set, get) => ({
 
   updateUtility: async (id: string, data: Partial<Utility>) => {
     try {
-      const response = await apiClient.put(`/utilities/${id}`, data)
-      if (!response.success) throw new Error(response.error || "Failed to update utility")
+      const updatedUtility = await writeUtility(`/utilities/${id}`, "PUT", data)
       await get().fetchUtilities()
+      return updatedUtility
     } catch (error) {
       console.error("Error updating utility:", error)
       throw error

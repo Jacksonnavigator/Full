@@ -948,10 +948,10 @@ export default function MapPage() {
       [
         selectedUtilityId,
         selectedDMAId,
-        mapReports.length,
         activeDMA?.id ?? "no-dma",
+        activeUtility?.id ?? "no-utility",
       ].join("|"),
-    [activeDMA?.id, mapReports.length, selectedDMAId, selectedUtilityId]
+    [activeDMA?.id, activeUtility?.id, selectedDMAId, selectedUtilityId]
   )
 
   if (loading && !reports.length) {

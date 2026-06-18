@@ -85,6 +85,7 @@ class UtilityBase(BaseModel):
     contact_address: Optional[str] = Field(None, max_length=255)
     center_latitude: Optional[float] = Field(None, ge=-90, le=90)
     center_longitude: Optional[float] = Field(None, ge=-180, le=180)
+    boundary_geojson: Optional[dict[str, Any]] = None
     status: EntityStatus = EntityStatus.ACTIVE
 
 
@@ -103,6 +104,7 @@ class UtilityUpdate(BaseModel):
     contact_address: Optional[str] = Field(None, max_length=255)
     center_latitude: Optional[float] = Field(None, ge=-90, le=90)
     center_longitude: Optional[float] = Field(None, ge=-180, le=180)
+    boundary_geojson: Optional[dict[str, Any]] = None
     status: Optional[EntityStatus] = None
 
 

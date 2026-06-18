@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CircleMarker, GeoJSON, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet"
 import type { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson"
 import type { LatLngBoundsExpression } from "leaflet"
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import CONFIG from "@/lib/config"
-import type { OperationsMapReport } from "./operations-map"
+import type { OperationsMapAggregateMarker, OperationsMapBoundaryOverlay, OperationsMapReport } from "./operations-map"
 
 const DEFAULT_CENTER: [number, number] = [-6.369, 34.8888]
 const NATIONAL_BOUNDARY_ZOOM = 8
@@ -17,6 +17,14 @@ const NATIONAL_BOUNDARY_ZOOM = 8
 const DMA_BOUNDARY_STYLE = {
   color: "#f04e23",
   fillColor: "#f97316",
+} as const
+
+const DEFAULT_BOUNDARY_STYLE = {
+  utility: {
+    color: "#0284c7",
+    fillColor: "#0ea5e9",
+  },
+  dma: DMA_BOUNDARY_STYLE,
 } as const
 
 const networkLayerCache = new Map<string, GeoJsonObject>()
@@ -271,6 +279,32 @@ function buildNetworkPopupHtml(feature: Feature) {
   </div>`
 }
 
+function buildBoundaryPopupHtml(overlay: OperationsMapBoundaryOverlay) {
+  const reported = overlay.reported ?? 0
+  const resolved = overlay.resolved ?? 0
+  const efficiency = reported > 0 ? Math.round((resolved / reported) * 1000) / 10 : 0
+  const label = overlay.level === "utility" ? "Utility boundary" : "DMA boundary"
+
+  return `<div style="width:220px;font-family:Inter,ui-sans-serif,system-ui;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">${label}</div>
+    <div style="margin-top:4px;font-size:14px;font-weight:700;color:#0f172a;">${escapeHtml(overlay.label)}</div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px;text-align:center;">
+      <div style="border-radius:10px;background:#f1f5f9;padding:7px 6px;">
+        <div style="font-size:12px;font-weight:700;color:#0f172a;">${reported.toLocaleString()}</div>
+        <div style="font-size:10px;color:#64748b;">Reported</div>
+      </div>
+      <div style="border-radius:10px;background:#ecfdf5;padding:7px 6px;">
+        <div style="font-size:12px;font-weight:700;color:#047857;">${resolved.toLocaleString()}</div>
+        <div style="font-size:10px;color:#64748b;">Resolved</div>
+      </div>
+      <div style="border-radius:10px;background:#eff6ff;padding:7px 6px;">
+        <div style="font-size:12px;font-weight:700;color:#0369a1;">${efficiency}%</div>
+        <div style="font-size:10px;color:#64748b;">Efficiency</div>
+      </div>
+    </div>
+  </div>`
+}
+
 function FitMapToData({
   bounds,
   fitKey,
@@ -341,6 +375,8 @@ function MapZoomObserver({ onZoomChange }: { onZoomChange: (zoom: number) => voi
 
 export function OperationsMapImpl({
   reports,
+  aggregateMarkers = [],
+  boundaryOverlays = [],
   center,
   boundaryGeojson,
   boundaryGeojsons = [],
@@ -351,6 +387,7 @@ export function OperationsMapImpl({
   description = "Monitor leak points, routing status, and pipe coverage from one field view.",
   basemap: controlledBasemap,
   onBasemapChange,
+  onZoomChange,
   onReportSelect,
   chromeMode = "standard",
   boundsFitKey = "initial",
@@ -358,6 +395,8 @@ export function OperationsMapImpl({
   preferInitialBounds = false,
 }: {
   reports: OperationsMapReport[]
+  aggregateMarkers?: OperationsMapAggregateMarker[]
+  boundaryOverlays?: OperationsMapBoundaryOverlay[]
   center?: [number, number] | null
   boundaryGeojson?: GeoJsonObject | null
   boundaryGeojsons?: GeoJsonObject[]
@@ -368,6 +407,7 @@ export function OperationsMapImpl({
   description?: string
   basemap?: BasemapKey
   onBasemapChange?: (basemap: BasemapKey) => void
+  onZoomChange?: (zoom: number) => void
   onReportSelect?: (reportId: string) => void
   chromeMode?: "standard" | "command-center"
   boundsFitKey?: string
@@ -383,14 +423,8 @@ export function OperationsMapImpl({
     return Array.from(urls)
   }, [networkPreviewUrl, networkPreviewUrls])
 
-  const boundaryLayers = useMemo(
-    () => (boundaryGeojson ? [boundaryGeojson] : boundaryGeojsons),
-    [boundaryGeojson, boundaryGeojsons]
-  )
-  const hasBoundaryOverlays = boundaryLayers.length > 0
-
   const [showNetwork, setShowNetwork] = useState(false)
-  const [showBoundaries, setShowBoundaries] = useState(hasBoundaryOverlays)
+  const [showBoundaries, setShowBoundaries] = useState(false)
   const [localBasemap, setLocalBasemap] = useState<BasemapKey>("street")
   const [networkLayers, setNetworkLayers] = useState<GeoJsonObject[]>([])
   const [networkLoading, setNetworkLoading] = useState(false)
@@ -401,7 +435,28 @@ export function OperationsMapImpl({
   const isCommandCenter = chromeMode === "command-center"
   const isSatellite = basemap === "satellite"
   const isNationalBoundaryView = mapZoom <= NATIONAL_BOUNDARY_ZOOM
-  const boundaryLayerLabel = isNationalBoundaryView ? "utility boundaries" : "DMA boundaries"
+  const fallbackBoundaryLevel: OperationsMapBoundaryOverlay["level"] = isNationalBoundaryView ? "utility" : "dma"
+  const boundaryLayers = useMemo<OperationsMapBoundaryOverlay[]>(() => {
+    if (boundaryOverlays.length) return boundaryOverlays
+
+    const fallbackLayers = boundaryGeojson ? [boundaryGeojson] : boundaryGeojsons
+    return fallbackLayers.map((geojson, index) => ({
+      id: `boundary-${index}`,
+      label: fallbackBoundaryLevel === "utility" ? `Utility boundary ${index + 1}` : `DMA boundary ${index + 1}`,
+      level: fallbackBoundaryLevel,
+      geojson,
+    }))
+  }, [boundaryGeojson, boundaryGeojsons, boundaryOverlays, fallbackBoundaryLevel])
+  const activeBoundaryLevel = boundaryLayers[0]?.level ?? fallbackBoundaryLevel
+  const boundaryLayerLabel = activeBoundaryLevel === "utility" ? "utility boundaries" : "DMA boundaries"
+  const hasBoundaryOverlays = boundaryLayers.length > 0
+  const handleZoomChange = useCallback(
+    (zoom: number) => {
+      setMapZoom(zoom)
+      onZoomChange?.(zoom)
+    },
+    [onZoomChange]
+  )
 
   useEffect(() => {
     if (!networkUrls.length) {
@@ -499,20 +554,36 @@ export function OperationsMapImpl({
     }
 
     if (!validReports.length) {
+      const validAggregateMarkers = aggregateMarkers.filter(
+        (marker) =>
+          Number.isFinite(marker.latitude) &&
+          Number.isFinite(marker.longitude) &&
+          !(marker.latitude === 0 && marker.longitude === 0)
+      )
+      if (validAggregateMarkers.length) {
+        const averageLatitude =
+          validAggregateMarkers.reduce((sum, marker) => sum + marker.latitude, 0) / validAggregateMarkers.length
+        const averageLongitude =
+          validAggregateMarkers.reduce((sum, marker) => sum + marker.longitude, 0) / validAggregateMarkers.length
+        return [averageLatitude, averageLongitude]
+      }
       return DEFAULT_CENTER
     }
 
     const averageLatitude = validReports.reduce((sum, report) => sum + report.latitude, 0) / validReports.length
     const averageLongitude = validReports.reduce((sum, report) => sum + report.longitude, 0) / validReports.length
     return [averageLatitude, averageLongitude]
-  }, [center, networkLayers, validReports])
+  }, [aggregateMarkers, center, networkLayers, validReports])
 
   const fitBounds = useMemo<LatLngBoundsExpression | null>(() => {
     if (preferInitialBounds && initialBounds) return initialBounds
 
     const points: Array<[number, number]> = [
       ...validReports.map((report) => [report.latitude, report.longitude] as [number, number]),
-      ...(showBoundaries ? boundaryLayers.flatMap((geojson) => collectGeoJsonCoordinates(geojson)) : []),
+      ...aggregateMarkers
+        .filter((marker) => Number.isFinite(marker.latitude) && Number.isFinite(marker.longitude))
+        .map((marker) => [marker.latitude, marker.longitude] as [number, number]),
+      ...(showBoundaries ? boundaryLayers.flatMap((overlay) => collectGeoJsonCoordinates(overlay.geojson)) : []),
       ...networkLayers.flatMap((layer) => collectGeoJsonCoordinates(layer)),
     ]
 
@@ -526,7 +597,7 @@ export function OperationsMapImpl({
     }
 
     return points
-  }, [boundaryLayers, initialBounds, networkLayers, preferInitialBounds, showBoundaries, validReports])
+  }, [aggregateMarkers, boundaryLayers, initialBounds, networkLayers, preferInitialBounds, showBoundaries, validReports])
 
   return (
     <div className="h-full overflow-hidden rounded-[30px] border border-slate-300/85 bg-slate-100 shadow-[0_28px_80px_-52px_rgba(15,23,42,0.4)]">
@@ -603,7 +674,7 @@ export function OperationsMapImpl({
           }}
         >
           <SyncMapSize />
-          <MapZoomObserver onZoomChange={setMapZoom} />
+          <MapZoomObserver onZoomChange={handleZoomChange} />
           <FitMapToData bounds={fitBounds} fitKey={boundsFitKey} />
           <TileLayer
             key={basemap}
@@ -612,19 +683,37 @@ export function OperationsMapImpl({
           />
 
           {showBoundaries
-            ? boundaryLayers.map((geojson, index) => (
+            ? boundaryLayers.map((overlay, index) => {
+                const defaultStyle = DEFAULT_BOUNDARY_STYLE[overlay.level]
+                const color = overlay.color ?? defaultStyle.color
+                const fillColor = overlay.color ?? defaultStyle.fillColor
+
+                return (
                 <GeoJSON
-                  key={`dma-boundary-${index}`}
-                  data={geojson}
+                  key={`boundary-${overlay.level}-${overlay.id}-${index}`}
+                  data={overlay.geojson}
                   style={() => ({
-                    color: DMA_BOUNDARY_STYLE.color,
-                    weight: 3,
-                    opacity: 0.86,
-                    fillColor: DMA_BOUNDARY_STYLE.fillColor,
-                    fillOpacity: 0.015,
+                    color,
+                    weight: overlay.level === "utility" ? 3.2 : 2.6,
+                    opacity: overlay.level === "utility" ? 0.88 : 0.78,
+                    fillColor,
+                    fillOpacity: overlay.level === "utility" ? 0.055 : 0.025,
                   })}
+                  onEachFeature={(_, layer) => {
+                    if ("bindTooltip" in layer && typeof layer.bindTooltip === "function") {
+                      layer.bindTooltip(overlay.label, {
+                        sticky: true,
+                        direction: "top",
+                        className: "majiscope-boundary-tooltip",
+                      })
+                    }
+                    if ("bindPopup" in layer && typeof layer.bindPopup === "function") {
+                      layer.bindPopup(buildBoundaryPopupHtml(overlay))
+                    }
+                  }}
                 />
-              ))
+              )
+              })
             : null}
 
           {showNetwork
@@ -647,6 +736,50 @@ export function OperationsMapImpl({
                 />
               ))
             : null}
+
+          {aggregateMarkers.map((marker) => {
+              const efficiency = marker.reported > 0 ? Math.round((marker.resolved / marker.reported) * 1000) / 10 : 0
+              const radius = 7
+
+              return (
+                <CircleMarker
+                  key={`aggregate-${marker.level}-${marker.id}`}
+                  center={[marker.latitude, marker.longitude]}
+                  radius={radius}
+                  pathOptions={{
+                    fillColor: marker.level === "utility" ? "#0284c7" : "#7c3aed",
+                    color: "#ffffff",
+                    fillOpacity: 0.82,
+                    weight: 2,
+                  }}
+                >
+                  <Popup>
+                    <div className="w-[230px] space-y-3">
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                          {marker.level === "utility" ? "Utility summary" : "DMA summary"}
+                        </div>
+                        <h3 className="mt-1 text-sm font-semibold text-slate-900">{marker.label}</h3>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div className="rounded-xl bg-slate-100 px-2 py-2">
+                          <p className="font-semibold text-slate-900">{marker.reported.toLocaleString()}</p>
+                          <p className="mt-0.5 text-slate-500">Reported</p>
+                        </div>
+                        <div className="rounded-xl bg-emerald-50 px-2 py-2">
+                          <p className="font-semibold text-emerald-700">{marker.resolved.toLocaleString()}</p>
+                          <p className="mt-0.5 text-slate-500">Resolved</p>
+                        </div>
+                        <div className="rounded-xl bg-sky-50 px-2 py-2">
+                          <p className="font-semibold text-sky-700">{efficiency}%</p>
+                          <p className="mt-0.5 text-slate-500">Efficiency</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              )
+            })}
 
           {validReports.map((report) => {
               const meta = getStatusMeta(report.status)
@@ -814,9 +947,37 @@ export function OperationsMapImpl({
                     {showBoundaries ? `Hide ${boundaryLayerLabel}` : `Show ${boundaryLayerLabel}`}
                   </Button>
                 </div>
-                {isNationalBoundaryView ? (
-                  <div className={cn("mt-2 max-w-[220px] text-right text-[11px]", isSatellite ? "text-white/72" : "text-slate-500")}>
-                    Utility boundaries will use utility geometry when configured.
+                {showBoundaries && boundaryOverlays.length ? (
+                  <div
+                    className={cn(
+                      "mt-2 max-w-[240px] rounded-xl border px-2 py-2 text-left",
+                      isSatellite
+                        ? "border-white/12 bg-white/8 text-white/86"
+                        : "border-slate-300/70 bg-white/55 text-slate-700 dark:border-slate-700 dark:bg-slate-950/45 dark:text-slate-200"
+                    )}
+                  >
+                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] opacity-75">
+                      Boundary legend
+                    </div>
+                    <div className="grid gap-1">
+                      {boundaryOverlays.slice(0, 5).map((overlay) => (
+                        <div key={`legend-${overlay.level}-${overlay.id}`} className="flex items-center justify-between gap-3 text-[11px]">
+                          <span className="flex min-w-0 items-center gap-2">
+                            <span
+                              className="h-2.5 w-2.5 shrink-0 rounded-full"
+                              style={{ backgroundColor: overlay.color ?? DEFAULT_BOUNDARY_STYLE[overlay.level].color }}
+                            />
+                            <span className="truncate">{overlay.label}</span>
+                          </span>
+                          <span className="shrink-0 font-semibold">{(overlay.reported ?? 0).toLocaleString()}</span>
+                        </div>
+                      ))}
+                      {boundaryOverlays.length > 5 ? (
+                        <div className="text-[10px] opacity-70">
+                          +{boundaryOverlays.length - 5} more boundaries
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
                 {networkLoading ? (

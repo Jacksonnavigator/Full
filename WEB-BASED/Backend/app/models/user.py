@@ -73,6 +73,7 @@ class Utility(Base):
     contact_address = Column(String(255), nullable=True)
     center_latitude = Column(Float, nullable=True)
     center_longitude = Column(Float, nullable=True)
+    boundary_geojson = Column(Text, nullable=True)
     status = Column(SQLEnum(EntityStatusEnum), default=EntityStatusEnum.ACTIVE)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

@@ -30,10 +30,14 @@ from datetime import datetime
 import re
 from datetime import timedelta
 from app.services.hierarchy import (
+    find_dma_within_utility_by_boundary,
     find_dma_within_utility_by_district_name,
     find_nearest_dma_within_utility,
     find_nearest_utility,
+    find_utility_by_boundary,
     find_utility_by_region_name,
+    has_complete_active_dma_boundaries_within_utility,
+    has_complete_active_utility_boundaries,
     resolve_region_name_hint,
 )
 from app.services.push_notifications import create_notification_record, deliver_notifications_push
@@ -135,9 +139,12 @@ def _resolve_report_assignment(
 
     if current_user and current_user.user_type == "utility_manager" and current_user.utility_id:
         utility = db.query(Utility).filter(Utility.id == current_user.utility_id).first()
+        utility_has_complete_dma_boundaries = has_complete_active_dma_boundaries_within_utility(utility, db)
+        if utility and latitude is not None and longitude is not None:
+            dma = find_dma_within_utility_by_boundary(latitude, longitude, utility, db)
         if utility and district_name:
-            dma = find_dma_within_utility_by_district_name(district_name, utility, db)
-        if utility and not dma and latitude is not None and longitude is not None:
+            dma = dma or find_dma_within_utility_by_district_name(district_name, utility, db)
+        if utility and not dma and not utility_has_complete_dma_boundaries and latitude is not None and longitude is not None:
             dma, _dma_distance = find_nearest_dma_within_utility(latitude, longitude, utility, db)
         return utility, dma
 
@@ -158,22 +165,38 @@ def _resolve_report_assignment(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Utility not found",
             )
+        if latitude is not None and longitude is not None:
+            dma = find_dma_within_utility_by_boundary(latitude, longitude, utility, db)
+        utility_has_complete_dma_boundaries = has_complete_active_dma_boundaries_within_utility(utility, db)
         if district_name:
-            dma = find_dma_within_utility_by_district_name(district_name, utility, db)
-        if not dma and latitude is not None and longitude is not None:
+            dma = dma or find_dma_within_utility_by_district_name(district_name, utility, db)
+        if not dma and not utility_has_complete_dma_boundaries and latitude is not None and longitude is not None:
             dma, _dma_distance = find_nearest_dma_within_utility(latitude, longitude, utility, db)
         return utility, dma
 
-    if region_name:
+    complete_utility_boundaries_configured = False
+    if latitude is not None and longitude is not None:
+        complete_utility_boundaries_configured = has_complete_active_utility_boundaries(db)
+        utility = find_utility_by_boundary(latitude, longitude, db)
+        if utility:
+            dma = find_dma_within_utility_by_boundary(latitude, longitude, utility, db)
+        elif complete_utility_boundaries_configured:
+            return None, None
+
+    if not utility and region_name:
         utility = find_utility_by_region_name(region_name, db)
     if not utility and (latitude is None or longitude is None):
         return None, None
 
-    if not utility:
+    if not utility and not complete_utility_boundaries_configured:
         utility, _utility_distance = find_nearest_utility(latitude, longitude, db)
-    if utility and district_name:
+
+    utility_has_complete_dma_boundaries = has_complete_active_dma_boundaries_within_utility(utility, db)
+    if utility and not dma and latitude is not None and longitude is not None:
+        dma = find_dma_within_utility_by_boundary(latitude, longitude, utility, db)
+    if utility and not dma and district_name:
         dma = find_dma_within_utility_by_district_name(district_name, utility, db)
-    if not dma:
+    if not dma and not utility_has_complete_dma_boundaries and latitude is not None and longitude is not None:
         dma, _dma_distance = find_nearest_dma_within_utility(latitude, longitude, utility, db)
     return utility, dma
 

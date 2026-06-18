@@ -481,10 +481,64 @@ __turbopack_context__.s([
 // ============================================================
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zustand$2f$esm$2f$react$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/zustand/esm/react.mjs [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/api-client.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/config.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/transform-data.ts [app-client] (ecmascript)");
 ;
 ;
 ;
+;
+function serializeUtilityPayload(data) {
+    return {
+        ...data.name !== undefined ? {
+            name: data.name
+        } : {},
+        ...data.regionName !== undefined ? {
+            region_name: data.regionName
+        } : {},
+        ...data.description !== undefined ? {
+            description: data.description
+        } : {},
+        ...data.contactPhone !== undefined ? {
+            contact_phone: data.contactPhone
+        } : {},
+        ...data.contactEmail !== undefined ? {
+            contact_email: data.contactEmail
+        } : {},
+        ...data.contactAddress !== undefined ? {
+            contact_address: data.contactAddress
+        } : {},
+        ...data.centerLatitude !== undefined ? {
+            center_latitude: data.centerLatitude
+        } : {},
+        ...data.centerLongitude !== undefined ? {
+            center_longitude: data.centerLongitude
+        } : {},
+        ...data.boundaryGeojson !== undefined ? {
+            boundary_geojson: data.boundaryGeojson
+        } : {},
+        ...data.status !== undefined ? {
+            status: data.status
+        } : {}
+    };
+}
+async function writeUtility(endpoint, method, data) {
+    const token = typeof localStorage !== "undefined" ? localStorage.getItem(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].storage.tokenKey) : null;
+    const response = await fetch(`${__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].backend.fullUrl}${endpoint}`, {
+        method,
+        headers: {
+            "Content-Type": "application/json",
+            ...token ? {
+                Authorization: `Bearer ${token}`
+            } : {}
+        },
+        body: JSON.stringify(serializeUtilityPayload(data))
+    });
+    const payload = await response.json().catch(()=>({}));
+    if (!response.ok) {
+        throw new Error(payload?.detail || payload?.error || `Failed to ${method === "POST" ? "create" : "update"} utility`);
+    }
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["transformKeys"])(payload?.data || payload);
+}
 function normalizeNotification(raw) {
     const transformed = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["transformKeys"])(raw);
     return {
@@ -544,7 +598,7 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
         // Fetch utilities
         fetchUtilities: async ()=>{
             try {
-                const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get("/utilities");
+                const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get("/utilities?limit=100");
                 if (response.success && response.data) {
                     const transformed = (response.data.items || []).map(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["transformKeys"]);
                     set({
@@ -775,9 +829,9 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
         // CRUD: Utilities
         addUtility: async (data)=>{
             try {
-                const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].post("/utilities", data);
-                if (!response.success) throw new Error(response.error || "Failed to create utility");
+                const createdUtility = await writeUtility("/utilities", "POST", data);
                 await get().fetchUtilities();
+                return createdUtility;
             } catch (error) {
                 console.error("Error creating utility:", error);
                 throw error;
@@ -785,9 +839,9 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
         },
         updateUtility: async (id, data)=>{
             try {
-                const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].put(`/utilities/${id}`, data);
-                if (!response.success) throw new Error(response.error || "Failed to update utility");
+                const updatedUtility = await writeUtility(`/utilities/${id}`, "PUT", data);
                 await get().fetchUtilities();
+                return updatedUtility;
             } catch (error) {
                 console.error("Error updating utility:", error);
                 throw error;

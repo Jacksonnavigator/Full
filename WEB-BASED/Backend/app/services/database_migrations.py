@@ -520,6 +520,8 @@ def _migrate_utility_contact_columns(engine: Engine) -> None:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN center_latitude FLOAT")
     if "center_longitude" not in columns:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN center_longitude FLOAT")
+    if "boundary_geojson" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN boundary_geojson TEXT")
     if "region_name" not in columns:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN region_name VARCHAR(100)")
 

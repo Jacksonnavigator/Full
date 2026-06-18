@@ -12,6 +12,7 @@ import {
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
 import { OperationsMap } from "@/components/maps/operations-map"
+import type { OperationsMapAggregateMarker, OperationsMapBoundaryOverlay } from "@/components/maps/operations-map"
 import { useTopbarTitle } from "@/components/layout/topbar-title-context"
 import {
   Select,
@@ -95,11 +96,39 @@ type ComparisonBarRow = {
   resolved: number
 }
 
+type DashboardHierarchyLevel = "national" | "utility" | "dma" | "detail"
+
 const CHART_AXIS_TICK = { fill: "var(--chart-axis-text)", fontSize: 10 }
 const TANZANIA_BOUNDS: [[number, number], [number, number]] = [
   [-11.9, 28.8],
   [-0.95, 41.25],
 ]
+const BOUNDARY_COLORS = [
+  "#0284c7",
+  "#16a34a",
+  "#7c3aed",
+  "#f97316",
+  "#dc2626",
+  "#0d9488",
+  "#ca8a04",
+  "#be185d",
+]
+
+function isOperationsMapBoundaryOverlay(
+  overlay: OperationsMapBoundaryOverlay | null
+): overlay is OperationsMapBoundaryOverlay {
+  return Boolean(overlay)
+}
+
+function isOperationsMapAggregateMarker(
+  marker: OperationsMapAggregateMarker | null
+): marker is OperationsMapAggregateMarker {
+  return Boolean(marker)
+}
+
+function isResolvedStatus(status: string) {
+  return status === "approved" || status === "closed"
+}
 
 function ComparisonBarChartView({
   rows,
@@ -335,6 +364,7 @@ export function OperationsDashboard() {
   const [selectedUtilityId, setSelectedUtilityId] = useState("all")
   const [selectedDMAId, setSelectedDMAId] = useState("all")
   const [basemap, setBasemap] = useState<"street" | "satellite">("street")
+  const [mapZoom, setMapZoom] = useState(6)
 
   const isAdmin = currentUser?.role === "admin"
   const isUtility = currentUser?.role === "utility_manager"
@@ -431,6 +461,27 @@ export function OperationsDashboard() {
     })
   }, [scopedReports, selectedDMAId, selectedUtilityId])
 
+  const dashboardLevel = useMemo<DashboardHierarchyLevel>(() => {
+    if (isDMA) {
+      return mapZoom <= 11 ? "dma" : "detail"
+    }
+
+    if (selectedDMAId !== "all") {
+      return mapZoom <= 11 ? "dma" : "detail"
+    }
+
+    if (isUtility || selectedUtilityId !== "all") {
+      if (mapZoom <= 9) return "utility"
+      if (mapZoom <= 12) return "dma"
+      return "detail"
+    }
+
+    if (mapZoom <= 7) return "national"
+    if (mapZoom <= 10) return "utility"
+    if (mapZoom <= 12) return "dma"
+    return "detail"
+  }, [isDMA, isUtility, mapZoom, selectedDMAId, selectedUtilityId])
+
   const mapReports = useMemo(
     () => filteredReports.filter(hasUsableCoordinates),
     [filteredReports]
@@ -440,12 +491,10 @@ export function OperationsDashboard() {
   const leakageTypeRows = useMemo(() => computeLeakageTypeDistribution(filteredReports), [filteredReports])
 
   const comparisonRows = useMemo<ComparisonBarRow[]>(() => {
-    const isResolved = (status: string) => status === "approved" || status === "closed"
-
-    if (isAdmin) {
+    if (isAdmin && dashboardLevel !== "dma" && dashboardLevel !== "detail") {
       const rows = new Map<string, ComparisonBarRow>()
 
-      utilities.forEach((utility) => {
+      visibleUtilities.forEach((utility) => {
         rows.set(utility.id, {
           label: utility.name,
           reported: 0,
@@ -453,7 +502,7 @@ export function OperationsDashboard() {
         })
       })
 
-      scopedReports.forEach((report) => {
+      filteredReports.forEach((report) => {
         const key = report.utilityId || `utility:${report.utilityName || "Unassigned utility"}`
         const current =
           rows.get(key) ??
@@ -464,27 +513,40 @@ export function OperationsDashboard() {
           }
 
         current.reported += 1
-        if (isResolved(report.status)) current.resolved += 1
+        if (isResolvedStatus(report.status)) current.resolved += 1
         rows.set(key, current)
       })
 
       return Array.from(rows.values()).sort((left, right) => right.reported - left.reported)
     }
 
-    if (isUtility && currentUser?.utilityId) {
+    if ((isUtility || (isAdmin && selectedUtilityId !== "all")) && dashboardLevel === "utility") {
+      const utilityLabel =
+        visibleUtilities.find((utility) => utility.id === selectedUtilityId)?.name ||
+        visibleUtilities[0]?.name ||
+        "Current utility"
+
+      return [
+        {
+          label: utilityLabel,
+          reported: filteredReports.length,
+          resolved: filteredReports.filter((report) => isResolvedStatus(report.status)).length,
+        },
+      ]
+    }
+
+    if (isAdmin || isUtility) {
       const rows = new Map<string, ComparisonBarRow>()
 
-      dmas
-        .filter((dma) => dma.utilityId === currentUser.utilityId)
-        .forEach((dma) => {
-          rows.set(dma.id, {
-            label: dma.name,
-            reported: 0,
-            resolved: 0,
-          })
+      visibleDMAs.forEach((dma) => {
+        rows.set(dma.id, {
+          label: dma.name,
+          reported: 0,
+          resolved: 0,
         })
+      })
 
-      scopedReports.forEach((report) => {
+      filteredReports.forEach((report) => {
         const key = report.dmaId || `dma:${report.dmaName || "Unassigned DMA"}`
         const current =
           rows.get(key) ??
@@ -495,7 +557,7 @@ export function OperationsDashboard() {
           }
 
         current.reported += 1
-        if (isResolved(report.status)) current.resolved += 1
+        if (isResolvedStatus(report.status)) current.resolved += 1
         rows.set(key, current)
       })
 
@@ -506,32 +568,28 @@ export function OperationsDashboard() {
       return [
         {
           label: currentDMA?.name || "Current DMA",
-          reported: scopedReports.length,
-          resolved: scopedReports.filter((report) => isResolved(report.status)).length,
+          reported: filteredReports.length,
+          resolved: filteredReports.filter((report) => isResolvedStatus(report.status)).length,
         },
       ]
     }
 
     return []
-  }, [currentDMA?.name, currentUser?.utilityId, dmas, isAdmin, isDMA, isUtility, scopedReports, utilities])
+  }, [currentDMA?.name, dashboardLevel, filteredReports, isAdmin, isDMA, isUtility, selectedUtilityId, visibleDMAs, visibleUtilities])
 
-  const comparisonSubtitle = isAdmin
-    ? "Reported vs resolved per utility"
-    : isUtility
-      ? "Reported vs resolved per DMA"
-      : "Reported vs resolved"
+  const comparisonSubtitle =
+    dashboardLevel === "national"
+      ? "Reported vs resolved per utility"
+      : dashboardLevel === "utility"
+        ? "Reported vs resolved for the active utility scope"
+        : dashboardLevel === "dma"
+          ? "Reported vs resolved per DMA"
+          : "Reported vs resolved in detail scope"
 
   const activeDMA = useMemo(
     () => dmas.find((dma) => dma.id === selectedDMAId) ?? null,
     [dmas, selectedDMAId]
   )
-
-  const visibleBoundaryGeojsons = useMemo(() => {
-    if (selectedDMAId !== "all") return []
-    return visibleDMAs
-      .map((dma) => dma.boundaryGeojson)
-      .filter((geojson): geojson is NonNullable<typeof geojson> => Boolean(geojson))
-  }, [selectedDMAId, visibleDMAs])
 
   const activeUtilityId = useMemo(() => {
     if (selectedUtilityId !== "all") return selectedUtilityId
@@ -554,6 +612,60 @@ export function OperationsDashboard() {
     [activeUtilityId, utilities]
   )
 
+  const boundaryOverlays = useMemo<OperationsMapBoundaryOverlay[]>(() => {
+    const buildUtilityOverlay = (
+      utility: (typeof visibleUtilities)[number],
+      index: number
+    ): OperationsMapBoundaryOverlay | null => {
+      if (!utility.boundaryGeojson) return null
+      const utilityReports = filteredReports.filter((report) => report.utilityId === utility.id)
+
+      return {
+        id: utility.id,
+        label: utility.name,
+        level: "utility" as const,
+        geojson: utility.boundaryGeojson,
+        reported: utilityReports.length,
+        resolved: utilityReports.filter((report) => isResolvedStatus(report.status)).length,
+        color: BOUNDARY_COLORS[index % BOUNDARY_COLORS.length],
+      }
+    }
+
+    const buildDMAOverlay = (
+      dma: (typeof visibleDMAs)[number],
+      index: number
+    ): OperationsMapBoundaryOverlay | null => {
+      if (!dma.boundaryGeojson) return null
+      const dmaReports = filteredReports.filter((report) => report.dmaId === dma.id)
+
+      return {
+        id: dma.id,
+        label: dma.name,
+        level: "dma" as const,
+        geojson: dma.boundaryGeojson,
+        reported: dmaReports.length,
+        resolved: dmaReports.filter((report) => isResolvedStatus(report.status)).length,
+        color: BOUNDARY_COLORS[index % BOUNDARY_COLORS.length],
+      }
+    }
+
+    if (dashboardLevel === "national" || dashboardLevel === "utility") {
+      const utilitiesForBoundary = activeUtility?.boundaryGeojson ? [activeUtility] : visibleUtilities
+      return utilitiesForBoundary
+        .map(buildUtilityOverlay)
+        .filter(isOperationsMapBoundaryOverlay)
+    }
+
+    if (selectedDMAId !== "all") {
+      const selectedOverlay = activeDMA ? buildDMAOverlay(activeDMA, 0) : null
+      return selectedOverlay ? [selectedOverlay] : []
+    }
+
+    return visibleDMAs
+      .map(buildDMAOverlay)
+      .filter(isOperationsMapBoundaryOverlay)
+  }, [activeDMA, activeUtility, dashboardLevel, filteredReports, selectedDMAId, visibleDMAs, visibleUtilities])
+
   const activeNetworkPreviewUrl = useMemo(() => {
     if (!activeUtility?.pipeNetworkPreviewUrl) return null
     if (isDMA || !activeDMA?.id || !activeDMA.boundaryGeojson) return activeUtility.pipeNetworkPreviewUrl
@@ -571,6 +683,79 @@ export function OperationsDashboard() {
       .filter((url): url is string => Boolean(url))
   }, [activeNetworkPreviewUrl, isAdmin, selectedDMAId, selectedUtilityId, visibleUtilities])
 
+  const utilityAggregateMarkers = useMemo<OperationsMapAggregateMarker[]>(() => {
+    return visibleUtilities
+      .map((utility): OperationsMapAggregateMarker | null => {
+        const utilityReports = filteredReports.filter((report) => report.utilityId === utility.id)
+        const utilityMapReports = utilityReports.filter(hasUsableCoordinates)
+        const latitude =
+          utility.centerLatitude ??
+          (utilityMapReports.length
+            ? utilityMapReports.reduce((sum, report) => sum + report.latitude, 0) / utilityMapReports.length
+            : null)
+        const longitude =
+          utility.centerLongitude ??
+          (utilityMapReports.length
+            ? utilityMapReports.reduce((sum, report) => sum + report.longitude, 0) / utilityMapReports.length
+            : null)
+
+        if (latitude == null || longitude == null) return null
+
+        return {
+          id: utility.id,
+          label: utility.name,
+          latitude,
+          longitude,
+          reported: utilityReports.length,
+          resolved: utilityReports.filter((report) => isResolvedStatus(report.status)).length,
+          level: "utility" as const,
+        }
+      })
+      .filter(isOperationsMapAggregateMarker)
+  }, [filteredReports, visibleUtilities])
+
+  const dmaAggregateMarkers = useMemo<OperationsMapAggregateMarker[]>(() => {
+    return visibleDMAs
+      .map((dma): OperationsMapAggregateMarker | null => {
+        const dmaReports = filteredReports.filter((report) => report.dmaId === dma.id)
+        const dmaMapReports = dmaReports.filter(hasUsableCoordinates)
+        const latitude =
+          dma.centerLatitude ??
+          (dmaMapReports.length
+            ? dmaMapReports.reduce((sum, report) => sum + report.latitude, 0) / dmaMapReports.length
+            : null)
+        const longitude =
+          dma.centerLongitude ??
+          (dmaMapReports.length
+            ? dmaMapReports.reduce((sum, report) => sum + report.longitude, 0) / dmaMapReports.length
+            : null)
+
+        if (latitude == null || longitude == null) return null
+
+        return {
+          id: dma.id,
+          label: dma.name,
+          latitude,
+          longitude,
+          reported: dmaReports.length,
+          resolved: dmaReports.filter((report) => isResolvedStatus(report.status)).length,
+          level: "dma" as const,
+        }
+      })
+      .filter(isOperationsMapAggregateMarker)
+  }, [filteredReports, visibleDMAs])
+
+  const aggregateMarkers = useMemo(() => {
+    if (dashboardLevel === "national" || dashboardLevel === "utility") return utilityAggregateMarkers
+    if (dashboardLevel === "dma") return dmaAggregateMarkers
+    return []
+  }, [dashboardLevel, dmaAggregateMarkers, utilityAggregateMarkers])
+
+  const displayedMapReports = useMemo(
+    () => (dashboardLevel === "detail" ? mapReports : []),
+    [dashboardLevel, mapReports]
+  )
+
   const mapCenter = useMemo<[number, number] | null>(() => {
     if (activeDMA?.centerLatitude != null && activeDMA?.centerLongitude != null) {
       return [activeDMA.centerLatitude, activeDMA.centerLongitude]
@@ -578,15 +763,20 @@ export function OperationsDashboard() {
     if (activeUtility?.centerLatitude != null && activeUtility?.centerLongitude != null) {
       return [activeUtility.centerLatitude, activeUtility.centerLongitude]
     }
-    if (mapReports.length) {
-      const lat = mapReports.reduce((sum, report) => sum + report.latitude, 0) / mapReports.length
-      const lng = mapReports.reduce((sum, report) => sum + report.longitude, 0) / mapReports.length
+    if (aggregateMarkers.length) {
+      const lat = aggregateMarkers.reduce((sum, marker) => sum + marker.latitude, 0) / aggregateMarkers.length
+      const lng = aggregateMarkers.reduce((sum, marker) => sum + marker.longitude, 0) / aggregateMarkers.length
+      return [lat, lng]
+    }
+    if (displayedMapReports.length) {
+      const lat = displayedMapReports.reduce((sum, report) => sum + report.latitude, 0) / displayedMapReports.length
+      const lng = displayedMapReports.reduce((sum, report) => sum + report.longitude, 0) / displayedMapReports.length
       return [lat, lng]
     }
     return null
-  }, [activeDMA, activeUtility, mapReports])
+  }, [activeDMA, activeUtility, aggregateMarkers, displayedMapReports])
 
-  // Refetch reports when admin changes filters
+  // Refetch reports when admin changes filters. Keep refreshes quiet once data is already on screen.
   useEffect(() => {
     if (!isAdmin) return
 
@@ -595,10 +785,9 @@ export function OperationsDashboard() {
       dmaId: selectedDMAId === "all" ? undefined : selectedDMAId,
     }
 
-    setLoading(true)
     void fetchReportsForMap(
       Object.values(filters).some((v) => v !== undefined) ? (filters as any) : undefined
-    ).finally(() => setLoading(false))
+    )
   }, [fetchReportsForMap, initialized, isAdmin, selectedDMAId, selectedUtilityId])
 
   const scopeTitle = activeDMA?.name || activeUtility?.name || "Water Leakage Monitoring"
@@ -609,11 +798,27 @@ export function OperationsDashboard() {
   const allMapReportsLoaded = reportsListTotal === null || reports.length >= reportsListTotal
 
   const mapFitKey = useMemo(
-    () => [selectedUtilityId, selectedDMAId, mapReports.length, activeDMA?.id ?? "none", visibleBoundaryGeojsons.length].join("|"),
-    [activeDMA?.id, mapReports.length, selectedDMAId, selectedUtilityId, visibleBoundaryGeojsons.length]
+    () =>
+      [
+        selectedUtilityId,
+        selectedDMAId,
+        activeDMA?.id ?? "none",
+        activeUtility?.id ?? "none",
+      ].join("|"),
+    [activeDMA?.id, activeUtility?.id, selectedDMAId, selectedUtilityId]
   )
 
-  const preferTanzaniaMapView = isAdmin && selectedUtilityId === "all" && selectedDMAId === "all"
+  const preferTanzaniaMapView =
+    isAdmin && selectedUtilityId === "all" && selectedDMAId === "all" && dashboardLevel === "national"
+
+  const hierarchyLabel =
+    dashboardLevel === "national"
+      ? "National summary"
+      : dashboardLevel === "utility"
+        ? "Utility summary"
+        : dashboardLevel === "dma"
+          ? "DMA summary"
+          : "Report detail"
 
   useEffect(() => {
     setTopbarTitle({
@@ -668,7 +873,7 @@ export function OperationsDashboard() {
 
         <section className="min-h-0">
           <OperationsMap
-            reports={mapReports.map((report) => ({
+            reports={displayedMapReports.map((report) => ({
               id: report.id,
               trackingId: report.trackingId,
               description: report.description,
@@ -683,16 +888,19 @@ export function OperationsDashboard() {
               address: report.address,
               reporterName: report.reporterName,
             }))}
+            aggregateMarkers={aggregateMarkers}
+            boundaryOverlays={boundaryOverlays}
             center={mapCenter}
-            boundaryGeojson={activeDMA?.boundaryGeojson ?? null}
-            boundaryGeojsons={visibleBoundaryGeojsons}
+            boundaryGeojson={null}
+            boundaryGeojsons={[]}
             networkPreviewUrl={activeNetworkPreviewUrl}
             networkPreviewUrls={networkPreviewUrls}
             networkFileName={activeUtility?.pipeNetworkFileName}
             title={scopeTitle}
-            description={`${kpis.total.toLocaleString()} reports in current scope`}
+            description={`${dashboardLevel} view · ${kpis.total.toLocaleString()} reports in current scope`}
             basemap={basemap}
             onBasemapChange={setBasemap}
+            onZoomChange={setMapZoom}
             chromeMode="command-center"
             boundsFitKey={mapFitKey}
             initialBounds={TANZANIA_BOUNDS}
@@ -704,6 +912,10 @@ export function OperationsDashboard() {
         <aside className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3">
           <section className="rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] backdrop-blur">
             <div className="grid gap-2">
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-300/70 bg-white/45 px-3 py-2 text-xs dark:border-slate-600/70 dark:bg-slate-950/45">
+                <span className="font-semibold text-slate-700 dark:text-white">{hierarchyLabel}</span>
+                <span className="font-mono text-slate-500 dark:text-slate-300">z{mapZoom}</span>
+              </div>
               <Select
                 value={selectedUtilityId}
                 onValueChange={setSelectedUtilityId}
