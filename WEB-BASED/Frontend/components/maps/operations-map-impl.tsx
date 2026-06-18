@@ -659,6 +659,24 @@ export function OperationsMapImpl({
               filter: contrast(1.08) saturate(1.04);
               opacity: 1;
             }
+
+            .majiscope-boundary-tooltip {
+              border: 0;
+              background: rgba(255, 255, 255, 0.9);
+              color: rgba(15, 23, 42, 0.96);
+              border-radius: 9999px;
+              padding: 0.18rem 0.55rem;
+              font-size: 15px;
+              font-weight: 900;
+              letter-spacing: 0;
+              line-height: 1.1;
+              text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+              box-shadow: 0 10px 22px -14px rgba(15, 23, 42, 0.55);
+            }
+
+            .majiscope-boundary-tooltip::before {
+              display: none;
+            }
           `}</style>
         ) : null}
 
