@@ -608,11 +608,11 @@ export default function MapPage() {
 
   const activeNetworkPreviewUrl = useMemo(() => {
     if (!activeUtility?.pipeNetworkPreviewUrl) return null
-    if (!activeDMA?.id || !activeDMA.boundaryGeojson) return activeUtility.pipeNetworkPreviewUrl
+    if (isDMA || !activeDMA?.id || !activeDMA.boundaryGeojson) return activeUtility.pipeNetworkPreviewUrl
 
     const separator = activeUtility.pipeNetworkPreviewUrl.includes("?") ? "&" : "?"
     return `${activeUtility.pipeNetworkPreviewUrl}${separator}dma_id=${encodeURIComponent(activeDMA.id)}`
-  }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility?.pipeNetworkPreviewUrl])
+  }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility?.pipeNetworkPreviewUrl, isDMA])
 
   const mapCenter = useMemo<[number, number] | null>(() => {
     if (

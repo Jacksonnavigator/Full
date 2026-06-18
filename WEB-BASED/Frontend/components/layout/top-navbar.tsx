@@ -28,6 +28,7 @@ import { useTheme } from "next-themes"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useTopbarTitle } from "@/components/layout/topbar-title-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,6 +55,7 @@ export function TopNavbar() {
     markAllNotificationsRead,
   } = useDataStore()
   const { resolvedTheme, setTheme } = useTheme()
+  const { title: topbarTitle } = useTopbarTitle()
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [notificationsLoading, setNotificationsLoading] = useState(false)
   const [markingAllRead, setMarkingAllRead] = useState(false)
@@ -267,7 +269,17 @@ export function TopNavbar() {
         </div>
 
         {/* Center Content - Quick Stats, Theme, Help, Notifications */}
-        <div className="relative z-10 flex flex-1 items-center justify-center gap-1.5 sm:gap-3">
+        <div className="relative z-10 flex flex-1 items-center justify-between gap-2 sm:gap-3">
+          <div className="hidden min-w-0 max-w-[32rem] flex-1 items-center md:flex">
+            {topbarTitle ? (
+              <div className="min-w-0">
+                <div className="truncate text-base font-semibold leading-tight text-slate-950 dark:text-white">
+                  {topbarTitle.title}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
           {/* Quick Stats - Desktop Only */}
           {uiPreferences.showHeaderStats ? (
             <div className="hidden items-center gap-4 rounded-xl bg-slate-100/85 px-4 py-2 shadow-sm shadow-slate-900/[0.025] ring-1 ring-slate-300/80 dark:bg-slate-900/80 dark:shadow-black/20 dark:ring-slate-800 xl:flex">

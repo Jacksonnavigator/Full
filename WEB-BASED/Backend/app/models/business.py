@@ -31,6 +31,16 @@ class ReportPriorityEnum(str, enum.Enum):
     CRITICAL = "critical"
 
 
+class LeakageTypeEnum(str, enum.Enum):
+    """Reported leakage type enumeration"""
+    GROUND_LEAKAGE = "ground_leakage"
+    PIPE_BURST = "pipe_burst"
+    METER_LEAKAGE = "meter_leakage"
+    VALVE_LEAKAGE = "valve_leakage"
+    OVERFLOW = "overflow"
+    UNKNOWN = "unknown"
+
+
 class NotificationTypeEnum(str, enum.Enum):
     """Notification type enumeration"""
     INFO = "info"
@@ -58,6 +68,7 @@ class Report(Base):
     district_name = Column(String(100), nullable=True, index=True)
     photos = Column(JSON, default=list)  # Array of image URLs
     priority = Column(SQLEnum(ReportPriorityEnum), default=ReportPriorityEnum.MEDIUM)
+    leakage_type = Column(String(50), default=LeakageTypeEnum.UNKNOWN.value, nullable=False, index=True)
     status = Column(SQLEnum(ReportStatusEnum), default=ReportStatusEnum.NEW, index=True)
     utility_id = Column(String(36), ForeignKey("utility.id"), nullable=True, index=True)
     dma_id = Column(String(36), ForeignKey("dma.id", ondelete="CASCADE"), nullable=True, index=True)

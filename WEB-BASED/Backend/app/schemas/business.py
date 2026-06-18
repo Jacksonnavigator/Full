@@ -6,7 +6,7 @@ Request and response models for API validation
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
-from app.constants.enums import ReportStatus, ReportPriority, NotificationType
+from app.constants.enums import LeakageType, ReportStatus, ReportPriority, NotificationType
 
 
 # ============================================================================
@@ -19,6 +19,7 @@ class ReportBase(BaseModel):
     dma_id: Optional[str] = None
     description: Optional[str] = Field(None, max_length=2000)
     priority: ReportPriority = ReportPriority.MEDIUM
+    leakage_type: LeakageType = LeakageType.UNKNOWN
     photos: Optional[List[str]] = []
 
 
@@ -34,6 +35,7 @@ class AnonymousReportCreate(BaseModel):
     longitude: float
     address: Optional[str] = Field(None, max_length=500)
     priority: str = "Medium"  # Accept string priority from mobile app
+    leakage_type: LeakageType = LeakageType.UNKNOWN
     images: Optional[List[str]] = []
     reported_by: Optional[str] = "Anonymous"
 
@@ -42,6 +44,7 @@ class ReportUpdate(BaseModel):
     """Schema for updating report"""
     description: Optional[str] = Field(None, max_length=2000)
     priority: Optional[ReportPriority] = None
+    leakage_type: Optional[LeakageType] = None
     assigned_engineer_id: Optional[str] = None
     status: Optional[ReportStatus] = None
     photos: Optional[List[str]] = None

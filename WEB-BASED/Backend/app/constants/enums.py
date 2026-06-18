@@ -31,6 +31,16 @@ class ReportPriority(str, Enum):
     CRITICAL = "critical"
 
 
+class LeakageType(str, Enum):
+    """Reported leakage type enumeration"""
+    GROUND_LEAKAGE = "ground_leakage"
+    PIPE_BURST = "pipe_burst"
+    METER_LEAKAGE = "meter_leakage"
+    VALVE_LEAKAGE = "valve_leakage"
+    OVERFLOW = "overflow"
+    UNKNOWN = "unknown"
+
+
 class NotificationType(str, Enum):
     """Notification type enumeration"""
     INFO = "info"

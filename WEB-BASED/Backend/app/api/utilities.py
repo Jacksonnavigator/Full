@@ -4,6 +4,7 @@ CRUD operations for utilities
 """
 
 import csv
+import copy
 import io
 import json
 import sqlite3
@@ -65,6 +66,8 @@ PIPE_NETWORK_REQUIRED_TEXT_COLUMNS = {
     "condition": ("condition", "status_condition", "pipe_condition"),
     "location": ("location", "zonelocati", "zone", "location_name", "address"),
 }
+
+_pipe_network_geojson_cache: dict[tuple[Any, ...], dict[str, Any]] = {}
 
 
 def _resolve_current_user_utility_id(current_user: CurrentUser, db: Session) -> Optional[str]:
@@ -969,11 +972,28 @@ def _load_pipe_network_geojson_with_summary(file_name: str, file_data: bytes) ->
     )
 
 
+def _pipe_network_cache_key(pipe_network: UtilityPipeNetwork) -> tuple[Any, ...]:
+    return (
+        pipe_network.id,
+        pipe_network.utility_id,
+        pipe_network.file_name,
+        pipe_network.file_size,
+        pipe_network.updated_at.isoformat() if pipe_network.updated_at else None,
+    )
+
+
 def _load_pipe_network_geojson(pipe_network: UtilityPipeNetwork):
+    cache_key = _pipe_network_cache_key(pipe_network)
+    cached_collection = _pipe_network_geojson_cache.get(cache_key)
+    if cached_collection is not None:
+        return copy.deepcopy(cached_collection)
+
     feature_collection, _summary = _load_pipe_network_geojson_with_summary(
         pipe_network.file_name,
         pipe_network.file_data,
     )
+    _pipe_network_geojson_cache.clear()
+    _pipe_network_geojson_cache[cache_key] = copy.deepcopy(feature_collection)
     return feature_collection
 
 
@@ -1197,6 +1217,7 @@ async def upload_pipe_network(
     pipe_network.file_size = len(file_data)
     pipe_network.uploaded_by_manager_id = current_user.id if current_user.user_type == "utility_manager" else None
 
+    _pipe_network_geojson_cache.clear()
     db.commit()
     db.refresh(utility)
     return PipeNetworkUploadResponse(
@@ -1300,6 +1321,7 @@ async def delete_pipe_network(
         )
 
     db.delete(pipe_network)
+    _pipe_network_geojson_cache.clear()
     db.commit()
     db.refresh(utility)
     return _build_utility_response(utility)

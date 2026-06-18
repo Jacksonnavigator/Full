@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Clock,
+  Droplets,
   Expand,
   FileText,
   ImageIcon,
@@ -33,8 +34,10 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
+import { LEAKAGE_TYPE_CONFIG } from "@/lib/constants"
 import { formatTanzaniaDateTime } from "@/lib/date-time"
 import { transformKeys } from "@/lib/transform-data"
+import type { LeakageType } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -638,6 +641,8 @@ export default function ReportDetailPage() {
   const dueLabel = report.slaDeadline ? formatTanzaniaDateTime(report.slaDeadline) : "Deadline pending"
   const utilityLabel = report.utilityName?.trim() || report.regionName?.trim() || "Unassigned utility"
   const dmaLabel = report.dmaName?.trim() || report.districtName?.trim() || "Unassigned DMA"
+  const leakageType = report.leakageType || "unknown"
+  const leakageTypeMeta = LEAKAGE_TYPE_CONFIG[leakageType]
   const fieldOwnerLabel =
     report.assignedEngineerName?.trim() || report.teamLeaderName?.trim() || report.teamName?.trim() || "Waiting for team routing"
   const hasWorkflowNotes = Boolean(
@@ -658,6 +663,7 @@ export default function ReportDetailPage() {
               <h1 className="font-mono text-2xl font-bold text-slate-900 sm:text-3xl">{report.trackingId}</h1>
               <PriorityBadge priority={report.priority} />
               <ReportStatusBadge status={report.status} />
+              <LeakageTypeBadge type={leakageType} />
               {slaMeta ? (
                 <div className={cn("flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold", slaMeta.tone)}>
                   {slaMeta.icon}
@@ -718,6 +724,7 @@ export default function ReportDetailPage() {
 
               <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <DetailCard icon={<MapPin className="h-5 w-5 text-emerald-600" />} label="Location" value={getReportLocationLabel(report)} tone="bg-emerald-100" />
+                <DetailCard icon={<Droplets className="h-5 w-5 text-cyan-600" />} label="Leakage Type" value={leakageTypeMeta.label} tone="bg-cyan-100" />
                 <DetailCard icon={<Users className="h-5 w-5 text-indigo-600" />} label="Utility / Region" value={utilityLabel} tone="bg-indigo-100" />
                 <DetailCard icon={<Users className="h-5 w-5 text-violet-600" />} label="DMA / District" value={dmaLabel} tone="bg-violet-100" />
                 <DetailCard icon={<UserCog className="h-5 w-5 text-amber-600" />} label="Assigned Team" value={report.teamName || "Not assigned"} tone="bg-amber-100" />
@@ -1271,6 +1278,24 @@ function HeroMetric({ label, value, accent }: { label: string; value: string; ac
       <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">{label}</p>
       <p className="mt-2 break-words text-base font-semibold leading-snug text-slate-800">{value}</p>
     </div>
+  )
+}
+
+function LeakageTypeBadge({ type }: { type: LeakageType }) {
+  const config = LEAKAGE_TYPE_CONFIG[type] || LEAKAGE_TYPE_CONFIG.unknown
+
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
+      style={{
+        borderColor: `${config.color}55`,
+        backgroundColor: `${config.color}14`,
+        color: config.color,
+      }}
+    >
+      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: config.color }} />
+      {config.label}
+    </span>
   )
 }
 

@@ -7,6 +7,7 @@ import { useDataStore } from "@/store/data-store"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { TopNavbar } from "@/components/layout/top-navbar"
+import { TopbarTitleProvider } from "@/components/layout/topbar-title-context"
 
 export default function DashboardLayout({
   children,
@@ -50,18 +51,20 @@ export default function DashboardLayout({
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex w-full h-screen">
-        <AppSidebar />
-        <div className="flex flex-col flex-1">
-          <TopNavbar />
-          <SidebarInset className="relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none bg-background">
-            <main className="flex-1 overflow-y-auto overflow-x-hidden bg-background p-6 text-slate-900 dark:text-slate-100">
-              {children}
-            </main>
-          </SidebarInset>
+    <SidebarProvider defaultOpen={false}>
+      <TopbarTitleProvider>
+        <div className="flex w-full h-screen">
+          <AppSidebar />
+          <div className="flex flex-col flex-1">
+            <TopNavbar />
+            <SidebarInset className="relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none bg-background">
+              <main className="flex-1 overflow-y-auto overflow-x-hidden bg-background p-6 text-slate-900 dark:text-slate-100">
+                {children}
+              </main>
+            </SidebarInset>
+          </div>
         </div>
-      </div>
+      </TopbarTitleProvider>
     </SidebarProvider>
   )
 }

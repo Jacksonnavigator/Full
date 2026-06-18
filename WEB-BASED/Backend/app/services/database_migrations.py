@@ -49,6 +49,7 @@ def run_safe_startup_migrations(engine: Engine) -> None:
     _migrate_notification_columns(engine)
     _migrate_activity_log_constraints(engine)
     _migrate_report_workflow_columns(engine)
+    _migrate_report_leakage_type_column(engine)
     _migrate_utility_contact_columns(engine)
     _migrate_dma_boundary_columns(engine)
 
@@ -99,6 +100,29 @@ def _migrate_dma_boundary_columns(engine: Engine) -> None:
             )
         else:
             connection.exec_driver_sql("ALTER TABLE dma ADD COLUMN boundary_geojson TEXT")
+
+
+def _migrate_report_leakage_type_column(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "report" not in inspector.get_table_names():
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("report")}
+    if "leakage_type" not in columns:
+        with engine.begin() as connection:
+            if engine.dialect.name.startswith("postgresql"):
+                _run_postgres_ddl_without_timeout(
+                    connection,
+                    "ALTER TABLE report ADD COLUMN IF NOT EXISTS leakage_type VARCHAR(50) NOT NULL DEFAULT 'unknown'",
+                )
+            else:
+                connection.exec_driver_sql("ALTER TABLE report ADD COLUMN leakage_type VARCHAR(50) NOT NULL DEFAULT 'unknown'")
+
+    with engine.begin() as connection:
+        if engine.dialect.name.startswith("postgresql"):
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)")
+        else:
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)")
 
 
 def _needs_branchless_migration(inspector) -> bool:
@@ -197,6 +221,7 @@ def _migrate_sqlite_branchless_schema(engine: Engine) -> None:
             district_name VARCHAR(100),
             photos JSON,
             priority VARCHAR(8),
+            leakage_type VARCHAR(50) NOT NULL DEFAULT 'unknown',
             status VARCHAR(16),
             utility_id VARCHAR(36),
             dma_id VARCHAR(36),
@@ -217,12 +242,12 @@ def _migrate_sqlite_branchless_schema(engine: Engine) -> None:
         """,
         """
         INSERT INTO report_new (
-            id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, status,
+            id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, leakage_type, status,
             utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
             notes, sla_deadline, resolved_at, created_at, updated_at
         )
         SELECT
-            id, tracking_id, description, latitude, longitude, address, NULL as region_name, NULL as district_name, photos, priority, status,
+            id, tracking_id, description, latitude, longitude, address, NULL as region_name, NULL as district_name, photos, priority, 'unknown' as leakage_type, status,
             utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
             notes, sla_deadline, resolved_at, created_at, updated_at
         FROM report
@@ -231,6 +256,7 @@ def _migrate_sqlite_branchless_schema(engine: Engine) -> None:
         "ALTER TABLE report_new RENAME TO report",
         "CREATE UNIQUE INDEX IF NOT EXISTS ix_report_tracking_id ON report (tracking_id)",
         "CREATE INDEX IF NOT EXISTS ix_report_status ON report (status)",
+        "CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)",
         "CREATE INDEX IF NOT EXISTS ix_report_utility_id ON report (utility_id)",
         "CREATE INDEX IF NOT EXISTS ix_report_dma_id ON report (dma_id)",
         "CREATE INDEX IF NOT EXISTS ix_report_created_at ON report (created_at)",

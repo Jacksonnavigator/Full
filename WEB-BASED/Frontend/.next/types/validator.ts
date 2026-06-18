@@ -398,6 +398,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../app/api/dma-boundary/extract/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/dma-boundary/extract">> = Specific
+  const handler = {} as typeof import("../../app/api/dma-boundary/extract/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../app/api/upload-payload/[imageId]/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/upload-payload/[imageId]">> = Specific

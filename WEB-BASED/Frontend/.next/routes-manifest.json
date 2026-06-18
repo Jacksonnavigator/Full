@@ -88,6 +88,12 @@
       "namedRegex": "^/analytics(?:/)?$"
     },
     {
+      "page": "/api/dma-boundary/extract",
+      "regex": "^/api/dma\\-boundary/extract(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dma\\-boundary/extract(?:/)?$"
+    },
+    {
       "page": "/branches",
       "regex": "^/branches(?:/)?$",
       "routeKeys": {},

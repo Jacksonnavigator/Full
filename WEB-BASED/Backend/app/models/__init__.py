@@ -22,6 +22,7 @@ from app.models.business import (
     PushDeviceToken,
     ReportStatusEnum,
     ReportPriorityEnum,
+    LeakageTypeEnum,
     NotificationTypeEnum,
 )
 from app.models.uploads import (
@@ -51,6 +52,7 @@ __all__ = [
     "EntityStatusEnum",
     "ReportStatusEnum",
     "ReportPriorityEnum",
+    "LeakageTypeEnum",
     "NotificationTypeEnum",
     "ImageTypeEnum",
 ]

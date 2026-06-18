@@ -36,6 +36,7 @@
   "/(dashboard)/utilities/page": "/utilities",
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
+  "/api/dma-boundary/extract/route": "/api/dma-boundary/extract",
   "/api/upload-payload/[imageId]/route": "/api/upload-payload/[imageId]",
   "/login/page": "/login",
   "/page": "/",

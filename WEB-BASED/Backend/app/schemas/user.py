@@ -502,6 +502,7 @@ class ReportResponse(BaseModel):
     submission_before_photos: List[str] = []
     submission_after_photos: List[str] = []
     priority: str
+    leakage_type: str = "unknown"
     status: str
     utility_id: str
     utility_name: Optional[str] = None

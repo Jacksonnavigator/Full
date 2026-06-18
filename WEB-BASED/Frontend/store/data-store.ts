@@ -9,7 +9,7 @@ import { apiClient } from "@/lib/api-client"
 import { transformKeys } from "@/lib/transform-data"
 
 // Type imports for proper typing
-import type { ReportStatus, ReportPriority, EntityStatus } from "@/lib/types"
+import type { LeakageType, ReportStatus, ReportPriority, EntityStatus } from "@/lib/types"
 
 export interface GeoJsonPolygon {
   type: "Polygon"
@@ -107,6 +107,7 @@ export interface Report {
   submissionBeforePhotos?: string[]
   submissionAfterPhotos?: string[]
   priority: ReportPriority
+  leakageType?: LeakageType
   status: ReportStatus
   utilityId: string | null
   utilityName: string

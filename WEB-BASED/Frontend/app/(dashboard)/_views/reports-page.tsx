@@ -35,7 +35,9 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { LEAKAGE_TYPE_CONFIG } from "@/lib/constants"
 import { formatTanzaniaDateTime } from "@/lib/date-time"
+import type { LeakageType } from "@/lib/types"
 
 type ReportStatus = "new" | "assigned" | "in_progress" | "pending_approval" | "approved" | "rejected" | "closed"
 type ReportPriority = "low" | "medium" | "high" | "critical"
@@ -58,6 +60,24 @@ const PRIORITY_FILTERS: { value: "all" | ReportPriority; label: string }[] = [
   { value: "high", label: "High" },
   { value: "critical", label: "Critical" },
 ]
+
+function LeakageTypeBadge({ type }: { type?: LeakageType }) {
+  const config = LEAKAGE_TYPE_CONFIG[type || "unknown"] || LEAKAGE_TYPE_CONFIG.unknown
+
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold"
+      style={{
+        borderColor: `${config.color}55`,
+        backgroundColor: `${config.color}14`,
+        color: config.color,
+      }}
+    >
+      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: config.color }} />
+      {config.label}
+    </span>
+  )
+}
 
 const getReportLocationLabel = (report: {
   address?: string | null
@@ -404,6 +424,7 @@ export default function ReportsPage() {
                       Location
                     </div>
                   </TableHead>
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Leak Type</TableHead>
                   <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Status</TableHead>
                   <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">
                     <div className="flex items-center gap-2">
@@ -417,7 +438,7 @@ export default function ReportsPage() {
               <TableBody>
                 {filteredReports.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="py-16 text-center">
+                    <TableCell colSpan={7} className="py-16 text-center">
                       <div className="flex flex-col items-center gap-4">
                         <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                           <FileText className="h-8 w-8 text-slate-400" />
@@ -509,6 +530,11 @@ export default function ReportsPage() {
                               ) : null}
                             </div>
                           </div>
+                        </TableCell>
+
+                        {/* Leak Type */}
+                        <TableCell className="px-4 py-4 align-top">
+                          <LeakageTypeBadge type={report.leakageType} />
                         </TableCell>
 
                         {/* Status */}

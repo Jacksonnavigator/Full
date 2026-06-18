@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session, joinedload, selectinload
 from app.database.session import get_db
 from app.models import Report, Team, Engineer, DMA, Utility, ImageUpload, ImageTypeEnum, ActivityLog
-from app.models.business import ReportStatusEnum, ReportPriorityEnum, NotificationTypeEnum
+from app.models.business import LeakageTypeEnum, ReportStatusEnum, ReportPriorityEnum, NotificationTypeEnum
 from app.models.user import DMAManager
 from app.schemas.business import (
     ReportCreate,
@@ -60,6 +60,7 @@ class ReportWithDetails(BaseModel):
     submission_before_photos: List[str] = []
     submission_after_photos: List[str] = []
     priority: str
+    leakage_type: str = LeakageTypeEnum.UNKNOWN.value
     status: str
     utility_id: Optional[str] = None
     utility_name: Optional[str] = None
@@ -246,6 +247,13 @@ def _priority_label(priority: str | ReportPriorityEnum | None) -> str:
     if not normalized:
         return "Unspecified"
     return normalized.capitalize()
+
+
+def _leakage_type_value(leakage_type: str | LeakageTypeEnum | None) -> str:
+    raw = leakage_type.value if hasattr(leakage_type, "value") else leakage_type
+    normalized = str(raw or "").strip().lower()
+    allowed = {item.value for item in LeakageTypeEnum}
+    return normalized if normalized in allowed else LeakageTypeEnum.UNKNOWN.value
 
 
 def _build_public_history_claim_details(history_key: str) -> str:
@@ -575,6 +583,7 @@ def _build_report_list_item(report: Report) -> ReportWithDetails:
         submission_before_photos=submission_before_photos,
         submission_after_photos=submission_after_photos,
         priority=report.priority.value if hasattr(report.priority, "value") else report.priority,
+        leakage_type=_leakage_type_value(getattr(report, "leakage_type", None)),
         status=report.status.value if hasattr(report.status, "value") else report.status,
         utility_id=report.utility_id,
         utility_name=_report_utility_label(utility),
@@ -778,6 +787,7 @@ async def create_report(
         region_name=resolved_region_name,
         district_name=resolved_district_name,
         priority=report_data.priority,
+        leakage_type=_leakage_type_value(getattr(report_data, "leakage_type", None)),
         photos=report_data.photos or [],
         assigned_engineer_id=report_data.assigned_engineer_id,
         status=ReportStatusEnum.NEW,
@@ -876,6 +886,7 @@ async def create_anonymous_report(
         region_name=resolved_region_name,
         district_name=resolved_district_name,
         priority=priority,
+        leakage_type=_leakage_type_value(getattr(report_data, "leakage_type", None)),
         photos=report_data.images or [],
         status=ReportStatusEnum.NEW,
         reporter_name=report_data.reported_by or "Anonymous",
@@ -1083,6 +1094,8 @@ async def update_report(
         changed_fields.extend(["utility_id", "dma_id"])
 
     for field, value in update_data.items():
+        if field == "leakage_type":
+            value = _leakage_type_value(value)
         setattr(report, field, value)
         changed_fields.append(field)
 
@@ -1531,6 +1544,7 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         submission_before_photos=submission_before_photos,
         submission_after_photos=submission_after_photos,
         priority=report.priority.value if hasattr(report.priority, 'value') else report.priority,
+        leakage_type=_leakage_type_value(getattr(report, "leakage_type", None)),
         status=report.status.value if hasattr(report.status, 'value') else report.status,
         utility_id=report.utility_id,
         utility_name=_report_utility_label(utility if report.utility_id else None),

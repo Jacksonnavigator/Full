@@ -16,10 +16,12 @@ import {
 } from "@/components/ui/select"
 import { Download, Loader2 } from "lucide-react"
 import { PRIORITY_CONFIG, REPORT_STATUS_CONFIG } from "@/lib/constants"
+import { computeLeakageTypeDistribution } from "@/lib/report-metrics"
 import type { ReportPriority, ReportStatus } from "@/lib/types"
 import {
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -27,6 +29,8 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
+  PieChart,
+  Pie,
 } from "recharts"
 
 type DateFilter = "all" | "today" | "7d" | "30d" | "90d"
@@ -157,6 +161,8 @@ export default function AnalyticsPage() {
       .filter((item) => item.count > 0)
   }, [filteredReports])
 
+  const leakageTypeChartData = useMemo(() => computeLeakageTypeDistribution(filteredReports), [filteredReports])
+
   const utilityChartData = useMemo(() => {
     if (!isAdmin) return []
     return visibleUtilities
@@ -205,13 +211,14 @@ export default function AnalyticsPage() {
 
   const exportOperationalCsv = () => {
     const rows = [
-      ["tracking_id", "description", "utility", "dma", "priority", "status", "created_at"],
+      ["tracking_id", "description", "utility", "dma", "priority", "leakage_type", "status", "created_at"],
       ...filteredReports.map((report) => [
         report.trackingId,
         report.description,
         report.utilityName,
         report.dmaName,
         report.priority,
+        report.leakageType || "unknown",
         report.status,
         report.createdAt,
       ]),
@@ -301,7 +308,7 @@ export default function AnalyticsPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Reports by Status</CardTitle>
@@ -333,6 +340,56 @@ export default function AnalyticsPage() {
                 <Bar dataKey="count" fill="#f59e0b" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Leakage by Type</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {leakageTypeChartData.length ? (
+              <div className="grid gap-4">
+                <ResponsiveContainer width="100%" height={260}>
+                  <PieChart>
+                    <Pie
+                      data={leakageTypeChartData}
+                      dataKey="count"
+                      nameKey="name"
+                      innerRadius={58}
+                      outerRadius={92}
+                      paddingAngle={2}
+                      stroke="transparent"
+                    >
+                      {leakageTypeChartData.map((row) => (
+                        <Cell key={row.type} fill={row.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number, _name, props) => [
+                        `${value.toLocaleString()} (${props.payload.percentage}%)`,
+                        props.payload.name,
+                      ]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="grid gap-2 text-sm">
+                  {leakageTypeChartData.map((row) => (
+                    <div key={row.type} className="flex items-center justify-between gap-3 text-slate-600 dark:text-slate-300">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: row.fill }} />
+                        <span className="truncate text-slate-700 dark:text-white">{row.name}</span>
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">{row.percentage}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">
+                No leakage type data available yet.
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

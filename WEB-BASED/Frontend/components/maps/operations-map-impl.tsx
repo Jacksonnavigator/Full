@@ -1,21 +1,26 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { CircleMarker, GeoJSON, MapContainer, Popup, TileLayer, useMap } from "react-leaflet"
+import { CircleMarker, GeoJSON, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet"
 import type { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson"
 import type { LatLngBoundsExpression } from "leaflet"
-import { Layers3, MapPinned, Route } from "lucide-react"
+import { ChevronDown, Layers3, MapPinned, Route, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import CONFIG from "@/lib/config"
 import type { OperationsMapReport } from "./operations-map"
 
 const DEFAULT_CENTER: [number, number] = [-6.369, 34.8888]
+const NATIONAL_BOUNDARY_ZOOM = 8
 
 const DMA_BOUNDARY_STYLE = {
   color: "#f04e23",
   fillColor: "#f97316",
 } as const
+
+const networkLayerCache = new Map<string, GeoJsonObject>()
+const pendingNetworkLayerLoads = new Map<string, Promise<GeoJsonObject>>()
 
 const BASEMAPS = {
   street: {
@@ -38,6 +43,36 @@ type GeometryCoordinates =
   | [number, number]
   | number[]
   | GeometryCoordinates[]
+
+async function loadNetworkLayer(url: string, token: string) {
+  const cachedLayer = networkLayerCache.get(url)
+  if (cachedLayer) return cachedLayer
+
+  const pendingLoad = pendingNetworkLayerLoads.get(url)
+  if (pendingLoad) return pendingLoad
+
+  const loadPromise = fetch(`${CONFIG.backend.baseUrl}${url}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then(async (response) => {
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(payload?.detail || payload?.error || "A utility pipe network preview could not be loaded.")
+      }
+
+      const layer = payload as GeoJsonObject
+      networkLayerCache.set(url, layer)
+      return layer
+    })
+    .finally(() => {
+      pendingNetworkLayerLoads.delete(url)
+    })
+
+  pendingNetworkLayerLoads.set(url, loadPromise)
+  return loadPromise
+}
 
 function flattenCoordinates(input: GeometryCoordinates | undefined, target: Array<[number, number]>) {
   if (!input) return
@@ -292,6 +327,18 @@ function SyncMapSize() {
   return null
 }
 
+function MapZoomObserver({ onZoomChange }: { onZoomChange: (zoom: number) => void }) {
+  const map = useMapEvents({
+    zoomend: () => onZoomChange(map.getZoom()),
+  })
+
+  useEffect(() => {
+    onZoomChange(map.getZoom())
+  }, [map, onZoomChange])
+
+  return null
+}
+
 export function OperationsMapImpl({
   reports,
   center,
@@ -307,6 +354,8 @@ export function OperationsMapImpl({
   onReportSelect,
   chromeMode = "standard",
   boundsFitKey = "initial",
+  initialBounds = null,
+  preferInitialBounds = false,
 }: {
   reports: OperationsMapReport[]
   center?: [number, number] | null
@@ -322,6 +371,8 @@ export function OperationsMapImpl({
   onReportSelect?: (reportId: string) => void
   chromeMode?: "standard" | "command-center"
   boundsFitKey?: string
+  initialBounds?: LatLngBoundsExpression | null
+  preferInitialBounds?: boolean
 }) {
   const networkUrls = useMemo(() => {
     const urls = new Set<string>()
@@ -338,18 +389,24 @@ export function OperationsMapImpl({
   )
   const hasBoundaryOverlays = boundaryLayers.length > 0
 
-  const [showNetwork, setShowNetwork] = useState(networkUrls.length > 0)
+  const [showNetwork, setShowNetwork] = useState(false)
   const [showBoundaries, setShowBoundaries] = useState(hasBoundaryOverlays)
   const [localBasemap, setLocalBasemap] = useState<BasemapKey>("street")
   const [networkLayers, setNetworkLayers] = useState<GeoJsonObject[]>([])
   const [networkLoading, setNetworkLoading] = useState(false)
   const [networkError, setNetworkError] = useState<string | null>(null)
+  const [controlsOpen, setControlsOpen] = useState(false)
+  const [mapZoom, setMapZoom] = useState(13)
   const basemap = controlledBasemap ?? localBasemap
   const isCommandCenter = chromeMode === "command-center"
   const isSatellite = basemap === "satellite"
+  const isNationalBoundaryView = mapZoom <= NATIONAL_BOUNDARY_ZOOM
+  const boundaryLayerLabel = isNationalBoundaryView ? "utility boundaries" : "DMA boundaries"
 
   useEffect(() => {
-    setShowNetwork(networkUrls.length > 0)
+    if (!networkUrls.length) {
+      setShowNetwork(false)
+    }
   }, [networkUrls])
 
   useEffect(() => {
@@ -379,24 +436,15 @@ export function OperationsMapImpl({
       setNetworkError(null)
 
       try {
-        const loadedLayers: GeoJsonObject[] = []
-        const failedLoads: string[] = []
-
-        for (const url of networkUrls) {
-          const response = await fetch(`${CONFIG.backend.baseUrl}${url}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-
-          const payload = await response.json().catch(() => ({}))
-          if (!response.ok) {
-            failedLoads.push(payload?.detail || "A utility pipe network preview could not be loaded.")
-            continue
-          }
-
-          loadedLayers.push(payload as GeoJsonObject)
-        }
+        const results = await Promise.allSettled(
+          networkUrls.map((url) => loadNetworkLayer(url, token))
+        )
+        const loadedLayers = results
+          .filter((result): result is PromiseFulfilledResult<GeoJsonObject> => result.status === "fulfilled")
+          .map((result) => result.value)
+        const failedLoads = results
+          .filter((result): result is PromiseRejectedResult => result.status === "rejected")
+          .map((result) => result.reason instanceof Error ? result.reason.message : "A utility pipe network preview could not be loaded.")
 
         if (!cancelled) {
           setNetworkLayers(loadedLayers)
@@ -460,13 +508,15 @@ export function OperationsMapImpl({
   }, [center, networkLayers, validReports])
 
   const fitBounds = useMemo<LatLngBoundsExpression | null>(() => {
+    if (preferInitialBounds && initialBounds) return initialBounds
+
     const points: Array<[number, number]> = [
       ...validReports.map((report) => [report.latitude, report.longitude] as [number, number]),
       ...(showBoundaries ? boundaryLayers.flatMap((geojson) => collectGeoJsonCoordinates(geojson)) : []),
       ...networkLayers.flatMap((layer) => collectGeoJsonCoordinates(layer)),
     ]
 
-    if (!points.length) return null
+    if (!points.length) return initialBounds
     if (points.length === 1) {
       const [lat, lng] = points[0]
       return [
@@ -476,11 +526,11 @@ export function OperationsMapImpl({
     }
 
     return points
-  }, [boundaryLayers, networkLayers, showBoundaries, validReports])
+  }, [boundaryLayers, initialBounds, networkLayers, preferInitialBounds, showBoundaries, validReports])
 
   return (
-    <div className="overflow-hidden rounded-[30px] border border-slate-300/85 bg-slate-100 shadow-[0_28px_80px_-52px_rgba(15,23,42,0.4)]">
-      <div className="relative">
+    <div className="h-full overflow-hidden rounded-[30px] border border-slate-300/85 bg-slate-100 shadow-[0_28px_80px_-52px_rgba(15,23,42,0.4)]">
+      <div className="relative h-full">
         {isCommandCenter ? (
           <style jsx global>{`
             .majiscope-map--command-center .leaflet-top.leaflet-left {
@@ -535,7 +585,8 @@ export function OperationsMapImpl({
             }
 
             .majiscope-map--command-center .leaflet-tile-pane {
-              filter: none;
+              filter: contrast(1.08) saturate(1.04);
+              opacity: 1;
             }
           `}</style>
         ) : null}
@@ -544,9 +595,15 @@ export function OperationsMapImpl({
           center={mapCenter}
           zoom={13}
           className={cn("w-full", isCommandCenter && "majiscope-map--command-center")}
-          style={{ height: "min(72vh, 760px)", minHeight: "520px", maxHeight: "760px", width: "100%" }}
+          style={{
+            height: isCommandCenter ? "100%" : "min(72vh, 760px)",
+            minHeight: isCommandCenter ? "0" : "520px",
+            maxHeight: isCommandCenter ? "none" : "760px",
+            width: "100%",
+          }}
         >
           <SyncMapSize />
+          <MapZoomObserver onZoomChange={setMapZoom} />
           <FitMapToData bounds={fitBounds} fitKey={boundsFitKey} />
           <TileLayer
             key={basemap}
@@ -561,10 +618,10 @@ export function OperationsMapImpl({
                   data={geojson}
                   style={() => ({
                     color: DMA_BOUNDARY_STYLE.color,
-                    weight: 4,
-                    opacity: 0.98,
+                    weight: 3,
+                    opacity: 0.86,
                     fillColor: DMA_BOUNDARY_STYLE.fillColor,
-                    fillOpacity: 0.025,
+                    fillOpacity: 0.015,
                   })}
                 />
               ))
@@ -577,8 +634,8 @@ export function OperationsMapImpl({
                   data={networkLayer}
                   style={() => ({
                     color: "#2563eb",
-                    weight: 3,
-                    opacity: 0.8,
+                    weight: 2.25,
+                    opacity: 0.64,
                   })}
                   onEachFeature={(feature, layer) => {
                     if (!feature) return
@@ -652,107 +709,125 @@ export function OperationsMapImpl({
         <div
           className={cn(
             "pointer-events-none absolute top-4 z-[1000] flex items-start gap-3",
-            isCommandCenter ? "left-4 right-4 justify-between" : "inset-x-4 justify-between"
+            isCommandCenter ? "right-4 justify-end" : "inset-x-4 justify-between"
           )}
         >
-          {isCommandCenter ? (
-            <div
-              className={cn(
-                "pointer-events-none rounded-xl border px-3 py-2 shadow-lg backdrop-blur",
-                isSatellite
-                  ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30"
-                  : "border-slate-300/80 bg-slate-100/88 text-slate-900 shadow-slate-900/8"
-              )}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] opacity-80">
-                Leak reports
-              </div>
-              <div className="mt-1 text-sm font-semibold">
-                {validReports.length.toLocaleString()} on map
-              </div>
-            </div>
-          ) : (
+          {!isCommandCenter ? (
             <div className="pointer-events-auto rounded-xl border border-slate-300/80 bg-slate-100/88 px-3 py-2 shadow-lg shadow-slate-900/8 backdrop-blur">
               <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {title}
               </div>
               <div className="mt-1 text-xs text-slate-500">{description}</div>
             </div>
-          )}
+          ) : null}
 
-          <div
-            className={cn(
-              "pointer-events-auto rounded-2xl border px-3 py-2 shadow-lg backdrop-blur-xl",
-              isSatellite
-                ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30"
-                : "border-slate-300/80 bg-slate-100/88 text-slate-900 shadow-slate-900/8"
-            )}
-          >
-            <div className="flex flex-nowrap items-center gap-2">
-              {Object.entries(BASEMAPS).map(([key, value]) => (
+          <div className="pointer-events-auto ml-auto flex flex-col items-end gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button
-                  key={key}
                   type="button"
-                  size="sm"
-                  variant={basemap === key ? "default" : "outline"}
-                  className={
-                    basemap === key
-                      ? "h-8 rounded-xl bg-slate-800 px-3 text-white hover:bg-slate-900"
-                      : isSatellite
-                        ? "h-8 rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
-                        : "h-8 rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
-                  }
-                  onClick={() => {
-                    const nextBasemap = key as BasemapKey
-                    setLocalBasemap(nextBasemap)
-                    onBasemapChange?.(nextBasemap)
-                  }}
+                  size="icon"
+                  variant="outline"
+                  className={cn(
+                    "h-10 w-10 rounded-2xl shadow-lg backdrop-blur-xl",
+                    isSatellite
+                      ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30 hover:bg-slate-900"
+                      : "border-slate-300/80 bg-slate-100/90 text-slate-900 shadow-slate-900/8 hover:bg-slate-200 dark:border-slate-500/80 dark:bg-black/90 dark:text-white dark:shadow-black/45 dark:hover:bg-black"
+                  )}
+                  aria-label={controlsOpen ? "Collapse map controls" : "Expand map controls"}
+                  onClick={() => setControlsOpen((current) => !current)}
                 >
-                  {value.label}
+                  {controlsOpen ? <ChevronDown className="h-4 w-4" /> : <SlidersHorizontal className="h-4 w-4" />}
                 </Button>
-              ))}
-              <Button
-                type="button"
-                size="sm"
-                variant={showNetwork ? "default" : "outline"}
-                className={
-                  showNetwork
-                    ? "h-8 rounded-xl bg-slate-800 px-3 text-white hover:bg-slate-900"
-                    : isSatellite
-                      ? "h-8 rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
-                      : "h-8 rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
-                }
-                onClick={() => setShowNetwork((current) => !current)}
-                disabled={!networkUrls.length}
+              </TooltipTrigger>
+              <TooltipContent align="end">
+                {controlsOpen ? "Collapse map controls" : "Expand map controls"}
+              </TooltipContent>
+            </Tooltip>
+
+            {controlsOpen ? (
+              <div
+                className={cn(
+                  "rounded-2xl border px-3 py-2 shadow-lg backdrop-blur-xl",
+                  isSatellite
+                    ? "border-white/14 bg-slate-950/80 text-white shadow-slate-950/30"
+                    : "border-slate-300/80 bg-slate-100/88 text-slate-900 shadow-slate-900/8 dark:border-slate-600/80 dark:bg-slate-900/88 dark:text-white dark:shadow-slate-950/35"
+                )}
               >
-                <Layers3 className="mr-2 h-3.5 w-3.5" />
-                {showNetwork ? "Hide pipe network" : "Show pipe network"}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant={showBoundaries ? "default" : "outline"}
-                className={
-                  showBoundaries
-                    ? "h-8 rounded-xl bg-orange-600 px-3 text-white hover:bg-orange-700"
-                    : isSatellite
-                      ? "h-8 rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
-                      : "h-8 rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
-                }
-                onClick={() => setShowBoundaries((current) => !current)}
-                disabled={!hasBoundaryOverlays}
-              >
-                <MapPinned className="mr-2 h-3.5 w-3.5" />
-                {showBoundaries ? "Hide DMA boundaries" : "Show DMA boundaries"}
-              </Button>
-            </div>
-            {networkLoading ? (
-              <div className={cn("mt-2 text-right text-[11px]", isSatellite ? "text-white/72" : "text-slate-500")}>
-                Loading network...
+                <div className="grid gap-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(BASEMAPS).map(([key, value]) => (
+                      <Button
+                        key={key}
+                        type="button"
+                        size="sm"
+                        variant={basemap === key ? "default" : "outline"}
+                        className={
+                          basemap === key
+                            ? "h-8 rounded-xl bg-slate-800 px-3 text-white hover:bg-slate-900"
+                            : isSatellite
+                              ? "h-8 rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
+                              : "h-8 rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
+                        }
+                        onClick={() => {
+                          const nextBasemap = key as BasemapKey
+                          setLocalBasemap(nextBasemap)
+                          onBasemapChange?.(nextBasemap)
+                        }}
+                      >
+                        {value.label}
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={showNetwork ? "default" : "outline"}
+                    className={
+                      showNetwork
+                        ? "h-8 justify-start rounded-xl bg-slate-800 px-3 text-white hover:bg-slate-900"
+                        : isSatellite
+                          ? "h-8 justify-start rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
+                          : "h-8 justify-start rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
+                    }
+                    onClick={() => setShowNetwork((current) => !current)}
+                    disabled={!networkUrls.length}
+                  >
+                    <Layers3 className="mr-2 h-3.5 w-3.5" />
+                    {showNetwork ? "Hide pipe network" : "Show pipe network"}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={showBoundaries ? "default" : "outline"}
+                    className={
+                      showBoundaries
+                        ? "h-8 justify-start rounded-xl bg-orange-600 px-3 text-white hover:bg-orange-700"
+                        : isSatellite
+                          ? "h-8 justify-start rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
+                          : "h-8 justify-start rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
+                    }
+                    onClick={() => setShowBoundaries((current) => !current)}
+                    disabled={!hasBoundaryOverlays}
+                  >
+                    <MapPinned className="mr-2 h-3.5 w-3.5" />
+                    {showBoundaries ? `Hide ${boundaryLayerLabel}` : `Show ${boundaryLayerLabel}`}
+                  </Button>
+                </div>
+                {isNationalBoundaryView ? (
+                  <div className={cn("mt-2 max-w-[220px] text-right text-[11px]", isSatellite ? "text-white/72" : "text-slate-500")}>
+                    Utility boundaries will use utility geometry when configured.
+                  </div>
+                ) : null}
+                {networkLoading ? (
+                  <div className={cn("mt-2 text-right text-[11px]", isSatellite ? "text-white/72" : "text-slate-500")}>
+                    Loading network...
+                  </div>
+                ) : null}
+                {!networkLoading && showNetwork && networkError ? (
+                  <div className="mt-2 max-w-[240px] text-right text-[11px] text-rose-600">{networkError}</div>
+                ) : null}
               </div>
-            ) : null}
-            {!networkLoading && showNetwork && networkError ? (
-              <div className="mt-2 max-w-[240px] text-right text-[11px] text-rose-600">{networkError}</div>
             ) : null}
           </div>
         </div>

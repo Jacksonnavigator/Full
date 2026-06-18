@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic"
 import type { GeoJsonObject } from "geojson"
+import type { LatLngBoundsExpression } from "leaflet"
 
 const OperationsMapInner = dynamic(
   () => import("./operations-map-impl").then((module) => module.OperationsMapImpl),
@@ -46,6 +47,8 @@ export function OperationsMap(props: {
   onReportSelect?: (reportId: string) => void
   chromeMode?: "standard" | "command-center"
   boundsFitKey?: string
+  initialBounds?: LatLngBoundsExpression | null
+  preferInitialBounds?: boolean
 }) {
   return <OperationsMapInner {...props} />
 }

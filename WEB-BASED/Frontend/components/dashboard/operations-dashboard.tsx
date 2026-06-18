@@ -7,12 +7,12 @@ import {
   CheckCircle2,
   Droplets,
   Loader2,
-  MapPinned,
   Siren,
 } from "lucide-react"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
 import { OperationsMap } from "@/components/maps/operations-map"
+import { useTopbarTitle } from "@/components/layout/topbar-title-context"
 import {
   Select,
   SelectContent,
@@ -20,16 +20,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import {
   computeLeakKpis,
+  computeLeakageTypeDistribution,
   hasUsableCoordinates,
+  type LeakageTypeDistributionRow,
 } from "@/lib/report-metrics"
 import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   Legend,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -62,13 +75,13 @@ function KpiCard({
   } as const
 
   return (
-    <div className={cn("rounded-[20px] border px-3 py-3 shadow-sm shadow-slate-900/[0.03]", toneClasses[tone])}>
+    <div className={cn("rounded-[18px] border px-3 py-2.5 shadow-sm shadow-slate-900/[0.03]", toneClasses[tone])}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
-          <p className="mt-2 text-2xl font-semibold tracking-tight">{value.toLocaleString()}</p>
+          <p className="mt-1.5 text-[1.65rem] font-semibold leading-none tracking-tight">{value.toLocaleString()}</p>
         </div>
-        <div className={cn("rounded-xl p-2", iconClasses[tone])}>
+        <div className={cn("rounded-xl p-1.5", iconClasses[tone])}>
           <Icon className="h-4 w-4" />
         </div>
       </div>
@@ -83,6 +96,81 @@ type ComparisonBarRow = {
 }
 
 const CHART_AXIS_TICK = { fill: "var(--chart-axis-text)", fontSize: 10 }
+const TANZANIA_BOUNDS: [[number, number], [number, number]] = [
+  [-11.9, 28.8],
+  [-0.95, 41.25],
+]
+
+function ComparisonBarChartView({
+  rows,
+  height,
+  leftMargin = -10,
+}: {
+  rows: ComparisonBarRow[]
+  height: number
+  leftMargin?: number
+}) {
+  const maxValue = Math.max(...rows.flatMap((row) => [row.reported, row.resolved]), 1)
+  const formatAxisLabel = (value: string) => (value.length > 18 ? `${value.slice(0, 17)}...` : value)
+  const chartData = rows.map((row) => ({
+    name: row.label,
+    reported: row.reported,
+    resolved: row.resolved,
+  }))
+
+  return (
+    <div style={{ height }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={chartData}
+          layout="vertical"
+          margin={{ top: 8, right: 8, left: leftMargin, bottom: 8 }}
+          barCategoryGap={12}
+          barGap={2}
+        >
+          <CartesianGrid stroke="#dbe3ee" horizontal vertical />
+          <XAxis
+            type="number"
+            domain={[0, Math.ceil(maxValue * 1.05)]}
+            tick={CHART_AXIS_TICK}
+            axisLine={{ stroke: "#cbd5e1" }}
+            tickLine={{ stroke: "#cbd5e1" }}
+          />
+          <YAxis
+            type="category"
+            dataKey="name"
+            width={108}
+            tick={CHART_AXIS_TICK}
+            tickFormatter={formatAxisLabel}
+            axisLine={{ stroke: "#cbd5e1" }}
+            tickLine={false}
+          />
+          <Tooltip
+            cursor={{ fill: "rgba(148, 163, 184, 0.12)" }}
+            contentStyle={{
+              background: "#f1f5f9",
+              border: "1px solid #cbd5e1",
+              borderRadius: 10,
+              color: "#0f172a",
+            }}
+            formatter={(value: number, name: string) => [
+              value.toLocaleString(),
+              name === "reported" ? "Reported" : "Resolved",
+            ]}
+            labelStyle={{ color: "#0f172a", fontWeight: 600 }}
+          />
+          <Legend
+            iconType="circle"
+            wrapperStyle={{ fontSize: 11, color: "#475569", paddingTop: 8 }}
+            formatter={(value) => (value === "reported" ? "Reported" : "Resolved")}
+          />
+          <Bar dataKey="reported" fill="#7c3aed" radius={0} barSize={8} />
+          <Bar dataKey="resolved" fill="#15803d" radius={0} barSize={8} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
 
 function ComparisonBarChartCard({
   title,
@@ -93,79 +181,134 @@ function ComparisonBarChartCard({
   subtitle: string
   rows: ComparisonBarRow[]
 }) {
-  const maxValue = Math.max(...rows.flatMap((row) => [row.reported, row.resolved]), 1)
-  const formatAxisLabel = (value: string) => (value.length > 18 ? `${value.slice(0, 17)}…` : value)
-  const chartData = rows.map((row) => ({
-    name: row.label,
-    reported: row.reported,
-    resolved: row.resolved,
-  }))
-  const chartHeight = Math.max(270, Math.min(560, rows.length * 52 + 98))
+  const [allOpen, setAllOpen] = useState(false)
+  const dashboardRowLimit = 3
+  const visibleRows = useMemo(() => {
+    const limit = dashboardRowLimit
+    if (rows.length <= limit) return rows
+
+    const primaryRows = rows.slice(0, limit)
+    const remainingRows = rows.slice(limit)
+    const otherRow = remainingRows.reduce<ComparisonBarRow>(
+      (total, row) => ({
+        label: "Other",
+        reported: total.reported + row.reported,
+        resolved: total.resolved + row.resolved,
+      }),
+      { label: "Other", reported: 0, resolved: 0 }
+    )
+
+    return otherRow.reported || otherRow.resolved ? [...primaryRows, otherRow] : primaryRows
+  }, [rows, dashboardRowLimit])
+  const hasAggregatedRows = rows.length > dashboardRowLimit
+  const chartHeight = 184
+  const fullChartHeight = Math.max(360, Math.min(960, rows.length * 42 + 120))
 
   return (
-    <div className="overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
-      <div className="border-b border-slate-200 px-3 py-2.5">
-        <div>
-          <p className="text-xs font-semibold text-slate-900">{title}</p>
-          <p className="mt-1 text-[11px] text-slate-500">{subtitle}</p>
+    <>
+      <div className="overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-3 py-2">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-slate-900">{title}</p>
+            <p className="mt-1 truncate text-[11px] text-slate-500">{subtitle}</p>
+          </div>
+          {hasAggregatedRows ? (
+            <Button
+              type="button"
+              size="sm"
+              className="h-7 shrink-0 rounded-lg bg-gradient-to-r from-sky-700 to-blue-700 px-3 text-xs font-semibold text-white shadow-sm shadow-slate-900/15 hover:from-sky-800 hover:to-blue-800"
+              onClick={() => setAllOpen(true)}
+            >
+              View all
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="max-h-[230px] overflow-hidden px-2 py-2">
+          {visibleRows.length ? (
+            <ComparisonBarChartView rows={visibleRows} height={chartHeight} />
+          ) : (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-4 text-center text-xs text-slate-500">
+              No reports available for this scope yet.
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="max-h-[600px] overflow-y-auto px-2 py-3">
-        {rows.length ? (
-          <div style={{ height: chartHeight }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={chartData}
-                layout="vertical"
-                margin={{ top: 8, right: 8, left: -10, bottom: 8 }}
-                barCategoryGap={12}
-                barGap={2}
-              >
-                <CartesianGrid stroke="#dbe3ee" horizontal vertical />
-                <XAxis
-                  type="number"
-                  domain={[0, Math.ceil(maxValue * 1.05)]}
-                  tick={CHART_AXIS_TICK}
-                  axisLine={{ stroke: "#cbd5e1" }}
-                  tickLine={{ stroke: "#cbd5e1" }}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  width={108}
-                  tick={CHART_AXIS_TICK}
-                  tickFormatter={formatAxisLabel}
-                  axisLine={{ stroke: "#cbd5e1" }}
-                  tickLine={false}
-                />
-                <Tooltip
-                  cursor={{ fill: "rgba(148, 163, 184, 0.12)" }}
-                  contentStyle={{
-                    background: "#f1f5f9",
-                    border: "1px solid #cbd5e1",
-                    borderRadius: 10,
-                    color: "#0f172a",
-                  }}
-                  formatter={(value: number, name: string) => [
-                    value.toLocaleString(),
-                    name === "reported" ? "Reported" : "Resolved",
-                  ]}
-                  labelStyle={{ color: "#0f172a", fontWeight: 600 }}
-                />
-                <Legend
-                  iconType="circle"
-                  wrapperStyle={{ fontSize: 11, color: "#475569", paddingTop: 8 }}
-                  formatter={(value) => (value === "reported" ? "Reported" : "Resolved")}
-                />
-                <Bar dataKey="reported" fill="#7c3aed" radius={0} barSize={8} />
-                <Bar dataKey="resolved" fill="#15803d" radius={0} barSize={8} />
-              </BarChart>
-            </ResponsiveContainer>
+      <Dialog open={allOpen} onOpenChange={setAllOpen}>
+        <DialogContent className="max-h-[88vh] max-w-5xl overflow-hidden rounded-2xl p-0">
+          <DialogHeader className="border-b border-slate-200 px-5 py-4">
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription>{subtitle}</DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[calc(88vh-6rem)] overflow-y-auto px-5 py-4">
+            {rows.length ? (
+              <ComparisonBarChartView rows={rows} height={fullChartHeight} leftMargin={16} />
+            ) : (
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+                No reports available for this scope yet.
+              </div>
+            )}
           </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
+function LeakageTypeDonutCard({ rows }: { rows: LeakageTypeDistributionRow[] }) {
+  const total = rows.reduce((sum, row) => sum + row.count, 0)
+
+  return (
+    <div className="overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
+      <div className="border-b border-slate-200 px-3 py-2">
+        <p className="text-xs font-semibold text-slate-900">Leakage by type</p>
+        <p className="mt-0.5 text-[11px] text-slate-500">Reported leakage type</p>
+      </div>
+
+      <div className="px-2 py-2">
+        {total ? (
+          <>
+            <div className="h-[132px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={rows}
+                    dataKey="count"
+                    nameKey="name"
+                    innerRadius={36}
+                    outerRadius={58}
+                    paddingAngle={2}
+                    stroke="transparent"
+                  >
+                    {rows.map((row) => (
+                      <Cell key={row.type} fill={row.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: number, _name, props) => [
+                      `${value.toLocaleString()} (${props.payload.percentage}%)`,
+                      props.payload.name,
+                    ]}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="grid gap-1 px-1 text-[11px]">
+              {rows.slice(0, 3).map((row) => (
+                <div key={row.type} className="flex items-center justify-between gap-2 text-slate-600">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: row.fill }} />
+                    <span className="truncate text-slate-700 dark:text-white">{row.name}</span>
+                  </span>
+                  <span className="font-semibold text-slate-800">{row.percentage}%</span>
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-4 text-center text-xs text-slate-500">
-            No reports available for this scope yet.
+          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-6 text-center text-xs text-slate-500">
+            No leakage type data available yet.
           </div>
         )}
       </div>
@@ -176,6 +319,7 @@ function ComparisonBarChartCard({
 export function OperationsDashboard() {
   const router = useRouter()
   const { currentUser } = useAuthStore()
+  const { setTitle: setTopbarTitle } = useTopbarTitle()
   const {
     utilities,
     dmas,
@@ -293,6 +437,7 @@ export function OperationsDashboard() {
   )
 
   const kpis = useMemo(() => computeLeakKpis(filteredReports), [filteredReports])
+  const leakageTypeRows = useMemo(() => computeLeakageTypeDistribution(filteredReports), [filteredReports])
 
   const comparisonRows = useMemo<ComparisonBarRow[]>(() => {
     const isResolved = (status: string) => status === "approved" || status === "closed"
@@ -411,20 +556,20 @@ export function OperationsDashboard() {
 
   const activeNetworkPreviewUrl = useMemo(() => {
     if (!activeUtility?.pipeNetworkPreviewUrl) return null
-    if (!activeDMA?.id || !activeDMA.boundaryGeojson) return activeUtility.pipeNetworkPreviewUrl
+    if (isDMA || !activeDMA?.id || !activeDMA.boundaryGeojson) return activeUtility.pipeNetworkPreviewUrl
 
     const separator = activeUtility.pipeNetworkPreviewUrl.includes("?") ? "&" : "?"
     return `${activeUtility.pipeNetworkPreviewUrl}${separator}dma_id=${encodeURIComponent(activeDMA.id)}`
-  }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility?.pipeNetworkPreviewUrl])
+  }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility?.pipeNetworkPreviewUrl, isDMA])
 
   const networkPreviewUrls = useMemo(() => {
     if (activeNetworkPreviewUrl) return [activeNetworkPreviewUrl]
     if (!isAdmin || selectedUtilityId !== "all" || selectedDMAId !== "all") return []
 
-    return utilities
+    return visibleUtilities
       .map((utility) => utility.pipeNetworkPreviewUrl)
       .filter((url): url is string => Boolean(url))
-  }, [activeNetworkPreviewUrl, isAdmin, selectedDMAId, selectedUtilityId, utilities])
+  }, [activeNetworkPreviewUrl, isAdmin, selectedDMAId, selectedUtilityId, visibleUtilities])
 
   const mapCenter = useMemo<[number, number] | null>(() => {
     if (activeDMA?.centerLatitude != null && activeDMA?.centerLongitude != null) {
@@ -456,7 +601,7 @@ export function OperationsDashboard() {
     ).finally(() => setLoading(false))
   }, [fetchReportsForMap, initialized, isAdmin, selectedDMAId, selectedUtilityId])
 
-  const scopeTitle = activeDMA?.name || activeUtility?.name || "National Leak Monitoring"
+  const scopeTitle = activeDMA?.name || activeUtility?.name || "Water Leakage Monitoring"
   const orgLabel =
     activeUtility?.name ||
     (isAdmin ? "All utilities and DMAs" : currentUser?.name || "Operations view")
@@ -467,6 +612,16 @@ export function OperationsDashboard() {
     () => [selectedUtilityId, selectedDMAId, mapReports.length, activeDMA?.id ?? "none", visibleBoundaryGeojsons.length].join("|"),
     [activeDMA?.id, mapReports.length, selectedDMAId, selectedUtilityId, visibleBoundaryGeojsons.length]
   )
+
+  const preferTanzaniaMapView = isAdmin && selectedUtilityId === "all" && selectedDMAId === "all"
+
+  useEffect(() => {
+    setTopbarTitle({
+      title: "Water Leakage Monitoring",
+    })
+
+    return () => setTopbarTitle(null)
+  }, [setTopbarTitle])
 
   if (loading && !reports.length) {
     return (
@@ -480,68 +635,17 @@ export function OperationsDashboard() {
   }
 
   return (
-    <div className="space-y-4">
-      <section className="rounded-[28px] border border-slate-300/80 bg-slate-100/85 px-4 py-4 shadow-sm shadow-slate-900/[0.025] backdrop-blur">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-          <div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-600">
-              <MapPinned className="h-4 w-4" />
-              Leakage reporting dashboard
-            </div>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">{scopeTitle}</h1>
-            <p className="mt-2 text-sm text-slate-600">
-              {orgLabel} · {mapReports.length.toLocaleString()} leak
-              {mapReports.length === 1 ? "" : "s"} with GPS on the map
-              {!allMapReportsLoaded ? ` · loading ${reports.length.toLocaleString()} records` : ""}
-            </p>
-          </div>
-
-          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-[180px_180px]">
-            <Select
-              value={selectedUtilityId}
-              onValueChange={setSelectedUtilityId}
-              disabled={!isAdmin || !visibleUtilities.length}
-            >
-              <SelectTrigger className="h-10 rounded-2xl border-slate-300 bg-slate-100 px-3 text-sm">
-                <SelectValue placeholder="Utility / Region" />
-              </SelectTrigger>
-              <SelectContent className="z-[5000]">
-                {isAdmin ? <SelectItem value="all">All utilities</SelectItem> : null}
-                {visibleUtilities.map((utility) => (
-                  <SelectItem key={utility.id} value={utility.id}>
-                    {utility.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedDMAId} onValueChange={setSelectedDMAId} disabled={isDMA || !visibleDMAs.length}>
-              <SelectTrigger className="h-10 rounded-2xl border-slate-300 bg-slate-100 px-3 text-sm">
-                <SelectValue placeholder="DMA / District" />
-              </SelectTrigger>
-              <SelectContent className="z-[5000]">
-                {!isDMA ? <SelectItem value="all">All DMAs</SelectItem> : null}
-                {visibleDMAs.map((dma) => (
-                  <SelectItem key={dma.id} value={dma.id}>
-                    {dma.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </section>
-
-      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[168px_minmax(0,1fr)_260px]">
-        <aside className="grid gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1">
+    <div className="h-[calc(100dvh-5.5rem)] min-h-[560px] overflow-hidden">
+      <div className="grid h-full grid-cols-1 gap-3 xl:grid-cols-[168px_minmax(0,1fr)_280px]">
+        <aside className="grid h-full gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1">
           <KpiCard label="Total Leak Reports" value={kpis.total} icon={Droplets} tone="slate" />
           <KpiCard label="Leaks Repaired" value={kpis.repaired} icon={CheckCircle2} tone="green" />
           <KpiCard label="Urgent Leaks" value={kpis.urgent} icon={Siren} tone="amber" />
           <KpiCard label="Unattended Leaks" value={kpis.unattended} icon={AlertTriangle} tone="red" />
 
-          <div className="rounded-[20px] border border-slate-300/80 bg-slate-100/85 px-3 py-3 shadow-sm shadow-slate-900/[0.025] sm:col-span-2 xl:col-span-1">
+          <div className="rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] sm:col-span-2 xl:col-span-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Map legend</p>
-            <div className="mt-3 space-y-2 text-xs text-slate-700">
+            <div className="mt-2.5 space-y-1.5 text-xs text-slate-700">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-rose-600" />
                 Open / rejected
@@ -562,7 +666,7 @@ export function OperationsDashboard() {
           </div>
         </aside>
 
-        <section className="min-h-[520px]">
+        <section className="min-h-0">
           <OperationsMap
             reports={mapReports.map((report) => ({
               id: report.id,
@@ -591,16 +695,55 @@ export function OperationsDashboard() {
             onBasemapChange={setBasemap}
             chromeMode="command-center"
             boundsFitKey={mapFitKey}
+            initialBounds={TANZANIA_BOUNDS}
+            preferInitialBounds={preferTanzaniaMapView}
             onReportSelect={(reportId) => router.push(`/dashboard/reports/${reportId}`)}
           />
         </section>
 
-        <aside className="grid gap-3">
+        <aside className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3">
+          <section className="rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] backdrop-blur">
+            <div className="grid gap-2">
+              <Select
+                value={selectedUtilityId}
+                onValueChange={setSelectedUtilityId}
+                disabled={!isAdmin || !visibleUtilities.length}
+              >
+                <SelectTrigger className="h-9 rounded-2xl border-slate-300 bg-slate-100 px-3 text-sm">
+                  <SelectValue placeholder="Utility / Region" />
+                </SelectTrigger>
+                <SelectContent className="z-[5000]">
+                  {isAdmin ? <SelectItem value="all">All utilities</SelectItem> : null}
+                  {visibleUtilities.map((utility) => (
+                    <SelectItem key={utility.id} value={utility.id}>
+                      {utility.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedDMAId} onValueChange={setSelectedDMAId} disabled={isDMA || !visibleDMAs.length}>
+                <SelectTrigger className="h-9 rounded-2xl border-slate-300 bg-slate-100 px-3 text-sm">
+                  <SelectValue placeholder="DMA / District" />
+                </SelectTrigger>
+                <SelectContent className="z-[5000]">
+                  {!isDMA ? <SelectItem value="all">All DMAs</SelectItem> : null}
+                  {visibleDMAs.map((dma) => (
+                    <SelectItem key={dma.id} value={dma.id}>
+                      {dma.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </section>
+
           <ComparisonBarChartCard
             title="Reported vs resolved"
             subtitle={comparisonSubtitle}
             rows={comparisonRows}
           />
+          <LeakageTypeDonutCard rows={leakageTypeRows} />
         </aside>
       </div>
     </div>

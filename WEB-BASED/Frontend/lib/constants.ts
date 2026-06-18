@@ -15,7 +15,7 @@ import {
   ScrollText,
   Route,
 } from "lucide-react"
-import type { UserRole, ReportStatus, ReportPriority, EntityStatus } from "./types"
+import type { UserRole, ReportStatus, ReportPriority, EntityStatus, LeakageType } from "./types"
 
 // ---------- Navigation ----------
 
@@ -163,6 +163,18 @@ export const PRIORITY_CONFIG: Record<
     color: "text-red-900",
     bgColor: "bg-red-100 border-red-300",
   },
+}
+
+export const LEAKAGE_TYPE_CONFIG: Record<
+  LeakageType,
+  { label: string; color: string }
+> = {
+  ground_leakage: { label: "Ground Leakage", color: "#0891b2" },
+  pipe_burst: { label: "Pipe Burst", color: "#dc2626" },
+  meter_leakage: { label: "Meter Leakage", color: "#7c3aed" },
+  valve_leakage: { label: "Valve Leakage", color: "#f59e0b" },
+  overflow: { label: "Overflow", color: "#2563eb" },
+  unknown: { label: "I don't know", color: "#64748b" },
 }
 
 export const ENTITY_STATUS_CONFIG: Record<

@@ -477,7 +477,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$
 ;
 const Card = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["forwardRef"](({ className, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         ref: ref,
-        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('rounded-lg border bg-card text-card-foreground shadow-sm', className),
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('rounded-lg border border-slate-200/80 bg-card text-card-foreground shadow-sm shadow-slate-900/[0.03]', className),
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/card.tsx",
@@ -579,7 +579,7 @@ const DialogPortal = __TURBOPACK__imported__module__$5b$project$5d2f$node_module
 const DialogClose = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Close"];
 const DialogOverlay = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["forwardRef"](({ className, ...props }, ref)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Overlay"], {
         ref: ref,
-        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0', className),
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('fixed inset-0 z-[5000] bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0', className),
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/dialog.tsx",
@@ -596,7 +596,7 @@ const DialogContent = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Content"], {
                 ref: ref,
-                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg', className),
+                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('fixed left-[50%] top-[50%] z-[5001] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg', className),
                 ...props,
                 children: [
                     children,
@@ -951,6 +951,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check.js [app-ssr] (ecmascript) <export default as CheckCircle2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clipboard$2d$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ClipboardCheck$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/clipboard-check.js [app-ssr] (ecmascript) <export default as ClipboardCheck>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/clock.js [app-ssr] (ecmascript) <export default as Clock>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$droplets$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Droplets$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/droplets.js [app-ssr] (ecmascript) <export default as Droplets>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$expand$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Expand$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/expand.js [app-ssr] (ecmascript) <export default as Expand>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/file-text.js [app-ssr] (ecmascript) <export default as FileText>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ImageIcon$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/image.js [app-ssr] (ecmascript) <export default as ImageIcon>");
@@ -974,11 +975,13 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/select.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/textarea.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/api-client.ts [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$constants$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/constants.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$date$2d$time$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/date-time.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/transform-data.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/utils.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/sonner/dist/index.mjs [app-ssr] (ecmascript)");
 "use client";
+;
 ;
 ;
 ;
@@ -1051,7 +1054,7 @@ const getSlaMeta = (report)=>{
                     className: "h-4 w-4"
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 131,
+                    lineNumber: 134,
                     columnNumber: 15
                 }, ("TURBOPACK compile-time value", void 0))
             };
@@ -1063,7 +1066,7 @@ const getSlaMeta = (report)=>{
                     className: "h-4 w-4"
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 137,
+                    lineNumber: 140,
                     columnNumber: 15
                 }, ("TURBOPACK compile-time value", void 0))
             };
@@ -1075,7 +1078,7 @@ const getSlaMeta = (report)=>{
                     className: "h-4 w-4"
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 143,
+                    lineNumber: 146,
                     columnNumber: 15
                 }, ("TURBOPACK compile-time value", void 0))
             };
@@ -1087,7 +1090,7 @@ const getSlaMeta = (report)=>{
                     className: "h-4 w-4"
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 149,
+                    lineNumber: 152,
                     columnNumber: 15
                 }, ("TURBOPACK compile-time value", void 0))
             };
@@ -1099,7 +1102,7 @@ const getSlaMeta = (report)=>{
                     className: "h-4 w-4"
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 155,
+                    lineNumber: 158,
                     columnNumber: 15
                 }, ("TURBOPACK compile-time value", void 0))
             };
@@ -1111,7 +1114,7 @@ const getSlaMeta = (report)=>{
                     className: "h-4 w-4"
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 161,
+                    lineNumber: 164,
                     columnNumber: 15
                 }, ("TURBOPACK compile-time value", void 0))
             };
@@ -1528,17 +1531,17 @@ function ReportDetailPage() {
                     className: "h-8 w-8 animate-spin text-slate-400"
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 581,
+                    lineNumber: 584,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 580,
+                lineNumber: 583,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-            lineNumber: 579,
+            lineNumber: 582,
             columnNumber: 7
         }, this);
     }
@@ -1555,14 +1558,14 @@ function ReportDetailPage() {
                             className: "mr-2 h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 591,
+                            lineNumber: 594,
                             columnNumber: 11
                         }, this),
                         "Back to Reported Leakage"
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 590,
+                    lineNumber: 593,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1574,25 +1577,25 @@ function ReportDetailPage() {
                                 className: "h-5 w-5 animate-spin"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 596,
+                                lineNumber: 599,
                                 columnNumber: 13
                             }, this),
                             "Checking reported leakage access..."
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 595,
+                        lineNumber: 598,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 594,
+                    lineNumber: 597,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-            lineNumber: 589,
+            lineNumber: 592,
             columnNumber: 7
         }, this);
     }
@@ -1609,14 +1612,14 @@ function ReportDetailPage() {
                             className: "mr-2 h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 608,
+                            lineNumber: 611,
                             columnNumber: 11
                         }, this),
                         "Back to Reported Leakage"
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 607,
+                    lineNumber: 610,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1629,7 +1632,7 @@ function ReportDetailPage() {
                                 children: missingInsight?.title || "Reported leakage not found"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 613,
+                                lineNumber: 616,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1637,24 +1640,24 @@ function ReportDetailPage() {
                                 children: missingInsight?.description || "This reported leakage item may be outside your current access scope."
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 614,
+                                lineNumber: 617,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 612,
+                        lineNumber: 615,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 611,
+                    lineNumber: 614,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-            lineNumber: 606,
+            lineNumber: 609,
             columnNumber: 7
         }, this);
     }
@@ -1676,6 +1679,8 @@ function ReportDetailPage() {
     const dueLabel = report.slaDeadline ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$date$2d$time$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatTanzaniaDateTime"])(report.slaDeadline) : "Deadline pending";
     const utilityLabel = report.utilityName?.trim() || report.regionName?.trim() || "Unassigned utility";
     const dmaLabel = report.dmaName?.trim() || report.districtName?.trim() || "Unassigned DMA";
+    const leakageType = report.leakageType || "unknown";
+    const leakageTypeMeta = __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$constants$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["LEAKAGE_TYPE_CONFIG"][leakageType];
     const fieldOwnerLabel = report.assignedEngineerName?.trim() || report.teamLeaderName?.trim() || report.teamName?.trim() || "Waiting for team routing";
     const hasWorkflowNotes = Boolean(report.engineerSubmissionNotes || report.teamLeaderReviewNotes || report.dmaReviewNotes || latestWorkflowNote);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1698,14 +1703,14 @@ function ReportDetailPage() {
                                             className: "mr-2 h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 653,
+                                            lineNumber: 658,
                                             columnNumber: 15
                                         }, this),
                                         "Back to Reported Leakage"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 652,
+                                    lineNumber: 657,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1713,7 +1718,7 @@ function ReportDetailPage() {
                                     children: "Reported Leakage Review"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 656,
+                                    lineNumber: 661,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1724,21 +1729,28 @@ function ReportDetailPage() {
                                             children: report.trackingId
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 658,
+                                            lineNumber: 663,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$status$2d$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PriorityBadge"], {
                                             priority: report.priority
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 659,
+                                            lineNumber: 664,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$status$2d$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ReportStatusBadge"], {
                                             status: report.status
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 660,
+                                            lineNumber: 665,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(LeakageTypeBadge, {
+                                            type: leakageType
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
+                                            lineNumber: 666,
                                             columnNumber: 15
                                         }, this),
                                         slaMeta ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1749,19 +1761,19 @@ function ReportDetailPage() {
                                                     children: slaMeta.label
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 664,
+                                                    lineNumber: 670,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 662,
+                                            lineNumber: 668,
                                             columnNumber: 17
                                         }, this) : null
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 657,
+                                    lineNumber: 662,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1769,7 +1781,7 @@ function ReportDetailPage() {
                                     children: report.description || "No description was provided for this reported leakage item."
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 668,
+                                    lineNumber: 674,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1783,7 +1795,7 @@ function ReportDetailPage() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 672,
+                                            lineNumber: 678,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1794,7 +1806,7 @@ function ReportDetailPage() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 675,
+                                            lineNumber: 681,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1805,19 +1817,19 @@ function ReportDetailPage() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 678,
+                                            lineNumber: 684,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 671,
+                                    lineNumber: 677,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 651,
+                            lineNumber: 656,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1830,7 +1842,7 @@ function ReportDetailPage() {
                                             children: "Location"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 686,
+                                            lineNumber: 692,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1838,13 +1850,13 @@ function ReportDetailPage() {
                                             children: getReportLocationLabel(report)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 687,
+                                            lineNumber: 693,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 685,
+                                    lineNumber: 691,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1858,7 +1870,7 @@ function ReportDetailPage() {
                                                     children: "Reporter"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 691,
+                                                    lineNumber: 697,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1866,13 +1878,13 @@ function ReportDetailPage() {
                                                     children: report.reporterName || "Unknown"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 692,
+                                                    lineNumber: 698,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 690,
+                                            lineNumber: 696,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1883,7 +1895,7 @@ function ReportDetailPage() {
                                                     children: "Field owner"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 695,
+                                                    lineNumber: 701,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1891,36 +1903,36 @@ function ReportDetailPage() {
                                                     children: fieldOwnerLabel
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 696,
+                                                    lineNumber: 702,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 694,
+                                            lineNumber: 700,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 689,
+                                    lineNumber: 695,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 684,
+                            lineNumber: 690,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 650,
+                    lineNumber: 655,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 649,
+                lineNumber: 654,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1943,12 +1955,12 @@ function ReportDetailPage() {
                                                         className: "h-6 w-6 text-white"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 709,
+                                                        lineNumber: 715,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 708,
+                                                    lineNumber: 714,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1959,7 +1971,7 @@ function ReportDetailPage() {
                                                             children: "Leak Summary"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 712,
+                                                            lineNumber: 718,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1967,19 +1979,19 @@ function ReportDetailPage() {
                                                             children: report.description || "No detailed description was submitted with this reported leakage item."
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 713,
+                                                            lineNumber: 719,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 711,
+                                                    lineNumber: 717,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 707,
+                                            lineNumber: 713,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1990,7 +2002,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-emerald-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 720,
+                                                        lineNumber: 726,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "Location",
@@ -1998,7 +2010,23 @@ function ReportDetailPage() {
                                                     tone: "bg-emerald-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 720,
+                                                    lineNumber: 726,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DetailCard, {
+                                                    icon: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$droplets$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Droplets$3e$__["Droplets"], {
+                                                        className: "h-5 w-5 text-cyan-600"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
+                                                        lineNumber: 727,
+                                                        columnNumber: 35
+                                                    }, void 0),
+                                                    label: "Leakage Type",
+                                                    value: leakageTypeMeta.label,
+                                                    tone: "bg-cyan-100"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
+                                                    lineNumber: 727,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DetailCard, {
@@ -2006,7 +2034,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-indigo-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 721,
+                                                        lineNumber: 728,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "Utility / Region",
@@ -2014,7 +2042,7 @@ function ReportDetailPage() {
                                                     tone: "bg-indigo-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 721,
+                                                    lineNumber: 728,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DetailCard, {
@@ -2022,7 +2050,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-violet-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 722,
+                                                        lineNumber: 729,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "DMA / District",
@@ -2030,7 +2058,7 @@ function ReportDetailPage() {
                                                     tone: "bg-violet-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 722,
+                                                    lineNumber: 729,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DetailCard, {
@@ -2038,7 +2066,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-amber-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 723,
+                                                        lineNumber: 730,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "Assigned Team",
@@ -2046,24 +2074,24 @@ function ReportDetailPage() {
                                                     tone: "bg-amber-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 723,
+                                                    lineNumber: 730,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 719,
+                                            lineNumber: 725,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 706,
+                                    lineNumber: 712,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 705,
+                                lineNumber: 711,
                                 columnNumber: 11
                             }, this),
                             hasWorkflowNotes && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2080,12 +2108,12 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-amber-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 733,
+                                                        lineNumber: 740,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 732,
+                                                    lineNumber: 739,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2095,7 +2123,7 @@ function ReportDetailPage() {
                                                             children: "Workflow Notes"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 736,
+                                                            lineNumber: 743,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2103,19 +2131,19 @@ function ReportDetailPage() {
                                                             children: "Only the comments that matter for review and follow-up."
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 737,
+                                                            lineNumber: 744,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 735,
+                                                    lineNumber: 742,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 731,
+                                            lineNumber: 738,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2129,7 +2157,7 @@ function ReportDetailPage() {
                                                             children: "Engineer Note"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 744,
+                                                            lineNumber: 751,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2137,13 +2165,13 @@ function ReportDetailPage() {
                                                             children: report.engineerSubmissionNotes
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 745,
+                                                            lineNumber: 752,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 743,
+                                                    lineNumber: 750,
                                                     columnNumber: 21
                                                 }, this),
                                                 report.teamLeaderReviewNotes && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2154,7 +2182,7 @@ function ReportDetailPage() {
                                                             children: "Team Leader Review"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 750,
+                                                            lineNumber: 757,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2162,13 +2190,13 @@ function ReportDetailPage() {
                                                             children: report.teamLeaderReviewNotes
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 751,
+                                                            lineNumber: 758,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 749,
+                                                    lineNumber: 756,
                                                     columnNumber: 21
                                                 }, this),
                                                 report.dmaReviewNotes && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2179,7 +2207,7 @@ function ReportDetailPage() {
                                                             children: "DMA Decision"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 756,
+                                                            lineNumber: 763,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2187,13 +2215,13 @@ function ReportDetailPage() {
                                                             children: report.dmaReviewNotes
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 757,
+                                                            lineNumber: 764,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 755,
+                                                    lineNumber: 762,
                                                     columnNumber: 21
                                                 }, this),
                                                 latestWorkflowNote && latestWorkflowNote !== report.dmaReviewNotes && latestWorkflowNote !== report.teamLeaderReviewNotes && latestWorkflowNote !== report.engineerSubmissionNotes && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2204,7 +2232,7 @@ function ReportDetailPage() {
                                                             children: "Latest Note"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 765,
+                                                            lineNumber: 772,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2212,30 +2240,30 @@ function ReportDetailPage() {
                                                             children: latestWorkflowNote
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 766,
+                                                            lineNumber: 773,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 764,
+                                                    lineNumber: 771,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 741,
+                                            lineNumber: 748,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 730,
+                                    lineNumber: 737,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 729,
+                                lineNumber: 736,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2248,7 +2276,7 @@ function ReportDetailPage() {
                                             className: "h-4 w-4 text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 778,
+                                            lineNumber: 785,
                                             columnNumber: 21
                                         }, void 0),
                                         iconTone: "bg-blue-100",
@@ -2257,7 +2285,7 @@ function ReportDetailPage() {
                                         onOpen: openMediaViewer
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                        lineNumber: 775,
+                                        lineNumber: 782,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(MediaSection, {
@@ -2267,7 +2295,7 @@ function ReportDetailPage() {
                                             className: "h-4 w-4 text-emerald-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 792,
+                                            lineNumber: 799,
                                             columnNumber: 21
                                         }, void 0),
                                         iconTone: "bg-emerald-100",
@@ -2276,13 +2304,13 @@ function ReportDetailPage() {
                                         onOpen: openMediaViewer
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                        lineNumber: 789,
+                                        lineNumber: 796,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 774,
+                                lineNumber: 781,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2299,12 +2327,12 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-violet-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 804,
+                                                        lineNumber: 811,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 803,
+                                                    lineNumber: 810,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2314,7 +2342,7 @@ function ReportDetailPage() {
                                                             children: "Activity Timeline"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 807,
+                                                            lineNumber: 814,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2322,19 +2350,19 @@ function ReportDetailPage() {
                                                             children: "Assignments, approvals, and routing events for this report."
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 808,
+                                                            lineNumber: 815,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 806,
+                                                    lineNumber: 813,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 802,
+                                            lineNumber: 809,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2346,14 +2374,14 @@ function ReportDetailPage() {
                                                         className: "h-4 w-4 animate-spin"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 815,
+                                                        lineNumber: 822,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Loading activity history..."
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                lineNumber: 814,
+                                                lineNumber: 821,
                                                 columnNumber: 19
                                             }, this) : activityLogs.length > 0 ? activityLogs.map((log)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "flex gap-3",
@@ -2365,20 +2393,20 @@ function ReportDetailPage() {
                                                                     className: "mt-1 h-3 w-3 rounded-full bg-violet-500 shadow-sm shadow-violet-500/30"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                    lineNumber: 822,
+                                                                    lineNumber: 829,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                     className: "mt-2 h-full w-px bg-slate-200"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                    lineNumber: 823,
+                                                                    lineNumber: 830,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 821,
+                                                            lineNumber: 828,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2392,7 +2420,7 @@ function ReportDetailPage() {
                                                                             children: log.action.replace(/_/g, " ")
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                            lineNumber: 827,
+                                                                            lineNumber: 834,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2400,13 +2428,13 @@ function ReportDetailPage() {
                                                                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$date$2d$time$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatTanzaniaDateTime"])(log.timestamp)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                            lineNumber: 828,
+                                                                            lineNumber: 835,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                    lineNumber: 826,
+                                                                    lineNumber: 833,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2418,7 +2446,7 @@ function ReportDetailPage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                    lineNumber: 832,
+                                                                    lineNumber: 839,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 log.details ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2426,48 +2454,48 @@ function ReportDetailPage() {
                                                                     children: log.details
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                    lineNumber: 835,
+                                                                    lineNumber: 842,
                                                                     columnNumber: 40
                                                                 }, this) : null
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 825,
+                                                            lineNumber: 832,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, log.id, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 820,
+                                                    lineNumber: 827,
                                                     columnNumber: 21
                                                 }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500",
                                                 children: "No activity history has been recorded for this reported leakage item yet."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                lineNumber: 840,
+                                                lineNumber: 847,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 812,
+                                            lineNumber: 819,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 801,
+                                    lineNumber: 808,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 800,
+                                lineNumber: 807,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 704,
+                        lineNumber: 710,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2487,12 +2515,12 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-rose-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 854,
+                                                        lineNumber: 861,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 853,
+                                                    lineNumber: 860,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2502,7 +2530,7 @@ function ReportDetailPage() {
                                                             children: "Decision Panel"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 857,
+                                                            lineNumber: 864,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2510,19 +2538,19 @@ function ReportDetailPage() {
                                                             children: "Take the next action without hunting across the page."
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 858,
+                                                            lineNumber: 865,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 856,
+                                                    lineNumber: 863,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 852,
+                                            lineNumber: 859,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2537,14 +2565,14 @@ function ReportDetailPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 869,
+                                                            lineNumber: 876,
                                                             columnNumber: 21
                                                         }, this),
                                                         report.utilityId && report.dmaId ? "Adjust Utility / DMA" : "Resolve Utility / DMA"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 864,
+                                                    lineNumber: 871,
                                                     columnNumber: 19
                                                 }, this),
                                                 isDMA && !report.teamName && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -2555,14 +2583,14 @@ function ReportDetailPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 878,
+                                                            lineNumber: 885,
                                                             columnNumber: 21
                                                         }, this),
                                                         "Assign Reported Leakage"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 874,
+                                                    lineNumber: 881,
                                                     columnNumber: 19
                                                 }, this),
                                                 isDMA && report.status === "pending_approval" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -2575,14 +2603,14 @@ function ReportDetailPage() {
                                                                     className: "mr-2 h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                    lineNumber: 888,
+                                                                    lineNumber: 895,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 "Approve Repair"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 884,
+                                                            lineNumber: 891,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -2594,14 +2622,14 @@ function ReportDetailPage() {
                                                                     className: "mr-2 h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                    lineNumber: 892,
+                                                                    lineNumber: 899,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 "Return For Rework"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 891,
+                                                            lineNumber: 898,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
@@ -2615,31 +2643,31 @@ function ReportDetailPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 903,
+                                                            lineNumber: 910,
                                                             columnNumber: 21
                                                         }, this),
                                                         "Delete Reported Leakage"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 898,
+                                                    lineNumber: 905,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 862,
+                                            lineNumber: 869,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 851,
+                                    lineNumber: 858,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 850,
+                                lineNumber: 857,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2652,7 +2680,7 @@ function ReportDetailPage() {
                                             children: "Workflow"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 913,
+                                            lineNumber: 920,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2660,7 +2688,7 @@ function ReportDetailPage() {
                                             children: "Where the report is right now and what happened before."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 914,
+                                            lineNumber: 921,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2672,23 +2700,23 @@ function ReportDetailPage() {
                                                     current: step.current
                                                 }, step.title, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 917,
+                                                    lineNumber: 924,
                                                     columnNumber: 19
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 915,
+                                            lineNumber: 922,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 912,
+                                    lineNumber: 919,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 911,
+                                lineNumber: 918,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2701,7 +2729,7 @@ function ReportDetailPage() {
                                             children: "Routing & Ownership"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 931,
+                                            lineNumber: 938,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2712,7 +2740,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-indigo-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 933,
+                                                        lineNumber: 940,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "Utility / Region",
@@ -2720,7 +2748,7 @@ function ReportDetailPage() {
                                                     tone: "bg-indigo-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 933,
+                                                    lineNumber: 940,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DetailCard, {
@@ -2728,7 +2756,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-emerald-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 934,
+                                                        lineNumber: 941,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "DMA / District",
@@ -2736,7 +2764,7 @@ function ReportDetailPage() {
                                                     tone: "bg-emerald-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 934,
+                                                    lineNumber: 941,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DetailCard, {
@@ -2744,7 +2772,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-violet-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 935,
+                                                        lineNumber: 942,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "Team Leader",
@@ -2752,7 +2780,7 @@ function ReportDetailPage() {
                                                     tone: "bg-violet-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 935,
+                                                    lineNumber: 942,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DetailCard, {
@@ -2760,7 +2788,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-amber-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 936,
+                                                        lineNumber: 943,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "Assigned Engineer",
@@ -2768,24 +2796,24 @@ function ReportDetailPage() {
                                                     tone: "bg-amber-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 936,
+                                                    lineNumber: 943,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 932,
+                                            lineNumber: 939,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 930,
+                                    lineNumber: 937,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 929,
+                                lineNumber: 936,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2798,7 +2826,7 @@ function ReportDetailPage() {
                                             children: "Reporter & Timing"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 943,
+                                            lineNumber: 950,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2811,12 +2839,12 @@ function ReportDetailPage() {
                                                         children: (report.reporterName || "U").charAt(0).toUpperCase()
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 946,
+                                                        lineNumber: 953,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 945,
+                                                    lineNumber: 952,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2827,7 +2855,7 @@ function ReportDetailPage() {
                                                             children: report.reporterName || "Unknown reporter"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 951,
+                                                            lineNumber: 958,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2835,19 +2863,19 @@ function ReportDetailPage() {
                                                             children: report.reporterPhone || "No phone provided"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 952,
+                                                            lineNumber: 959,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 950,
+                                                    lineNumber: 957,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 944,
+                                            lineNumber: 951,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2858,7 +2886,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-blue-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 957,
+                                                        lineNumber: 964,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "Created",
@@ -2866,7 +2894,7 @@ function ReportDetailPage() {
                                                     tone: "bg-blue-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 957,
+                                                    lineNumber: 964,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DetailCard, {
@@ -2874,7 +2902,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-cyan-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 958,
+                                                        lineNumber: 965,
                                                         columnNumber: 35
                                                     }, void 0),
                                                     label: "Due Date",
@@ -2882,7 +2910,7 @@ function ReportDetailPage() {
                                                     tone: "bg-cyan-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 958,
+                                                    lineNumber: 965,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DetailCard, {
@@ -2890,7 +2918,7 @@ function ReportDetailPage() {
                                                         className: "h-5 w-5 text-slate-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 960,
+                                                        lineNumber: 967,
                                                         columnNumber: 25
                                                     }, void 0),
                                                     label: "Resolved At",
@@ -2898,36 +2926,36 @@ function ReportDetailPage() {
                                                     tone: "bg-slate-100"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 959,
+                                                    lineNumber: 966,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 956,
+                                            lineNumber: 963,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 942,
+                                    lineNumber: 949,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 941,
+                                lineNumber: 948,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 849,
+                        lineNumber: 856,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 703,
+                lineNumber: 709,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -2947,32 +2975,32 @@ function ReportDetailPage() {
                                                 className: "h-4 w-4 text-white"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                lineNumber: 976,
+                                                lineNumber: 983,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 975,
+                                            lineNumber: 982,
                                             columnNumber: 15
                                         }, this),
                                         "Assign Reported Leakage to Team"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 974,
+                                    lineNumber: 981,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Select the team that should handle this reported leakage item."
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 980,
+                                    lineNumber: 987,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 973,
+                            lineNumber: 980,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2986,7 +3014,7 @@ function ReportDetailPage() {
                                             children: report.trackingId
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 984,
+                                            lineNumber: 991,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2994,13 +3022,13 @@ function ReportDetailPage() {
                                             children: report.description || "No description"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 985,
+                                            lineNumber: 992,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 983,
+                                    lineNumber: 990,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3011,7 +3039,7 @@ function ReportDetailPage() {
                                             children: "Select Team"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 989,
+                                            lineNumber: 996,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -3024,12 +3052,12 @@ function ReportDetailPage() {
                                                         placeholder: "Select team"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 995,
+                                                        lineNumber: 1002,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 994,
+                                                    lineNumber: 1001,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3040,30 +3068,30 @@ function ReportDetailPage() {
                                                             children: team.name
                                                         }, team.id, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 999,
+                                                            lineNumber: 1006,
                                                             columnNumber: 21
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 997,
+                                                    lineNumber: 1004,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 990,
+                                            lineNumber: 997,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 988,
+                                    lineNumber: 995,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 982,
+                            lineNumber: 989,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -3075,7 +3103,7 @@ function ReportDetailPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1008,
+                                    lineNumber: 1015,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -3088,7 +3116,7 @@ function ReportDetailPage() {
                                                 className: "mr-2 h-4 w-4 animate-spin"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                lineNumber: 1016,
+                                                lineNumber: 1023,
                                                 columnNumber: 19
                                             }, this),
                                             "Assigning..."
@@ -3099,7 +3127,7 @@ function ReportDetailPage() {
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                lineNumber: 1021,
+                                                lineNumber: 1028,
                                                 columnNumber: 19
                                             }, this),
                                             "Assign Reported Leakage"
@@ -3107,24 +3135,24 @@ function ReportDetailPage() {
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1009,
+                                    lineNumber: 1016,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1007,
+                            lineNumber: 1014,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 972,
+                    lineNumber: 979,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 971,
+                lineNumber: 978,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3144,32 +3172,32 @@ function ReportDetailPage() {
                                                 className: "h-4 w-4 text-white"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                lineNumber: 1035,
+                                                lineNumber: 1042,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1034,
+                                            lineNumber: 1041,
                                             columnNumber: 15
                                         }, this),
                                         "Resolve Report Location"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1033,
+                                    lineNumber: 1040,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Link this reported leakage to the correct regional utility and district DMA when the automatic match was uncertain."
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1039,
+                                    lineNumber: 1046,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1032,
+                            lineNumber: 1039,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3183,7 +3211,7 @@ function ReportDetailPage() {
                                             children: report.trackingId
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1045,
+                                            lineNumber: 1052,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3191,7 +3219,7 @@ function ReportDetailPage() {
                                             children: report.description || "No description"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1046,
+                                            lineNumber: 1053,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3199,13 +3227,13 @@ function ReportDetailPage() {
                                             children: getReportLocationLabel(report)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1047,
+                                            lineNumber: 1054,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1044,
+                                    lineNumber: 1051,
                                     columnNumber: 13
                                 }, this),
                                 !isUtility && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3216,7 +3244,7 @@ function ReportDetailPage() {
                                             children: "Utility / Region"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1052,
+                                            lineNumber: 1059,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -3233,12 +3261,12 @@ function ReportDetailPage() {
                                                         placeholder: "Select utility"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 1062,
+                                                        lineNumber: 1069,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1061,
+                                                    lineNumber: 1068,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3250,7 +3278,7 @@ function ReportDetailPage() {
                                                             children: "Unassigned Utility"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 1065,
+                                                            lineNumber: 1072,
                                                             columnNumber: 21
                                                         }, this),
                                                         availableUtilities.map((utility)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3259,25 +3287,25 @@ function ReportDetailPage() {
                                                                 children: utility.name
                                                             }, utility.id, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                lineNumber: 1069,
+                                                                lineNumber: 1076,
                                                                 columnNumber: 23
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1064,
+                                                    lineNumber: 1071,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1053,
+                                            lineNumber: 1060,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1051,
+                                    lineNumber: 1058,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3288,7 +3316,7 @@ function ReportDetailPage() {
                                             children: "DMA / District"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1079,
+                                            lineNumber: 1086,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -3301,12 +3329,12 @@ function ReportDetailPage() {
                                                         placeholder: "Select DMA"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 1085,
+                                                        lineNumber: 1092,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1084,
+                                                    lineNumber: 1091,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3318,7 +3346,7 @@ function ReportDetailPage() {
                                                             children: resolveUtilityId ? "Unassigned DMA" : "Unassigned Location"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 1088,
+                                                            lineNumber: 1095,
                                                             columnNumber: 19
                                                         }, this),
                                                         availableDMAs.map((dma)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3327,31 +3355,31 @@ function ReportDetailPage() {
                                                                 children: dma.name
                                                             }, dma.id, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                                lineNumber: 1092,
+                                                                lineNumber: 1099,
                                                                 columnNumber: 21
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1087,
+                                                    lineNumber: 1094,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1080,
+                                            lineNumber: 1087,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1078,
+                                    lineNumber: 1085,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1043,
+                            lineNumber: 1050,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -3363,7 +3391,7 @@ function ReportDetailPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1101,
+                                    lineNumber: 1108,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -3376,7 +3404,7 @@ function ReportDetailPage() {
                                                 className: "mr-2 h-4 w-4 animate-spin"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                lineNumber: 1109,
+                                                lineNumber: 1116,
                                                 columnNumber: 19
                                             }, this),
                                             "Saving..."
@@ -3387,7 +3415,7 @@ function ReportDetailPage() {
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                lineNumber: 1114,
+                                                lineNumber: 1121,
                                                 columnNumber: 19
                                             }, this),
                                             "Save Location Routing"
@@ -3395,24 +3423,24 @@ function ReportDetailPage() {
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1102,
+                                    lineNumber: 1109,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1100,
+                            lineNumber: 1107,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 1031,
+                    lineNumber: 1038,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1030,
+                lineNumber: 1037,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3431,20 +3459,20 @@ function ReportDetailPage() {
                                     children: "Approve Repair"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1132,
+                                    lineNumber: 1139,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Add the DMA approval comment that should stay with this reported leakage resolution."
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1133,
+                                    lineNumber: 1140,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1131,
+                            lineNumber: 1138,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3455,7 +3483,7 @@ function ReportDetailPage() {
                                     children: "DMA Approval Comment"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1138,
+                                    lineNumber: 1145,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -3466,13 +3494,13 @@ function ReportDetailPage() {
                                     className: "min-h-[130px]"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1139,
+                                    lineNumber: 1146,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1137,
+                            lineNumber: 1144,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -3488,7 +3516,7 @@ function ReportDetailPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1148,
+                                    lineNumber: 1155,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -3499,24 +3527,24 @@ function ReportDetailPage() {
                                     children: isSubmitting ? "Approving..." : "Approve Reported Leakage"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1159,
+                                    lineNumber: 1166,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1147,
+                            lineNumber: 1154,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 1130,
+                    lineNumber: 1137,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1123,
+                lineNumber: 1130,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3535,20 +3563,20 @@ function ReportDetailPage() {
                                     children: "Reject Repair"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1180,
+                                    lineNumber: 1187,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Add the DMA rejection reason. This report will return to the assigned team for rework instead of staying rejected."
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1181,
+                                    lineNumber: 1188,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1179,
+                            lineNumber: 1186,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3559,7 +3587,7 @@ function ReportDetailPage() {
                                     children: "DMA Rework Reason"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1186,
+                                    lineNumber: 1193,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -3570,13 +3598,13 @@ function ReportDetailPage() {
                                     className: "min-h-[130px]"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1187,
+                                    lineNumber: 1194,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1185,
+                            lineNumber: 1192,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -3592,7 +3620,7 @@ function ReportDetailPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1196,
+                                    lineNumber: 1203,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -3604,24 +3632,24 @@ function ReportDetailPage() {
                                     children: isSubmitting ? "Returning..." : "Return For Rework"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1207,
+                                    lineNumber: 1214,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1195,
+                            lineNumber: 1202,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 1178,
+                    lineNumber: 1185,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1171,
+                lineNumber: 1178,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$confirm$2d$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ConfirmDialog"], {
@@ -3634,7 +3662,7 @@ function ReportDetailPage() {
                 variant: "destructive"
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1220,
+                lineNumber: 1227,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3649,12 +3677,12 @@ function ReportDetailPage() {
                                 children: "Media Viewer"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 1233,
+                                lineNumber: 1240,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1232,
+                            lineNumber: 1239,
                             columnNumber: 11
                         }, this),
                         activeMedia ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3670,7 +3698,7 @@ function ReportDetailPage() {
                                                     children: activeMedia.label || "Reported Leakage Media"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1239,
+                                                    lineNumber: 1246,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3678,13 +3706,13 @@ function ReportDetailPage() {
                                                     children: activeMedia.alt
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1240,
+                                                    lineNumber: 1247,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1238,
+                                            lineNumber: 1245,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -3696,20 +3724,20 @@ function ReportDetailPage() {
                                                     className: "mr-2 h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1243,
+                                                    lineNumber: 1250,
                                                     columnNumber: 19
                                                 }, this),
                                                 "Close"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1242,
+                                            lineNumber: 1249,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1237,
+                                    lineNumber: 1244,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3720,7 +3748,7 @@ function ReportDetailPage() {
                                         className: "max-h-[68vh] w-full rounded-2xl bg-black"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                        lineNumber: 1249,
+                                        lineNumber: 1256,
                                         columnNumber: 19
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$resolved$2d$image$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResolvedImage"], {
                                         uri: activeMedia.uri,
@@ -3729,35 +3757,35 @@ function ReportDetailPage() {
                                         fallbackClassName: "h-[50vh] w-full"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                        lineNumber: 1251,
+                                        lineNumber: 1258,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1247,
+                                    lineNumber: 1254,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1236,
+                            lineNumber: 1243,
                             columnNumber: 13
                         }, this) : null
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                    lineNumber: 1231,
+                    lineNumber: 1238,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1230,
+                lineNumber: 1237,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-        lineNumber: 648,
+        lineNumber: 653,
         columnNumber: 5
     }, this);
 }
@@ -3769,7 +3797,7 @@ function HeroMetric({ label, value, accent }) {
                 className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])("h-1.5 w-20 rounded-full bg-gradient-to-r", accent)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1270,
+                lineNumber: 1277,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3777,7 +3805,7 @@ function HeroMetric({ label, value, accent }) {
                 children: label
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1271,
+                lineNumber: 1278,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3785,13 +3813,41 @@ function HeroMetric({ label, value, accent }) {
                 children: value
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1272,
+                lineNumber: 1279,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-        lineNumber: 1269,
+        lineNumber: 1276,
+        columnNumber: 5
+    }, this);
+}
+function LeakageTypeBadge({ type }) {
+    const config = __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$constants$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["LEAKAGE_TYPE_CONFIG"][type] || __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$constants$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["LEAKAGE_TYPE_CONFIG"].unknown;
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+        className: "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold",
+        style: {
+            borderColor: `${config.color}55`,
+            backgroundColor: `${config.color}14`,
+            color: config.color
+        },
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                className: "h-2 w-2 rounded-full",
+                style: {
+                    backgroundColor: config.color
+                }
+            }, void 0, false, {
+                fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
+                lineNumber: 1296,
+                columnNumber: 7
+            }, this),
+            config.label
+        ]
+    }, void 0, true, {
+        fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
+        lineNumber: 1288,
         columnNumber: 5
     }, this);
 }
@@ -3803,7 +3859,7 @@ function TimelineStep({ title, detail, active, current }) {
                 className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])("mt-1 h-3.5 w-3.5 rounded-full", current ? "bg-cyan-500 shadow-lg shadow-cyan-500/30" : active ? "bg-emerald-500 shadow-lg shadow-emerald-500/30" : "bg-slate-200")
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1290,
+                lineNumber: 1315,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3814,7 +3870,7 @@ function TimelineStep({ title, detail, active, current }) {
                         children: title
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 1301,
+                        lineNumber: 1326,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3822,19 +3878,19 @@ function TimelineStep({ title, detail, active, current }) {
                         children: detail
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 1302,
+                        lineNumber: 1327,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1300,
+                lineNumber: 1325,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-        lineNumber: 1289,
+        lineNumber: 1314,
         columnNumber: 5
     }, this);
 }
@@ -3847,7 +3903,7 @@ function DetailCard({ icon, label, value, tone }) {
                 children: icon
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1321,
+                lineNumber: 1346,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3858,7 +3914,7 @@ function DetailCard({ icon, label, value, tone }) {
                         children: label
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 1323,
+                        lineNumber: 1348,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3866,19 +3922,19 @@ function DetailCard({ icon, label, value, tone }) {
                         children: value
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 1324,
+                        lineNumber: 1349,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1322,
+                lineNumber: 1347,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-        lineNumber: 1320,
+        lineNumber: 1345,
         columnNumber: 5
     }, this);
 }
@@ -3894,7 +3950,7 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                         children: icon
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 1350,
+                        lineNumber: 1375,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3904,7 +3960,7 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                                 children: title
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 1352,
+                                lineNumber: 1377,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3912,19 +3968,19 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                                 children: description
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                lineNumber: 1353,
+                                lineNumber: 1378,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 1351,
+                        lineNumber: 1376,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1349,
+                lineNumber: 1374,
                 columnNumber: 7
             }, this),
             items.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3948,14 +4004,14 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                                                     muted: true
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1365,
+                                                    lineNumber: 1390,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1366,
+                                                    lineNumber: 1391,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3966,23 +4022,23 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                                                             className: "h-8 w-8 text-white"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                            lineNumber: 1369,
+                                                            lineNumber: 1394,
                                                             columnNumber: 27
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                        lineNumber: 1368,
+                                                        lineNumber: 1393,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1367,
+                                                    lineNumber: 1392,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1364,
+                                            lineNumber: 1389,
                                             columnNumber: 21
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$resolved$2d$image$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResolvedImage"], {
                                             uri: item.uri,
@@ -3991,7 +4047,7 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                                             fallbackClassName: "h-40 w-full rounded-t-2xl"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1374,
+                                            lineNumber: 1399,
                                             columnNumber: 21
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4000,18 +4056,18 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                lineNumber: 1382,
+                                                lineNumber: 1407,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1381,
+                                            lineNumber: 1406,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1362,
+                                    lineNumber: 1387,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4025,7 +4081,7 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                                                     children: item.label || "Reporter Media"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1388,
+                                                    lineNumber: 1413,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4033,13 +4089,13 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                                                     children: isVideoMedia(item.uri) ? "Video" : "Image"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                                    lineNumber: 1389,
+                                                    lineNumber: 1414,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1387,
+                                            lineNumber: 1412,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4047,42 +4103,42 @@ function MediaSection({ title, description, icon, iconTone, emptyMessage, items,
                                             children: "Click to open full view"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                            lineNumber: 1393,
+                                            lineNumber: 1418,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                                    lineNumber: 1386,
+                                    lineNumber: 1411,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                            lineNumber: 1361,
+                            lineNumber: 1386,
                             columnNumber: 15
                         }, this)
                     }, item.key, false, {
                         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                        lineNumber: 1360,
+                        lineNumber: 1385,
                         columnNumber: 13
                     }, this))
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1358,
+                lineNumber: 1383,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "mt-4 rounded-xl border border-dashed border-slate-200 bg-white/70 px-4 py-6 text-sm text-slate-500",
                 children: emptyMessage
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-                lineNumber: 1400,
+                lineNumber: 1425,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/_views/report-details-page.tsx",
-        lineNumber: 1348,
+        lineNumber: 1373,
         columnNumber: 5
     }, this);
 }

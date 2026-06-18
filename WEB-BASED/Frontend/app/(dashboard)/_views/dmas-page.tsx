@@ -21,7 +21,6 @@ import {
   Pencil, 
   Trash2, 
   Search, 
-  Plus,
   MapPin,
   Users,
   FileText,
@@ -160,8 +159,7 @@ export default function DMAsPage() {
               onClick={openCreatePage}
               className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-300 rounded-xl h-11 px-6"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Add DMA
+              Create DMA
             </Button>
           )}
         </div>
@@ -263,8 +261,7 @@ export default function DMAsPage() {
                   onClick={openCreatePage}
                   className="mt-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 rounded-xl"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add DMA
+                  Create DMA
                 </Button>
               )}
             </div>
