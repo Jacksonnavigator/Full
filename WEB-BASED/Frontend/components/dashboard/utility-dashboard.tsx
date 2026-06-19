@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
-import { useDataStore } from "@/store/data-store"
+import { getUtilityInfrastructureAsset, useDataStore } from "@/store/data-store"
 import { StatCard } from "@/components/shared/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ReportStatusMap } from "@/components/maps/report-status-map"
@@ -42,6 +42,7 @@ export function UtilityDashboard() {
 
   const utilityId = currentUser?.utilityId ?? ""
   const utility = utilities.find((u) => u.id === utilityId)
+  const pipeNetworkAsset = getUtilityInfrastructureAsset(utility, "pipe_network")
   const myDMAs = getDMAsByUtility(utilityId)
   const myReports = getReportsByUtility(utilityId)
   const activeTeams = teams.filter(
@@ -268,11 +269,11 @@ export function UtilityDashboard() {
         emptyMessage="No geolocated reports are available for this utility yet."
       />
 
-      {utility?.pipeNetworkFileName ? (
+      {utility && pipeNetworkAsset ? (
         <UtilityPipeNetworkMap
           utilityId={utility.id}
-          previewUrl={utility.pipeNetworkPreviewUrl}
-          fileName={utility.pipeNetworkFileName}
+          previewUrl={pipeNetworkAsset.previewUrl}
+          fileName={pipeNetworkAsset.fileName}
           fallbackCenter={utilityMapCenter}
           title="Utility Pipe Network Map"
           emptyMessage="Upload a supported utility pipe network file to overlay it here."

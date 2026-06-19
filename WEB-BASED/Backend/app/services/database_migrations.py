@@ -52,6 +52,8 @@ def run_safe_startup_migrations(engine: Engine) -> None:
     _migrate_report_leakage_type_column(engine)
     _migrate_utility_contact_columns(engine)
     _migrate_dma_boundary_columns(engine)
+    _migrate_utility_infrastructure_layer_table(engine)
+    _drop_legacy_utility_pipe_network_table(engine)
 
 
 def run_heavy_startup_migrations(engine: Engine) -> None:
@@ -100,6 +102,78 @@ def _migrate_dma_boundary_columns(engine: Engine) -> None:
             )
         else:
             connection.exec_driver_sql("ALTER TABLE dma ADD COLUMN boundary_geojson TEXT")
+
+
+def _migrate_utility_infrastructure_layer_table(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "utility" not in inspector.get_table_names():
+        return
+    if "utility_infrastructure_layer" in inspector.get_table_names():
+        return
+
+    with engine.begin() as connection:
+        if engine.dialect.name.startswith("postgresql"):
+            _run_postgres_ddl_without_timeout(
+                connection,
+                '''
+                CREATE TABLE IF NOT EXISTS utility_infrastructure_layer (
+                    id VARCHAR(36) PRIMARY KEY,
+                    utility_id VARCHAR(36) NOT NULL REFERENCES utility(id) ON DELETE CASCADE,
+                    asset_type VARCHAR(50) NOT NULL,
+                    uploaded_by_manager_id VARCHAR(36) REFERENCES utility_manager(id) ON DELETE SET NULL,
+                    file_data BYTEA NOT NULL,
+                    file_name VARCHAR(255) NOT NULL,
+                    mime_type VARCHAR(100) NOT NULL DEFAULT 'application/octet-stream',
+                    file_size INTEGER NOT NULL,
+                    feature_count INTEGER NOT NULL DEFAULT 0,
+                    created_at TIMESTAMP NOT NULL,
+                    updated_at TIMESTAMP NOT NULL,
+                    CONSTRAINT uq_utility_infrastructure_asset UNIQUE (utility_id, asset_type)
+                )
+                '''
+            )
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_utility_id ON utility_infrastructure_layer (utility_id)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_asset_type ON utility_infrastructure_layer (asset_type)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_uploaded_by_manager_id ON utility_infrastructure_layer (uploaded_by_manager_id)")
+        else:
+            connection.exec_driver_sql(
+                '''
+                CREATE TABLE IF NOT EXISTS utility_infrastructure_layer (
+                    id VARCHAR(36) PRIMARY KEY,
+                    utility_id VARCHAR(36) NOT NULL,
+                    asset_type VARCHAR(50) NOT NULL,
+                    uploaded_by_manager_id VARCHAR(36),
+                    file_data BLOB NOT NULL,
+                    file_name VARCHAR(255) NOT NULL,
+                    mime_type VARCHAR(100) NOT NULL DEFAULT 'application/octet-stream',
+                    file_size INTEGER NOT NULL,
+                    feature_count INTEGER NOT NULL DEFAULT 0,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL,
+                    CONSTRAINT uq_utility_infrastructure_asset UNIQUE (utility_id, asset_type),
+                    FOREIGN KEY(utility_id) REFERENCES utility(id) ON DELETE CASCADE,
+                    FOREIGN KEY(uploaded_by_manager_id) REFERENCES utility_manager(id) ON DELETE SET NULL
+                )
+                '''
+            )
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_utility_id ON utility_infrastructure_layer (utility_id)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_asset_type ON utility_infrastructure_layer (asset_type)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_uploaded_by_manager_id ON utility_infrastructure_layer (uploaded_by_manager_id)")
+
+
+def _drop_legacy_utility_pipe_network_table(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "utility_pipe_network" not in inspector.get_table_names():
+        return
+
+    with engine.begin() as connection:
+        if engine.dialect.name.startswith("postgresql"):
+            _run_postgres_ddl_without_timeout(
+                connection,
+                'DROP TABLE IF EXISTS utility_pipe_network CASCADE',
+            )
+        else:
+            connection.exec_driver_sql("DROP TABLE IF EXISTS utility_pipe_network")
 
 
 def _migrate_report_leakage_type_column(engine: Engine) -> None:

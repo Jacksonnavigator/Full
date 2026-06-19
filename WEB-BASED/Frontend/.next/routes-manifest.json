@@ -228,6 +228,12 @@
       "namedRegex": "^/dashboard/utilities/new(?:/)?$"
     },
     {
+      "page": "/dashboard/utility-infrastructure",
+      "regex": "^/dashboard/utility\\-infrastructure(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/utility\\-infrastructure(?:/)?$"
+    },
+    {
       "page": "/dmas",
       "regex": "^/dmas(?:/)?$",
       "routeKeys": {},

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   AlertTriangle,
@@ -11,8 +11,13 @@ import {
 } from "lucide-react"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
+import { getUtilityInfrastructureAsset } from "@/store/data-store"
 import { OperationsMap } from "@/components/maps/operations-map"
-import type { OperationsMapAggregateMarker, OperationsMapBoundaryOverlay } from "@/components/maps/operations-map"
+import type {
+  OperationsMapAggregateMarker,
+  OperationsMapBoundaryOverlay,
+  OperationsMapViewState,
+} from "@/components/maps/operations-map"
 import { useTopbarTitle } from "@/components/layout/topbar-title-context"
 import {
   Select,
@@ -128,6 +133,50 @@ function isOperationsMapAggregateMarker(
 
 function isResolvedStatus(status: string) {
   return status === "approved" || status === "closed"
+}
+
+function isPointInRing(point: [number, number], ring: number[][]) {
+  const [latitude, longitude] = point
+  let inside = false
+
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const current = ring[i]
+    const previous = ring[j]
+    if (!current || !previous || current.length < 2 || previous.length < 2) continue
+
+    const currentLng = Number(current[0])
+    const currentLat = Number(current[1])
+    const previousLng = Number(previous[0])
+    const previousLat = Number(previous[1])
+
+    const intersects =
+      currentLat > latitude !== previousLat > latitude &&
+      longitude < ((previousLng - currentLng) * (latitude - currentLat)) / (previousLat - currentLat || Number.EPSILON) + currentLng
+
+    if (intersects) inside = !inside
+  }
+
+  return inside
+}
+
+function isPointInPolygon(point: [number, number], polygon: number[][][]) {
+  if (!polygon.length || !isPointInRing(point, polygon[0])) return false
+  return !polygon.slice(1).some((hole) => isPointInRing(point, hole))
+}
+
+function isPointInBoundary(point: [number, number], boundary: unknown) {
+  if (!boundary || typeof boundary !== "object") return false
+  const geometry = boundary as { type?: string; coordinates?: unknown }
+
+  if (geometry.type === "Polygon" && Array.isArray(geometry.coordinates)) {
+    return isPointInPolygon(point, geometry.coordinates as number[][][])
+  }
+
+  if (geometry.type === "MultiPolygon" && Array.isArray(geometry.coordinates)) {
+    return (geometry.coordinates as number[][][][]).some((polygon) => isPointInPolygon(point, polygon))
+  }
+
+  return false
 }
 
 function ComparisonBarChartView({
@@ -365,6 +414,7 @@ export function OperationsDashboard() {
   const [selectedDMAId, setSelectedDMAId] = useState("all")
   const [basemap, setBasemap] = useState<"street" | "satellite">("street")
   const [mapZoom, setMapZoom] = useState(6)
+  const [mapViewCenter, setMapViewCenter] = useState<[number, number] | null>(null)
 
   const isAdmin = currentUser?.role === "admin"
   const isUtility = currentUser?.role === "utility_manager"
@@ -425,15 +475,62 @@ export function OperationsDashboard() {
     return utilities
   }, [currentDMA?.utilityId, currentUser?.utilityId, isDMA, isUtility, utilities])
 
+  const dashboardLevel = useMemo<DashboardHierarchyLevel>(() => {
+    if (isDMA) {
+      return mapZoom <= 11 ? "dma" : "detail"
+    }
+
+    if (selectedDMAId !== "all") {
+      return mapZoom <= 11 ? "dma" : "detail"
+    }
+
+    if (isUtility || selectedUtilityId !== "all") {
+      if (mapZoom <= 9) return "utility"
+      if (mapZoom <= 12) return "dma"
+      return "detail"
+    }
+
+    if (mapZoom <= 7) return "national"
+    if (mapZoom <= 10) return "utility"
+    if (mapZoom <= 12) return "dma"
+    return "detail"
+  }, [isDMA, isUtility, mapZoom, selectedDMAId, selectedUtilityId])
+
+  const mapFocusedUtilityId = useMemo(() => {
+    if (!isAdmin || selectedUtilityId !== "all" || selectedDMAId !== "all") return null
+    if (dashboardLevel !== "dma" && dashboardLevel !== "detail") return null
+    if (!mapViewCenter) return null
+
+    return (
+      visibleUtilities.find((utility) =>
+        isPointInBoundary(mapViewCenter, utility.boundaryGeojson)
+      )?.id ?? null
+    )
+  }, [dashboardLevel, isAdmin, mapViewCenter, selectedDMAId, selectedUtilityId, visibleUtilities])
+
+  const effectiveUtilityId = useMemo(() => {
+    if (selectedUtilityId !== "all") return selectedUtilityId
+    if (isUtility) return currentUser?.utilityId ?? null
+    if (isDMA) return currentDMA?.utilityId ?? null
+    return mapFocusedUtilityId
+  }, [
+    currentDMA?.utilityId,
+    currentUser?.utilityId,
+    isDMA,
+    isUtility,
+    mapFocusedUtilityId,
+    selectedUtilityId,
+  ])
+
   const visibleDMAs = useMemo(() => {
     const base =
       isDMA && currentUser?.dmaId
         ? dmas.filter((dma) => dma.id === currentUser.dmaId)
         : dmas
 
-    if (selectedUtilityId === "all") return base
-    return base.filter((dma) => dma.utilityId === selectedUtilityId)
-  }, [currentUser?.dmaId, dmas, isDMA, selectedUtilityId])
+    if (!effectiveUtilityId) return base
+    return base.filter((dma) => dma.utilityId === effectiveUtilityId)
+  }, [currentUser?.dmaId, dmas, effectiveUtilityId, isDMA])
 
   useEffect(() => {
     if (selectedDMAId !== "all" && !visibleDMAs.some((dma) => dma.id === selectedDMAId)) {
@@ -455,32 +552,11 @@ export function OperationsDashboard() {
 
   const filteredReports = useMemo(() => {
     return scopedReports.filter((report) => {
-      const matchesUtility = selectedUtilityId === "all" ? true : report.utilityId === selectedUtilityId
+      const matchesUtility = effectiveUtilityId ? report.utilityId === effectiveUtilityId : true
       const matchesDMA = selectedDMAId === "all" ? true : report.dmaId === selectedDMAId
       return matchesUtility && matchesDMA
     })
-  }, [scopedReports, selectedDMAId, selectedUtilityId])
-
-  const dashboardLevel = useMemo<DashboardHierarchyLevel>(() => {
-    if (isDMA) {
-      return mapZoom <= 11 ? "dma" : "detail"
-    }
-
-    if (selectedDMAId !== "all") {
-      return mapZoom <= 11 ? "dma" : "detail"
-    }
-
-    if (isUtility || selectedUtilityId !== "all") {
-      if (mapZoom <= 9) return "utility"
-      if (mapZoom <= 12) return "dma"
-      return "detail"
-    }
-
-    if (mapZoom <= 7) return "national"
-    if (mapZoom <= 10) return "utility"
-    if (mapZoom <= 12) return "dma"
-    return "detail"
-  }, [isDMA, isUtility, mapZoom, selectedDMAId, selectedUtilityId])
+  }, [effectiveUtilityId, scopedReports, selectedDMAId])
 
   const mapReports = useMemo(
     () => filteredReports.filter(hasUsableCoordinates),
@@ -537,6 +613,7 @@ export function OperationsDashboard() {
 
     if (isAdmin || isUtility) {
       const rows = new Map<string, ComparisonBarRow>()
+      const visibleDMAIds = new Set(visibleDMAs.map((dma) => dma.id))
 
       visibleDMAs.forEach((dma) => {
         rows.set(dma.id, {
@@ -547,6 +624,7 @@ export function OperationsDashboard() {
       })
 
       filteredReports.forEach((report) => {
+        if (!report.dmaId || !visibleDMAIds.has(report.dmaId)) return
         const key = report.dmaId || `dma:${report.dmaName || "Unassigned DMA"}`
         const current =
           rows.get(key) ??
@@ -592,18 +670,12 @@ export function OperationsDashboard() {
   )
 
   const activeUtilityId = useMemo(() => {
-    if (selectedUtilityId !== "all") return selectedUtilityId
+    if (effectiveUtilityId) return effectiveUtilityId
     if (activeDMA?.utilityId) return activeDMA.utilityId
-    if (isUtility) return currentUser?.utilityId ?? null
-    if (isDMA) return currentDMA?.utilityId ?? null
     return visibleUtilities.length === 1 ? visibleUtilities[0].id : null
   }, [
     activeDMA?.utilityId,
-    currentDMA?.utilityId,
-    currentUser?.utilityId,
-    isDMA,
-    isUtility,
-    selectedUtilityId,
+    effectiveUtilityId,
     visibleUtilities,
   ])
 
@@ -667,21 +739,49 @@ export function OperationsDashboard() {
   }, [activeDMA, activeUtility, dashboardLevel, filteredReports, selectedDMAId, visibleDMAs, visibleUtilities])
 
   const activeNetworkPreviewUrl = useMemo(() => {
-    if (!activeUtility?.pipeNetworkPreviewUrl) return null
-    if (isDMA || !activeDMA?.id || !activeDMA.boundaryGeojson) return activeUtility.pipeNetworkPreviewUrl
+    const pipeNetwork = getUtilityInfrastructureAsset(activeUtility, "pipe_network")
+    if (!pipeNetwork?.previewUrl) return null
+    if (isDMA || !activeDMA?.id || !activeDMA.boundaryGeojson) return pipeNetwork.previewUrl
 
-    const separator = activeUtility.pipeNetworkPreviewUrl.includes("?") ? "&" : "?"
-    return `${activeUtility.pipeNetworkPreviewUrl}${separator}dma_id=${encodeURIComponent(activeDMA.id)}`
-  }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility?.pipeNetworkPreviewUrl, isDMA])
+    const separator = pipeNetwork.previewUrl.includes("?") ? "&" : "?"
+    return `${pipeNetwork.previewUrl}${separator}dma_id=${encodeURIComponent(activeDMA.id)}`
+  }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility, isDMA])
 
   const networkPreviewUrls = useMemo(() => {
     if (activeNetworkPreviewUrl) return [activeNetworkPreviewUrl]
-    if (!isAdmin || selectedUtilityId !== "all" || selectedDMAId !== "all") return []
+    if (!isAdmin || selectedUtilityId !== "all" || selectedDMAId !== "all" || effectiveUtilityId) return []
 
     return visibleUtilities
-      .map((utility) => utility.pipeNetworkPreviewUrl)
+      .map((utility) => getUtilityInfrastructureAsset(utility, "pipe_network")?.previewUrl)
       .filter((url): url is string => Boolean(url))
-  }, [activeNetworkPreviewUrl, isAdmin, selectedDMAId, selectedUtilityId, visibleUtilities])
+  }, [activeNetworkPreviewUrl, effectiveUtilityId, isAdmin, selectedDMAId, selectedUtilityId, visibleUtilities])
+
+  const infrastructureLayers = useMemo(() => {
+    const assetDefinitions = [
+      { assetType: "valves", label: "Valves", color: "#dc2626" },
+      { assetType: "water_sources", label: "Water sources", color: "#0891b2" },
+      { assetType: "storage_facilities", label: "Storage facilities", color: "#d97706" },
+      { assetType: "bulk_meters", label: "Bulk meters", color: "#7c3aed" },
+    ]
+    const layersByType = new Map(
+      assetDefinitions.map((asset) => [
+        asset.assetType,
+        { ...asset, previewUrls: [] as string[] },
+      ])
+    )
+    const utilitiesForInfrastructure = activeUtility ? [activeUtility] : visibleUtilities
+
+    utilitiesForInfrastructure.forEach((utility) => {
+      utility.infrastructureLayers?.forEach((layer) => {
+        if (layer.assetType === "pipe_network" || !layer.previewUrl) return
+        const existing = layersByType.get(layer.assetType)
+        if (!existing) return
+        existing.previewUrls.push(layer.previewUrl)
+      })
+    })
+
+    return Array.from(layersByType.values())
+  }, [activeUtility, visibleUtilities])
 
   const utilityAggregateMarkers = useMemo<OperationsMapAggregateMarker[]>(() => {
     return visibleUtilities
@@ -803,9 +903,8 @@ export function OperationsDashboard() {
         selectedUtilityId,
         selectedDMAId,
         activeDMA?.id ?? "none",
-        activeUtility?.id ?? "none",
       ].join("|"),
-    [activeDMA?.id, activeUtility?.id, selectedDMAId, selectedUtilityId]
+    [activeDMA?.id, selectedDMAId, selectedUtilityId]
   )
 
   const preferTanzaniaMapView =
@@ -819,6 +918,11 @@ export function OperationsDashboard() {
         : dashboardLevel === "dma"
           ? "DMA summary"
           : "Report detail"
+
+  const handleMapViewChange = useCallback((view: OperationsMapViewState) => {
+    setMapZoom(view.zoom)
+    setMapViewCenter(view.center)
+  }, [])
 
   useEffect(() => {
     setTopbarTitle({
@@ -895,12 +999,14 @@ export function OperationsDashboard() {
             boundaryGeojsons={[]}
             networkPreviewUrl={activeNetworkPreviewUrl}
             networkPreviewUrls={networkPreviewUrls}
-            networkFileName={activeUtility?.pipeNetworkFileName}
+            infrastructureLayers={infrastructureLayers}
+            networkFileName={getUtilityInfrastructureAsset(activeUtility, "pipe_network")?.fileName}
             title={scopeTitle}
             description={`${dashboardLevel} view · ${kpis.total.toLocaleString()} reports in current scope`}
             basemap={basemap}
             onBasemapChange={setBasemap}
             onZoomChange={setMapZoom}
+            onViewChange={handleMapViewChange}
             chromeMode="command-center"
             boundsFitKey={mapFitKey}
             initialBounds={TANZANIA_BOUNDS}

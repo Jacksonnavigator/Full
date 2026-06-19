@@ -23,6 +23,7 @@
   "/(dashboard)/dashboard/utilities/[utilityId]/edit/page": "app/(dashboard)/dashboard/utilities/[utilityId]/edit/page.js",
   "/(dashboard)/dashboard/utilities/new/page": "app/(dashboard)/dashboard/utilities/new/page.js",
   "/(dashboard)/dashboard/utilities/page": "app/(dashboard)/dashboard/utilities/page.js",
+  "/(dashboard)/dashboard/utility-infrastructure/page": "app/(dashboard)/dashboard/utility-infrastructure/page.js",
   "/(dashboard)/dmas/page": "app/(dashboard)/dmas/page.js",
   "/(dashboard)/engineers/page": "app/(dashboard)/engineers/page.js",
   "/(dashboard)/location-routing/page": "app/(dashboard)/location-routing/page.js",

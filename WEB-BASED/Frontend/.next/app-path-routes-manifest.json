@@ -23,6 +23,7 @@
   "/(dashboard)/dashboard/utilities/[utilityId]/edit/page": "/dashboard/utilities/[utilityId]/edit",
   "/(dashboard)/dashboard/utilities/new/page": "/dashboard/utilities/new",
   "/(dashboard)/dashboard/utilities/page": "/dashboard/utilities",
+  "/(dashboard)/dashboard/utility-infrastructure/page": "/dashboard/utility-infrastructure",
   "/(dashboard)/dmas/page": "/dmas",
   "/(dashboard)/engineers/page": "/engineers",
   "/(dashboard)/location-routing/page": "/location-routing",

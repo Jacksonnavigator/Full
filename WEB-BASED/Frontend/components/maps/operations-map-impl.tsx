@@ -4,12 +4,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { CircleMarker, GeoJSON, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet"
 import type { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson"
 import type { LatLngBoundsExpression } from "leaflet"
-import { ChevronDown, Layers3, MapPinned, Route, SlidersHorizontal } from "lucide-react"
+import * as L from "leaflet"
+import { ChevronDown, CircleDot, Database, Gauge, Layers3, MapPinned, Route, SlidersHorizontal, Warehouse } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import CONFIG from "@/lib/config"
-import type { OperationsMapAggregateMarker, OperationsMapBoundaryOverlay, OperationsMapReport } from "./operations-map"
+import type {
+  OperationsMapAggregateMarker,
+  OperationsMapBoundaryOverlay,
+  OperationsMapInfrastructureLayer,
+  OperationsMapReport,
+  OperationsMapViewState,
+} from "./operations-map"
 
 const DEFAULT_CENTER: [number, number] = [-6.369, 34.8888]
 const NATIONAL_BOUNDARY_ZOOM = 8
@@ -26,6 +33,21 @@ const DEFAULT_BOUNDARY_STYLE = {
   },
   dma: DMA_BOUNDARY_STYLE,
 } as const
+
+const INFRASTRUCTURE_SYMBOLS: Record<string, { svg: string }> = {
+  valves: {
+    svg: '<path d="M5 8.5h3.2l2.3 2.1 2.3-2.1H16v7h-3.2l-2.3-2.1-2.3 2.1H5v-7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10.5 6.2v3.6M8.5 6.2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  },
+  water_sources: {
+    svg: '<path d="M10.5 3.8c2.8 3.1 4.2 5.3 4.2 7.3a4.2 4.2 0 1 1-8.4 0c0-2 1.4-4.2 4.2-7.3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+  },
+  storage_facilities: {
+    svg: '<path d="M5.5 7.2c0-1.2 2.2-2.2 5-2.2s5 1 5 2.2v7.6c0 1.2-2.2 2.2-5 2.2s-5-1-5-2.2V7.2Z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M15.5 7.2c0 1.2-2.2 2.2-5 2.2s-5-1-5-2.2" fill="none" stroke="currentColor" stroke-width="1.7"/>',
+  },
+  bulk_meters: {
+    svg: '<path d="M5 13a5.5 5.5 0 0 1 11 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.5 12.8 13 9.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.2 15.6h6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  },
+}
 
 const networkLayerCache = new Map<string, GeoJsonObject>()
 const pendingNetworkLayerLoads = new Map<string, Promise<GeoJsonObject>>()
@@ -279,6 +301,24 @@ function buildNetworkPopupHtml(feature: Feature) {
   </div>`
 }
 
+function getInfrastructureIcon(assetType: string) {
+  if (assetType === "valves") return Gauge
+  if (assetType === "storage_facilities") return Warehouse
+  if (assetType === "bulk_meters") return Database
+  return CircleDot
+}
+
+function createInfrastructureDivIcon(assetType: string, color: string) {
+  const symbol = INFRASTRUCTURE_SYMBOLS[assetType] || INFRASTRUCTURE_SYMBOLS.valves
+  return L.divIcon({
+    className: "majiscope-infrastructure-div-icon",
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
+    popupAnchor: [0, -13],
+    html: `<span style="display:flex;height:26px;width:26px;align-items:center;justify-content:center;border-radius:9999px;background:${color};color:white;border:2px solid rgba(255,255,255,.96);box-shadow:0 10px 22px -13px rgba(15,23,42,.85);"><svg viewBox="0 0 21 21" aria-hidden="true" style="height:18px;width:18px;filter:drop-shadow(0 1px 0 rgba(15,23,42,.18));">${symbol.svg}</svg></span>`,
+  })
+}
+
 function buildBoundaryPopupHtml(overlay: OperationsMapBoundaryOverlay) {
   const reported = overlay.reported ?? 0
   const resolved = overlay.resolved ?? 0
@@ -361,14 +401,34 @@ function SyncMapSize() {
   return null
 }
 
-function MapZoomObserver({ onZoomChange }: { onZoomChange: (zoom: number) => void }) {
+function MapViewObserver({
+  onZoomChange,
+  onViewChange,
+}: {
+  onZoomChange: (zoom: number) => void
+  onViewChange?: (view: OperationsMapViewState) => void
+}) {
+  const emitViewState = useCallback(
+    (map: L.Map) => {
+      const center = map.getCenter()
+      const zoom = map.getZoom()
+      onZoomChange(zoom)
+      onViewChange?.({
+        zoom,
+        center: [center.lat, center.lng],
+      })
+    },
+    [onViewChange, onZoomChange]
+  )
+
   const map = useMapEvents({
-    zoomend: () => onZoomChange(map.getZoom()),
+    moveend: () => emitViewState(map),
+    zoomend: () => emitViewState(map),
   })
 
   useEffect(() => {
-    onZoomChange(map.getZoom())
-  }, [map, onZoomChange])
+    emitViewState(map)
+  }, [emitViewState, map])
 
   return null
 }
@@ -382,12 +442,14 @@ export function OperationsMapImpl({
   boundaryGeojsons = [],
   networkPreviewUrl,
   networkPreviewUrls = [],
+  infrastructureLayers = [],
   networkFileName,
   title = "Leak operations map",
   description = "Monitor leak points, routing status, and pipe coverage from one field view.",
   basemap: controlledBasemap,
   onBasemapChange,
   onZoomChange,
+  onViewChange,
   onReportSelect,
   chromeMode = "standard",
   boundsFitKey = "initial",
@@ -402,12 +464,14 @@ export function OperationsMapImpl({
   boundaryGeojsons?: GeoJsonObject[]
   networkPreviewUrl?: string | null
   networkPreviewUrls?: string[]
+  infrastructureLayers?: OperationsMapInfrastructureLayer[]
   networkFileName?: string | null
   title?: string
   description?: string
   basemap?: BasemapKey
   onBasemapChange?: (basemap: BasemapKey) => void
   onZoomChange?: (zoom: number) => void
+  onViewChange?: (view: OperationsMapViewState) => void
   onReportSelect?: (reportId: string) => void
   chromeMode?: "standard" | "command-center"
   boundsFitKey?: string
@@ -427,8 +491,12 @@ export function OperationsMapImpl({
   const [showBoundaries, setShowBoundaries] = useState(false)
   const [localBasemap, setLocalBasemap] = useState<BasemapKey>("street")
   const [networkLayers, setNetworkLayers] = useState<GeoJsonObject[]>([])
+  const [assetLayers, setAssetLayers] = useState<Record<string, GeoJsonObject[]>>({})
+  const [visibleAssetTypes, setVisibleAssetTypes] = useState<Record<string, boolean>>({})
   const [networkLoading, setNetworkLoading] = useState(false)
+  const [assetLoadingTypes, setAssetLoadingTypes] = useState<Record<string, boolean>>({})
   const [networkError, setNetworkError] = useState<string | null>(null)
+  const [assetErrors, setAssetErrors] = useState<Record<string, string | null>>({})
   const [controlsOpen, setControlsOpen] = useState(false)
   const [mapZoom, setMapZoom] = useState(13)
   const basemap = controlledBasemap ?? localBasemap
@@ -463,6 +531,17 @@ export function OperationsMapImpl({
       setShowNetwork(false)
     }
   }, [networkUrls])
+
+  useEffect(() => {
+    setVisibleAssetTypes((current) => {
+      const availableTypes = new Set(infrastructureLayers.map((layer) => layer.assetType))
+      const next: Record<string, boolean> = {}
+      Object.entries(current).forEach(([assetType, visible]) => {
+        if (availableTypes.has(assetType)) next[assetType] = visible
+      })
+      return next
+    })
+  }, [infrastructureLayers])
 
   useEffect(() => {
     setShowBoundaries(hasBoundaryOverlays)
@@ -530,6 +609,73 @@ export function OperationsMapImpl({
     }
   }, [networkUrls, showNetwork])
 
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadVisibleAssetLayers() {
+      const visibleLayers = infrastructureLayers.filter(
+        (layer) => visibleAssetTypes[layer.assetType] && layer.previewUrls.length
+      )
+
+      if (!visibleLayers.length) {
+        if (!cancelled) {
+          setAssetLayers({})
+          setAssetErrors({})
+          setAssetLoadingTypes({})
+        }
+        return
+      }
+
+      const token = localStorage.getItem(CONFIG.storage.tokenKey)
+      if (!token) {
+        if (!cancelled) {
+          setAssetErrors(
+            Object.fromEntries(
+              visibleLayers.map((layer) => [layer.assetType, "Authentication is required to load this infrastructure layer."])
+            )
+          )
+        }
+        return
+      }
+
+      setAssetLoadingTypes(
+        Object.fromEntries(visibleLayers.map((layer) => [layer.assetType, true]))
+      )
+
+      const nextLayers: Record<string, GeoJsonObject[]> = {}
+      const nextErrors: Record<string, string | null> = {}
+
+      await Promise.all(
+        visibleLayers.map(async (layer) => {
+          const results = await Promise.allSettled(layer.previewUrls.map((url) => loadNetworkLayer(url, token)))
+          const loadedLayers = results
+            .filter((result): result is PromiseFulfilledResult<GeoJsonObject> => result.status === "fulfilled")
+            .map((result) => result.value)
+          const failedLoads = results.filter((result) => result.status === "rejected")
+          nextLayers[layer.assetType] = loadedLayers
+          nextErrors[layer.assetType] =
+            loadedLayers.length && failedLoads.length
+              ? `${failedLoads.length} ${layer.label.toLowerCase()} layer${failedLoads.length === 1 ? "" : "s"} could not be loaded.`
+              : loadedLayers.length
+                ? null
+                : `${layer.label} could not be loaded.`
+        })
+      )
+
+      if (!cancelled) {
+        setAssetLayers(nextLayers)
+        setAssetErrors(nextErrors)
+        setAssetLoadingTypes({})
+      }
+    }
+
+    void loadVisibleAssetLayers()
+
+    return () => {
+      cancelled = true
+    }
+  }, [infrastructureLayers, visibleAssetTypes])
+
   const validReports = useMemo(
     () =>
       reports.filter(
@@ -585,6 +731,9 @@ export function OperationsMapImpl({
         .map((marker) => [marker.latitude, marker.longitude] as [number, number]),
       ...(showBoundaries ? boundaryLayers.flatMap((overlay) => collectGeoJsonCoordinates(overlay.geojson)) : []),
       ...networkLayers.flatMap((layer) => collectGeoJsonCoordinates(layer)),
+      ...Object.values(assetLayers).flatMap((layers) =>
+        layers.flatMap((layer) => collectGeoJsonCoordinates(layer))
+      ),
     ]
 
     if (!points.length) return initialBounds
@@ -597,7 +746,7 @@ export function OperationsMapImpl({
     }
 
     return points
-  }, [aggregateMarkers, boundaryLayers, initialBounds, networkLayers, preferInitialBounds, showBoundaries, validReports])
+  }, [aggregateMarkers, assetLayers, boundaryLayers, initialBounds, networkLayers, preferInitialBounds, showBoundaries, validReports])
 
   return (
     <div className="h-full overflow-hidden rounded-[30px] border border-slate-300/85 bg-slate-100 shadow-[0_28px_80px_-52px_rgba(15,23,42,0.4)]">
@@ -692,7 +841,7 @@ export function OperationsMapImpl({
           }}
         >
           <SyncMapSize />
-          <MapZoomObserver onZoomChange={handleZoomChange} />
+          <MapViewObserver onZoomChange={handleZoomChange} onViewChange={onViewChange} />
           <FitMapToData bounds={fitBounds} fitKey={boundsFitKey} />
           <TileLayer
             key={basemap}
@@ -754,6 +903,34 @@ export function OperationsMapImpl({
                 />
               ))
             : null}
+
+          {infrastructureLayers.map((asset) =>
+            visibleAssetTypes[asset.assetType]
+              ? (assetLayers[asset.assetType] || []).map((assetLayer, index) => (
+                  <GeoJSON
+                    key={`asset-${asset.assetType}-${index}`}
+                    data={assetLayer}
+                    pointToLayer={(_, latlng) =>
+                      L.marker(latlng, { icon: createInfrastructureDivIcon(asset.assetType, asset.color) })
+                    }
+                    style={() => ({
+                      color: asset.color,
+                      weight: 2,
+                      opacity: 0.76,
+                      fillColor: asset.color,
+                      fillOpacity: 0.16,
+                    })}
+                    onEachFeature={(feature, layer) => {
+                      if (!feature) return
+                      const popupHtml = buildNetworkPopupHtml(feature as Feature)
+                      if ("bindPopup" in layer && typeof layer.bindPopup === "function") {
+                        layer.bindPopup(popupHtml.replace("Pipe Segment", escapeHtml(asset.label)))
+                      }
+                    }}
+                  />
+                ))
+              : null
+          )}
 
           {aggregateMarkers.map((marker) => {
               const efficiency = marker.reported > 0 ? Math.round((marker.resolved / marker.reported) * 1000) / 10 : 0
@@ -947,6 +1124,37 @@ export function OperationsMapImpl({
                     <Layers3 className="mr-2 h-3.5 w-3.5" />
                     {showNetwork ? "Hide pipe network" : "Show pipe network"}
                   </Button>
+                  {infrastructureLayers.map((asset) => {
+                    const visible = Boolean(visibleAssetTypes[asset.assetType])
+                    const Icon = getInfrastructureIcon(asset.assetType)
+
+                    return (
+                      <Button
+                        key={asset.assetType}
+                        type="button"
+                        size="sm"
+                        variant={visible ? "default" : "outline"}
+                        className={
+                          visible
+                            ? "h-8 justify-start rounded-xl px-3 text-white hover:brightness-95"
+                            : isSatellite
+                              ? "h-8 justify-start rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
+                              : "h-8 justify-start rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
+                        }
+                        style={visible ? { backgroundColor: asset.color } : undefined}
+                        onClick={() =>
+                          setVisibleAssetTypes((current) => ({
+                            ...current,
+                            [asset.assetType]: !current[asset.assetType],
+                          }))
+                        }
+                        disabled={!asset.previewUrls.length}
+                      >
+                        <Icon className="mr-2 h-3.5 w-3.5" />
+                        {visible ? `Hide ${asset.label}` : `Show ${asset.label}`}
+                      </Button>
+                    )
+                  })}
                   <Button
                     type="button"
                     size="sm"
@@ -977,8 +1185,8 @@ export function OperationsMapImpl({
                     <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] opacity-75">
                       Boundary legend
                     </div>
-                    <div className="grid gap-1">
-                      {boundaryOverlays.slice(0, 5).map((overlay) => (
+                    <div className="grid max-h-32 gap-1 overflow-y-auto pr-1">
+                      {boundaryOverlays.map((overlay) => (
                         <div key={`legend-${overlay.level}-${overlay.id}`} className="flex items-center justify-between gap-3 text-[11px]">
                           <span className="flex min-w-0 items-center gap-2">
                             <span
@@ -990,11 +1198,6 @@ export function OperationsMapImpl({
                           <span className="shrink-0 font-semibold">{(overlay.reported ?? 0).toLocaleString()}</span>
                         </div>
                       ))}
-                      {boundaryOverlays.length > 5 ? (
-                        <div className="text-[10px] opacity-70">
-                          +{boundaryOverlays.length - 5} more boundaries
-                        </div>
-                      ) : null}
                     </div>
                   </div>
                 ) : null}
@@ -1006,6 +1209,18 @@ export function OperationsMapImpl({
                 {!networkLoading && showNetwork && networkError ? (
                   <div className="mt-2 max-w-[240px] text-right text-[11px] text-rose-600">{networkError}</div>
                 ) : null}
+                {infrastructureLayers.some((asset) => assetLoadingTypes[asset.assetType]) ? (
+                  <div className={cn("mt-2 text-right text-[11px]", isSatellite ? "text-white/72" : "text-slate-500")}>
+                    Loading infrastructure...
+                  </div>
+                ) : null}
+                {infrastructureLayers.map((asset) =>
+                  visibleAssetTypes[asset.assetType] && assetErrors[asset.assetType] ? (
+                    <div key={`asset-error-${asset.assetType}`} className="mt-2 max-w-[240px] text-right text-[11px] text-rose-600">
+                      {assetErrors[asset.assetType]}
+                    </div>
+                  ) : null
+                )}
               </div>
             ) : null}
           </div>

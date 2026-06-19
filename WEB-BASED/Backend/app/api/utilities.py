@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from shapely import wkb
 from shapely.geometry import mapping, shape
 from app.database.session import get_db
-from app.models import Utility, UtilityPipeNetwork, DMA
+from app.models import Utility, UtilityInfrastructureLayer, DMA
 from app.schemas.user import (
     UtilityCreate,
     UtilityUpdate,
@@ -26,7 +26,8 @@ from app.schemas.user import (
     UtilityListResponse,
     UtilityPublicContactResponse,
     PipeNetworkIngestSummary,
-    PipeNetworkUploadResponse,
+    UtilityInfrastructureAssetResponse,
+    UtilityInfrastructureUploadResponse,
 )
 from app.security.dependencies import get_current_user, require_admin, require_utility_manager, CurrentUser
 from app.services.hierarchy import (
@@ -67,7 +68,30 @@ PIPE_NETWORK_REQUIRED_TEXT_COLUMNS = {
     "location": ("location", "zonelocati", "zone", "location_name", "address"),
 }
 
-_pipe_network_geojson_cache: dict[tuple[Any, ...], dict[str, Any]] = {}
+_infrastructure_geojson_cache: dict[tuple[Any, ...], dict[str, Any]] = {}
+
+UTILITY_INFRASTRUCTURE_ASSETS: dict[str, dict[str, Any]] = {
+    "pipe_network": {
+        "label": "Pipe network",
+        "geometry_types": {"LineString", "MultiLineString"},
+    },
+    "valves": {
+        "label": "Valves",
+        "geometry_types": {"Point", "MultiPoint"},
+    },
+    "water_sources": {
+        "label": "Water sources",
+        "geometry_types": {"Point", "MultiPoint"},
+    },
+    "storage_facilities": {
+        "label": "Storage facilities",
+        "geometry_types": {"Point", "MultiPoint"},
+    },
+    "bulk_meters": {
+        "label": "Bulk meters",
+        "geometry_types": {"Point", "MultiPoint"},
+    },
+}
 
 
 def _resolve_current_user_utility_id(current_user: CurrentUser, db: Session) -> Optional[str]:
@@ -94,8 +118,30 @@ def _ensure_utility_access(utility: Utility, current_user: CurrentUser, db: Sess
     )
 
 
+def _asset_label(asset_type: str) -> str:
+    return str(UTILITY_INFRASTRUCTURE_ASSETS.get(asset_type, {}).get("label") or asset_type.replace("_", " ").title())
+
+
+def _build_infrastructure_asset_response(layer: UtilityInfrastructureLayer) -> UtilityInfrastructureAssetResponse:
+    return UtilityInfrastructureAssetResponse(
+        asset_type=layer.asset_type,
+        label=_asset_label(layer.asset_type),
+        file_name=layer.file_name,
+        file_size=layer.file_size,
+        mime_type=layer.mime_type,
+        feature_count=layer.feature_count or 0,
+        download_url=f"/api/utilities/{layer.utility_id}/infrastructure/{layer.asset_type}/download",
+        preview_url=f"/api/utilities/{layer.utility_id}/infrastructure/{layer.asset_type}/geojson",
+        uploaded_at=layer.updated_at,
+    )
+
+
 def _build_utility_response(utility: Utility) -> UtilityResponse:
-    pipe_network = utility.pipe_network_file
+    infrastructure_layers = sorted(
+        list(utility.infrastructure_layers or []),
+        key=lambda layer: list(UTILITY_INFRASTRUCTURE_ASSETS).index(layer.asset_type)
+        if layer.asset_type in UTILITY_INFRASTRUCTURE_ASSETS else 999,
+    )
     return UtilityResponse(
         id=utility.id,
         name=utility.name,
@@ -108,12 +154,7 @@ def _build_utility_response(utility: Utility) -> UtilityResponse:
         center_longitude=utility.center_longitude,
         boundary_geojson=_deserialize_boundary_geojson(utility.boundary_geojson),
         status=utility.status,
-        pipe_network_file_name=pipe_network.file_name if pipe_network else None,
-        pipe_network_file_size=pipe_network.file_size if pipe_network else None,
-        pipe_network_mime_type=pipe_network.mime_type if pipe_network else None,
-        pipe_network_download_url=f"/api/utilities/{utility.id}/pipe-network/download" if pipe_network else None,
-        pipe_network_preview_url=f"/api/utilities/{utility.id}/pipe-network/geojson" if pipe_network else None,
-        pipe_network_uploaded_at=pipe_network.updated_at if pipe_network else None,
+        infrastructure_layers=[_build_infrastructure_asset_response(layer) for layer in infrastructure_layers],
         created_at=utility.created_at,
         updated_at=utility.updated_at,
     )
@@ -725,6 +766,41 @@ def _load_plain_text_geojson(data: bytes) -> dict[str, Any]:
     )
 
 
+
+def _convert_shapefile_shape_to_geojson(shape_obj: Any) -> Optional[dict[str, Any]]:
+    try:
+        geometry = shape_obj.__geo_interface__
+        if isinstance(geometry, dict) and geometry.get("type"):
+            return geometry
+    except Exception:
+        pass
+
+    points = [list(point[:2]) for point in getattr(shape_obj, "points", []) if len(point) >= 2]
+    if not points:
+        return None
+
+    shape_type = int(getattr(shape_obj, "shapeType", 0) or 0)
+    parts = list(getattr(shape_obj, "parts", []) or [])
+
+    def split_parts() -> list[list[list[float]]]:
+        if not parts:
+            return [points]
+        indexes = [int(part) for part in parts] + [len(points)]
+        return [points[indexes[index]:indexes[index + 1]] for index in range(len(indexes) - 1) if points[indexes[index]:indexes[index + 1]]]
+
+    if shape_type in {1, 11, 21}:
+        return {"type": "Point", "coordinates": points[0]}
+    if shape_type in {8, 18, 28}:
+        return {"type": "MultiPoint", "coordinates": points}
+    if shape_type in {3, 13, 23}:
+        lines = split_parts()
+        return {"type": "LineString", "coordinates": lines[0]} if len(lines) == 1 else {"type": "MultiLineString", "coordinates": lines}
+    if shape_type in {5, 15, 25}:
+        rings = split_parts()
+        return {"type": "Polygon", "coordinates": rings}
+
+    return None
+
 def _load_shapefile_geojson(
     shp_data: bytes,
     shx_data: Optional[bytes] = None,
@@ -756,7 +832,7 @@ def _load_shapefile_geojson(
         try:
             records = reader.shapeRecords()
             for shape_record in records:
-                geometry = shape_record.shape.__geo_interface__
+                geometry = _convert_shapefile_shape_to_geojson(shape_record.shape)
                 if not geometry:
                     continue
                 raw_properties = shape_record.record.as_dict()
@@ -778,7 +854,7 @@ def _load_shapefile_geojson(
     if not features:
         try:
             for shape in reader.shapes():
-                geometry = shape.__geo_interface__
+                geometry = _convert_shapefile_shape_to_geojson(shape)
                 if not geometry:
                     continue
                 features.append(
@@ -791,13 +867,13 @@ def _load_shapefile_geojson(
         except Exception as exc:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Pipe network shapefile geometry could not be converted.",
+                detail="Shapefile geometry could not be converted. Upload a ZIP containing the .shp, .shx, and .dbf files, or export this layer as GeoPackage.",
             ) from exc
 
     if not features:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Pipe network shapefile did not contain previewable geometry.",
+            detail="Shapefile did not contain previewable geometry. Upload a ZIP containing the .shp, .shx, and .dbf files, or export this layer as GeoPackage.",
         )
 
     return {"type": "FeatureCollection", "features": features}
@@ -1043,28 +1119,114 @@ def _load_pipe_network_geojson_with_summary(file_name: str, file_data: bytes) ->
     )
 
 
-def _pipe_network_cache_key(pipe_network: UtilityPipeNetwork) -> tuple[Any, ...]:
+def _normalize_asset_type(asset_type: str) -> str:
+    normalized = asset_type.strip().lower().replace("-", "_")
+    aliases = {
+        "pipe": "pipe_network",
+        "pipes": "pipe_network",
+        "pipelines": "pipe_network",
+        "pipeline": "pipe_network",
+        "valve": "valves",
+        "source": "water_sources",
+        "sources": "water_sources",
+        "water_source": "water_sources",
+        "storage": "storage_facilities",
+        "storages": "storage_facilities",
+        "storage_facility": "storage_facilities",
+        "tank": "storage_facilities",
+        "tanks": "storage_facilities",
+        "meter": "bulk_meters",
+        "meters": "bulk_meters",
+        "bulk_meter": "bulk_meters",
+    }
+    return aliases.get(normalized, normalized)
+
+
+def _ensure_supported_asset_type(asset_type: str) -> str:
+    normalized = _normalize_asset_type(asset_type)
+    if normalized not in UTILITY_INFRASTRUCTURE_ASSETS:
+        supported = ", ".join(sorted(UTILITY_INFRASTRUCTURE_ASSETS))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported infrastructure asset type. Supported types: {supported}",
+        )
+    return normalized
+
+
+def _filter_feature_collection_by_asset_type(feature_collection: dict[str, Any], asset_type: str) -> dict[str, Any]:
+    allowed_geometry_types = UTILITY_INFRASTRUCTURE_ASSETS[asset_type]["geometry_types"]
+    features: list[dict[str, Any]] = []
+
+    for feature in feature_collection.get("features", []):
+        if not isinstance(feature, dict):
+            continue
+        geometry = feature.get("geometry")
+        if not isinstance(geometry, dict):
+            continue
+        geometry_type = geometry.get("type")
+        if geometry_type not in allowed_geometry_types:
+            continue
+        properties = feature.get("properties")
+        if not isinstance(properties, dict):
+            properties = {}
+        features.append({
+            **feature,
+            "properties": {
+                **properties,
+                "asset_type": asset_type,
+                "asset_label": _asset_label(asset_type),
+            },
+        })
+
+    if not features:
+        label = _asset_label(asset_type).lower()
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Uploaded file did not contain previewable {label} geometry.",
+        )
+
+    return {"type": "FeatureCollection", "features": features}
+
+
+def _load_infrastructure_geojson_with_summary(file_name: str, file_data: bytes, asset_type: str) -> tuple[dict[str, Any], PipeNetworkIngestSummary]:
+    feature_collection, summary = _load_pipe_network_geojson_with_summary(file_name, file_data)
+    filtered_collection = _filter_feature_collection_by_asset_type(feature_collection, asset_type)
+    filtered_summary = _build_ingest_summary(
+        filtered_collection,
+        total_features_read=summary.total_features_read,
+        skipped_missing_geometry=summary.skipped_missing_geometry,
+        skipped_invalid_geometry=summary.skipped_invalid_geometry,
+        skipped_unsupported_geometry=summary.skipped_unsupported_geometry,
+        source_layers=summary.source_layers,
+    )
+    return filtered_collection, filtered_summary
+
+
+def _infrastructure_cache_key(layer: UtilityInfrastructureLayer) -> tuple[Any, ...]:
     return (
-        pipe_network.id,
-        pipe_network.utility_id,
-        pipe_network.file_name,
-        pipe_network.file_size,
-        pipe_network.updated_at.isoformat() if pipe_network.updated_at else None,
+        "infrastructure",
+        layer.id,
+        layer.utility_id,
+        layer.asset_type,
+        layer.file_name,
+        layer.file_size,
+        layer.updated_at.isoformat() if layer.updated_at else None,
     )
 
 
-def _load_pipe_network_geojson(pipe_network: UtilityPipeNetwork):
-    cache_key = _pipe_network_cache_key(pipe_network)
-    cached_collection = _pipe_network_geojson_cache.get(cache_key)
+def _load_infrastructure_geojson(layer: UtilityInfrastructureLayer) -> dict[str, Any]:
+    cache_key = _infrastructure_cache_key(layer)
+    cached_collection = _infrastructure_geojson_cache.get(cache_key)
     if cached_collection is not None:
         return copy.deepcopy(cached_collection)
 
-    feature_collection, _summary = _load_pipe_network_geojson_with_summary(
-        pipe_network.file_name,
-        pipe_network.file_data,
+    feature_collection, _summary = _load_infrastructure_geojson_with_summary(
+        layer.file_name,
+        layer.file_data,
+        layer.asset_type,
     )
-    _pipe_network_geojson_cache.clear()
-    _pipe_network_geojson_cache[cache_key] = copy.deepcopy(feature_collection)
+    _infrastructure_geojson_cache.clear()
+    _infrastructure_geojson_cache[cache_key] = copy.deepcopy(feature_collection)
     return feature_collection
 
 
@@ -1238,13 +1400,15 @@ async def delete_utility(
     db.commit()
 
 
-@utilities_router.post("/{utility_id}/pipe-network", response_model=PipeNetworkUploadResponse, status_code=status.HTTP_201_CREATED)
-async def upload_pipe_network(
+@utilities_router.post("/{utility_id}/infrastructure/{asset_type}", response_model=UtilityInfrastructureUploadResponse, status_code=status.HTTP_201_CREATED)
+async def upload_infrastructure_layer(
     utility_id: str,
+    asset_type: str,
     file: UploadFile = File(...),
     current_user: CurrentUser = Depends(require_utility_manager),
     db: Session = Depends(get_db),
 ):
+    normalized_asset_type = _ensure_supported_asset_type(asset_type)
     utility = db.query(Utility).filter(Utility.id == utility_id).first()
     if not utility:
         raise HTTPException(
@@ -1257,149 +1421,152 @@ async def upload_pipe_network(
     if not file.filename:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Uploaded pipe network file must have a filename",
+            detail="Uploaded infrastructure file must have a filename",
         )
 
     extension = Path(file.filename).suffix.lower()
-    if extension not in ALLOWED_PIPE_NETWORK_EXTENSIONS:
+    if extension != ".gpkg":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Unsupported pipe network file type",
+            detail="Infrastructure uploads must use a single GeoPackage (.gpkg) file with geometry and attributes together.",
         )
 
     file_data = await file.read()
     if not file_data:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Uploaded pipe network file is empty",
+            detail="Uploaded infrastructure file is empty",
         )
 
     if len(file_data) > MAX_PIPE_NETWORK_SIZE:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Pipe network file is too large",
+            detail="Infrastructure file is too large",
         )
 
-    _feature_collection, ingest_summary = _load_pipe_network_geojson_with_summary(file.filename, file_data)
+    feature_collection, ingest_summary = _load_infrastructure_geojson_with_summary(
+        file.filename,
+        file_data,
+        normalized_asset_type,
+    )
 
-    pipe_network = db.query(UtilityPipeNetwork).filter(UtilityPipeNetwork.utility_id == utility.id).first()
-    if not pipe_network:
-        pipe_network = UtilityPipeNetwork(
+    layer = (
+        db.query(UtilityInfrastructureLayer)
+        .filter(
+            UtilityInfrastructureLayer.utility_id == utility.id,
+            UtilityInfrastructureLayer.asset_type == normalized_asset_type,
+        )
+        .first()
+    )
+    if not layer:
+        layer = UtilityInfrastructureLayer(
             utility_id=utility.id,
+            asset_type=normalized_asset_type,
         )
-        db.add(pipe_network)
+        db.add(layer)
 
-    pipe_network.file_data = file_data
-    pipe_network.file_name = file.filename
-    pipe_network.mime_type = file.content_type or "application/octet-stream"
-    pipe_network.file_size = len(file_data)
-    pipe_network.uploaded_by_manager_id = current_user.id if current_user.user_type == "utility_manager" else None
+    layer.file_data = file_data
+    layer.file_name = file.filename
+    layer.mime_type = file.content_type or "application/geopackage+sqlite3"
+    layer.file_size = len(file_data)
+    layer.feature_count = len(feature_collection.get("features", []))
+    layer.uploaded_by_manager_id = current_user.id if current_user.user_type == "utility_manager" else None
 
-    _pipe_network_geojson_cache.clear()
+    _infrastructure_geojson_cache.clear()
     db.commit()
     db.refresh(utility)
-    return PipeNetworkUploadResponse(
+    db.refresh(layer)
+    return UtilityInfrastructureUploadResponse(
         utility=_build_utility_response(utility),
+        asset=_build_infrastructure_asset_response(layer),
         ingest_summary=ingest_summary,
     )
 
 
-@utilities_router.get("/{utility_id}/pipe-network/download")
-async def download_pipe_network(
+@utilities_router.get("/{utility_id}/infrastructure/{asset_type}/download")
+async def download_infrastructure_layer(
     utility_id: str,
+    asset_type: str,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    normalized_asset_type = _ensure_supported_asset_type(asset_type)
     utility = db.query(Utility).filter(Utility.id == utility_id).first()
     if not utility:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Utility not found",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utility not found")
 
     _ensure_utility_access(utility, current_user, db)
 
-    pipe_network = db.query(UtilityPipeNetwork).filter(UtilityPipeNetwork.utility_id == utility.id).first()
-    if not pipe_network:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Pipe network file not found",
+    layer = (
+        db.query(UtilityInfrastructureLayer)
+        .filter(
+            UtilityInfrastructureLayer.utility_id == utility.id,
+            UtilityInfrastructureLayer.asset_type == normalized_asset_type,
         )
+        .first()
+    )
+    if not layer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Infrastructure asset file not found")
 
-    headers = {
-        "Content-Disposition": f'attachment; filename="{pipe_network.file_name}"',
-    }
-    return Response(content=pipe_network.file_data, media_type=pipe_network.mime_type, headers=headers)
+    headers = {"Content-Disposition": f'attachment; filename="{layer.file_name}"'}
+    return Response(content=layer.file_data, media_type=layer.mime_type, headers=headers)
 
 
-@utilities_router.get("/{utility_id}/pipe-network/geojson")
-async def preview_pipe_network_geojson(
+@utilities_router.get("/{utility_id}/infrastructure/{asset_type}/geojson")
+async def preview_infrastructure_layer_geojson(
     utility_id: str,
-    dma_id: Optional[str] = Query(None),
+    asset_type: str,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    normalized_asset_type = _ensure_supported_asset_type(asset_type)
     utility = db.query(Utility).filter(Utility.id == utility_id).first()
     if not utility:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Utility not found",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utility not found")
 
     _ensure_utility_access(utility, current_user, db)
 
-    pipe_network = db.query(UtilityPipeNetwork).filter(UtilityPipeNetwork.utility_id == utility.id).first()
-    if not pipe_network:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Pipe network file not found",
+    layer = (
+        db.query(UtilityInfrastructureLayer)
+        .filter(
+            UtilityInfrastructureLayer.utility_id == utility.id,
+            UtilityInfrastructureLayer.asset_type == normalized_asset_type,
         )
+        .first()
+    )
+    if not layer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Infrastructure asset file not found")
 
-    feature_collection = _load_pipe_network_geojson(pipe_network)
-
-    if not dma_id:
-        return feature_collection
-
-    dma = db.query(DMA).filter(DMA.id == dma_id, DMA.utility_id == utility.id).first()
-    if not dma:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="DMA boundary context could not be found for this utility",
-        )
-
-    if current_user.user_type == "dma_manager" and current_user.dma_id != dma.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have access to this DMA pipe network view",
-        )
-
-    return _filter_pipe_network_to_dma_boundary(feature_collection, dma.boundary_geojson)
+    return _load_infrastructure_geojson(layer)
 
 
-@utilities_router.delete("/{utility_id}/pipe-network", response_model=UtilityResponse)
-async def delete_pipe_network(
+@utilities_router.delete("/{utility_id}/infrastructure/{asset_type}", response_model=UtilityResponse)
+async def delete_infrastructure_layer(
     utility_id: str,
+    asset_type: str,
     current_user: CurrentUser = Depends(require_utility_manager),
     db: Session = Depends(get_db),
 ):
+    normalized_asset_type = _ensure_supported_asset_type(asset_type)
     utility = db.query(Utility).filter(Utility.id == utility_id).first()
     if not utility:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Utility not found",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utility not found")
 
     _ensure_utility_access(utility, current_user, db)
 
-    pipe_network = db.query(UtilityPipeNetwork).filter(UtilityPipeNetwork.utility_id == utility.id).first()
-    if not pipe_network:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Pipe network file not found",
+    layer = (
+        db.query(UtilityInfrastructureLayer)
+        .filter(
+            UtilityInfrastructureLayer.utility_id == utility.id,
+            UtilityInfrastructureLayer.asset_type == normalized_asset_type,
         )
+        .first()
+    )
+    if not layer:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Infrastructure asset file not found")
 
-    db.delete(pipe_network)
-    _pipe_network_geojson_cache.clear()
+    db.delete(layer)
+    _infrastructure_geojson_cache.clear()
     db.commit()
     db.refresh(utility)
     return _build_utility_response(utility)

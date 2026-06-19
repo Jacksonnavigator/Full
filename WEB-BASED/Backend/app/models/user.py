@@ -83,10 +83,9 @@ class Utility(Base):
     dmas = relationship("DMA", back_populates="utility")
     reports = relationship("Report", back_populates="utility")
     activity_logs = relationship("ActivityLog", back_populates="utility", foreign_keys="ActivityLog.utility_id")
-    pipe_network_file = relationship(
-        "UtilityPipeNetwork",
+    infrastructure_layers = relationship(
+        "UtilityInfrastructureLayer",
         back_populates="utility",
-        uselist=False,
         cascade="all, delete-orphan",
     )
 
@@ -122,32 +121,36 @@ class UtilityManager(Base):
     utility = relationship("Utility", back_populates="manager", foreign_keys=[utility_id])
     activity_logs = relationship("ActivityLog", back_populates="utility_mgr", foreign_keys="ActivityLog.utility_mgr_id")
     notifications = relationship("Notification", back_populates="utility_mgr")
-    uploaded_pipe_networks = relationship(
-        "UtilityPipeNetwork",
+    uploaded_infrastructure_layers = relationship(
+        "UtilityInfrastructureLayer",
         back_populates="uploaded_by_manager",
-        foreign_keys="UtilityPipeNetwork.uploaded_by_manager_id",
+        foreign_keys="UtilityInfrastructureLayer.uploaded_by_manager_id",
     )
 
 
-class UtilityPipeNetwork(Base):
-    """Stored pipe network file for a utility."""
+class UtilityInfrastructureLayer(Base):
+    """Stored GIS asset file for a utility infrastructure layer."""
 
-    __tablename__ = "utility_pipe_network"
+    __tablename__ = "utility_infrastructure_layer"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    utility_id = Column(String(36), ForeignKey("utility.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
+    utility_id = Column(String(36), ForeignKey("utility.id", ondelete="CASCADE"), nullable=False, index=True)
+    asset_type = Column(String(50), nullable=False, index=True)
     uploaded_by_manager_id = Column(String(36), ForeignKey("utility_manager.id", ondelete="SET NULL"), nullable=True, index=True)
     file_data = Column(LargeBinary, nullable=False)
     file_name = Column(String(255), nullable=False)
     mime_type = Column(String(100), nullable=False, default="application/octet-stream")
     file_size = Column(Integer, nullable=False)
+    feature_count = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    utility = relationship("Utility", back_populates="pipe_network_file", foreign_keys=[utility_id])
+    __table_args__ = (UniqueConstraint("utility_id", "asset_type", name="uq_utility_infrastructure_asset"),)
+
+    utility = relationship("Utility", back_populates="infrastructure_layers", foreign_keys=[utility_id])
     uploaded_by_manager = relationship(
         "UtilityManager",
-        back_populates="uploaded_pipe_networks",
+        back_populates="uploaded_infrastructure_layers",
         foreign_keys=[uploaded_by_manager_id],
     )
 

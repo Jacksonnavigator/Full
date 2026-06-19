@@ -34,14 +34,25 @@ export interface Utility {
   status: EntityStatus
   dmasCount?: number
   reportsCount?: number
-  pipeNetworkFileName?: string | null
-  pipeNetworkFileSize?: number | null
-  pipeNetworkMimeType?: string | null
-  pipeNetworkDownloadUrl?: string | null
-  pipeNetworkPreviewUrl?: string | null
-  pipeNetworkUploadedAt?: string | null
+  infrastructureLayers?: UtilityInfrastructureLayer[]
   createdAt: string
   updatedAt: string
+}
+
+export interface UtilityInfrastructureLayer {
+  assetType: string
+  label: string
+  fileName: string
+  fileSize: number
+  mimeType: string
+  featureCount: number
+  downloadUrl: string
+  previewUrl: string
+  uploadedAt: string
+}
+
+export function getUtilityInfrastructureAsset(utility: Utility | null | undefined, assetType: string) {
+  return utility?.infrastructureLayers?.find((layer) => layer.assetType === assetType) || null
 }
 
 function serializeUtilityPayload(data: Partial<Utility>) {

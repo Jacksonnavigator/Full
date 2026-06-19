@@ -1,16 +1,14 @@
 "use client"
 
-import { useState, useEffect, useRef, type ChangeEvent } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useDataStore, type Utility } from "@/store/data-store"
 import { useAuthStore } from "@/store/auth-store"
 import { usePageAccess } from "@/hooks/use-page-access"
 import { CONFIG } from "@/lib/config"
-import { formatTanzaniaDateTime } from "@/lib/date-time"
 import { PageHeader } from "@/components/shared/page-header"
 import { EntityStatusBadge } from "@/components/shared/status-badge"
 import { ConfirmDialog } from "@/components/shared/confirm-dialog"
-import { UtilityPipeNetworkMap } from "@/components/maps/utility-pipe-network-map"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,12 +31,9 @@ import {
   FileText,
   AlertTriangle,
   CheckCircle2,
-  Upload,
-  Download,
   Network,
   Phone,
   Mail,
-  Loader2,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -59,10 +54,6 @@ export default function UtilitiesPage() {
   const [search, setSearch] = useState("")
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [utilityManagers, setUtilityManagers] = useState<User[]>([])
-  const [uploadTargetUtility, setUploadTargetUtility] = useState<Utility | null>(null)
-  const [busyUtilityId, setBusyUtilityId] = useState<string | null>(null)
-  const [uploadingUtilityId, setUploadingUtilityId] = useState<string | null>(null)
-  const uploadInputRef = useRef<HTMLInputElement | null>(null)
 
   const isAdmin = currentUser?.role === "admin"
   const isUtilityManager = currentUser?.role === "utility_manager"
@@ -140,151 +131,6 @@ export default function UtilitiesPage() {
 
   function openEditDialog(utility: Utility) {
     router.push(`/dashboard/utilities/${utility.id}/edit`)
-  }
-
-  function requestPipeNetworkUpload(utility: Utility) {
-    setUploadTargetUtility(utility)
-    uploadInputRef.current?.click()
-  }
-
-  async function handlePipeNetworkUpload(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    const utility = uploadTargetUtility
-    event.target.value = ""
-
-    if (!file || !utility) {
-      return
-    }
-
-    const token = localStorage.getItem("access_token")
-    if (!token) {
-      toast.error("You are not authenticated.")
-      return
-    }
-
-    const formData = new FormData()
-    formData.append("file", file)
-    setBusyUtilityId(utility.id)
-    setUploadingUtilityId(utility.id)
-    const uploadingToastId = toast.loading("Uploading the pipeline ...")
-
-    try {
-      const response = await fetch(`${CONFIG.backend.fullUrl}/utilities/${utility.id}/pipe-network`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      })
-
-      const payload = await response.json().catch(() => ({}))
-      if (!response.ok) {
-        toast.dismiss(uploadingToastId)
-        toast.error(payload.detail || payload.error || "Failed to upload pipe network")
-        return
-      }
-
-      const ingestSummary = payload?.ingest_summary || payload?.ingestSummary
-      toast.dismiss(uploadingToastId)
-      if (ingestSummary) {
-        const previewable = Number(ingestSummary.previewable_features || ingestSummary.previewableFeatures || 0)
-        const skipped = Number(ingestSummary.skipped_features || ingestSummary.skippedFeatures || 0)
-        const missingDiameter = Number(ingestSummary.missing_diameter || ingestSummary.missingDiameter || 0)
-        const missingCondition = Number(ingestSummary.missing_condition || ingestSummary.missingCondition || 0)
-        const missingLocation = Number(ingestSummary.missing_location || ingestSummary.missingLocation || 0)
-
-        if (skipped > 0 || missingDiameter > 0 || missingCondition > 0 || missingLocation > 0) {
-          toast.warning(
-            `Pipe network uploaded with warnings: ${previewable.toLocaleString()} features ready, ${skipped.toLocaleString()} skipped. Missing fields - diameter: ${missingDiameter.toLocaleString()}, condition: ${missingCondition.toLocaleString()}, location: ${missingLocation.toLocaleString()}.`
-          )
-        } else {
-          toast.success(
-            `Utility pipe network uploaded successfully with ${previewable.toLocaleString()} previewable features.`
-          )
-        }
-      } else {
-        toast.success("Utility pipe network uploaded successfully")
-      }
-      await fetchUtilities()
-    } catch (error) {
-      toast.dismiss(uploadingToastId)
-      console.error("Error uploading utility pipe network:", error)
-      toast.error("Failed to upload pipe network")
-    } finally {
-      setBusyUtilityId(null)
-      setUploadingUtilityId(null)
-      setUploadTargetUtility(null)
-    }
-  }
-
-  async function handlePipeNetworkDownload(utility: Utility) {
-    const token = localStorage.getItem("access_token")
-    if (!token) {
-      toast.error("You are not authenticated.")
-      return
-    }
-
-    setBusyUtilityId(utility.id)
-    try {
-      const response = await fetch(`${CONFIG.backend.fullUrl}/utilities/${utility.id}/pipe-network/download`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}))
-        toast.error(payload.detail || payload.error || "Failed to download pipe network")
-        return
-      }
-
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const anchor = document.createElement("a")
-      anchor.href = url
-      anchor.download = utility.pipeNetworkFileName || `${utility.name}-pipe-network`
-      document.body.appendChild(anchor)
-      anchor.click()
-      anchor.remove()
-      window.URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error("Error downloading utility pipe network:", error)
-      toast.error("Failed to download pipe network")
-    } finally {
-      setBusyUtilityId(null)
-    }
-  }
-
-  async function handlePipeNetworkDelete(utility: Utility) {
-    const token = localStorage.getItem("access_token")
-    if (!token) {
-      toast.error("You are not authenticated.")
-      return
-    }
-
-    setBusyUtilityId(utility.id)
-    try {
-      const response = await fetch(`${CONFIG.backend.fullUrl}/utilities/${utility.id}/pipe-network`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      const payload = await response.json().catch(() => ({}))
-      if (!response.ok) {
-        toast.error(payload.detail || payload.error || "Failed to remove pipe network")
-        return
-      }
-
-      toast.success("Utility pipe network removed successfully")
-      await fetchUtilities()
-    } catch (error) {
-      console.error("Error removing utility pipe network:", error)
-      toast.error("Failed to remove pipe network")
-    } finally {
-      setBusyUtilityId(null)
-    }
   }
 
   async function handleDelete() {
@@ -547,108 +393,33 @@ export default function UtilitiesPage() {
                 )}
 
                 <div className="mt-4 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 shadow-sm shadow-sky-500/20">
                           <Network className="h-4 w-4 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-slate-800">Utility Pipe Network</p>
-                          <p className="text-xs text-slate-500">Upload the latest utility network map in a previewable GIS format, including GeoPackage.</p>
-                          <button
-                            type="button"
-                            onClick={() => requestPipeNetworkUpload(utility)}
-                            disabled={busyUtilityId === utility.id}
-                            className="mt-1 text-xs font-semibold text-cyan-700 underline decoration-cyan-400 underline-offset-2 hover:text-cyan-800 disabled:cursor-not-allowed disabled:text-slate-400"
-                          >
-                            Click here to upload or replace pipeline map
-                          </button>
+                          <p className="text-sm font-semibold text-slate-800">Utility Infrastructure Assets</p>
+                          <p className="text-xs text-slate-500">Upload and maintain pipes, valves, water sources, storage facilities, and bulk meters from the dedicated infrastructure page.</p>
                         </div>
                       </div>
-                      {utility.pipeNetworkFileName ? (
-                        <div className="mt-3">
-                          <p className="break-words text-sm font-medium text-slate-700">{utility.pipeNetworkFileName}</p>
-                          <p className="text-xs text-slate-500">
-                            {(utility.pipeNetworkFileSize || 0) > 0 ? `${(utility.pipeNetworkFileSize! / 1024 / 1024).toFixed(2)} MB` : "File size unavailable"}
-                            {utility.pipeNetworkUploadedAt ? ` • Updated ${formatTanzaniaDateTime(utility.pipeNetworkUploadedAt)}` : ""}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="mt-3 text-sm text-slate-500">No pipe network file uploaded yet.</p>
-                      )}
                     </div>
-                    <div className="flex flex-col gap-2 sm:w-44">
-                      <Button
-                        onClick={() => requestPipeNetworkUpload(utility)}
-                        disabled={busyUtilityId === utility.id}
-                        className="rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-lg shadow-sky-500/20 hover:from-sky-600 hover:to-cyan-700"
-                      >
-                        {uploadingUtilityId === utility.id ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Uploading pipeline...
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="mr-2 h-4 w-4" />
-                            {utility.pipeNetworkFileName ? "Replace File" : "Upload File"}
-                          </>
-                        )}
-                      </Button>
-                      {utility.pipeNetworkFileName ? (
-                        <>
-                          <Button
-                            variant="outline"
-                            onClick={() => handlePipeNetworkDownload(utility)}
-                            disabled={busyUtilityId === utility.id}
-                            className="rounded-xl"
-                          >
-                            <Download className="mr-2 h-4 w-4" />
-                            Download
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => handlePipeNetworkDelete(utility)}
-                            disabled={busyUtilityId === utility.id}
-                            className="rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Remove
-                          </Button>
-                        </>
-                      ) : null}
-                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => router.push("/dashboard/utility-infrastructure")}
+                      className="rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-lg shadow-sky-500/20 hover:from-sky-600 hover:to-cyan-700"
+                    >
+                      <Network className="mr-2 h-4 w-4" />
+                      Manage Assets
+                    </Button>
                   </div>
-                  {uploadingUtilityId === utility.id ? (
-                    <p className="mt-3 text-xs font-medium text-cyan-700">Uploading the pipeline ... please wait.</p>
-                  ) : null}
                 </div>
-
-                {utility.pipeNetworkFileName ? (
-                  <div className="mt-4">
-                    <UtilityPipeNetworkMap
-                      utilityId={utility.id}
-                      previewUrl={utility.pipeNetworkPreviewUrl}
-                      fileName={utility.pipeNetworkFileName}
-                      title="Pipe Network Map Preview"
-                      emptyMessage="Upload a supported utility pipe network file to preview it on the map. If a saved file cannot be drawn here, replace it with a previewable GIS file or download the stored copy for inspection."
-                    />
-                  </div>
-                ) : null}
               </CardContent>
             </Card>
           ))}
         </div>
       )}
-
-      <input
-        ref={uploadInputRef}
-        type="file"
-        className="hidden"
-        accept=".gpkg,.shp,.geojson,.json,.kml,.kmz,.zip,.csv,.txt"
-        onChange={handlePipeNetworkUpload}
-      />
 
       {/* Delete Confirmation */}
       <ConfirmDialog

@@ -52,6 +52,18 @@ export interface OperationsMapBoundaryOverlay {
   color?: string
 }
 
+export interface OperationsMapInfrastructureLayer {
+  assetType: string
+  label: string
+  previewUrls: string[]
+  color: string
+}
+
+export interface OperationsMapViewState {
+  zoom: number
+  center: [number, number]
+}
+
 export function OperationsMap(props: {
   reports: OperationsMapReport[]
   aggregateMarkers?: OperationsMapAggregateMarker[]
@@ -61,12 +73,14 @@ export function OperationsMap(props: {
   boundaryGeojsons?: GeoJsonObject[]
   networkPreviewUrl?: string | null
   networkPreviewUrls?: string[]
+  infrastructureLayers?: OperationsMapInfrastructureLayer[]
   networkFileName?: string | null
   title?: string
   description?: string
   basemap?: "street" | "satellite"
   onBasemapChange?: (basemap: "street" | "satellite") => void
   onZoomChange?: (zoom: number) => void
+  onViewChange?: (view: OperationsMapViewState) => void
   onReportSelect?: (reportId: string) => void
   chromeMode?: "standard" | "command-center"
   boundsFitKey?: string

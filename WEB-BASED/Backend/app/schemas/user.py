@@ -108,15 +108,24 @@ class UtilityUpdate(BaseModel):
     status: Optional[EntityStatus] = None
 
 
+class UtilityInfrastructureAssetResponse(BaseModel):
+    """Stored infrastructure asset metadata for a utility."""
+
+    asset_type: str
+    label: str
+    file_name: str
+    file_size: int
+    mime_type: str
+    feature_count: int = 0
+    download_url: str
+    preview_url: str
+    uploaded_at: datetime
+
+
 class UtilityResponse(UtilityBase):
     """Schema for utility response"""
     id: str
-    pipe_network_file_name: Optional[str] = None
-    pipe_network_file_size: Optional[int] = None
-    pipe_network_mime_type: Optional[str] = None
-    pipe_network_download_url: Optional[str] = None
-    pipe_network_preview_url: Optional[str] = None
-    pipe_network_uploaded_at: Optional[datetime] = None
+    infrastructure_layers: List[UtilityInfrastructureAssetResponse] = []
     created_at: datetime
     updated_at: datetime
 
@@ -125,7 +134,7 @@ class UtilityResponse(UtilityBase):
 
 
 class PipeNetworkIngestSummary(BaseModel):
-    """Upload-time ingestion and cleaning summary for utility pipe network files."""
+    """Upload-time ingestion and cleaning summary for utility infrastructure files."""
 
     total_features_read: int = 0
     previewable_features: int = 0
@@ -141,10 +150,11 @@ class PipeNetworkIngestSummary(BaseModel):
     has_warnings: bool = False
 
 
-class PipeNetworkUploadResponse(BaseModel):
-    """Response payload for pipe-network upload endpoint."""
+class UtilityInfrastructureUploadResponse(BaseModel):
+    """Response payload for infrastructure asset uploads."""
 
     utility: UtilityResponse
+    asset: UtilityInfrastructureAssetResponse
     ingest_summary: PipeNetworkIngestSummary
 
 

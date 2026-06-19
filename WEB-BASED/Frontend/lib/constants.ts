@@ -14,6 +14,7 @@ import {
   BarChart3,
   ScrollText,
   Route,
+  Network,
 } from "lucide-react"
 import type { UserRole, ReportStatus, ReportPriority, EntityStatus, LeakageType } from "./types"
 
@@ -39,6 +40,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/dashboard/utilities",
     icon: Globe,
     roles: ["admin"],
+  },
+  {
+    title: "Infrastructure Upload",
+    href: "/dashboard/utility-infrastructure",
+    icon: Network,
+    roles: ["admin", "utility_manager"],
   },
   {
     title: "Utility Managers",

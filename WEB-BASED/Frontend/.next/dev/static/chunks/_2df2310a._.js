@@ -22,7 +22,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 // ============================================================
 // Environment variables loaded from .env.local
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
-const rawBackendUrl = ("TURBOPACK compile-time value", "https://majiscope.onrender.com") || "";
+const rawBackendUrl = ("TURBOPACK compile-time value", "http://localhost:8000") || "";
 const usingFallbackBackendUrl = !rawBackendUrl;
 const BACKEND_URL = (rawBackendUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 const BACKEND_API_PREFIX = '/api';
@@ -471,6 +471,8 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 "use strict";
 
 __turbopack_context__.s([
+    "getUtilityInfrastructureAsset",
+    ()=>getUtilityInfrastructureAsset,
     "useDataStore",
     ()=>useDataStore
 ]);
@@ -487,6 +489,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$
 ;
 ;
 ;
+function getUtilityInfrastructureAsset(utility, assetType) {
+    return utility?.infrastructureLayers?.find((layer)=>layer.assetType === assetType) || null;
+}
 function serializeUtilityPayload(data) {
     return {
         ...data.name !== undefined ? {
@@ -2430,6 +2435,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chart$2d$column$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__BarChart3$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/chart-column.js [app-client] (ecmascript) <export default as BarChart3>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$scroll$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ScrollText$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/scroll-text.js [app-client] (ecmascript) <export default as ScrollText>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$route$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Route$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/route.js [app-client] (ecmascript) <export default as Route>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$network$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Network$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/network.js [app-client] (ecmascript) <export default as Network>");
 ;
 const NAV_ITEMS = [
     {
@@ -2448,6 +2454,15 @@ const NAV_ITEMS = [
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$globe$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Globe$3e$__["Globe"],
         roles: [
             "admin"
+        ]
+    },
+    {
+        title: "Infrastructure Upload",
+        href: "/dashboard/utility-infrastructure",
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$network$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Network$3e$__["Network"],
+        roles: [
+            "admin",
+            "utility_manager"
         ]
     },
     {

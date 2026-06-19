@@ -22,7 +22,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 // ============================================================
 // Environment variables loaded from .env.local
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
-const rawBackendUrl = ("TURBOPACK compile-time value", "https://majiscope.onrender.com") || "";
+const rawBackendUrl = ("TURBOPACK compile-time value", "http://localhost:8000") || "";
 const usingFallbackBackendUrl = !rawBackendUrl;
 const BACKEND_URL = (rawBackendUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 const BACKEND_API_PREFIX = '/api';

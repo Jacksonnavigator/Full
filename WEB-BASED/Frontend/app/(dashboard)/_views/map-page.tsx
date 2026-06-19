@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
-import { useDataStore } from "@/store/data-store"
+import { getUtilityInfrastructureAsset, useDataStore } from "@/store/data-store"
 import { OperationsMap } from "@/components/maps/operations-map"
 import {
   Select,
@@ -607,12 +607,13 @@ export default function MapPage() {
   )
 
   const activeNetworkPreviewUrl = useMemo(() => {
-    if (!activeUtility?.pipeNetworkPreviewUrl) return null
-    if (isDMA || !activeDMA?.id || !activeDMA.boundaryGeojson) return activeUtility.pipeNetworkPreviewUrl
+    const pipeNetwork = getUtilityInfrastructureAsset(activeUtility, "pipe_network")
+    if (!pipeNetwork?.previewUrl) return null
+    if (isDMA || !activeDMA?.id || !activeDMA.boundaryGeojson) return pipeNetwork.previewUrl
 
-    const separator = activeUtility.pipeNetworkPreviewUrl.includes("?") ? "&" : "?"
-    return `${activeUtility.pipeNetworkPreviewUrl}${separator}dma_id=${encodeURIComponent(activeDMA.id)}`
-  }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility?.pipeNetworkPreviewUrl, isDMA])
+    const separator = pipeNetwork.previewUrl.includes("?") ? "&" : "?"
+    return `${pipeNetwork.previewUrl}${separator}dma_id=${encodeURIComponent(activeDMA.id)}`
+  }, [activeDMA?.boundaryGeojson, activeDMA?.id, activeUtility, isDMA])
 
   const mapCenter = useMemo<[number, number] | null>(() => {
     if (
@@ -1082,7 +1083,7 @@ export default function MapPage() {
           center={mapCenter}
           boundaryGeojson={activeDMA?.boundaryGeojson ?? null}
           networkPreviewUrl={activeNetworkPreviewUrl}
-          networkFileName={activeUtility?.pipeNetworkFileName}
+          networkFileName={getUtilityInfrastructureAsset(activeUtility, "pipe_network")?.fileName}
           title={scopeLabel}
           description="Live leakage coverage for the selected operational area."
           basemap={basemap}
