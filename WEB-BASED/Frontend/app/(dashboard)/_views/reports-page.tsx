@@ -33,6 +33,9 @@ import {
   Sparkles,
   Calendar,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ChevronLeft,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { LEAKAGE_TYPE_CONFIG } from "@/lib/constants"
@@ -60,6 +63,8 @@ const PRIORITY_FILTERS: { value: "all" | ReportPriority; label: string }[] = [
   { value: "high", label: "High" },
   { value: "critical", label: "Critical" },
 ]
+
+const PAGE_SIZE_OPTIONS = [25, 50, 100, 150, 200, 250, 300] as const
 
 function LeakageTypeBadge({ type }: { type?: LeakageType }) {
   const config = LEAKAGE_TYPE_CONFIG[type || "unknown"] || LEAKAGE_TYPE_CONFIG.unknown
@@ -157,6 +162,7 @@ export default function ReportsPage() {
   const { currentUser } = useAuthStore()
   const { 
     reports, 
+    reportsListTotal,
     fetchReports, 
     fetchTeams, 
     fetchEngineers,
@@ -165,28 +171,50 @@ export default function ReportsPage() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | ReportStatus>("all")
   const [priorityFilter, setPriorityFilter] = useState<"all" | ReportPriority>("all")
+  const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(25)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [debouncedSearch, setDebouncedSearch] = useState("")
   const [loading, setLoading] = useState(true)
 
   const isAdmin = currentUser?.role === "admin"
   const isUtility = currentUser?.role === "utility_manager"
   const isDMA = currentUser?.role === "dma_manager"
 
-  // Fetch data on mount
   useEffect(() => {
-    async function loadData() {
-      setLoading(true)
+    const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 300)
+    return () => window.clearTimeout(timeout)
+  }, [search])
+
+  useEffect(() => {
+    async function loadRelatedData() {
       const dmaId = isDMA ? currentUser?.dmaId ?? "" : undefined
-      const utilityId = isUtility ? currentUser?.utilityId ?? "" : undefined
-      
       await Promise.all([
-        fetchReports(isDMA ? { dmaId } : isUtility ? { utilityId } : undefined),
         fetchTeams(dmaId),
         fetchEngineers(dmaId),
       ])
+    }
+    void loadRelatedData()
+  }, [fetchTeams, fetchEngineers, currentUser, isDMA])
+
+  useEffect(() => {
+    async function loadReportsPage() {
+      setLoading(true)
+      const dmaId = isDMA ? currentUser?.dmaId ?? "" : undefined
+      const utilityId = isUtility ? currentUser?.utilityId ?? "" : undefined
+      const filters = {
+        ...(isDMA ? { dmaId } : isUtility ? { utilityId } : {}),
+        ...(statusFilter !== "all" ? { status: statusFilter } : {}),
+        ...(priorityFilter !== "all" ? { priority: priorityFilter } : {}),
+        ...(debouncedSearch ? { search: debouncedSearch } : {}),
+        limit: pageSize,
+        skip: (currentPage - 1) * pageSize,
+      }
+
+      await fetchReports(filters)
       setLoading(false)
     }
-    loadData()
-  }, [fetchReports, fetchTeams, fetchEngineers, currentUser, isDMA, isUtility])
+    void loadReportsPage()
+  }, [currentPage, currentUser, debouncedSearch, fetchReports, isDMA, isUtility, pageSize, priorityFilter, statusFilter])
 
   // Scope reports based on role
   const scopedReports = useMemo(() => {
@@ -204,7 +232,7 @@ export default function ReportsPage() {
   const filteredReports = useMemo(
     () => {
       const filtered = scopedReports.filter((r) => {
-        const query = search.toLowerCase()
+        const query = debouncedSearch.toLowerCase()
         const matchesSearch =
           !query ||
           r.trackingId.toLowerCase().includes(query) ||
@@ -231,15 +259,32 @@ export default function ReportsPage() {
         return dateB - dateA
       })
     },
-    [scopedReports, search, statusFilter, priorityFilter]
+    [debouncedSearch, scopedReports, statusFilter, priorityFilter]
   )
+
+  const totalFilteredReports = reportsListTotal ?? filteredReports.length
+  const totalPages = Math.max(1, Math.ceil(totalFilteredReports / pageSize))
+  const pageStartIndex = totalFilteredReports ? (currentPage - 1) * pageSize : 0
+  const pageEndIndex = Math.min(pageStartIndex + filteredReports.length, totalFilteredReports)
+  const paginatedReports = useMemo(
+    () => filteredReports,
+    [filteredReports]
+  )
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [pageSize, priorityFilter, search, statusFilter])
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages)
+  }, [currentPage, totalPages])
 
   function openDetail(report: { id: string }) {
     router.push(`/dashboard/reports/${report.id}`)
   }
 
   // Stats
-  const totalReports = scopedReports.length
+  const totalReports = reportsListTotal ?? scopedReports.length
   const newReports = scopedReports.filter(r => r.status === "new").length
   const inProgressReports = scopedReports.filter(r => ["assigned", "in_progress"].includes(r.status)).length
   const pendingApproval = scopedReports.filter(r => r.status === "pending_approval").length
@@ -385,7 +430,7 @@ export default function ReportsPage() {
         
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <FileText className="h-4 w-4" />
-          <span>{filteredReports.length} reported leakage item{filteredReports.length !== 1 ? 's' : ''}</span>
+          <span>{totalFilteredReports} reported leakage item{totalFilteredReports !== 1 ? 's' : ''}</span>
         </div>
       </div>
 
@@ -400,8 +445,30 @@ export default function ReportsPage() {
                   Newest reported leakage items appear first. Select any report row to open the full report page.
                 </p>
               </div>
-              <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
-                {filteredReports.length} visible
+              <div className="flex flex-col gap-2 sm:items-end">
+                <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
+                  {totalFilteredReports
+                    ? `${pageStartIndex + 1}-${pageEndIndex} of ${totalFilteredReports}`
+                    : "0 visible"}
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <span>Rows</span>
+                  <Select
+                    value={String(pageSize)}
+                    onValueChange={(value) => setPageSize(Number(value) as typeof pageSize)}
+                  >
+                    <SelectTrigger className="h-8 w-24 rounded-lg border-slate-200 bg-white text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="z-[5000]">
+                      {PAGE_SIZE_OPTIONS.map((size) => (
+                        <SelectItem key={size} value={String(size)}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </div>
@@ -436,7 +503,7 @@ export default function ReportsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredReports.length === 0 ? (
+                {paginatedReports.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="py-16 text-center">
                       <div className="flex flex-col items-center gap-4">
@@ -455,7 +522,7 @@ export default function ReportsPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredReports.map((report) => {
+                  paginatedReports.map((report) => {
                     const isPending = report.status === "pending_approval"
                     const isNew = report.status === "new"
                     
@@ -569,6 +636,54 @@ export default function ReportsPage() {
                 )}
               </TableBody>
             </Table>
+          </div>
+          <div className="flex flex-col gap-3 border-t border-slate-200/60 bg-slate-50/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-slate-500">
+              {totalFilteredReports
+                ? `Showing ${pageStartIndex + 1}-${pageEndIndex} of ${totalFilteredReports} reports`
+                : "No reports to display"}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                aria-label="First page"
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <div className="min-w-28 rounded-lg border border-slate-200 bg-white px-3 py-2 text-center text-sm font-semibold text-slate-700">
+                Page {currentPage} / {totalPages}
+              </div>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                disabled={currentPage === totalPages}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-45"
+                aria-label="Last page"
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </CardContent>
       </Card>

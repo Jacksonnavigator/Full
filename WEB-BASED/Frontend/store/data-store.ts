@@ -273,7 +273,7 @@ interface DataState {
   fetchDMAs: (utilityId?: string) => Promise<void>
   fetchEngineers: (dmaId?: string) => Promise<void>
   fetchTeams: (dmaId?: string) => Promise<void>
-  fetchReports: (filters?: { utilityId?: string; dmaId?: string; status?: string }) => Promise<void>
+  fetchReports: (filters?: { utilityId?: string; dmaId?: string; status?: string; priority?: string; search?: string; limit?: number; skip?: number }) => Promise<void>
   fetchReportsForMap: (filters?: { utilityId?: string; dmaId?: string }) => Promise<void>
   fetchLogs: (utilityId?: string, dmaId?: string) => Promise<void>
   fetchNotifications: (userId: string) => Promise<void>
@@ -421,13 +421,16 @@ export const useDataStore = create<DataState>((set, get) => ({
   },
 
   // Fetch reports
-  fetchReports: async (filters?: { utilityId?: string; dmaId?: string; status?: string }) => {
+  fetchReports: async (filters?: { utilityId?: string; dmaId?: string; status?: string; priority?: string; search?: string; limit?: number; skip?: number }) => {
     try {
       const params = new URLSearchParams()
       if (filters?.utilityId) params.set("utility_id", filters.utilityId)
       if (filters?.dmaId) params.set("dma_id", filters.dmaId)
       if (filters?.status) params.set("status", filters.status)
-      params.set("limit", "500")
+      if (filters?.priority) params.set("priority", filters.priority)
+      if (filters?.search) params.set("search", filters.search)
+      params.set("limit", String(filters?.limit ?? 500))
+      params.set("skip", String(filters?.skip ?? 0))
 
       const endpoint = `/reports${params.toString() ? `?${params}` : ""}`
       const response = await apiClient.get<{ total?: number; items?: unknown[] }>(endpoint)

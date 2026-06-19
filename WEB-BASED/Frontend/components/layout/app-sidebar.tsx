@@ -32,8 +32,8 @@ import { BrandWordmark } from "@/components/shared/brand-wordmark"
 export function AppSidebar() {
   const pathname = usePathname()
   const { currentUser, logout } = useAuthStore()
-  const { state } = useSidebar()
-  const isCollapsed = state === "collapsed"
+  const { state, isMobile, setOpenMobile } = useSidebar()
+  const isCollapsed = !isMobile && state === "collapsed"
 
   if (!currentUser) return null
 
@@ -145,7 +145,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
-                      tooltip={item.title}
+                      tooltip={isMobile ? undefined : item.title}
                       className={cn(
                         "relative transition-all duration-300 ease-out",
                         isCollapsed ? "h-11 w-11 justify-center rounded-xl mx-auto" : "h-12 w-full rounded-xl justify-start px-4",
@@ -158,6 +158,9 @@ export function AppSidebar() {
                     >
                       <Link 
                         href={item.href} 
+                        onClick={() => {
+                          if (isMobile) setOpenMobile(false)
+                        }}
                         className={cn(
                           "flex items-center h-full w-full",
                           isCollapsed ? "justify-center" : "gap-4"

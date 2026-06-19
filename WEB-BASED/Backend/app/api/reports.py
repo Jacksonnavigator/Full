@@ -639,6 +639,8 @@ async def list_reports(
     dma_id: str = Query(None),
     utility_id: str = Query(None),
     status_filter: str = Query(None, alias="status"),
+    priority_filter: str = Query(None, alias="priority"),
+    search: str = Query(None),
     user_id: str = Query(None, alias="user_id"),  # Add user_id filter for engineers
     skip: int = Query(0, ge=0),
     limit: int = Query(250, ge=1, le=500),
@@ -686,6 +688,25 @@ async def list_reports(
     
     if status_filter:
         query = query.filter(Report.status == status_filter)
+
+    if priority_filter:
+        query = query.filter(Report.priority == priority_filter)
+
+    cleaned_search = (search or "").strip()
+    if cleaned_search:
+        pattern = f"%{cleaned_search}%"
+        query = query.outerjoin(Utility, Utility.id == Report.utility_id).outerjoin(DMA, DMA.id == Report.dma_id)
+        query = query.filter(
+            or_(
+                Report.tracking_id.ilike(pattern),
+                Report.description.ilike(pattern),
+                Report.address.ilike(pattern),
+                Report.region_name.ilike(pattern),
+                Report.district_name.ilike(pattern),
+                Utility.name.ilike(pattern),
+                DMA.name.ilike(pattern),
+            )
+        )
 
     if has_coordinates:
         query = query.filter(
