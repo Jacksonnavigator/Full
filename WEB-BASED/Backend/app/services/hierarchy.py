@@ -10,14 +10,18 @@ from __future__ import annotations
 import json
 import math
 import re
+import sqlite3
+import tempfile
+from pathlib import Path
 from typing import Optional, Tuple
 
 from sqlalchemy.orm import Session
-from shapely.geometry import Point, shape
+from shapely import wkb
+from shapely.geometry import MultiPoint, Point, shape
 from shapely.geometry.base import BaseGeometry
 from shapely.errors import GEOSException
 
-from app.models import DMA, Utility, EntityStatusEnum
+from app.models import DMA, Utility, UtilityInfrastructureLayer, EntityStatusEnum
 
 TANZANIA_LATITUDE_RANGE = (-12.5, -0.5)
 TANZANIA_LONGITUDE_RANGE = (29.0, 40.8)
@@ -165,6 +169,111 @@ def _load_boundary_shape(raw_boundary: Optional[str]) -> Optional[BaseGeometry]:
     return boundary_shape
 
 
+def _iter_geometry_lonlat_points(geometry: BaseGeometry) -> list[tuple[float, float]]:
+    if geometry.is_empty:
+        return []
+
+    if geometry.geom_type == "Point":
+        return [(float(geometry.x), float(geometry.y))]
+
+    if geometry.geom_type in {"LineString", "LinearRing"}:
+        return [(float(x), float(y)) for x, y, *_rest in geometry.coords]
+
+    if geometry.geom_type == "Polygon":
+        return [(float(x), float(y)) for x, y, *_rest in geometry.exterior.coords]
+
+    if hasattr(geometry, "geoms"):
+        points: list[tuple[float, float]] = []
+        for part in geometry.geoms:
+            points.extend(_iter_geometry_lonlat_points(part))
+        return points
+
+    return []
+
+
+def _load_gpkg_geometry_points(file_data: bytes) -> list[tuple[float, float]]:
+    points: list[tuple[float, float]] = []
+    temp_path: Optional[str] = None
+
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".gpkg", delete=False) as temp_file:
+            temp_file.write(file_data)
+            temp_path = temp_file.name
+
+        connection = sqlite3.connect(temp_path)
+        try:
+            cursor = connection.cursor()
+            geometry_rows = cursor.execute(
+                "SELECT table_name, column_name FROM gpkg_geometry_columns"
+            ).fetchall()
+
+            for table_name, geometry_column in geometry_rows:
+                quoted_table = '"' + str(table_name).replace('"', '""') + '"'
+                quoted_column = '"' + str(geometry_column).replace('"', '""') + '"'
+                for (geometry_blob,) in cursor.execute(f"SELECT {quoted_column} FROM {quoted_table}"):
+                    if not geometry_blob:
+                        continue
+                    geometry_bytes = bytes(geometry_blob)
+                    if len(geometry_bytes) <= 8:
+                        continue
+                    try:
+                        geometry = wkb.loads(geometry_bytes[8:])
+                    except Exception:
+                        continue
+                    points.extend(_iter_geometry_lonlat_points(geometry))
+        finally:
+            connection.close()
+    except Exception:
+        return []
+    finally:
+        if temp_path:
+            try:
+                Path(temp_path).unlink(missing_ok=True)
+            except OSError:
+                pass
+
+    return points
+
+
+def derive_utility_boundary_from_pipe_network(utility: Optional[Utility], db: Session) -> Optional[BaseGeometry]:
+    if not utility:
+        return None
+
+    layer = (
+        db.query(UtilityInfrastructureLayer)
+        .filter(
+            UtilityInfrastructureLayer.utility_id == utility.id,
+            UtilityInfrastructureLayer.asset_type == "pipe_network",
+        )
+        .first()
+    )
+    if not layer or not layer.file_data or Path(layer.file_name).suffix.lower() != ".gpkg":
+        return None
+
+    points = _load_gpkg_geometry_points(layer.file_data)
+    unique_points = list(dict.fromkeys(points))
+    if len(unique_points) < 2:
+        return None
+
+    try:
+        hull = MultiPoint(unique_points).convex_hull
+        # Buffer is in WGS84 degrees. It creates an approximate service envelope
+        # around the pipe network; uploaded official boundaries still take priority.
+        boundary_shape = hull.buffer(0.01).simplify(0.001, preserve_topology=True)
+    except Exception:
+        return None
+
+    if boundary_shape.is_empty or not boundary_shape.is_valid:
+        return None
+    return boundary_shape
+
+
+def get_utility_boundary_shape(utility: Optional[Utility], db: Session) -> Optional[BaseGeometry]:
+    if not utility:
+        return None
+    return _load_boundary_shape(getattr(utility, "boundary_geojson", None)) or derive_utility_boundary_from_pipe_network(utility, db)
+
+
 def _boundary_match_score(boundary_shape: BaseGeometry) -> float:
     """
     Prefer the smallest containing polygon when boundaries overlap.
@@ -181,7 +290,7 @@ def find_utility_by_boundary(latitude: float, longitude: float, db: Session) -> 
 
     utilities = db.query(Utility).filter(Utility.status == EntityStatusEnum.ACTIVE).all()
     for utility in utilities:
-        boundary_shape = _load_boundary_shape(getattr(utility, "boundary_geojson", None))
+        boundary_shape = get_utility_boundary_shape(utility, db)
         if not boundary_shape:
             continue
         if boundary_shape.covers(report_point):
@@ -198,7 +307,7 @@ def has_complete_active_utility_boundaries(db: Session) -> bool:
     utilities = db.query(Utility).filter(Utility.status == EntityStatusEnum.ACTIVE).all()
     if not utilities:
         return False
-    return all(_load_boundary_shape(getattr(utility, "boundary_geojson", None)) for utility in utilities)
+    return all(get_utility_boundary_shape(utility, db) for utility in utilities)
 
 
 def find_dma_within_utility_by_boundary(
@@ -304,25 +413,40 @@ def find_nearest_utility(latitude: float, longitude: float, db: Session) -> Tupl
 
 
 def find_utility_by_region_name(region_name: Optional[str], db: Session) -> Optional[Utility]:
+    """
+    Resolve a utility from a region hint only when the match is unambiguous.
+
+    A single Tanzania region can legitimately contain multiple utilities, so a
+    region-name fallback must not force reports into the first matching utility.
+    Boundary matching and nearest-center matching remain the stronger signals.
+    """
     normalized_region = normalize_geo_label(canonicalize_tanzania_region_name(region_name) or region_name)
     if not normalized_region:
         return None
 
     utilities = db.query(Utility).filter(Utility.status == EntityStatusEnum.ACTIVE).all()
+    exact_matches: list[Utility] = []
     scored_matches: list[tuple[int, Utility]] = []
     for utility in utilities:
         normalized_utility_region = normalize_geo_label(getattr(utility, "region_name", None))
         if not normalized_utility_region:
             continue
         if normalized_region == normalized_utility_region:
-            return utility
-        if normalized_region in normalized_utility_region or normalized_utility_region in normalized_region:
+            exact_matches.append(utility)
+        elif normalized_region in normalized_utility_region or normalized_utility_region in normalized_region:
             score = abs(len(normalized_region) - len(normalized_utility_region))
             scored_matches.append((score, utility))
 
+    if len(exact_matches) == 1:
+        return exact_matches[0]
+    if len(exact_matches) > 1:
+        return None
+
     if scored_matches:
         scored_matches.sort(key=lambda item: item[0])
-        return scored_matches[0][1]
+        best_score = scored_matches[0][0]
+        best_matches = [utility for score, utility in scored_matches if score == best_score]
+        return best_matches[0] if len(best_matches) == 1 else None
     return None
 
 

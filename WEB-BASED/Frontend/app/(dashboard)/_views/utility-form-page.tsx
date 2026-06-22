@@ -226,6 +226,11 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
     const hasLatitude = formCenterLatitude.trim() !== ""
     const hasLongitude = formCenterLongitude.trim() !== ""
 
+    if (!hasLatitude || !hasLongitude) {
+      toast.error("Utility center point is required. Set the primary operational city or service center on the map.")
+      return
+    }
+
     if (hasLatitude !== hasLongitude) {
       toast.error("Please provide both latitude and longitude for the utility center")
       return
@@ -381,7 +386,9 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
       )
 
       const pointCount = payload.source?.pointCount ?? payload.boundaryPoints.length
-      toast.success(`Utility boundary extracted from ${file.name} with ${pointCount.toLocaleString()} points.`)
+      toast.success(
+        `Utility boundary extracted from ${file.name} with ${pointCount.toLocaleString()} points. Check the suggested center point and edit it if the utility's primary operational city should be different.`
+      )
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to extract utility boundary geometry")
     } finally {
@@ -593,7 +600,7 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="utility-center-latitude" className="text-sm font-medium text-slate-700">Center Latitude</Label>
+                <Label htmlFor="utility-center-latitude" className="text-sm font-medium text-slate-700">Center Latitude <span className="text-rose-500">*</span></Label>
                 <Input
                   id="utility-center-latitude"
                   type="number"
@@ -605,7 +612,7 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="utility-center-longitude" className="text-sm font-medium text-slate-700">Center Longitude</Label>
+                <Label htmlFor="utility-center-longitude" className="text-sm font-medium text-slate-700">Center Longitude <span className="text-rose-500">*</span></Label>
                 <Input
                   id="utility-center-longitude"
                   type="number"
@@ -617,13 +624,16 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
                 />
               </div>
             </div>
+            <p className="-mt-2 text-xs text-slate-500">
+              The center point represents the utility's primary operational city and is shown as the utility dot on the admin dashboard map. After file extraction, check the suggested point and edit it if needed.
+            </p>
 
             <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <Label className="text-sm font-medium text-slate-700">Utility Boundary Geometry</Label>
                   <p className="text-xs text-slate-500">
-                    If you already have a boundary file, upload it here and the system will extract the boundary points and center automatically.
+                    If you already have a boundary file, upload it here and the system will extract boundary points and suggest a center automatically.
                   </p>
                   <p className="text-xs text-slate-500">
                     If you do not have a file, use the map controls on the top right to set the utility center and capture boundary points manually.

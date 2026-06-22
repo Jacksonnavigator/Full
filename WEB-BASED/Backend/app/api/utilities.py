@@ -35,6 +35,7 @@ from app.services.hierarchy import (
     find_nearest_utility,
     find_utility_by_region_name,
     resolve_region_name_hint,
+    get_utility_boundary_shape,
 )
 
 utilities_router = APIRouter(prefix="/api/utilities", tags=["utilities"])
@@ -136,12 +137,18 @@ def _build_infrastructure_asset_response(layer: UtilityInfrastructureLayer) -> U
     )
 
 
-def _build_utility_response(utility: Utility) -> UtilityResponse:
+def _build_utility_response(utility: Utility, db: Optional[Session] = None) -> UtilityResponse:
     infrastructure_layers = sorted(
         list(utility.infrastructure_layers or []),
         key=lambda layer: list(UTILITY_INFRASTRUCTURE_ASSETS).index(layer.asset_type)
         if layer.asset_type in UTILITY_INFRASTRUCTURE_ASSETS else 999,
     )
+    boundary_geojson = _deserialize_boundary_geojson(utility.boundary_geojson)
+    if boundary_geojson is None and db is not None:
+        derived_boundary_shape = get_utility_boundary_shape(utility, db)
+        if derived_boundary_shape is not None:
+            boundary_geojson = mapping(derived_boundary_shape)
+
     return UtilityResponse(
         id=utility.id,
         name=utility.name,
@@ -152,7 +159,7 @@ def _build_utility_response(utility: Utility) -> UtilityResponse:
         contact_address=utility.contact_address,
         center_latitude=utility.center_latitude,
         center_longitude=utility.center_longitude,
-        boundary_geojson=_deserialize_boundary_geojson(utility.boundary_geojson),
+        boundary_geojson=boundary_geojson,
         status=utility.status,
         infrastructure_layers=[_build_infrastructure_asset_response(layer) for layer in infrastructure_layers],
         created_at=utility.created_at,
@@ -1256,7 +1263,7 @@ async def list_utilities(
     
     return UtilityListResponse(
         total=total,
-        items=[_build_utility_response(u) for u in utilities],
+        items=[_build_utility_response(u, db) for u in utilities],
     )
 
 
@@ -1279,7 +1286,7 @@ async def get_utility(
         )
 
     _ensure_utility_access(utility, current_user, db)
-    return _build_utility_response(utility)
+    return _build_utility_response(utility, db)
 
 
 @utilities_router.post("", response_model=UtilityResponse, status_code=status.HTTP_201_CREATED)
@@ -1292,6 +1299,12 @@ async def create_utility(
     Create a new utility
     Requires admin role
     """
+    if utility_data.center_latitude is None or utility_data.center_longitude is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Utility center latitude and longitude are required.",
+        )
+
     new_utility = Utility(
         name=utility_data.name,
         region_name=utility_data.region_name,
@@ -1309,7 +1322,7 @@ async def create_utility(
     db.commit()
     db.refresh(new_utility)
     
-    return _build_utility_response(new_utility)
+    return _build_utility_response(new_utility, db)
 
 
 @utilities_router.put("/{utility_id}", response_model=UtilityResponse)
@@ -1338,11 +1351,17 @@ async def update_utility(
         utility.boundary_geojson = _serialize_boundary_geojson(raw_boundary_geojson)
     for field, value in update_data.items():
         setattr(utility, field, value)
+
+    if utility.center_latitude is None or utility.center_longitude is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Utility center latitude and longitude are required.",
+        )
     
     db.commit()
     db.refresh(utility)
     
-    return _build_utility_response(utility)
+    return _build_utility_response(utility, db)
 
 
 @utilities_router.patch("/{utility_id}", response_model=UtilityResponse)
@@ -1371,11 +1390,17 @@ async def patch_utility(
         utility.boundary_geojson = _serialize_boundary_geojson(raw_boundary_geojson)
     for field, value in update_data.items():
         setattr(utility, field, value)
+
+    if utility.center_latitude is None or utility.center_longitude is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Utility center latitude and longitude are required.",
+        )
     
     db.commit()
     db.refresh(utility)
     
-    return _build_utility_response(utility)
+    return _build_utility_response(utility, db)
 
 
 @utilities_router.delete("/{utility_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -1477,7 +1502,7 @@ async def upload_infrastructure_layer(
     db.refresh(utility)
     db.refresh(layer)
     return UtilityInfrastructureUploadResponse(
-        utility=_build_utility_response(utility),
+        utility=_build_utility_response(utility, db),
         asset=_build_infrastructure_asset_response(layer),
         ingest_summary=ingest_summary,
     )
@@ -1569,4 +1594,4 @@ async def delete_infrastructure_layer(
     _infrastructure_geojson_cache.clear()
     db.commit()
     db.refresh(utility)
-    return _build_utility_response(utility)
+    return _build_utility_response(utility, db)

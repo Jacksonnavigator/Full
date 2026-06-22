@@ -518,6 +518,10 @@ export function OperationsMapImpl({
   const activeBoundaryLevel = boundaryLayers[0]?.level ?? fallbackBoundaryLevel
   const boundaryLayerLabel = activeBoundaryLevel === "utility" ? "utility boundaries" : "DMA boundaries"
   const hasBoundaryOverlays = boundaryLayers.length > 0
+  const visibleAggregateMarkers = useMemo(
+    () => (mapZoom < 5 ? [] : aggregateMarkers),
+    [aggregateMarkers, mapZoom]
+  )
   const handleZoomChange = useCallback(
     (zoom: number) => {
       setMapZoom(zoom)
@@ -932,9 +936,9 @@ export function OperationsMapImpl({
               : null
           )}
 
-          {aggregateMarkers.map((marker) => {
+          {visibleAggregateMarkers.map((marker) => {
               const efficiency = marker.reported > 0 ? Math.round((marker.resolved / marker.reported) * 1000) / 10 : 0
-              const radius = 7
+              const radius = marker.level === "utility" ? 5 : 6
 
               return (
                 <CircleMarker

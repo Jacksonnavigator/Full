@@ -101,7 +101,7 @@ export function UtilityLocationPickerImpl({
           <div>
             <p className="text-sm font-semibold text-slate-800">Utility Spatial Coordinates</p>
             <p className="mt-1 text-xs text-slate-500">
-              Use one mode to set the Utility center and the other to capture the Utility boundary polygon directly on the map.
+              Set the required utility center as the primary operational city; this point appears as the utility dot on the admin dashboard map.
             </p>
           </div>
 

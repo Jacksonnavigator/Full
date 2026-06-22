@@ -81,8 +81,8 @@ function KpiCard({
   } as const
 
   return (
-    <div className={cn("rounded-[18px] border px-3 py-2.5 shadow-sm shadow-slate-900/[0.03]", toneClasses[tone])}>
-      <div className="flex items-start justify-between gap-3">
+    <div className={cn("flex h-full min-h-[92px] items-center rounded-[18px] border px-3 py-2.5 shadow-sm shadow-slate-900/[0.03]", toneClasses[tone])}>
+      <div className="flex w-full items-start justify-between gap-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
           <p className="mt-1.5 text-[1.65rem] font-semibold leading-none tracking-tight">{value.toLocaleString()}</p>
@@ -185,7 +185,7 @@ function ComparisonBarChartView({
   leftMargin = -10,
 }: {
   rows: ComparisonBarRow[]
-  height: number
+  height: number | string
   leftMargin?: number
 }) {
   const maxValue = Math.max(...rows.flatMap((row) => [row.reported, row.resolved]), 1)
@@ -197,7 +197,7 @@ function ComparisonBarChartView({
   }))
 
   return (
-    <div style={{ height }}>
+    <div className="min-h-0" style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}
@@ -279,12 +279,12 @@ function ComparisonBarChartCard({
     return otherRow.reported || otherRow.resolved ? [...primaryRows, otherRow] : primaryRows
   }, [rows, dashboardRowLimit])
   const hasAggregatedRows = rows.length > dashboardRowLimit
-  const chartHeight = 184
+  const chartHeight = "100%"
   const fullChartHeight = Math.max(360, Math.min(960, rows.length * 42 + 120))
 
   return (
     <>
-      <div className="overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
+      <div className="flex h-full min-h-[220px] flex-col overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
         <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-3 py-2">
           <div className="min-w-0">
             <p className="text-xs font-semibold text-slate-900">{title}</p>
@@ -302,11 +302,11 @@ function ComparisonBarChartCard({
           ) : null}
         </div>
 
-        <div className="max-h-[230px] overflow-hidden px-2 py-2">
+        <div className="min-h-0 flex-1 overflow-hidden px-2 py-2">
           {visibleRows.length ? (
             <ComparisonBarChartView rows={visibleRows} height={chartHeight} />
           ) : (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-4 text-center text-xs text-slate-500">
+            <div className="flex h-full min-h-[120px] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-4 text-center text-xs text-slate-500">
               No reports available for this scope yet.
             </div>
           )}
@@ -338,16 +338,16 @@ function LeakageTypeDonutCard({ rows }: { rows: LeakageTypeDistributionRow[] }) 
   const total = rows.reduce((sum, row) => sum + row.count, 0)
 
   return (
-    <div className="overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
+    <div className="flex h-full min-h-[180px] flex-col overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
       <div className="border-b border-slate-200 px-3 py-2">
         <p className="text-xs font-semibold text-slate-900">Leakage by type</p>
         <p className="mt-0.5 text-[11px] text-slate-500">Reported leakage type</p>
       </div>
 
-      <div className="px-2 py-2">
+      <div className="flex min-h-0 flex-1 flex-col px-2 py-2">
         {total ? (
           <>
-            <div className="h-[132px]">
+            <div className="min-h-[112px] flex-1">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -372,7 +372,7 @@ function LeakageTypeDonutCard({ rows }: { rows: LeakageTypeDistributionRow[] }) 
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="grid gap-1 px-1 text-[11px]">
+            <div className="grid shrink-0 gap-1 px-1 text-[11px]">
               {rows.slice(0, 3).map((row) => (
                 <div key={row.type} className="flex items-center justify-between gap-2 text-slate-600">
                   <span className="flex min-w-0 items-center gap-2">
@@ -385,7 +385,7 @@ function LeakageTypeDonutCard({ rows }: { rows: LeakageTypeDistributionRow[] }) 
             </div>
           </>
         ) : (
-          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-6 text-center text-xs text-slate-500">
+          <div className="flex h-full min-h-[120px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-6 text-center text-xs text-slate-500">
             No leakage type data available yet.
           </div>
         )}
@@ -498,7 +498,7 @@ export function OperationsDashboard() {
 
   const mapFocusedUtilityId = useMemo(() => {
     if (!isAdmin || selectedUtilityId !== "all" || selectedDMAId !== "all") return null
-    if (dashboardLevel !== "dma" && dashboardLevel !== "detail") return null
+    if (dashboardLevel !== "utility" && dashboardLevel !== "dma" && dashboardLevel !== "detail") return null
     if (!mapViewCenter) return null
 
     return (
@@ -537,6 +537,12 @@ export function OperationsDashboard() {
       setSelectedDMAId("all")
     }
   }, [selectedDMAId, visibleDMAs])
+
+  useEffect(() => {
+    if (isAdmin && selectedUtilityId === "all" && selectedDMAId !== "all") {
+      setSelectedDMAId("all")
+    }
+  }, [isAdmin, selectedDMAId, selectedUtilityId])
 
   const scopedReports = useMemo(() => {
     if (!currentUser) return []
@@ -721,8 +727,12 @@ export function OperationsDashboard() {
       }
     }
 
-    if (dashboardLevel === "national" || dashboardLevel === "utility") {
-      const utilitiesForBoundary = activeUtility?.boundaryGeojson ? [activeUtility] : visibleUtilities
+    if (dashboardLevel === "national") {
+      return []
+    }
+
+    if (dashboardLevel === "utility") {
+      const utilitiesForBoundary = activeUtility?.boundaryGeojson ? [activeUtility] : []
       return utilitiesForBoundary
         .map(buildUtilityOverlay)
         .filter(isOperationsMapBoundaryOverlay)
@@ -784,9 +794,14 @@ export function OperationsDashboard() {
   }, [activeUtility, visibleUtilities])
 
   const utilityAggregateMarkers = useMemo<OperationsMapAggregateMarker[]>(() => {
-    return visibleUtilities
+    const utilitiesForMarkers =
+      selectedUtilityId !== "all" || isUtility || isDMA
+        ? visibleUtilities.filter((utility) => !effectiveUtilityId || utility.id === effectiveUtilityId)
+        : visibleUtilities
+
+    return utilitiesForMarkers
       .map((utility): OperationsMapAggregateMarker | null => {
-        const utilityReports = filteredReports.filter((report) => report.utilityId === utility.id)
+        const utilityReports = scopedReports.filter((report) => report.utilityId === utility.id)
         const utilityMapReports = utilityReports.filter(hasUsableCoordinates)
         const latitude =
           utility.centerLatitude ??
@@ -812,7 +827,7 @@ export function OperationsDashboard() {
         }
       })
       .filter(isOperationsMapAggregateMarker)
-  }, [filteredReports, visibleUtilities])
+  }, [effectiveUtilityId, isDMA, isUtility, scopedReports, selectedUtilityId, visibleUtilities])
 
   const dmaAggregateMarkers = useMemo<OperationsMapAggregateMarker[]>(() => {
     return visibleDMAs
@@ -946,15 +961,15 @@ export function OperationsDashboard() {
   return (
     <div className="h-[calc(100dvh-5.5rem)] min-h-[560px] overflow-hidden">
       <div className="grid h-full grid-cols-1 gap-3 xl:grid-cols-[168px_minmax(0,1fr)_280px]">
-        <aside className="grid h-full gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1">
+        <aside className="grid h-full min-h-0 gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1 xl:grid-rows-[repeat(4,minmax(0,1fr))_auto]">
           <KpiCard label="Total Leak Reports" value={kpis.total} icon={Droplets} tone="slate" />
           <KpiCard label="Leaks Repaired" value={kpis.repaired} icon={CheckCircle2} tone="green" />
           <KpiCard label="Urgent Leaks" value={kpis.urgent} icon={Siren} tone="amber" />
           <KpiCard label="Unattended Leaks" value={kpis.unattended} icon={AlertTriangle} tone="red" />
 
-          <div className="rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] sm:col-span-2 xl:col-span-1">
+          <div className="min-h-0 rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] sm:col-span-2 xl:col-span-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Map legend</p>
-            <div className="mt-2.5 space-y-1.5 text-xs text-slate-700">
+            <div className="mt-2.5 max-h-[150px] space-y-1.5 overflow-y-auto pr-1 text-xs text-slate-700">
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-rose-600" />
                 Open / rejected
@@ -1015,7 +1030,7 @@ export function OperationsDashboard() {
           />
         </section>
 
-        <aside className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3">
+        <aside className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_minmax(0,0.72fr)] gap-3">
           <section className="rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] backdrop-blur">
             <div className="grid gap-2">
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-300/70 bg-white/45 px-3 py-2 text-xs dark:border-slate-600/70 dark:bg-slate-950/45">
@@ -1040,7 +1055,11 @@ export function OperationsDashboard() {
                 </SelectContent>
               </Select>
 
-              <Select value={selectedDMAId} onValueChange={setSelectedDMAId} disabled={isDMA || !visibleDMAs.length}>
+              <Select
+                value={selectedDMAId}
+                onValueChange={setSelectedDMAId}
+                disabled={isDMA || (isAdmin && selectedUtilityId === "all") || !visibleDMAs.length}
+              >
                 <SelectTrigger className="h-9 rounded-2xl border-slate-300 bg-slate-100 px-3 text-sm">
                   <SelectValue placeholder="DMA / District" />
                 </SelectTrigger>
