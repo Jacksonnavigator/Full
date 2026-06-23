@@ -1,152 +1,108 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
 import type { LeafletMouseEvent } from "leaflet"
-import { CircleMarker, MapContainer, Polygon, Polyline, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { CircleMarker, MapContainer, Polygon, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet"
+import type { GeoJsonBoundary } from "@/lib/types"
 
 const DEFAULT_CENTER: [number, number] = [-6.7924, 39.2083]
 
-type SelectionMode = "center" | "boundary"
 type CoordinatePoint = { latitude: number; longitude: number }
+type LatLngRing = [number, number][]
 
-function ClickHandler({
-  mode,
-  boundaryPoints,
-  onCenterChange,
-  onBoundaryChange,
-}: {
-  mode: SelectionMode
-  boundaryPoints: CoordinatePoint[]
-  onCenterChange: (next: CoordinatePoint) => void
-  onBoundaryChange: (next: CoordinatePoint[]) => void
-}) {
+function ClickHandler({ onCenterChange }: { onCenterChange: (next: CoordinatePoint) => void }) {
   useMapEvents({
     click(event: LeafletMouseEvent) {
-      const nextPoint = {
+      onCenterChange({
         latitude: event.latlng.lat,
         longitude: event.latlng.lng,
-      }
-
-      if (mode === "center") {
-        onCenterChange(nextPoint)
-        return
-      }
-
-      onBoundaryChange([...boundaryPoints, nextPoint])
+      })
     },
   })
 
   return null
 }
 
+function polygonToLatLngs(polygon: number[][][]): LatLngRing[] {
+  return polygon
+    .map((ring) =>
+      ring
+        .filter((point) => Array.isArray(point) && point.length >= 2)
+        .map((point) => [Number(point[1]), Number(point[0])] as [number, number])
+        .filter(([latitude, longitude]) => Number.isFinite(latitude) && Number.isFinite(longitude))
+    )
+    .filter((ring) => ring.length >= 3)
+}
+
+function boundaryToPolygons(boundaryGeojson?: GeoJsonBoundary | null): LatLngRing[][] {
+  if (!boundaryGeojson) return []
+
+  if (boundaryGeojson.type === "Polygon") {
+    const polygon = polygonToLatLngs(boundaryGeojson.coordinates)
+    return polygon.length ? [polygon] : []
+  }
+
+  if (boundaryGeojson.type === "MultiPolygon") {
+    return boundaryGeojson.coordinates
+      .map(polygonToLatLngs)
+      .filter((polygon) => polygon.length > 0)
+  }
+
+  return []
+}
+
 function ViewportSync({
   center,
-  boundaryPoints,
+  boundaryPolygons,
 }: {
   center: [number, number]
-  boundaryPoints: CoordinatePoint[]
+  boundaryPolygons: LatLngRing[][]
 }) {
   const map = useMap()
 
   useEffect(() => {
-    if (boundaryPoints.length >= 2) {
-      map.fitBounds(boundaryPoints.map((point) => [point.latitude, point.longitude] as [number, number]), {
-        padding: [28, 28],
-      })
+    const points = boundaryPolygons.flat(2)
+    if (points.length >= 2) {
+      map.fitBounds(points, { padding: [28, 28] })
       return
     }
 
     map.setView(center)
-  }, [boundaryPoints, center, map])
+  }, [boundaryPolygons, center, map])
 
   return null
 }
 
 export function UtilityLocationPickerImpl({
   centerValue,
-  boundaryPoints,
+  boundaryGeojson,
   onCenterChange,
-  onBoundaryChange,
 }: {
   centerValue: { latitude: number | null; longitude: number | null }
-  boundaryPoints: CoordinatePoint[]
+  boundaryGeojson?: GeoJsonBoundary | null
   onCenterChange: (next: CoordinatePoint) => void
-  onBoundaryChange: (next: CoordinatePoint[]) => void
 }) {
-  const [mode, setMode] = useState<SelectionMode>("center")
+  const boundaryPolygons = useMemo(() => boundaryToPolygons(boundaryGeojson), [boundaryGeojson])
 
   const mapCenter = useMemo<[number, number]>(() => {
     if (centerValue.latitude !== null && centerValue.longitude !== null) {
       return [centerValue.latitude, centerValue.longitude]
     }
 
-    if (boundaryPoints.length) {
-      return [boundaryPoints[0].latitude, boundaryPoints[0].longitude]
-    }
+    const firstBoundaryPoint = boundaryPolygons[0]?.[0]?.[0]
+    if (firstBoundaryPoint) return firstBoundaryPoint
 
     return DEFAULT_CENTER
-  }, [boundaryPoints, centerValue.latitude, centerValue.longitude])
-
-  const boundaryLatLngs = useMemo(
-    () => boundaryPoints.map((point) => [point.latitude, point.longitude] as [number, number]),
-    [boundaryPoints]
-  )
+  }, [boundaryPolygons, centerValue.latitude, centerValue.longitude])
 
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <div className="border-b border-slate-100 bg-slate-50/80 px-4 py-3">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-slate-800">Utility Spatial Coordinates</p>
-            <p className="mt-1 text-xs text-slate-500">
-              Set the required utility center as the primary operational city; this point appears as the utility dot on the admin dashboard map.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant={mode === "center" ? "default" : "outline"}
-              className={cn(
-                "rounded-xl",
-                mode === "center" && "bg-emerald-600 text-white hover:bg-emerald-700"
-              )}
-              onClick={() => setMode("center")}
-            >
-              Utility Center
-            </Button>
-            <Button
-              type="button"
-              variant={mode === "boundary" ? "default" : "outline"}
-              className={cn(
-                "rounded-xl",
-                mode === "boundary" && "bg-cyan-600 text-white hover:bg-cyan-700"
-              )}
-              onClick={() => setMode("boundary")}
-            >
-              Utility Boundaries
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-xl"
-              disabled={!boundaryPoints.length}
-              onClick={() => onBoundaryChange(boundaryPoints.slice(0, -1))}
-            >
-              Undo last point
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-xl"
-              disabled={!boundaryPoints.length}
-              onClick={() => onBoundaryChange([])}
-            >
-              Clear boundary
-            </Button>
-          </div>
+        <div>
+          <p className="text-sm font-semibold text-slate-800">Utility Spatial Coordinates</p>
+          <p className="mt-1 text-xs text-slate-500">
+            Click the map to set the utility center. Uploaded service boundaries are shown for verification only.
+          </p>
         </div>
       </div>
 
@@ -160,52 +116,24 @@ export function UtilityLocationPickerImpl({
           updateWhenIdle={false}
           detectRetina
         />
-        <ViewportSync center={mapCenter} boundaryPoints={boundaryPoints} />
-        <ClickHandler
-          mode={mode}
-          boundaryPoints={boundaryPoints}
-          onCenterChange={onCenterChange}
-          onBoundaryChange={onBoundaryChange}
-        />
+        <ViewportSync center={mapCenter} boundaryPolygons={boundaryPolygons} />
+        <ClickHandler onCenterChange={onCenterChange} />
 
-        {boundaryLatLngs.length >= 3 ? (
+        {boundaryPolygons.map((polygon, index) => (
           <Polygon
-            positions={boundaryLatLngs}
+            key={`utility-boundary-${index}`}
+            positions={polygon}
             pathOptions={{
               color: "#0891b2",
               fillColor: "#22d3ee",
-              fillOpacity: 0.18,
+              fillOpacity: 0.16,
               weight: 3,
-              dashArray: "6 6",
-            }}
-          />
-        ) : boundaryLatLngs.length >= 2 ? (
-          <Polyline
-            positions={boundaryLatLngs}
-            pathOptions={{
-              color: "#0891b2",
-              weight: 3,
-              dashArray: "6 6",
-            }}
-          />
-        ) : null}
-
-        {boundaryPoints.map((point, index) => (
-          <CircleMarker
-            key={`${point.latitude}-${point.longitude}-${index}`}
-            center={[point.latitude, point.longitude]}
-            radius={7}
-            pathOptions={{
-              color: "#0f172a",
-              fillColor: "#22d3ee",
-              fillOpacity: 0.95,
-              weight: 2,
             }}
           >
             <Tooltip direction="top" offset={[0, -8]}>
-              Boundary point {index + 1}
+              Uploaded service boundary {boundaryPolygons.length > 1 ? index + 1 : ""}
             </Tooltip>
-          </CircleMarker>
+          </Polygon>
         ))}
 
         {centerValue.latitude !== null && centerValue.longitude !== null ? (
@@ -227,9 +155,7 @@ export function UtilityLocationPickerImpl({
       </MapContainer>
 
       <div className="border-t border-slate-100 bg-white px-4 py-3 text-xs text-slate-500">
-        {mode === "center"
-          ? "Center mode is active. Click once on the map to capture the Utility center coordinates."
-          : "Boundary mode is active. Click around the Utility area to build the polygon point by point. The outline will grow as you add points."}
+        The utility center is required and acts as the primary operational city marker on the dashboard map.
       </div>
     </div>
   )

@@ -1,36 +1,21 @@
-[00:00:00.917] Server  LOG     ✓ Ready in 643ms
-[00:00:04.318] Browser WARN    Media preview unavailable: NetworkError when attempting to fetch resource.
-[00:00:04.319] Browser ERROR   Error fetching utilities: NetworkError when attempting to fetch resource.
-[00:00:04.319] Browser ERROR   Error fetching utilities: NetworkError when attempting to fetch resource.
-[00:00:04.319] Browser WARN    Media preview unavailable: NetworkError when attempting to fetch resource.
-[00:00:04.319] Browser ERROR   Error fetching utilities: NetworkError when attempting to fetch resource.
-[00:00:06.171] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:09:51.903] Server  LOG     ✓ Compiled in 337ms
-[00:10:20.022] Server  LOG     ✓ Compiled in 340ms
-[00:11:40.578] Server  LOG     ✓ Compiled in 416ms
-[00:12:51.549] Server  LOG     ✓ Compiled in 281ms
-[00:13:58.402] Server  LOG     ✓ Compiled in 304ms
-[00:16:22.956] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:16:36.781] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:19:23.341] Server  LOG     ✓ Compiled in 385ms
-[00:19:54.025] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:20:13.282] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:20:58.263] Server  LOG     ✓ Compiled in 335ms
-[00:21:53.626] Server  LOG     ✓ Compiled in 285ms
-[00:24:34.723] Server  LOG     ✓ Compiled in 348ms
-[00:32:40.816] Server  LOG     ✓ Compiled in 327ms
-[00:33:01.070] Server  LOG     ✓ Compiled in 334ms
-[00:33:26.212] Server  LOG     ✓ Compiled in 322ms
-[00:35:02.613] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:35:33.236] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
-[00:35:34.242] Browser WARN    Media preview unavailable: Failed to load image payload (502)
-[00:39:15.545] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:39:49.316] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
-[00:39:49.423] Browser WARN    Media preview unavailable: Failed to load image payload (502)
-[00:41:08.614] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:41:08.614] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
-[00:41:53.352] Server  LOG     ✓ Compiled in 347ms
-[00:48:58.380] Server  LOG     ✓ Compiled in 337ms
-[00:49:54.894] Server  LOG     ✓ Compiled in 344ms
-[00:53:29.193] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
-[00:53:29.299] Browser WARN    Media preview unavailable: Failed to load image payload (502)
+[00:00:00.865] Server  LOG     ✓ Ready in 595ms
+[00:46:34.677] Server  LOG       Reload env: .env
+[00:59:51.162] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:10:17.279] Server  LOG     ✓ Compiled in 419ms
+[01:10:48.473] Server  LOG     ✓ Compiled in 324ms
+[01:18:13.453] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:20:48.141] Server  LOG     ✓ Compiled in 304ms
+[01:22:06.116] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:29:49.709] Browser ERROR   uncaughtError: Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+[01:30:40.015] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:33:35.317] Server  LOG     ✓ Compiled in 291ms
+[01:33:35.538] Browser ERROR   uncaughtError: TypeError: can't access property "_leaflet_pos", el is undefined
+[01:34:48.575] Server  LOG     ✓ Compiled in 324ms
+[01:35:58.320] Server  LOG     ✓ Compiled in 375ms
+[01:37:26.216] Server  LOG     ✓ Compiled in 344ms
+[01:37:26.324] Browser ERROR   The final argument passed to %s changed size between renders. The order and size of this array must remain constant.
+
+Previous: %s
+Incoming: %s useEffect [[object Object],[object Object],[object Object],[object Object], [object Object]] [[object Object],[object Object],[object Object],[object Object], false, [object Object]]
+[01:37:53.369] Server  LOG     ✓ Compiled in 330ms
+[01:45:53.838] Server  LOG       Reload env: .env

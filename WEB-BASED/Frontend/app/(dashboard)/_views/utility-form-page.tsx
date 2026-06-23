@@ -18,11 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { UtilityLocationPicker } from "@/components/maps/utility-location-picker"
-import type { EntityStatus, GeoJsonPolygon } from "@/lib/types"
+import type { EntityStatus, GeoJsonBoundary, UtilityServiceAreaCategory } from "@/lib/types"
 import { toast } from "sonner"
 import {
   ArrowLeft,
-  Building2,
   CheckCircle2,
   Loader2,
   Mail,
@@ -41,25 +40,21 @@ interface UtilityFormPageProps {
   utilityId?: string
 }
 
-type BoundaryPointFormValue = {
+type ServiceAreaFormValue = {
   id: string
-  latitude: string
-  longitude: string
-}
-
-type BoundaryPointCoordinate = {
-  latitude: number
-  longitude: number
+  category: UtilityServiceAreaCategory
+  name: string
+  regionName: string
 }
 
 type BoundaryExtractionResponse = {
-  center?: BoundaryPointCoordinate
-  boundaryPoints?: BoundaryPointCoordinate[]
+  boundaryGeojson?: GeoJsonBoundary
   source?: {
     fileName?: string
     layerName?: string
     geometryType?: string
     pointCount?: number
+    polygonCount?: number
   }
   error?: string
 }
@@ -97,41 +92,54 @@ const TANZANIA_REGIONS = [
   "Unguja South",
 ]
 
-function createBoundaryPoint(latitude = "", longitude = ""): BoundaryPointFormValue {
+const SERVICE_AREA_CATEGORIES: Array<{ value: UtilityServiceAreaCategory; label: string; description: string }> = [
+  { value: "region", label: "Region", description: "A whole administrative region served by the utility." },
+  { value: "district", label: "District", description: "An official district inside the selected region." },
+  { value: "city", label: "City", description: "A named city or municipal service area." },
+  { value: "town", label: "Town", description: "A named town served by the utility." },
+  { value: "ward", label: "Ward", description: "A ward-level official area of service." },
+  { value: "village", label: "Village", description: "A village-level official area of service." },
+  { value: "custom_area", label: "Custom Area", description: "A locally known service area name." },
+  { value: "infrastructure_corridor", label: "Infrastructure Corridor", description: "A served corridor such as a trunk main or road corridor." },
+]
+
+function createServiceArea(
+  category: UtilityServiceAreaCategory = "district",
+  name = "",
+  regionName = ""
+): ServiceAreaFormValue {
   const fallbackId = `${Date.now()}-${Math.random().toString(16).slice(2)}`
   return {
     id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : fallbackId,
-    latitude,
-    longitude,
+    category,
+    name,
+    regionName,
   }
 }
 
-function extractBoundaryPoints(boundaryGeojson?: GeoJsonPolygon | null): BoundaryPointFormValue[] {
-  const ring = boundaryGeojson?.coordinates?.[0]
-  if (!Array.isArray(ring) || !ring.length) return []
+function getServiceAreaPlaceholder(category: UtilityServiceAreaCategory) {
+  const label = SERVICE_AREA_CATEGORIES.find((entry) => entry.value === category)?.label ?? "Area"
 
-  const normalizedRing =
-    ring.length > 1 &&
-    ring[0]?.[0] === ring[ring.length - 1]?.[0] &&
-    ring[0]?.[1] === ring[ring.length - 1]?.[1]
-      ? ring.slice(0, -1)
-      : ring
-
-  return normalizedRing
-    .filter((point): point is number[] => Array.isArray(point) && point.length >= 2)
-    .map((point) => createBoundaryPoint(String(point[1]), String(point[0])))
-}
-
-function parseBoundaryPointsForMap(points: BoundaryPointFormValue[]): BoundaryPointCoordinate[] {
-  return points.flatMap((point) => {
-    const latitude = Number(point.latitude)
-    const longitude = Number(point.longitude)
-
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return []
-    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return []
-
-    return [{ latitude, longitude }]
-  })
+  switch (category) {
+    case "region":
+      return "e.g. Dodoma Region"
+    case "district":
+      return "e.g. Dodoma Urban District"
+    case "city":
+      return "e.g. Dodoma City"
+    case "town":
+      return "e.g. Usa River Town"
+    case "ward":
+      return "e.g. Makole Ward"
+    case "village":
+      return "e.g. Nzuguni Village"
+    case "custom_area":
+      return "e.g. Central Service Area"
+    case "infrastructure_corridor":
+      return "e.g. Morogoro Road Corridor"
+    default:
+      return `e.g. ${label} name`
+  }
 }
 
 export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProps) {
@@ -149,7 +157,8 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
   const [formContactAddress, setFormContactAddress] = useState("")
   const [formCenterLatitude, setFormCenterLatitude] = useState("")
   const [formCenterLongitude, setFormCenterLongitude] = useState("")
-  const [formBoundaryPoints, setFormBoundaryPoints] = useState<BoundaryPointFormValue[]>([])
+  const [formBoundaryGeojson, setFormBoundaryGeojson] = useState<GeoJsonBoundary | null>(null)
+  const [formServiceAreas, setFormServiceAreas] = useState<ServiceAreaFormValue[]>([])
   const [formStatus, setFormStatus] = useState<EntityStatus>("active")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isExtractingBoundary, setIsExtractingBoundary] = useState(false)
@@ -187,7 +196,14 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
       setFormContactAddress(editingUtility.contactAddress || "")
       setFormCenterLatitude(editingUtility.centerLatitude != null ? String(editingUtility.centerLatitude) : "")
       setFormCenterLongitude(editingUtility.centerLongitude != null ? String(editingUtility.centerLongitude) : "")
-      setFormBoundaryPoints(extractBoundaryPoints(editingUtility.boundaryGeojson))
+      setFormBoundaryGeojson(editingUtility.boundaryGeojson ?? null)
+      setFormServiceAreas(
+        editingUtility.serviceAreas?.length
+          ? editingUtility.serviceAreas.map((area) =>
+              createServiceArea(area.category, area.name, area.regionName || editingUtility.regionName || "")
+            )
+          : []
+      )
       setFormStatus(editingUtility.status)
       return
     }
@@ -203,14 +219,10 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
     setFormContactAddress("")
     setFormCenterLatitude("")
     setFormCenterLongitude("")
-    setFormBoundaryPoints([])
+    setFormBoundaryGeojson(null)
+    setFormServiceAreas([])
     setFormStatus("active")
   }, [editingUtility, mode])
-
-  const boundaryPointsForMap = useMemo(
-    () => parseBoundaryPointsForMap(formBoundaryPoints),
-    [formBoundaryPoints]
-  )
 
   async function handleSubmit() {
     if (!formName.trim()) {
@@ -249,55 +261,24 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
       return
     }
 
-    const hasAnyBoundaryInput = formBoundaryPoints.some(
-      (point) => point.latitude.trim() !== "" || point.longitude.trim() !== ""
-    )
-    const normalizedBoundaryPoints: BoundaryPointCoordinate[] = []
+    const serviceAreas = formServiceAreas
+      .map((area) => ({
+        category: area.category,
+        name: area.name.trim(),
+        regionName: formRegionName.trim() || null,
+        adminAreaId: null,
+      }))
+      .filter((area) => area.name)
 
-    for (const point of formBoundaryPoints) {
-      const hasPointLatitude = point.latitude.trim() !== ""
-      const hasPointLongitude = point.longitude.trim() !== ""
-
-      if (!hasPointLatitude && !hasPointLongitude) continue
-
-      if (hasPointLatitude !== hasPointLongitude) {
-        toast.error("Each utility boundary point requires both latitude and longitude")
-        return
-      }
-
-      const latitude = Number(point.latitude)
-      const longitude = Number(point.longitude)
-
-      if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90) {
-        toast.error("Each utility boundary latitude must be a valid number between -90 and 90")
-        return
-      }
-
-      if (!Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
-        toast.error("Each utility boundary longitude must be a valid number between -180 and 180")
-        return
-      }
-
-      normalizedBoundaryPoints.push({ latitude, longitude })
-    }
-
-    if (hasAnyBoundaryInput && normalizedBoundaryPoints.length < 3) {
-      toast.error("Utility boundary requires at least three complete coordinate points")
+    if (serviceAreas.length > 0 && !formRegionName.trim()) {
+      toast.error("Select the utility region before adding official areas of service")
       return
     }
 
-    const boundaryGeojson =
-      normalizedBoundaryPoints.length > 0
-        ? {
-            type: "Polygon" as const,
-            coordinates: [
-              [
-                ...normalizedBoundaryPoints.map((point) => [point.longitude, point.latitude]),
-                [normalizedBoundaryPoints[0].longitude, normalizedBoundaryPoints[0].latitude],
-              ],
-            ],
-          }
-        : null
+    if (serviceAreas.length !== formServiceAreas.filter((area) => area.name.trim() || area.regionName.trim()).length) {
+      toast.error("Each official area of service requires an area name")
+      return
+    }
 
     const payload = {
       name: formName.trim(),
@@ -308,7 +289,10 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
       contactAddress: formContactAddress.trim() || undefined,
       centerLatitude: parsedLatitude,
       centerLongitude: parsedLongitude,
-      boundaryGeojson,
+      boundaryGeojson: formBoundaryGeojson,
+      boundarySourceType: formBoundaryGeojson ? "uploaded" as const : "none" as const,
+      boundaryStatus: formBoundaryGeojson ? "verified" as const : "none" as const,
+      serviceAreas,
       status: formStatus,
     }
 
@@ -319,8 +303,12 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
           ? await updateUtility(editingUtility.id, payload)
           : await addUtility(payload)
 
-      if (boundaryGeojson && !savedUtility.boundaryGeojson) {
+      if (formBoundaryGeojson && !savedUtility.boundaryGeojson) {
         throw new Error("The utility was saved, but the backend did not persist the uploaded boundary geometry.")
+      }
+
+      if (!formBoundaryGeojson && savedUtility.boundaryGeojson) {
+        throw new Error("The utility was saved, but the backend did not delete the cleared boundary geometry.")
       }
 
       if (
@@ -373,21 +361,16 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
         throw new Error(payload.error || "Failed to extract utility boundary geometry")
       }
 
-      if (!payload.center || !Array.isArray(payload.boundaryPoints) || payload.boundaryPoints.length < 3) {
-        throw new Error("The uploaded file did not contain enough boundary points.")
+      if (!payload.boundaryGeojson) {
+        throw new Error("The uploaded file did not contain a usable utility service boundary.")
       }
 
-      setFormCenterLatitude(payload.center.latitude.toFixed(6))
-      setFormCenterLongitude(payload.center.longitude.toFixed(6))
-      setFormBoundaryPoints(
-        payload.boundaryPoints.map((point) =>
-          createBoundaryPoint(point.latitude.toFixed(6), point.longitude.toFixed(6))
-        )
-      )
+      setFormBoundaryGeojson(payload.boundaryGeojson)
 
-      const pointCount = payload.source?.pointCount ?? payload.boundaryPoints.length
+      const pointCount = payload.source?.pointCount ?? 0
+      const polygonCount = payload.source?.polygonCount ?? (payload.boundaryGeojson.type === "MultiPolygon" ? payload.boundaryGeojson.coordinates.length : 1)
       toast.success(
-        `Utility boundary extracted from ${file.name} with ${pointCount.toLocaleString()} points. Check the suggested center point and edit it if the utility's primary operational city should be different.`
+        `Utility boundary extracted from ${file.name} with ${polygonCount.toLocaleString()} service area polygon${polygonCount === 1 ? "" : "s"} and ${pointCount.toLocaleString()} points. Check the primary city point and edit it if needed.`
       )
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to extract utility boundary geometry")
@@ -623,21 +606,117 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
               </div>
             </div>
             <p className="-mt-2 text-xs text-slate-500">
-              The center point represents the utility's primary operational city and is shown as the utility dot on the admin dashboard map. After file extraction, check the suggested point and edit it if needed.
+              The center point represents the utility's primary operational city and is shown as the utility dot on the admin dashboard map.
             </p>
+
+            <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium text-slate-700">Official Areas of Service</Label>
+                  <p className="text-xs text-slate-500">
+                    Add the named areas officially served by this utility. They are kept under the selected utility region only.
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Selected region: <span className="font-medium text-slate-700">{formRegionName || "Select a region above first"}</span>
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="shrink-0 rounded-xl"
+                  onClick={() => setFormServiceAreas((current) => [...current, createServiceArea("district", "", formRegionName)])}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Area
+                </Button>
+              </div>
+
+              {formServiceAreas.length ? (
+                <div className="space-y-3">
+                  {formServiceAreas.map((area) => (
+                    <div
+                      key={area.id}
+                      className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 md:grid-cols-[minmax(160px,0.75fr)_minmax(0,1fr)_minmax(0,0.85fr)_auto]"
+                    >
+                      <div className="flex flex-col gap-2">
+                        <Label className="text-xs font-medium uppercase tracking-wide text-slate-500">Category</Label>
+                        <Select
+                          value={area.category}
+                          onValueChange={(value) =>
+                            setFormServiceAreas((current) =>
+                              current.map((entry) =>
+                                entry.id === area.id
+                                  ? { ...entry, category: value as UtilityServiceAreaCategory }
+                                  : entry
+                              )
+                            )
+                          }
+                        >
+                          <SelectTrigger className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
+                            {SERVICE_AREA_CATEGORIES.map((category) => (
+                              <SelectItem key={category.value} value={category.value} className="rounded-lg">
+                                {category.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <Label className="text-xs font-medium uppercase tracking-wide text-slate-500">Area Name</Label>
+                        <Input
+                          value={area.name}
+                          onChange={(event) =>
+                            setFormServiceAreas((current) =>
+                              current.map((entry) =>
+                                entry.id === area.id ? { ...entry, name: event.target.value } : entry
+                              )
+                            )
+                          }
+                          placeholder={getServiceAreaPlaceholder(area.category)}
+                          className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <Label className="text-xs font-medium uppercase tracking-wide text-slate-500">Region</Label>
+                        <div className="flex h-11 items-center rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 text-sm text-slate-700">
+                          {formRegionName || "Select region above"}
+                        </div>
+                      </div>
+
+                      <div className="flex items-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-11 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                          onClick={() => setFormServiceAreas((current) => current.filter((entry) => entry.id !== area.id))}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
+                  No official service areas added yet. Add at least the main served area when this information is available.
+                </div>
+              )}
+            </div>
 
             <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <Label className="text-sm font-medium text-slate-700">Utility Boundary Geometry</Label>
                   <p className="text-xs text-slate-500">
-                    If you already have a boundary file, upload it here and the system will extract boundary points and suggest a center automatically.
+                    Upload an optional GIS boundary file when the utility has official service polygons.
                   </p>
                   <p className="text-xs text-slate-500">
-                    If you do not have a file, use the map controls on the top right to set the utility center and capture boundary points manually.
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Supported upload formats: GeoPackage (.gpkg), GeoJSON (.geojson), or JSON (.json).
+                    Supported upload formats: GeoPackage (.gpkg), GeoJSON (.geojson), or JSON (.json). Files may contain one or many polygons.
                   </p>
                 </div>
                 <Input
@@ -662,75 +741,26 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
                   )}
                   {isExtractingBoundary ? "Extracting..." : "Upload Boundary File"}
                 </Button>
+                {formBoundaryGeojson ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="ml-2 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                    onClick={() => setFormBoundaryGeojson(null)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Clear Boundary
+                  </Button>
+                ) : null}
               </div>
 
-              {formBoundaryPoints.length ? (
-                <div className="space-y-3">
-                  {formBoundaryPoints.map((point, index) => (
-                    <div
-                      key={point.id}
-                      className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200/80 bg-white p-3 md:grid-cols-[minmax(0,0.85fr)_minmax(0,0.85fr)_auto]"
-                    >
-                      <div className="flex flex-col gap-2">
-                        <Label htmlFor={`utility-boundary-latitude-${point.id}`} className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                          Point {index + 1} Latitude
-                        </Label>
-                        <Input
-                          id={`utility-boundary-latitude-${point.id}`}
-                          type="number"
-                          step="0.000001"
-                          value={point.latitude}
-                          onChange={(event) =>
-                            setFormBoundaryPoints((current) =>
-                              current.map((entry) =>
-                                entry.id === point.id ? { ...entry, latitude: event.target.value } : entry
-                              )
-                            )
-                          }
-                          placeholder="-6.812345"
-                          className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
-                        />
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <Label htmlFor={`utility-boundary-longitude-${point.id}`} className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                          Point {index + 1} Longitude
-                        </Label>
-                        <Input
-                          id={`utility-boundary-longitude-${point.id}`}
-                          type="number"
-                          step="0.000001"
-                          value={point.longitude}
-                          onChange={(event) =>
-                            setFormBoundaryPoints((current) =>
-                              current.map((entry) =>
-                                entry.id === point.id ? { ...entry, longitude: event.target.value } : entry
-                              )
-                            )
-                          }
-                          placeholder="39.287654"
-                          className="h-11 rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
-                        />
-                      </div>
-
-                      <div className="flex items-end">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="h-11 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                          onClick={() =>
-                            setFormBoundaryPoints((current) => current.filter((entry) => entry.id !== point.id))
-                          }
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+              {formBoundaryGeojson ? (
+                <div className="rounded-2xl border border-cyan-200 bg-cyan-50/70 px-4 py-5 text-sm text-cyan-900">
+                  Uploaded utility boundary is ready for preview. Save the utility to use it for dashboard hierarchy and report routing.
                 </div>
               ) : (
                 <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
-                  No utility boundary points added yet. Upload a boundary file or click directly on the map in boundary mode.
+                  No utility boundary uploaded. The system will use the center point as a fallback marker, and admins can still route reports manually when needed.
                 </div>
               )}
             </div>
@@ -771,7 +801,7 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
                 <MapPin className="h-4 w-4 text-cyan-600" />
                 <div>
                   <p className="text-sm font-semibold text-slate-800">Utility Spatial Preview</p>
-                  <p className="text-xs text-slate-500">Use the map controls to set the center and capture boundary points manually.</p>
+                  <p className="text-xs text-slate-500">Click the map to set the utility center and preview uploaded service boundaries.</p>
                 </div>
               </div>
               <div className="overflow-hidden rounded-2xl border border-slate-200">
@@ -780,18 +810,11 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
                     latitude: formCenterLatitude.trim() ? Number(formCenterLatitude) : null,
                     longitude: formCenterLongitude.trim() ? Number(formCenterLongitude) : null,
                   }}
-                  boundaryPoints={boundaryPointsForMap}
+                  boundaryGeojson={formBoundaryGeojson}
                   onCenterChange={({ latitude, longitude }) => {
                     setFormCenterLatitude(latitude.toFixed(6))
                     setFormCenterLongitude(longitude.toFixed(6))
                   }}
-                  onBoundaryChange={(next) =>
-                    setFormBoundaryPoints(
-                      next.map((point) =>
-                        createBoundaryPoint(point.latitude.toFixed(6), point.longitude.toFixed(6))
-                      )
-                    )
-                  }
                 />
               </div>
             </CardContent>

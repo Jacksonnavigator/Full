@@ -235,43 +235,10 @@ def _load_gpkg_geometry_points(file_data: bytes) -> list[tuple[float, float]]:
     return points
 
 
-def derive_utility_boundary_from_pipe_network(utility: Optional[Utility], db: Session) -> Optional[BaseGeometry]:
-    if not utility:
-        return None
-
-    layer = (
-        db.query(UtilityInfrastructureLayer)
-        .filter(
-            UtilityInfrastructureLayer.utility_id == utility.id,
-            UtilityInfrastructureLayer.asset_type == "pipe_network",
-        )
-        .first()
-    )
-    if not layer or not layer.file_data or Path(layer.file_name).suffix.lower() != ".gpkg":
-        return None
-
-    points = _load_gpkg_geometry_points(layer.file_data)
-    unique_points = list(dict.fromkeys(points))
-    if len(unique_points) < 2:
-        return None
-
-    try:
-        hull = MultiPoint(unique_points).convex_hull
-        # Buffer is in WGS84 degrees. It creates an approximate service envelope
-        # around the pipe network; uploaded official boundaries still take priority.
-        boundary_shape = hull.buffer(0.01).simplify(0.001, preserve_topology=True)
-    except Exception:
-        return None
-
-    if boundary_shape.is_empty or not boundary_shape.is_valid:
-        return None
-    return boundary_shape
-
-
 def get_utility_boundary_shape(utility: Optional[Utility], db: Session) -> Optional[BaseGeometry]:
     if not utility:
         return None
-    return _load_boundary_shape(getattr(utility, "boundary_geojson", None)) or derive_utility_boundary_from_pipe_network(utility, db)
+    return _load_boundary_shape(getattr(utility, "boundary_geojson", None))
 
 
 def _boundary_match_score(boundary_shape: BaseGeometry) -> float:
@@ -284,11 +251,27 @@ def _boundary_match_score(boundary_shape: BaseGeometry) -> float:
     return float(boundary_shape.area)
 
 
-def find_utility_by_boundary(latitude: float, longitude: float, db: Session) -> Optional[Utility]:
+def find_utility_by_boundary(
+    latitude: float,
+    longitude: float,
+    db: Session,
+    region_name: Optional[str] = None,
+) -> Optional[Utility]:
     report_point = Point(longitude, latitude)
     matches: list[tuple[float, Utility]] = []
 
-    utilities = db.query(Utility).filter(Utility.status == EntityStatusEnum.ACTIVE).all()
+    query = db.query(Utility).filter(Utility.status == EntityStatusEnum.ACTIVE)
+    normalized_region = normalize_geo_label(canonicalize_tanzania_region_name(region_name) or region_name)
+    if normalized_region:
+        region_filtered = [
+            utility
+            for utility in query.all()
+            if normalize_geo_label(getattr(utility, "region_name", None)) == normalized_region
+        ]
+        utilities = region_filtered
+    else:
+        utilities = query.all()
+
     for utility in utilities:
         boundary_shape = get_utility_boundary_shape(utility, db)
         if not boundary_shape:
@@ -299,15 +282,24 @@ def find_utility_by_boundary(latitude: float, longitude: float, db: Session) -> 
     if not matches:
         return None
 
-    matches.sort(key=lambda item: item[0])
+    if len(matches) != 1:
+        return None
+
     return matches[0][1]
 
 
-def has_complete_active_utility_boundaries(db: Session) -> bool:
+def has_any_active_utility_boundary(db: Session, region_name: Optional[str] = None) -> bool:
     utilities = db.query(Utility).filter(Utility.status == EntityStatusEnum.ACTIVE).all()
+    normalized_region = normalize_geo_label(canonicalize_tanzania_region_name(region_name) or region_name)
+    if normalized_region:
+        utilities = [
+            utility
+            for utility in utilities
+            if normalize_geo_label(getattr(utility, "region_name", None)) == normalized_region
+        ]
     if not utilities:
         return False
-    return all(get_utility_boundary_shape(utility, db) for utility in utilities)
+    return any(get_utility_boundary_shape(utility, db) for utility in utilities)
 
 
 def find_dma_within_utility_by_boundary(
@@ -379,7 +371,12 @@ def _utility_anchor(utility: Utility) -> Tuple[Optional[float], Optional[float]]
     return latitude, longitude
 
 
-def find_nearest_utility(latitude: float, longitude: float, db: Session) -> Tuple[Optional[Utility], float]:
+def find_nearest_utility(
+    latitude: float,
+    longitude: float,
+    db: Session,
+    region_name: Optional[str] = None,
+) -> Tuple[Optional[Utility], float]:
     """
     Find the nearest active utility (region authority) for the given coordinates.
 
@@ -391,6 +388,13 @@ def find_nearest_utility(latitude: float, longitude: float, db: Session) -> Tupl
         .filter(Utility.status == EntityStatusEnum.ACTIVE)
         .all()
     )
+    normalized_region = normalize_geo_label(canonicalize_tanzania_region_name(region_name) or region_name)
+    if normalized_region:
+        utilities = [
+            utility
+            for utility in utilities
+            if normalize_geo_label(getattr(utility, "region_name", None)) == normalized_region
+        ]
     if not utilities:
         return None, float("inf")
 

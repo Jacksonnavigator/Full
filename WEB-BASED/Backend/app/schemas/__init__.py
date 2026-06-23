@@ -14,6 +14,8 @@ from app.schemas.user import (
     UtilityUpdate,
     UtilityResponse,
     UtilityListResponse,
+    UtilityServiceAreaCreate,
+    UtilityServiceAreaResponse,
     UtilityManagerBase,
     UtilityManagerCreate,
     UtilityManagerResponse,
@@ -74,6 +76,8 @@ __all__ = [
     "UtilityUpdate",
     "UtilityResponse",
     "UtilityListResponse",
+    "UtilityServiceAreaCreate",
+    "UtilityServiceAreaResponse",
     # Utility Manager schemas
     "UtilityManagerBase",
     "UtilityManagerCreate",

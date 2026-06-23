@@ -37,7 +37,7 @@ from app.services.hierarchy import (
     find_utility_by_boundary,
     find_utility_by_region_name,
     has_complete_active_dma_boundaries_within_utility,
-    has_complete_active_utility_boundaries,
+    has_any_active_utility_boundary,
     resolve_region_name_hint,
 )
 from app.services.push_notifications import create_notification_record, deliver_notifications_push
@@ -174,13 +174,13 @@ def _resolve_report_assignment(
             dma, _dma_distance = find_nearest_dma_within_utility(latitude, longitude, utility, db)
         return utility, dma
 
-    complete_utility_boundaries_configured = False
+    any_utility_boundary_configured = False
     if latitude is not None and longitude is not None:
-        complete_utility_boundaries_configured = has_complete_active_utility_boundaries(db)
-        utility = find_utility_by_boundary(latitude, longitude, db)
+        any_utility_boundary_configured = has_any_active_utility_boundary(db, region_name)
+        utility = find_utility_by_boundary(latitude, longitude, db, region_name)
         if utility:
             dma = find_dma_within_utility_by_boundary(latitude, longitude, utility, db)
-        elif complete_utility_boundaries_configured:
+        elif any_utility_boundary_configured:
             return None, None
 
     if not utility and region_name:
@@ -188,8 +188,8 @@ def _resolve_report_assignment(
     if not utility and (latitude is None or longitude is None):
         return None, None
 
-    if not utility and not complete_utility_boundaries_configured:
-        utility, _utility_distance = find_nearest_utility(latitude, longitude, db)
+    if not utility and not any_utility_boundary_configured:
+        utility, _utility_distance = find_nearest_utility(latitude, longitude, db, region_name)
 
     utility_has_complete_dma_boundaries = has_complete_active_dma_boundaries_within_utility(utility, db)
     if utility and not dma and latitude is not None and longitude is not None:

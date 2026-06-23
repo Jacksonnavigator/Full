@@ -21,6 +21,18 @@ class EntityStatusEnum(str, enum.Enum):
     INACTIVE = "inactive"
 
 
+class UtilityServiceAreaCategoryEnum(str, enum.Enum):
+    """Named official service area categories for utilities."""
+    REGION = "region"
+    DISTRICT = "district"
+    CITY = "city"
+    TOWN = "town"
+    WARD = "ward"
+    VILLAGE = "village"
+    CUSTOM_AREA = "custom_area"
+    INFRASTRUCTURE_CORRIDOR = "infrastructure_corridor"
+
+
 # ============================================================
 # User Model (Default Users Table)
 # ============================================================
@@ -74,6 +86,8 @@ class Utility(Base):
     center_latitude = Column(Float, nullable=True)
     center_longitude = Column(Float, nullable=True)
     boundary_geojson = Column(Text, nullable=True)
+    boundary_source_type = Column(String(32), nullable=True, default="none")
+    boundary_status = Column(String(32), nullable=True, default="none")
     status = Column(SQLEnum(EntityStatusEnum), default=EntityStatusEnum.ACTIVE)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -88,6 +102,39 @@ class Utility(Base):
         back_populates="utility",
         cascade="all, delete-orphan",
     )
+    service_areas = relationship(
+        "UtilityServiceArea",
+        back_populates="utility",
+        cascade="all, delete-orphan",
+    )
+
+
+class UtilityServiceArea(Base):
+    """Official named place served by a utility."""
+
+    __tablename__ = "utility_service_area"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    utility_id = Column(String(36), ForeignKey("utility.id", ondelete="CASCADE"), nullable=False, index=True)
+    category = Column(
+        SQLEnum(
+            UtilityServiceAreaCategoryEnum,
+            values_callable=lambda enum_cls: [item.value for item in enum_cls],
+        ),
+        nullable=False,
+        index=True,
+    )
+    name = Column(String(255), nullable=False, index=True)
+    region_name = Column(String(100), nullable=True, index=True)
+    admin_area_id = Column(String(100), nullable=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("utility_id", "category", "name", "region_name", name="uq_utility_service_area_named"),
+    )
+
+    utility = relationship("Utility", back_populates="service_areas", foreign_keys=[utility_id])
 
 
 # ============================================================

@@ -8,11 +8,14 @@ import { NextResponse } from "next/server"
 
 const execFileAsync = promisify(execFile)
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024
+const ENVELOPE_BYTE_LENGTHS = [0, 32, 48, 48, 64]
 
 type CoordinatePoint = {
   latitude: number
   longitude: number
 }
+
+type BoundaryPolygon = CoordinatePoint[][]
 
 type GeometryLayer = {
   tableName: string
@@ -20,8 +23,6 @@ type GeometryLayer = {
   geometryTypeName: string
   srsId: string
 }
-
-const ENVELOPE_BYTE_LENGTHS = [0, 32, 48, 48, 64]
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status })
@@ -33,7 +34,7 @@ function quoteIdentifier(identifier: string) {
 
 async function runSqlite(databasePath: string, query: string) {
   const { stdout } = await execFileAsync("sqlite3", [databasePath, query], {
-    maxBuffer: 16 * 1024 * 1024,
+    maxBuffer: 24 * 1024 * 1024,
   })
   return stdout.trim()
 }
@@ -71,7 +72,7 @@ function baseGeometryType(rawGeometryType: number) {
   return rawGeometryType % 1000
 }
 
-function parseWkbGeometry(buffer: Buffer, startOffset: number): { rings: CoordinatePoint[][]; offset: number } {
+function parseWkbGeometry(buffer: Buffer, startOffset: number): { polygons: BoundaryPolygon[]; offset: number } {
   let offset = startOffset
   const littleEndian = buffer.readUInt8(offset) === 1
   offset += 1
@@ -81,12 +82,13 @@ function parseWkbGeometry(buffer: Buffer, startOffset: number): { rings: Coordin
 
   const geometryType = baseGeometryType(rawGeometryType)
   const dimensions = coordinateDimensions(rawGeometryType)
-  const rings: CoordinatePoint[][] = []
+  const polygons: BoundaryPolygon[] = []
 
   if (geometryType === 3) {
     const ringCount = readUInt32(buffer, offset, littleEndian)
     offset += 4
 
+    const polygon: BoundaryPolygon = []
     for (let ringIndex = 0; ringIndex < ringCount; ringIndex += 1) {
       const pointCount = readUInt32(buffer, offset, littleEndian)
       offset += 4
@@ -98,11 +100,10 @@ function parseWkbGeometry(buffer: Buffer, startOffset: number): { rings: Coordin
         offset += dimensions * 8
         ring.push({ latitude, longitude })
       }
-
-      if (ringIndex === 0) {
-        rings.push(ring)
-      }
+      polygon.push(ring)
     }
+
+    polygons.push(polygon)
   } else if (geometryType === 6) {
     const polygonCount = readUInt32(buffer, offset, littleEndian)
     offset += 4
@@ -110,13 +111,13 @@ function parseWkbGeometry(buffer: Buffer, startOffset: number): { rings: Coordin
     for (let polygonIndex = 0; polygonIndex < polygonCount; polygonIndex += 1) {
       const parsed = parseWkbGeometry(buffer, offset)
       offset = parsed.offset
-      rings.push(...parsed.rings)
+      polygons.push(...parsed.polygons)
     }
   } else {
-    throw new Error(`Unsupported boundary geometry type: ${geometryType}`)
+    throw new Error(`Unsupported utility boundary geometry type: ${geometryType}`)
   }
 
-  return { rings, offset }
+  return { polygons, offset }
 }
 
 function parseGeoPackageGeometry(hexGeometry: string) {
@@ -133,93 +134,77 @@ function parseGeoPackageGeometry(hexGeometry: string) {
   }
 
   const wkbOffset = 8 + envelopeBytes
-  return parseWkbGeometry(buffer, wkbOffset).rings
+  return parseWkbGeometry(buffer, wkbOffset).polygons
 }
 
-function normalizeRing(ring: CoordinatePoint[]) {
-  if (ring.length > 1) {
-    const first = ring[0]
-    const last = ring[ring.length - 1]
-    if (first.latitude === last.latitude && first.longitude === last.longitude) {
-      return ring.slice(0, -1)
-    }
-  }
-  return ring
+function closeRing(ring: CoordinatePoint[]) {
+  const validRing = ring.filter(
+    (point) =>
+      Number.isFinite(point.latitude) &&
+      Number.isFinite(point.longitude) &&
+      point.latitude >= -90 &&
+      point.latitude <= 90 &&
+      point.longitude >= -180 &&
+      point.longitude <= 180
+  )
+
+  if (validRing.length < 3) return []
+
+  const first = validRing[0]
+  const last = validRing[validRing.length - 1]
+  const closed =
+    first.latitude === last.latitude && first.longitude === last.longitude
+      ? validRing
+      : [...validRing, first]
+
+  return closed.map((point) => [point.longitude, point.latitude])
 }
 
-function polygonArea(ring: CoordinatePoint[]) {
-  let area = 0
-  for (let index = 0; index < ring.length; index += 1) {
-    const current = ring[index]
-    const next = ring[(index + 1) % ring.length]
-    area += current.longitude * next.latitude - next.longitude * current.latitude
-  }
-  return Math.abs(area / 2)
+function normalizePolygons(polygons: BoundaryPolygon[]) {
+  return polygons
+    .map((polygon) =>
+      polygon
+        .map(closeRing)
+        .filter((ring) => ring.length >= 4)
+    )
+    .filter((polygon) => polygon.length > 0)
 }
 
-function calculateCenter(points: CoordinatePoint[]) {
-  let twiceArea = 0
-  let longitudeSum = 0
-  let latitudeSum = 0
+function extractPolygonsFromGeoJson(input: unknown): BoundaryPolygon[] {
+  const polygons: BoundaryPolygon[] = []
 
-  for (let index = 0; index < points.length; index += 1) {
-    const current = points[index]
-    const next = points[(index + 1) % points.length]
-    const cross = current.longitude * next.latitude - next.longitude * current.latitude
-    twiceArea += cross
-    longitudeSum += (current.longitude + next.longitude) * cross
-    latitudeSum += (current.latitude + next.latitude) * cross
+  const pointFromCoordinate = (point: unknown): CoordinatePoint | null => {
+    if (!Array.isArray(point) || point.length < 2) return null
+    const longitude = Number(point[0])
+    const latitude = Number(point[1])
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null
+    return { latitude, longitude }
   }
 
-  if (Math.abs(twiceArea) > 1e-12) {
-    return {
-      latitude: latitudeSum / (3 * twiceArea),
-      longitude: longitudeSum / (3 * twiceArea),
-    }
+  const polygonFromCoordinates = (coordinates: unknown): BoundaryPolygon | null => {
+    if (!Array.isArray(coordinates)) return null
+    const polygon = coordinates
+      .map((ring) => (Array.isArray(ring) ? ring.map(pointFromCoordinate).filter(Boolean) : []))
+      .filter((ring) => ring.length >= 3) as BoundaryPolygon
+    return polygon.length ? polygon : null
   }
-
-  return {
-    latitude: points.reduce((sum, point) => sum + point.latitude, 0) / points.length,
-    longitude: points.reduce((sum, point) => sum + point.longitude, 0) / points.length,
-  }
-}
-
-function selectBoundaryRing(rings: CoordinatePoint[][]) {
-  return rings
-    .map(normalizeRing)
-    .filter((ring) => ring.length >= 3)
-    .sort((left, right) => polygonArea(right) - polygonArea(left))[0]
-}
-
-function extractRingsFromGeoJson(input: unknown): CoordinatePoint[][] {
-  const rings: CoordinatePoint[][] = []
 
   const visitGeometry = (geometry: any) => {
     if (!geometry || typeof geometry !== "object") return
 
     if (geometry.type === "Polygon") {
-      const exterior = geometry.coordinates?.[0]
-      if (Array.isArray(exterior)) {
-        rings.push(
-          exterior
-            .filter((point: unknown) => Array.isArray(point) && point.length >= 2)
-            .map((point: number[]) => ({ longitude: Number(point[0]), latitude: Number(point[1]) }))
-        )
-      }
+      const polygon = polygonFromCoordinates(geometry.coordinates)
+      if (polygon) polygons.push(polygon)
       return
     }
 
     if (geometry.type === "MultiPolygon") {
-      geometry.coordinates?.forEach((polygon: number[][][]) => {
-        const exterior = polygon?.[0]
-        if (Array.isArray(exterior)) {
-          rings.push(
-            exterior
-              .filter((point: unknown) => Array.isArray(point) && point.length >= 2)
-              .map((point: number[]) => ({ longitude: Number(point[0]), latitude: Number(point[1]) }))
-          )
-        }
-      })
+      if (Array.isArray(geometry.coordinates)) {
+        geometry.coordinates.forEach((coordinates: unknown) => {
+          const polygon = polygonFromCoordinates(coordinates)
+          if (polygon) polygons.push(polygon)
+        })
+      }
       return
     }
 
@@ -237,7 +222,7 @@ function extractRingsFromGeoJson(input: unknown): CoordinatePoint[][] {
     visitGeometry(value)
   }
 
-  return rings
+  return polygons
 }
 
 async function extractFromGeoPackage(filePath: string) {
@@ -249,7 +234,7 @@ async function extractFromGeoPackage(filePath: string) {
   const polygonLayer = layers.find((layer) => layer.geometryTypeName.toUpperCase().includes("POLYGON"))
 
   if (!polygonLayer) {
-    throw new Error("No polygon or multipolygon boundary layer was found in the GeoPackage.")
+    throw new Error("No polygon or multipolygon utility boundary layer was found in the GeoPackage.")
   }
 
   if (polygonLayer.srsId !== "4326") {
@@ -261,13 +246,13 @@ async function extractFromGeoPackage(filePath: string) {
     `select hex(${quoteIdentifier(polygonLayer.columnName)}) from ${quoteIdentifier(polygonLayer.tableName)} where ${quoteIdentifier(polygonLayer.columnName)} is not null;`
   )
 
-  const rings = geometryOutput
+  const polygons = geometryOutput
     .split("\n")
     .filter(Boolean)
     .flatMap((hexGeometry) => parseGeoPackageGeometry(hexGeometry))
 
   return {
-    rings,
+    polygons,
     layerName: polygonLayer.tableName,
     geometryType: polygonLayer.geometryTypeName,
   }
@@ -276,7 +261,7 @@ async function extractFromGeoPackage(filePath: string) {
 async function extractFromGeoJson(file: File) {
   const payload = JSON.parse(await file.text())
   return {
-    rings: extractRingsFromGeoJson(payload),
+    polygons: extractPolygonsFromGeoJson(payload),
     layerName: "GeoJSON",
     geometryType: "POLYGON",
   }
@@ -290,7 +275,7 @@ export async function POST(request: Request) {
     const file = formData.get("file")
 
     if (!(file instanceof File)) {
-      return jsonError("Upload a boundary file to extract utility geometry.")
+      return jsonError("Upload a utility boundary file to extract service geometry.")
     }
 
     if (file.size <= 0) {
@@ -302,7 +287,7 @@ export async function POST(request: Request) {
     }
 
     const extension = path.extname(file.name).toLowerCase()
-    let extracted: { rings: CoordinatePoint[][]; layerName: string; geometryType: string }
+    let extracted: { polygons: BoundaryPolygon[]; layerName: string; geometryType: string }
 
     if (extension === ".gpkg") {
       temporaryPath = path.join(os.tmpdir(), `utility-boundary-${randomUUID()}.gpkg`)
@@ -314,21 +299,27 @@ export async function POST(request: Request) {
       return jsonError("Unsupported boundary file. Please upload a GeoPackage (.gpkg) or GeoJSON file.")
     }
 
-    const boundaryPoints = selectBoundaryRing(extracted.rings)
-    if (!boundaryPoints || boundaryPoints.length < 3) {
-      return jsonError("No usable polygon boundary points were found in the uploaded file.")
+    const polygons = normalizePolygons(extracted.polygons)
+    if (!polygons.length) {
+      return jsonError("No usable utility service polygons were found in the uploaded file.")
     }
 
-    const center = calculateCenter(boundaryPoints)
+    const boundaryGeojson =
+      polygons.length === 1
+        ? { type: "Polygon" as const, coordinates: polygons[0] }
+        : { type: "MultiPolygon" as const, coordinates: polygons }
 
     return NextResponse.json({
-      center,
-      boundaryPoints,
+      boundaryGeojson,
       source: {
         fileName: file.name,
         layerName: extracted.layerName,
         geometryType: extracted.geometryType,
-        pointCount: boundaryPoints.length,
+        polygonCount: polygons.length,
+        pointCount: polygons.reduce(
+          (sum, polygon) => sum + polygon.reduce((ringSum, ring) => ringSum + ring.length, 0),
+          0
+        ),
       },
     })
   } catch (error) {

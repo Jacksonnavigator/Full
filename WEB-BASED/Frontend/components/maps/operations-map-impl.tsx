@@ -502,6 +502,8 @@ export function OperationsMapImpl({
   const basemap = controlledBasemap ?? localBasemap
   const isCommandCenter = chromeMode === "command-center"
   const isSatellite = basemap === "satellite"
+  const isInfrastructureZoomSupported = mapZoom > 10
+  const shouldRenderNetwork = showNetwork && networkUrls.length > 0 && isInfrastructureZoomSupported
   const isNationalBoundaryView = mapZoom <= NATIONAL_BOUNDARY_ZOOM
   const fallbackBoundaryLevel: OperationsMapBoundaryOverlay["level"] = isNationalBoundaryView ? "utility" : "dma"
   const boundaryLayers = useMemo<OperationsMapBoundaryOverlay[]>(() => {
@@ -531,18 +533,20 @@ export function OperationsMapImpl({
   )
 
   useEffect(() => {
-    if (!networkUrls.length) {
-      setShowNetwork(false)
-    }
-  }, [networkUrls])
-
-  useEffect(() => {
     setVisibleAssetTypes((current) => {
       const availableTypes = new Set(infrastructureLayers.map((layer) => layer.assetType))
       const next: Record<string, boolean> = {}
       Object.entries(current).forEach(([assetType, visible]) => {
         if (availableTypes.has(assetType)) next[assetType] = visible
       })
+      const currentKeys = Object.keys(current)
+      const nextKeys = Object.keys(next)
+      if (
+        currentKeys.length === nextKeys.length &&
+        nextKeys.every((key) => current[key] === next[key])
+      ) {
+        return current
+      }
       return next
     })
   }, [infrastructureLayers])
@@ -555,9 +559,9 @@ export function OperationsMapImpl({
     let cancelled = false
 
     async function loadNetworkPreview() {
-      if (!showNetwork || !networkUrls.length) {
+      if (!shouldRenderNetwork) {
         if (!cancelled) {
-          setNetworkLayers([])
+          setNetworkLayers((current) => (current.length ? [] : current))
           setNetworkError(null)
           setNetworkLoading(false)
         }
@@ -611,21 +615,21 @@ export function OperationsMapImpl({
     return () => {
       cancelled = true
     }
-  }, [networkUrls, showNetwork])
+  }, [networkUrls, shouldRenderNetwork])
 
   useEffect(() => {
     let cancelled = false
 
     async function loadVisibleAssetLayers() {
       const visibleLayers = infrastructureLayers.filter(
-        (layer) => visibleAssetTypes[layer.assetType] && layer.previewUrls.length
+        (layer) => isInfrastructureZoomSupported && visibleAssetTypes[layer.assetType] && layer.previewUrls.length
       )
 
       if (!visibleLayers.length) {
         if (!cancelled) {
-          setAssetLayers({})
-          setAssetErrors({})
-          setAssetLoadingTypes({})
+          setAssetLayers((current) => (Object.keys(current).length ? {} : current))
+          setAssetErrors((current) => (Object.keys(current).length ? {} : current))
+          setAssetLoadingTypes((current) => (Object.keys(current).length ? {} : current))
         }
         return
       }
@@ -678,7 +682,7 @@ export function OperationsMapImpl({
     return () => {
       cancelled = true
     }
-  }, [infrastructureLayers, visibleAssetTypes])
+  }, [infrastructureLayers, isInfrastructureZoomSupported, visibleAssetTypes])
 
   const validReports = useMemo(
     () =>
@@ -887,7 +891,7 @@ export function OperationsMapImpl({
               })
             : null}
 
-          {showNetwork
+          {shouldRenderNetwork
             ? networkLayers.map((networkLayer, index) => (
                 <GeoJSON
                   key={`network-${index}`}
@@ -909,7 +913,7 @@ export function OperationsMapImpl({
             : null}
 
           {infrastructureLayers.map((asset) =>
-            visibleAssetTypes[asset.assetType]
+            isInfrastructureZoomSupported && visibleAssetTypes[asset.assetType]
               ? (assetLayers[asset.assetType] || []).map((assetLayer, index) => (
                   <GeoJSON
                     key={`asset-${asset.assetType}-${index}`}
@@ -1123,7 +1127,7 @@ export function OperationsMapImpl({
                           : "h-8 justify-start rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
                     }
                     onClick={() => setShowNetwork((current) => !current)}
-                    disabled={!networkUrls.length}
+                    disabled={(!networkUrls.length || !isInfrastructureZoomSupported) && !showNetwork}
                   >
                     <Layers3 className="mr-2 h-3.5 w-3.5" />
                     {showNetwork ? "Hide pipe network" : "Show pipe network"}
@@ -1152,7 +1156,7 @@ export function OperationsMapImpl({
                             [asset.assetType]: !current[asset.assetType],
                           }))
                         }
-                        disabled={!asset.previewUrls.length}
+                        disabled={(!asset.previewUrls.length || !isInfrastructureZoomSupported) && !visible}
                       >
                         <Icon className="mr-2 h-3.5 w-3.5" />
                         {visible ? `Hide ${asset.label}` : `Show ${asset.label}`}
@@ -1210,7 +1214,7 @@ export function OperationsMapImpl({
                     Loading network...
                   </div>
                 ) : null}
-                {!networkLoading && showNetwork && networkError ? (
+                {!networkLoading && shouldRenderNetwork && networkError ? (
                   <div className="mt-2 max-w-[240px] text-right text-[11px] text-rose-600">{networkError}</div>
                 ) : null}
                 {infrastructureLayers.some((asset) => assetLoadingTypes[asset.assetType]) ? (

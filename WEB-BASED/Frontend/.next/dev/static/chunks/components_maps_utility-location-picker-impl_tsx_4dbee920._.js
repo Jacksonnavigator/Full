@@ -11,39 +11,26 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$CircleMarker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-leaflet/lib/CircleMarker.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$MapContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-leaflet/lib/MapContainer.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Polygon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-leaflet/lib/Polygon.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Polyline$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-leaflet/lib/Polyline.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$TileLayer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-leaflet/lib/TileLayer.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-leaflet/lib/Tooltip.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-leaflet/lib/hooks.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/button.tsx [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/utils.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature(), _s2 = __turbopack_context__.k.signature();
 "use client";
-;
-;
 ;
 ;
 const DEFAULT_CENTER = [
     -6.7924,
     39.2083
 ];
-function ClickHandler({ mode, boundaryPoints, onCenterChange, onBoundaryChange }) {
+function ClickHandler({ onCenterChange }) {
     _s();
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMapEvents"])({
         click (event) {
-            const nextPoint = {
+            onCenterChange({
                 latitude: event.latlng.lat,
                 longitude: event.latlng.lng
-            };
-            if (mode === "center") {
-                onCenterChange(nextPoint);
-                return;
-            }
-            onBoundaryChange([
-                ...boundaryPoints,
-                nextPoint
-            ]);
+            });
         }
     });
     return null;
@@ -54,18 +41,33 @@ _s(ClickHandler, "Ld/tk8Iz8AdZhC1l7acENaOEoCo=", false, function() {
     ];
 });
 _c = ClickHandler;
-function ViewportSync({ center, boundaryPoints }) {
+function polygonToLatLngs(polygon) {
+    return polygon.map((ring)=>ring.filter((point)=>Array.isArray(point) && point.length >= 2).map((point)=>[
+                Number(point[1]),
+                Number(point[0])
+            ]).filter(([latitude, longitude])=>Number.isFinite(latitude) && Number.isFinite(longitude))).filter((ring)=>ring.length >= 3);
+}
+function boundaryToPolygons(boundaryGeojson) {
+    if (!boundaryGeojson) return [];
+    if (boundaryGeojson.type === "Polygon") {
+        const polygon = polygonToLatLngs(boundaryGeojson.coordinates);
+        return polygon.length ? [
+            polygon
+        ] : [];
+    }
+    if (boundaryGeojson.type === "MultiPolygon") {
+        return boundaryGeojson.coordinates.map(polygonToLatLngs).filter((polygon)=>polygon.length > 0);
+    }
+    return [];
+}
+function ViewportSync({ center, boundaryPolygons }) {
     _s1();
     const map = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMap"])();
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "ViewportSync.useEffect": ()=>{
-            if (boundaryPoints.length >= 2) {
-                map.fitBounds(boundaryPoints.map({
-                    "ViewportSync.useEffect": (point)=>[
-                            point.latitude,
-                            point.longitude
-                        ]
-                }["ViewportSync.useEffect"]), {
+            const points = boundaryPolygons.flat(2);
+            if (points.length >= 2) {
+                map.fitBounds(points, {
                     padding: [
                         28,
                         28
@@ -76,7 +78,7 @@ function ViewportSync({ center, boundaryPoints }) {
             map.setView(center);
         }
     }["ViewportSync.useEffect"], [
-        boundaryPoints,
+        boundaryPolygons,
         center,
         map
     ]);
@@ -88,9 +90,13 @@ _s1(ViewportSync, "IoceErwr5KVGS9kN4RQ1bOkYMAg=", false, function() {
     ];
 });
 _c1 = ViewportSync;
-function UtilityLocationPickerImpl({ centerValue, boundaryPoints, onCenterChange, onBoundaryChange }) {
+function UtilityLocationPickerImpl({ centerValue, boundaryGeojson, onCenterChange }) {
     _s2();
-    const [mode, setMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("center");
+    const boundaryPolygons = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "UtilityLocationPickerImpl.useMemo[boundaryPolygons]": ()=>boundaryToPolygons(boundaryGeojson)
+    }["UtilityLocationPickerImpl.useMemo[boundaryPolygons]"], [
+        boundaryGeojson
+    ]);
     const mapCenter = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "UtilityLocationPickerImpl.useMemo[mapCenter]": ()=>{
             if (centerValue.latitude !== null && centerValue.longitude !== null) {
@@ -99,28 +105,14 @@ function UtilityLocationPickerImpl({ centerValue, boundaryPoints, onCenterChange
                     centerValue.longitude
                 ];
             }
-            if (boundaryPoints.length) {
-                return [
-                    boundaryPoints[0].latitude,
-                    boundaryPoints[0].longitude
-                ];
-            }
+            const firstBoundaryPoint = boundaryPolygons[0]?.[0]?.[0];
+            if (firstBoundaryPoint) return firstBoundaryPoint;
             return DEFAULT_CENTER;
         }
     }["UtilityLocationPickerImpl.useMemo[mapCenter]"], [
-        boundaryPoints,
+        boundaryPolygons,
         centerValue.latitude,
         centerValue.longitude
-    ]);
-    const boundaryLatLngs = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "UtilityLocationPickerImpl.useMemo[boundaryLatLngs]": ()=>boundaryPoints.map({
-                "UtilityLocationPickerImpl.useMemo[boundaryLatLngs]": (point)=>[
-                        point.latitude,
-                        point.longitude
-                    ]
-            }["UtilityLocationPickerImpl.useMemo[boundaryLatLngs]"])
-    }["UtilityLocationPickerImpl.useMemo[boundaryLatLngs]"], [
-        boundaryPoints
     ]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "overflow-hidden rounded-2xl border border-slate-200 bg-white",
@@ -128,96 +120,32 @@ function UtilityLocationPickerImpl({ centerValue, boundaryPoints, onCenterChange
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "border-b border-slate-100 bg-slate-50/80 px-4 py-3",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between",
                     children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    className: "text-sm font-semibold text-slate-800",
-                                    children: "Utility Spatial Coordinates"
-                                }, void 0, false, {
-                                    fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                                    lineNumber: 102,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    className: "mt-1 text-xs text-slate-500",
-                                    children: "Use one mode to set the Utility center and the other to capture the Utility boundary polygon directly on the map."
-                                }, void 0, false, {
-                                    fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                                    lineNumber: 103,
-                                    columnNumber: 13
-                                }, this)
-                            ]
-                        }, void 0, true, {
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-sm font-semibold text-slate-800",
+                            children: "Utility Spatial Coordinates"
+                        }, void 0, false, {
                             fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                            lineNumber: 101,
+                            lineNumber: 102,
                             columnNumber: 11
                         }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex flex-wrap gap-2",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                    type: "button",
-                                    variant: mode === "center" ? "default" : "outline",
-                                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("rounded-xl", mode === "center" && "bg-emerald-600 text-white hover:bg-emerald-700"),
-                                    onClick: ()=>setMode("center"),
-                                    children: "Utility Center"
-                                }, void 0, false, {
-                                    fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                                    lineNumber: 109,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                    type: "button",
-                                    variant: mode === "boundary" ? "default" : "outline",
-                                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("rounded-xl", mode === "boundary" && "bg-cyan-600 text-white hover:bg-cyan-700"),
-                                    onClick: ()=>setMode("boundary"),
-                                    children: "Utility Boundaries"
-                                }, void 0, false, {
-                                    fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                                    lineNumber: 120,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                    type: "button",
-                                    variant: "outline",
-                                    className: "rounded-xl",
-                                    disabled: !boundaryPoints.length,
-                                    onClick: ()=>onBoundaryChange(boundaryPoints.slice(0, -1)),
-                                    children: "Undo last point"
-                                }, void 0, false, {
-                                    fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                                    lineNumber: 131,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                    type: "button",
-                                    variant: "outline",
-                                    className: "rounded-xl",
-                                    disabled: !boundaryPoints.length,
-                                    onClick: ()=>onBoundaryChange([]),
-                                    children: "Clear boundary"
-                                }, void 0, false, {
-                                    fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                                    lineNumber: 140,
-                                    columnNumber: 13
-                                }, this)
-                            ]
-                        }, void 0, true, {
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "mt-1 text-xs text-slate-500",
+                            children: "Click the map to set the utility center. Uploaded service boundaries are shown for verification only."
+                        }, void 0, false, {
                             fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                            lineNumber: 108,
+                            lineNumber: 103,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                    lineNumber: 100,
+                    lineNumber: 101,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                lineNumber: 99,
+                lineNumber: 100,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$MapContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MapContainer"], {
@@ -236,63 +164,31 @@ function UtilityLocationPickerImpl({ centerValue, boundaryPoints, onCenterChange
                         detectRetina: true
                     }, void 0, false, {
                         fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                        lineNumber: 154,
+                        lineNumber: 110,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ViewportSync, {
                         center: mapCenter,
-                        boundaryPoints: boundaryPoints
+                        boundaryPolygons: boundaryPolygons
                     }, void 0, false, {
                         fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                        lineNumber: 163,
+                        lineNumber: 119,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ClickHandler, {
-                        mode: mode,
-                        boundaryPoints: boundaryPoints,
-                        onCenterChange: onCenterChange,
-                        onBoundaryChange: onBoundaryChange
+                        onCenterChange: onCenterChange
                     }, void 0, false, {
                         fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                        lineNumber: 164,
+                        lineNumber: 120,
                         columnNumber: 9
                     }, this),
-                    boundaryLatLngs.length >= 3 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Polygon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Polygon"], {
-                        positions: boundaryLatLngs,
-                        pathOptions: {
-                            color: "#0891b2",
-                            fillColor: "#22d3ee",
-                            fillOpacity: 0.18,
-                            weight: 3,
-                            dashArray: "6 6"
-                        }
-                    }, void 0, false, {
-                        fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                        lineNumber: 172,
-                        columnNumber: 11
-                    }, this) : boundaryLatLngs.length >= 2 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Polyline$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Polyline"], {
-                        positions: boundaryLatLngs,
-                        pathOptions: {
-                            color: "#0891b2",
-                            weight: 3,
-                            dashArray: "6 6"
-                        }
-                    }, void 0, false, {
-                        fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                        lineNumber: 183,
-                        columnNumber: 11
-                    }, this) : null,
-                    boundaryPoints.map((point, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$CircleMarker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CircleMarker"], {
-                            center: [
-                                point.latitude,
-                                point.longitude
-                            ],
-                            radius: 7,
+                    boundaryPolygons.map((polygon, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Polygon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Polygon"], {
+                            positions: polygon,
                             pathOptions: {
-                                color: "#0f172a",
+                                color: "#0891b2",
                                 fillColor: "#22d3ee",
-                                fillOpacity: 0.95,
-                                weight: 2
+                                fillOpacity: 0.16,
+                                weight: 3
                             },
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
                                 direction: "top",
@@ -301,17 +197,17 @@ function UtilityLocationPickerImpl({ centerValue, boundaryPoints, onCenterChange
                                     -8
                                 ],
                                 children: [
-                                    "Boundary point ",
-                                    index + 1
+                                    "Uploaded service boundary ",
+                                    boundaryPolygons.length > 1 ? index + 1 : ""
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                                lineNumber: 205,
+                                lineNumber: 133,
                                 columnNumber: 13
                             }, this)
-                        }, `${point.latitude}-${point.longitude}-${index}`, false, {
+                        }, `utility-boundary-${index}`, false, {
                             fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                            lineNumber: 194,
+                            lineNumber: 123,
                             columnNumber: 11
                         }, this)),
                     centerValue.latitude !== null && centerValue.longitude !== null ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$CircleMarker$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CircleMarker"], {
@@ -335,36 +231,36 @@ function UtilityLocationPickerImpl({ centerValue, boundaryPoints, onCenterChange
                             children: "Utility center"
                         }, void 0, false, {
                             fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                            lineNumber: 222,
+                            lineNumber: 150,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                        lineNumber: 212,
+                        lineNumber: 140,
                         columnNumber: 11
                     }, this) : null
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                lineNumber: 153,
+                lineNumber: 109,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "border-t border-slate-100 bg-white px-4 py-3 text-xs text-slate-500",
-                children: mode === "center" ? "Center mode is active. Click once on the map to capture the Utility center coordinates." : "Boundary mode is active. Click around the Utility area to build the polygon point by point. The outline will grow as you add points."
+                children: "The utility center is required and acts as the primary operational city marker on the dashboard map."
             }, void 0, false, {
                 fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-                lineNumber: 229,
+                lineNumber: 157,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/maps/utility-location-picker-impl.tsx",
-        lineNumber: 98,
+        lineNumber: 99,
         columnNumber: 5
     }, this);
 }
-_s2(UtilityLocationPickerImpl, "iRh1CD7ASEWqUx6rHuwL/FSQnto=");
+_s2(UtilityLocationPickerImpl, "r/wuKCSKryKx68Yd8SHMP92UAXA=");
 _c2 = UtilityLocationPickerImpl;
 var _c, _c1, _c2;
 __turbopack_context__.k.register(_c, "ClickHandler");

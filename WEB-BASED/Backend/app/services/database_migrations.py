@@ -51,6 +51,7 @@ def run_safe_startup_migrations(engine: Engine) -> None:
     _migrate_report_workflow_columns(engine)
     _migrate_report_leakage_type_column(engine)
     _migrate_utility_contact_columns(engine)
+    _migrate_utility_service_area_table(engine)
     _migrate_dma_boundary_columns(engine)
     _migrate_utility_infrastructure_layer_table(engine)
     _drop_legacy_utility_pipe_network_table(engine)
@@ -596,6 +597,10 @@ def _migrate_utility_contact_columns(engine: Engine) -> None:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN center_longitude FLOAT")
     if "boundary_geojson" not in columns:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN boundary_geojson TEXT")
+    if "boundary_source_type" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN boundary_source_type VARCHAR(32)")
+    if "boundary_status" not in columns:
+        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN boundary_status VARCHAR(32)")
     if "region_name" not in columns:
         statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN region_name VARCHAR(100)")
 
@@ -605,6 +610,59 @@ def _migrate_utility_contact_columns(engine: Engine) -> None:
     with engine.begin() as connection:
         for statement in statements:
             connection.exec_driver_sql(statement)
+
+
+def _migrate_utility_service_area_table(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "utility" not in inspector.get_table_names():
+        return
+
+    with engine.begin() as connection:
+        if engine.dialect.name == "sqlite":
+            connection.exec_driver_sql(
+                """
+                CREATE TABLE IF NOT EXISTS utility_service_area (
+                    id VARCHAR(36) PRIMARY KEY,
+                    utility_id VARCHAR(36) NOT NULL,
+                    category VARCHAR(32) NOT NULL,
+                    name VARCHAR(255) NOT NULL,
+                    region_name VARCHAR(100),
+                    admin_area_id VARCHAR(100),
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL,
+                    CONSTRAINT uq_utility_service_area_named UNIQUE (utility_id, category, name, region_name),
+                    FOREIGN KEY(utility_id) REFERENCES utility(id) ON DELETE CASCADE
+                )
+                """
+            )
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_utility_id ON utility_service_area (utility_id)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_category ON utility_service_area (category)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_name ON utility_service_area (name)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_region_name ON utility_service_area (region_name)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_admin_area_id ON utility_service_area (admin_area_id)")
+            return
+
+        if engine.dialect.name.startswith("postgresql"):
+            connection.exec_driver_sql(
+                """
+                CREATE TABLE IF NOT EXISTS utility_service_area (
+                    id VARCHAR(36) PRIMARY KEY,
+                    utility_id VARCHAR(36) NOT NULL REFERENCES utility(id) ON DELETE CASCADE,
+                    category VARCHAR(32) NOT NULL,
+                    name VARCHAR(255) NOT NULL,
+                    region_name VARCHAR(100),
+                    admin_area_id VARCHAR(100),
+                    created_at TIMESTAMP NOT NULL,
+                    updated_at TIMESTAMP NOT NULL,
+                    CONSTRAINT uq_utility_service_area_named UNIQUE (utility_id, category, name, region_name)
+                )
+                """
+            )
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_utility_id ON utility_service_area (utility_id)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_category ON utility_service_area (category)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_name ON utility_service_area (name)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_region_name ON utility_service_area (region_name)")
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_admin_area_id ON utility_service_area (admin_area_id)")
 
 
 def _migrate_geographic_assignment_columns(engine: Engine) -> None:

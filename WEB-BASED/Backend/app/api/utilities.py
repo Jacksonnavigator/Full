@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from shapely import wkb
 from shapely.geometry import mapping, shape
 from app.database.session import get_db
-from app.models import Utility, UtilityInfrastructureLayer, DMA
+from app.models import Utility, UtilityInfrastructureLayer, UtilityServiceArea, DMA
 from app.schemas.user import (
     UtilityCreate,
     UtilityUpdate,
@@ -28,6 +28,8 @@ from app.schemas.user import (
     PipeNetworkIngestSummary,
     UtilityInfrastructureAssetResponse,
     UtilityInfrastructureUploadResponse,
+    UtilityServiceAreaCreate,
+    UtilityServiceAreaResponse,
 )
 from app.security.dependencies import get_current_user, require_admin, require_utility_manager, CurrentUser
 from app.services.hierarchy import (
@@ -35,7 +37,6 @@ from app.services.hierarchy import (
     find_nearest_utility,
     find_utility_by_region_name,
     resolve_region_name_hint,
-    get_utility_boundary_shape,
 )
 
 utilities_router = APIRouter(prefix="/api/utilities", tags=["utilities"])
@@ -137,6 +138,46 @@ def _build_infrastructure_asset_response(layer: UtilityInfrastructureLayer) -> U
     )
 
 
+def _build_service_area_response(service_area: UtilityServiceArea) -> UtilityServiceAreaResponse:
+    return UtilityServiceAreaResponse(
+        id=service_area.id,
+        utility_id=service_area.utility_id,
+        category=service_area.category.value if hasattr(service_area.category, "value") else service_area.category,
+        name=service_area.name,
+        region_name=service_area.region_name,
+        admin_area_id=service_area.admin_area_id,
+        created_at=service_area.created_at,
+        updated_at=service_area.updated_at,
+    )
+
+
+def _replace_utility_service_areas(
+    utility: Utility,
+    service_areas: Optional[List[UtilityServiceAreaCreate]],
+) -> None:
+    if service_areas is None:
+        return
+
+    utility.service_areas.clear()
+    seen: set[tuple[str, str, str]] = set()
+    for area in service_areas:
+        category = area.category
+        name = area.name.strip()
+        region_name = (area.region_name or utility.region_name or "").strip() or None
+        key = (category, name.casefold(), (region_name or "").casefold())
+        if key in seen:
+            continue
+        seen.add(key)
+        utility.service_areas.append(
+            UtilityServiceArea(
+                category=category,
+                name=name,
+                region_name=region_name,
+                admin_area_id=area.admin_area_id,
+            )
+        )
+
+
 def _build_utility_response(utility: Utility, db: Optional[Session] = None) -> UtilityResponse:
     infrastructure_layers = sorted(
         list(utility.infrastructure_layers or []),
@@ -144,10 +185,13 @@ def _build_utility_response(utility: Utility, db: Optional[Session] = None) -> U
         if layer.asset_type in UTILITY_INFRASTRUCTURE_ASSETS else 999,
     )
     boundary_geojson = _deserialize_boundary_geojson(utility.boundary_geojson)
-    if boundary_geojson is None and db is not None:
-        derived_boundary_shape = get_utility_boundary_shape(utility, db)
-        if derived_boundary_shape is not None:
-            boundary_geojson = mapping(derived_boundary_shape)
+    service_areas = sorted(
+        list(utility.service_areas or []),
+        key=lambda area: (
+            str(area.category.value if hasattr(area.category, "value") else area.category),
+            area.name.casefold(),
+        ),
+    )
 
     return UtilityResponse(
         id=utility.id,
@@ -160,7 +204,10 @@ def _build_utility_response(utility: Utility, db: Optional[Session] = None) -> U
         center_latitude=utility.center_latitude,
         center_longitude=utility.center_longitude,
         boundary_geojson=boundary_geojson,
+        boundary_source_type=utility.boundary_source_type or ("uploaded" if boundary_geojson else "none"),
+        boundary_status=utility.boundary_status or ("verified" if boundary_geojson else "none"),
         status=utility.status,
+        service_areas=[_build_service_area_response(area) for area in service_areas],
         infrastructure_layers=[_build_infrastructure_asset_response(layer) for layer in infrastructure_layers],
         created_at=utility.created_at,
         updated_at=utility.updated_at,
@@ -258,67 +305,137 @@ def _serialize_boundary_geojson(boundary_geojson: Optional[dict[str, Any]]) -> O
     if not isinstance(boundary_geojson, dict):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Utility boundary must be a valid GeoJSON polygon object.",
+            detail="Utility boundary must be a valid GeoJSON Polygon or MultiPolygon object.",
         )
 
-    if boundary_geojson.get("type") != "Polygon":
+    geometry_type = boundary_geojson.get("type")
+    if geometry_type not in {"Polygon", "MultiPolygon"}:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Utility boundary must use GeoJSON Polygon geometry.",
+            detail="Utility boundary must use GeoJSON Polygon or MultiPolygon geometry.",
         )
 
     coordinates = boundary_geojson.get("coordinates")
     if not isinstance(coordinates, list) or not coordinates:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Utility boundary polygon must include coordinate rings.",
+            detail="Utility boundary must include coordinate rings.",
         )
 
-    outer_ring = coordinates[0]
-    if not isinstance(outer_ring, list):
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Utility boundary polygon must include an outer coordinate ring.",
-        )
-
-    normalized_ring: list[list[float]] = []
-    distinct_points: set[tuple[float, float]] = set()
-
-    for raw_point in outer_ring:
-        if not isinstance(raw_point, (list, tuple)) or len(raw_point) < 2:
+    def normalize_ring(raw_ring: Any) -> list[list[float]]:
+        if not isinstance(raw_ring, list):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Each utility boundary point must contain longitude and latitude values.",
+                detail="Utility boundary polygon must include an outer coordinate ring.",
             )
 
+        normalized_ring: list[list[float]] = []
+        distinct_points: set[tuple[float, float]] = set()
+
+        for raw_point in raw_ring:
+            if not isinstance(raw_point, (list, tuple)) or len(raw_point) < 2:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="Each utility boundary point must contain longitude and latitude values.",
+                )
+
+            try:
+                longitude = float(raw_point[0])
+                latitude = float(raw_point[1])
+            except (TypeError, ValueError):
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="Utility boundary points must be valid numeric coordinates.",
+                ) from None
+
+            if longitude < -180 or longitude > 180 or latitude < -90 or latitude > 90:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="Utility boundary coordinates must be within valid longitude and latitude ranges.",
+                )
+
+            normalized_ring.append([longitude, latitude])
+            distinct_points.add((longitude, latitude))
+
+        if len(distinct_points) < 3:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Each utility boundary polygon must contain at least three distinct points.",
+            )
+
+        if normalized_ring[0] != normalized_ring[-1]:
+            normalized_ring.append(normalized_ring[0])
+        return normalized_ring
+
+    def normalize_polygon(raw_polygon: Any) -> list[list[list[float]]]:
+        if not isinstance(raw_polygon, list) or not raw_polygon:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Utility boundary polygon must include coordinate rings.",
+            )
+        # Store only validated rings. The first ring is the service-area exterior;
+        # interior holes remain supported when uploaded by GIS tools.
+        return [normalize_ring(ring) for ring in raw_polygon if isinstance(ring, list)]
+
+    if geometry_type == "Polygon":
+        normalized: dict[str, Any] = {"type": "Polygon", "coordinates": normalize_polygon(coordinates)}
+    else:
+        normalized_polygons = [normalize_polygon(polygon) for polygon in coordinates if isinstance(polygon, list)]
+        if not normalized_polygons:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Utility boundary multipolygon must include at least one polygon.",
+            )
+        normalized = {"type": "MultiPolygon", "coordinates": normalized_polygons}
+
+    try:
+        boundary_shape = shape(normalized)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Utility boundary geometry is invalid.",
+        ) from None
+
+    if boundary_shape.is_empty or not boundary_shape.is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Utility boundary geometry is empty or invalid.",
+        )
+
+    return json.dumps(normalized)
+
+
+def _validate_utility_boundary_does_not_overlap(
+    boundary_geojson_raw: Optional[str],
+    db: Session,
+    *,
+    utility_id: Optional[str] = None,
+) -> None:
+    boundary_geojson = _deserialize_boundary_geojson(boundary_geojson_raw)
+    if not boundary_geojson:
+        return
+
+    try:
+        boundary_shape = shape(boundary_geojson)
+    except Exception:
+        return
+
+    existing_utilities = db.query(Utility).filter(Utility.boundary_geojson.isnot(None)).all()
+    for existing in existing_utilities:
+        if utility_id and existing.id == utility_id:
+            continue
+        existing_geojson = _deserialize_boundary_geojson(existing.boundary_geojson)
+        if not existing_geojson:
+            continue
         try:
-            longitude = float(raw_point[0])
-            latitude = float(raw_point[1])
-        except (TypeError, ValueError):
+            existing_shape = shape(existing_geojson)
+        except Exception:
+            continue
+        if boundary_shape.intersects(existing_shape) and boundary_shape.intersection(existing_shape).area > 0:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Utility boundary points must be valid numeric coordinates.",
-            ) from None
-
-        if longitude < -180 or longitude > 180 or latitude < -90 or latitude > 90:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Utility boundary coordinates must be within valid longitude and latitude ranges.",
+                detail=f"Utility boundary overlaps with {existing.name}. Upload a corrected non-overlapping boundary.",
             )
-
-        normalized_ring.append([longitude, latitude])
-        distinct_points.add((longitude, latitude))
-
-    if len(distinct_points) < 3:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Utility boundary polygon must contain at least three distinct points.",
-        )
-
-    if normalized_ring[0] != normalized_ring[-1]:
-        normalized_ring.append(normalized_ring[0])
-
-    return json.dumps({"type": "Polygon", "coordinates": [normalized_ring]})
 
 
 def _filter_pipe_network_to_dma_boundary(
@@ -1305,6 +1422,9 @@ async def create_utility(
             detail="Utility center latitude and longitude are required.",
         )
 
+    boundary_geojson_raw = _serialize_boundary_geojson(utility_data.boundary_geojson)
+    _validate_utility_boundary_does_not_overlap(boundary_geojson_raw, db)
+
     new_utility = Utility(
         name=utility_data.name,
         region_name=utility_data.region_name,
@@ -1314,9 +1434,12 @@ async def create_utility(
         contact_address=utility_data.contact_address,
         center_latitude=utility_data.center_latitude,
         center_longitude=utility_data.center_longitude,
-        boundary_geojson=_serialize_boundary_geojson(utility_data.boundary_geojson),
+        boundary_geojson=boundary_geojson_raw,
+        boundary_source_type="uploaded" if boundary_geojson_raw else "none",
+        boundary_status="verified" if boundary_geojson_raw else "none",
         status=utility_data.status,
     )
+    _replace_utility_service_areas(new_utility, utility_data.service_areas)
     
     db.add(new_utility)
     db.commit()
@@ -1345,10 +1468,20 @@ async def update_utility(
         )
 
     _ensure_utility_access(utility, current_user, db)
+    boundary_was_sent = "boundary_geojson" in utility_data.model_fields_set
     update_data = utility_data.model_dump(exclude_unset=True)
+    service_areas = update_data.pop("service_areas", None)
     raw_boundary_geojson = update_data.pop("boundary_geojson", None)
-    if raw_boundary_geojson is not None:
-        utility.boundary_geojson = _serialize_boundary_geojson(raw_boundary_geojson)
+    update_data.pop("boundary_source_type", None)
+    update_data.pop("boundary_status", None)
+    if boundary_was_sent:
+        boundary_geojson_raw = _serialize_boundary_geojson(raw_boundary_geojson)
+        _validate_utility_boundary_does_not_overlap(boundary_geojson_raw, db, utility_id=utility.id)
+        utility.boundary_geojson = boundary_geojson_raw
+        utility.boundary_source_type = "uploaded" if boundary_geojson_raw else "none"
+        utility.boundary_status = "verified" if boundary_geojson_raw else "none"
+    if service_areas is not None:
+        _replace_utility_service_areas(utility, [UtilityServiceAreaCreate(**area) if isinstance(area, dict) else area for area in service_areas])
     for field, value in update_data.items():
         setattr(utility, field, value)
 
@@ -1384,10 +1517,20 @@ async def patch_utility(
         )
 
     _ensure_utility_access(utility, current_user, db)
+    boundary_was_sent = "boundary_geojson" in utility_data.model_fields_set
     update_data = utility_data.model_dump(exclude_unset=True)
+    service_areas = update_data.pop("service_areas", None)
     raw_boundary_geojson = update_data.pop("boundary_geojson", None)
-    if raw_boundary_geojson is not None:
-        utility.boundary_geojson = _serialize_boundary_geojson(raw_boundary_geojson)
+    update_data.pop("boundary_source_type", None)
+    update_data.pop("boundary_status", None)
+    if boundary_was_sent:
+        boundary_geojson_raw = _serialize_boundary_geojson(raw_boundary_geojson)
+        _validate_utility_boundary_does_not_overlap(boundary_geojson_raw, db, utility_id=utility.id)
+        utility.boundary_geojson = boundary_geojson_raw
+        utility.boundary_source_type = "uploaded" if boundary_geojson_raw else "none"
+        utility.boundary_status = "verified" if boundary_geojson_raw else "none"
+    if service_areas is not None:
+        _replace_utility_service_areas(utility, [UtilityServiceAreaCreate(**area) if isinstance(area, dict) else area for area in service_areas])
     for field, value in update_data.items():
         setattr(utility, field, value)
 

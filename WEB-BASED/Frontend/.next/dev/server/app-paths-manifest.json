@@ -1,12 +1,7 @@
 {
-  "/(dashboard)/dashboard/dma-managers/page": "app/(dashboard)/dashboard/dma-managers/page.js",
-  "/(dashboard)/dashboard/dmas/page": "app/(dashboard)/dashboard/dmas/page.js",
-  "/(dashboard)/dashboard/location-routing/page": "app/(dashboard)/dashboard/location-routing/page.js",
-  "/(dashboard)/dashboard/managers/page": "app/(dashboard)/dashboard/managers/page.js",
   "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(dashboard)/dashboard/reports/[reportId]/page": "app/(dashboard)/dashboard/reports/[reportId]/page.js",
-  "/(dashboard)/dashboard/reports/page": "app/(dashboard)/dashboard/reports/page.js",
+  "/(dashboard)/dashboard/utilities/[utilityId]/edit/page": "app/(dashboard)/dashboard/utilities/[utilityId]/edit/page.js",
+  "/(dashboard)/dashboard/utilities/new/page": "app/(dashboard)/dashboard/utilities/new/page.js",
   "/(dashboard)/dashboard/utilities/page": "app/(dashboard)/dashboard/utilities/page.js",
-  "/(dashboard)/dashboard/utility-infrastructure/page": "app/(dashboard)/dashboard/utility-infrastructure/page.js",
-  "/api/upload-payload/[imageId]/route": "app/api/upload-payload/[imageId]/route.js"
+  "/page": "app/page.js"
 }

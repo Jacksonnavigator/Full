@@ -54,7 +54,10 @@ export interface Utility {
   managerName: string
   centerLatitude?: number | null
   centerLongitude?: number | null
-  boundaryGeojson?: GeoJsonPolygon | null
+  boundaryGeojson?: GeoJsonBoundary | null
+  boundarySourceType?: "none" | "uploaded" | null
+  boundaryStatus?: "none" | "verified" | null
+  serviceAreas?: UtilityServiceArea[]
   status: EntityStatus
   dmasCount: number
   createdAt: string
@@ -63,6 +66,34 @@ export interface Utility {
 export interface GeoJsonPolygon {
   type: "Polygon"
   coordinates: number[][][]
+}
+
+export interface GeoJsonMultiPolygon {
+  type: "MultiPolygon"
+  coordinates: number[][][][]
+}
+
+export type GeoJsonBoundary = GeoJsonPolygon | GeoJsonMultiPolygon
+
+export type UtilityServiceAreaCategory =
+  | "region"
+  | "district"
+  | "city"
+  | "town"
+  | "ward"
+  | "village"
+  | "custom_area"
+  | "infrastructure_corridor"
+
+export interface UtilityServiceArea {
+  id?: string
+  utilityId?: string
+  category: UtilityServiceAreaCategory
+  name: string
+  regionName?: string | null
+  adminAreaId?: string | null
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface DMA {

@@ -75,6 +75,57 @@ class UserInvitationCreate(BaseModel):
 # Utility Schemas
 # ============================================================================
 
+UTILITY_SERVICE_AREA_CATEGORIES = {
+    "region",
+    "district",
+    "city",
+    "town",
+    "ward",
+    "village",
+    "custom_area",
+    "infrastructure_corridor",
+}
+
+
+class UtilityServiceAreaBase(BaseModel):
+    """Official named service area for a utility."""
+
+    category: str = Field(..., description="Service area category")
+    name: str = Field(..., min_length=1, max_length=255)
+    region_name: Optional[str] = Field(None, max_length=100)
+    admin_area_id: Optional[str] = Field(None, max_length=100)
+
+    @classmethod
+    def _normalize_category(cls, value: str) -> str:
+        normalized = str(value or "").strip().lower().replace(" ", "_").replace("-", "_")
+        if normalized not in UTILITY_SERVICE_AREA_CATEGORIES:
+            raise ValueError("Unsupported utility service area category")
+        return normalized
+
+    def model_post_init(self, __context: Any) -> None:
+        self.category = self._normalize_category(self.category)
+        self.name = self.name.strip()
+        if self.region_name is not None:
+            self.region_name = self.region_name.strip() or None
+        if self.admin_area_id is not None:
+            self.admin_area_id = self.admin_area_id.strip() or None
+
+
+class UtilityServiceAreaCreate(UtilityServiceAreaBase):
+    """Schema for utility service area creation."""
+
+
+class UtilityServiceAreaResponse(UtilityServiceAreaBase):
+    """Schema for utility service area response."""
+
+    id: str
+    utility_id: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class UtilityBase(BaseModel):
     """Base schema for Utility"""
     name: str = Field(..., min_length=1, max_length=255)
@@ -86,6 +137,9 @@ class UtilityBase(BaseModel):
     center_latitude: Optional[float] = Field(None, ge=-90, le=90)
     center_longitude: Optional[float] = Field(None, ge=-180, le=180)
     boundary_geojson: Optional[dict[str, Any]] = None
+    boundary_source_type: Optional[str] = Field("none", max_length=32)
+    boundary_status: Optional[str] = Field("none", max_length=32)
+    service_areas: List[UtilityServiceAreaCreate] = Field(default_factory=list)
     status: EntityStatus = EntityStatus.ACTIVE
 
 
@@ -105,6 +159,9 @@ class UtilityUpdate(BaseModel):
     center_latitude: Optional[float] = Field(None, ge=-90, le=90)
     center_longitude: Optional[float] = Field(None, ge=-180, le=180)
     boundary_geojson: Optional[dict[str, Any]] = None
+    boundary_source_type: Optional[str] = Field(None, max_length=32)
+    boundary_status: Optional[str] = Field(None, max_length=32)
+    service_areas: Optional[List[UtilityServiceAreaCreate]] = None
     status: Optional[EntityStatus] = None
 
 
@@ -125,7 +182,8 @@ class UtilityInfrastructureAssetResponse(BaseModel):
 class UtilityResponse(UtilityBase):
     """Schema for utility response"""
     id: str
-    infrastructure_layers: List[UtilityInfrastructureAssetResponse] = []
+    service_areas: List[UtilityServiceAreaResponse] = Field(default_factory=list)
+    infrastructure_layers: List[UtilityInfrastructureAssetResponse] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
 

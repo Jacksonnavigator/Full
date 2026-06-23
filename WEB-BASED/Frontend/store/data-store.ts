@@ -10,7 +10,14 @@ import CONFIG from "@/lib/config"
 import { transformKeys } from "@/lib/transform-data"
 
 // Type imports for proper typing
-import type { LeakageType, ReportStatus, ReportPriority, EntityStatus } from "@/lib/types"
+import type {
+  EntityStatus,
+  GeoJsonBoundary,
+  LeakageType,
+  ReportPriority,
+  ReportStatus,
+  UtilityServiceArea,
+} from "@/lib/types"
 
 export interface GeoJsonPolygon {
   type: "Polygon"
@@ -28,7 +35,10 @@ export interface Utility {
   contactAddress?: string | null
   centerLatitude?: number | null
   centerLongitude?: number | null
-  boundaryGeojson?: GeoJsonPolygon | null
+  boundaryGeojson?: GeoJsonBoundary | null
+  boundarySourceType?: "none" | "uploaded" | null
+  boundaryStatus?: "none" | "verified" | null
+  serviceAreas?: UtilityServiceArea[]
   managerId?: string | null
   managerName?: string
   status: EntityStatus
@@ -66,6 +76,19 @@ function serializeUtilityPayload(data: Partial<Utility>) {
     ...(data.centerLatitude !== undefined ? { center_latitude: data.centerLatitude } : {}),
     ...(data.centerLongitude !== undefined ? { center_longitude: data.centerLongitude } : {}),
     ...(data.boundaryGeojson !== undefined ? { boundary_geojson: data.boundaryGeojson } : {}),
+    ...(data.boundarySourceType !== undefined ? { boundary_source_type: data.boundarySourceType } : {}),
+    ...(data.boundaryStatus !== undefined ? { boundary_status: data.boundaryStatus } : {}),
+    ...(data.serviceAreas !== undefined
+      ? {
+          service_areas: data.serviceAreas.map((area) => ({
+            ...(area.id !== undefined ? { id: area.id } : {}),
+            category: area.category,
+            name: area.name,
+            region_name: area.regionName ?? null,
+            admin_area_id: area.adminAreaId ?? null,
+          })),
+        }
+      : {}),
     ...(data.status !== undefined ? { status: data.status } : {}),
   }
 }

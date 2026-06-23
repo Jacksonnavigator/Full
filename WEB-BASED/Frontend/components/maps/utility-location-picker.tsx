@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import type { GeoJsonBoundary } from "@/lib/types"
 
 const UtilityLocationPickerInner = dynamic(
   () => import("./utility-location-picker-impl").then((module) => module.UtilityLocationPickerImpl),
@@ -16,9 +17,8 @@ const UtilityLocationPickerInner = dynamic(
 
 export function UtilityLocationPicker(props: {
   centerValue: { latitude: number | null; longitude: number | null }
-  boundaryPoints: Array<{ latitude: number; longitude: number }>
+  boundaryGeojson?: GeoJsonBoundary | null
   onCenterChange: (next: { latitude: number; longitude: number }) => void
-  onBoundaryChange: (next: Array<{ latitude: number; longitude: number }>) => void
 }) {
   return <UtilityLocationPickerInner {...props} />
 }

@@ -521,6 +521,23 @@ function serializeUtilityPayload(data) {
         ...data.boundaryGeojson !== undefined ? {
             boundary_geojson: data.boundaryGeojson
         } : {},
+        ...data.boundarySourceType !== undefined ? {
+            boundary_source_type: data.boundarySourceType
+        } : {},
+        ...data.boundaryStatus !== undefined ? {
+            boundary_status: data.boundaryStatus
+        } : {},
+        ...data.serviceAreas !== undefined ? {
+            service_areas: data.serviceAreas.map((area)=>({
+                    ...area.id !== undefined ? {
+                        id: area.id
+                    } : {},
+                    category: area.category,
+                    name: area.name,
+                    region_name: area.regionName ?? null,
+                    admin_area_id: area.adminAreaId ?? null
+                }))
+        } : {},
         ...data.status !== undefined ? {
             status: data.status
         } : {}
