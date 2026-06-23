@@ -52,7 +52,7 @@ import {
   Phone,
   Mail,
   CheckCircle2,
-  Sparkles,
+  Save,
   User,
   Lock,
   UserPlus,
@@ -357,9 +357,7 @@ export default function UsersPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <Users className="h-5 w-5 text-white" />
-              </div>
+              <Users className="h-7 w-7 text-blue-600" />
               Users
             </h1>
             <p className="text-slate-500 mt-1">Invite and manage public reporting user accounts</p>
@@ -378,9 +376,7 @@ export default function UsersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 bg-gradient-to-br from-blue-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <Users className="h-6 w-6 text-white" />
-                </div>
+                <Users className="h-8 w-8 shrink-0 text-blue-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Users</p>
                   <p className="text-2xl font-bold text-slate-800">{totalUsers}</p>
@@ -392,9 +388,7 @@ export default function UsersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 bg-gradient-to-br from-emerald-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <CheckCircle2 className="h-6 w-6 text-white" />
-                </div>
+                <CheckCircle2 className="h-8 w-8 shrink-0 text-emerald-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Active Users</p>
                   <p className="text-2xl font-bold text-slate-800">{activeUsers}</p>
@@ -406,9 +400,7 @@ export default function UsersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 bg-gradient-to-br from-red-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg shadow-red-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <UserPlus className="h-6 w-6 text-white" />
-                </div>
+                <UserPlus className="h-8 w-8 shrink-0 text-rose-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Inactive Users</p>
                   <p className="text-2xl font-bold text-slate-800">{inactiveUsers}</p>
@@ -750,7 +742,7 @@ export default function UsersPage() {
             >
               {editingUser ? (
                 <>
-                  <Sparkles className="h-4 w-4 mr-2" />
+                  <Save className="h-4 w-4 mr-2" />
                   Save Changes
                 </>
               ) : (

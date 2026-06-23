@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import {
   AlertTriangle,
   ArrowLeft,
+  CalendarClock,
   CheckCheck,
   CheckCircle2,
   ClipboardCheck,
@@ -16,7 +17,8 @@ import {
   Loader2,
   MapPin,
   PlayCircle,
-  Sparkles,
+  Save,
+  User,
   UserCog,
   Users,
   X,
@@ -27,6 +29,7 @@ import { useDataStore, type Report } from "@/store/data-store"
 import { PriorityBadge, ReportStatusBadge } from "@/components/shared/status-badge"
 import { ResolvedImage } from "@/components/shared/resolved-image"
 import { ConfirmDialog } from "@/components/shared/confirm-dialog"
+import { LeakageTypeBadge } from "@/components/shared/leakage-type-badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -162,6 +165,56 @@ const getSlaMeta = (report: Report) => {
         label: "Deadline pending",
         tone: "border-slate-200 bg-slate-50 text-slate-600",
         icon: <Clock className="h-4 w-4" />,
+      }
+  }
+}
+
+const getResolvedTimingMeta = (report: Report) => {
+  if (report.resolvedAt) {
+    return {
+      icon: <CheckCheck className="h-5 w-5 text-emerald-600" />,
+      value: formatTanzaniaDateTime(report.resolvedAt),
+      tone: "bg-emerald-100",
+    }
+  }
+
+  switch (report.status) {
+    case "approved":
+    case "closed":
+      return {
+        icon: <CheckCheck className="h-5 w-5 text-emerald-600" />,
+        value: "Resolved, time not recorded",
+        tone: "bg-emerald-100",
+      }
+    case "rejected":
+      return {
+        icon: <AlertTriangle className="h-5 w-5 text-rose-600" />,
+        value: "Returned for rework",
+        tone: "bg-rose-100",
+      }
+    case "pending_approval":
+      return {
+        icon: <Clock className="h-5 w-5 text-amber-600" />,
+        value: "Awaiting DMA approval",
+        tone: "bg-amber-100",
+      }
+    case "in_progress":
+      return {
+        icon: <Clock className="h-5 w-5 text-blue-600" />,
+        value: "Repair in progress",
+        tone: "bg-blue-100",
+      }
+    case "assigned":
+      return {
+        icon: <Clock className="h-5 w-5 text-indigo-600" />,
+        value: "Assigned, not resolved yet",
+        tone: "bg-indigo-100",
+      }
+    default:
+      return {
+        icon: <Clock className="h-5 w-5 text-slate-600" />,
+        value: "Not resolved yet",
+        tone: "bg-slate-100",
       }
   }
 }
@@ -639,10 +692,11 @@ export default function ReportDetailPage() {
   }))
   const createdLabel = report.createdAt ? formatTanzaniaDateTime(report.createdAt) : "Not recorded"
   const dueLabel = report.slaDeadline ? formatTanzaniaDateTime(report.slaDeadline) : "Deadline pending"
+  const resolvedTimingMeta = getResolvedTimingMeta(report)
   const utilityLabel = report.utilityName?.trim() || report.regionName?.trim() || "Unassigned utility"
   const dmaLabel = report.dmaName?.trim() || report.districtName?.trim() || "Unassigned DMA"
   const leakageType = report.leakageType || "unknown"
-  const leakageTypeMeta = LEAKAGE_TYPE_CONFIG[leakageType]
+  const leakageTypeMeta = LEAKAGE_TYPE_CONFIG[leakageType] || LEAKAGE_TYPE_CONFIG.unknown
   const fieldOwnerLabel =
     report.assignedEngineerName?.trim() || report.teamLeaderName?.trim() || report.teamName?.trim() || "Waiting for team routing"
   const hasWorkflowNotes = Boolean(
@@ -658,9 +712,11 @@ export default function ReportDetailPage() {
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Reported Leakage
             </Button>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-500">Reported Leakage Review</p>
+            <p className="text-xs font-bold uppercase tracking-[0.08em] text-rose-600">Reported leakage review</p>
             <div className="mt-2 flex flex-wrap items-center gap-3">
-              <h1 className="font-mono text-2xl font-bold text-slate-900 sm:text-3xl">{report.trackingId}</h1>
+              <h1 className="font-sans text-2xl font-extrabold leading-none tracking-[0.025em] text-slate-900 sm:text-3xl">
+                {report.trackingId}
+              </h1>
               <PriorityBadge priority={report.priority} />
               <ReportStatusBadge status={report.status} />
               <LeakageTypeBadge type={leakageType} />
@@ -711,9 +767,7 @@ export default function ReportDetailPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 shadow-lg shadow-rose-500/20">
-                  <FileText className="h-6 w-6 text-white" />
-                </div>
+                <FileText className="mt-1 h-7 w-7 shrink-0 text-rose-600" />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Leak Summary</p>
                   <p className="mt-2 text-base leading-7 text-slate-700">
@@ -735,10 +789,8 @@ export default function ReportDetailPage() {
           {hasWorkflowNotes && (
             <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
               <CardContent className="p-6">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
-                    <ClipboardCheck className="h-5 w-5 text-amber-600" />
-                  </div>
+              <div className="flex items-center gap-2">
+                  <ClipboardCheck className="h-6 w-6 shrink-0 text-amber-600" />
                   <div>
                     <p className="text-sm font-semibold text-slate-800">Workflow Notes</p>
                     <p className="text-xs text-slate-500">Only the comments that matter for review and follow-up.</p>
@@ -783,7 +835,6 @@ export default function ReportDetailPage() {
               title="Original Reported Leakage Photos"
               description="Reporter evidence from the first submission. Click any tile to open it."
               icon={<ImageIcon className="h-4 w-4 text-blue-600" />}
-              iconTone="bg-blue-100"
               emptyMessage={
                 repairMediaItems.length > 0
                   ? "No original reporter media is currently stored for this reported leakage item. Only repair evidence is available on this record."
@@ -797,7 +848,6 @@ export default function ReportDetailPage() {
               title="Resolved Images"
               description="Field evidence submitted during repair resolution. Click any tile to inspect it."
               icon={<CheckCircle2 className="h-4 w-4 text-emerald-600" />}
-              iconTone="bg-emerald-100"
               emptyMessage="No resolved images have been attached yet."
               items={repairMediaItems}
               onOpen={openMediaViewer}
@@ -807,9 +857,7 @@ export default function ReportDetailPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
             <CardContent className="p-6">
               <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100">
-                  <Clock className="h-5 w-5 text-violet-600" />
-                </div>
+                <Clock className="h-6 w-6 shrink-0 text-violet-600" />
                 <div>
                   <p className="text-sm font-semibold text-slate-800">Activity Timeline</p>
                   <p className="text-xs text-slate-500">Assignments, approvals, and routing events for this report.</p>
@@ -857,9 +905,7 @@ export default function ReportDetailPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
             <CardContent className="p-6">
               <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-100">
-                  <Sparkles className="h-5 w-5 text-rose-600" />
-                </div>
+                <ClipboardCheck className="h-6 w-6 text-rose-600" />
                 <div>
                   <p className="text-sm font-semibold text-slate-800">Decision Panel</p>
                   <p className="text-xs text-slate-500">Take the next action without hunting across the page.</p>
@@ -949,11 +995,7 @@ export default function ReportDetailPage() {
             <CardContent className="p-6">
               <p className="text-sm font-semibold text-slate-800">Reporter & Timing</p>
               <div className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-600">
-                  <span className="text-sm font-semibold text-white">
-                    {(report.reporterName || "U").charAt(0).toUpperCase()}
-                  </span>
-                </div>
+                <User className="h-6 w-6 shrink-0 text-teal-600" />
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-slate-800">{report.reporterName || "Unknown reporter"}</p>
                   <p className="text-xs text-slate-500">{report.reporterPhone || "No phone provided"}</p>
@@ -962,12 +1004,12 @@ export default function ReportDetailPage() {
 
               <div className="mt-4 grid grid-cols-1 gap-3">
                 <DetailCard icon={<Clock className="h-5 w-5 text-blue-600" />} label="Created" value={createdLabel} tone="bg-blue-100" />
-                <DetailCard icon={<CheckCircle2 className="h-5 w-5 text-cyan-600" />} label="Due Date" value={dueLabel} tone="bg-cyan-100" />
+                <DetailCard icon={<CalendarClock className="h-5 w-5 text-cyan-600" />} label="Due Date" value={dueLabel} tone="bg-cyan-100" />
                 <DetailCard
-                  icon={<Expand className="h-5 w-5 text-slate-600" />}
+                  icon={resolvedTimingMeta.icon}
                   label="Resolved At"
-                  value={report.resolvedAt ? formatTanzaniaDateTime(report.resolvedAt) : "Not resolved yet"}
-                  tone="bg-slate-100"
+                  value={resolvedTimingMeta.value}
+                  tone={resolvedTimingMeta.tone}
                 />
               </div>
             </CardContent>
@@ -979,16 +1021,14 @@ export default function ReportDetailPage() {
         <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
-                <ClipboardCheck className="h-4 w-4 text-white" />
-              </div>
+              <ClipboardCheck className="h-5 w-5 text-amber-600" />
               Assign Reported Leakage to Team
             </DialogTitle>
             <DialogDescription>Select the team that should handle this reported leakage item.</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-5 overflow-y-auto py-4 pr-1">
-            <div className="rounded-xl border border-rose-200/80 bg-gradient-to-r from-rose-50/50 to-pink-50/50 p-4">
-              <p className="font-mono text-xs font-semibold text-slate-700">{report.trackingId}</p>
+            <div className="rounded-xl border border-rose-200/80 bg-rose-50/60 p-4">
+              <p className="font-sans text-sm font-extrabold tracking-[0.04em] text-slate-800">{report.trackingId}</p>
               <p className="mt-1 line-clamp-2 text-sm text-slate-500">{report.description || "No description"}</p>
             </div>
 
@@ -1025,7 +1065,7 @@ export default function ReportDetailPage() {
                 </>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-4 w-4" />
+                  <UserCog className="mr-2 h-4 w-4" />
                   Assign Reported Leakage
                 </>
               )}
@@ -1038,9 +1078,7 @@ export default function ReportDetailPage() {
         <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600">
-                <MapPin className="h-4 w-4 text-white" />
-              </div>
+              <MapPin className="h-5 w-5 text-cyan-600" />
               Resolve Report Location
             </DialogTitle>
             <DialogDescription>
@@ -1048,8 +1086,8 @@ export default function ReportDetailPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-5 overflow-y-auto py-4 pr-1">
-            <div className="rounded-xl border border-cyan-200/80 bg-gradient-to-r from-cyan-50/50 to-blue-50/50 p-4">
-              <p className="font-mono text-xs font-semibold text-slate-700">{report.trackingId}</p>
+            <div className="rounded-xl border border-cyan-200/80 bg-cyan-50/60 p-4">
+              <p className="font-sans text-sm font-extrabold tracking-[0.04em] text-slate-800">{report.trackingId}</p>
               <p className="mt-1 line-clamp-2 text-sm text-slate-500">{report.description || "No description"}</p>
               <p className="mt-2 text-xs text-slate-500">{getReportLocationLabel(report)}</p>
             </div>
@@ -1118,7 +1156,7 @@ export default function ReportDetailPage() {
                 </>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-4 w-4" />
+                  <Save className="mr-2 h-4 w-4" />
                   Save Location Routing
                 </>
               )}
@@ -1281,24 +1319,6 @@ function HeroMetric({ label, value, accent }: { label: string; value: string; ac
   )
 }
 
-function LeakageTypeBadge({ type }: { type: LeakageType }) {
-  const config = LEAKAGE_TYPE_CONFIG[type] || LEAKAGE_TYPE_CONFIG.unknown
-
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold"
-      style={{
-        borderColor: `${config.color}55`,
-        backgroundColor: `${config.color}14`,
-        color: config.color,
-      }}
-    >
-      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: config.color }} />
-      {config.label}
-    </span>
-  )
-}
-
 function TimelineStep({
   title,
   detail,
@@ -1343,7 +1363,7 @@ function DetailCard({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-slate-200/60 bg-slate-50/80 p-3">
-      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${tone}`}>{icon}</div>
+      <div className="shrink-0">{icon}</div>
       <div className="min-w-0 flex-1">
         <p className="text-xs text-slate-500">{label}</p>
         <p className="break-words text-sm font-medium leading-snug text-slate-700">{value}</p>
@@ -1356,7 +1376,6 @@ function MediaSection({
   title,
   description,
   icon,
-  iconTone,
   emptyMessage,
   items,
   onOpen,
@@ -1364,7 +1383,6 @@ function MediaSection({
   title: string
   description: string
   icon: React.ReactNode
-  iconTone: string
   emptyMessage: string
   items: MediaItem[]
   onOpen: (item: MediaItem) => void
@@ -1372,7 +1390,7 @@ function MediaSection({
   return (
     <div className="rounded-2xl border border-slate-200/60 bg-slate-50/70 p-5 shadow-sm">
       <div className="flex items-center gap-2">
-        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconTone}`}>{icon}</div>
+        <div className="shrink-0">{icon}</div>
         <div>
           <p className="text-sm font-semibold text-slate-800">{title}</p>
           <p className="text-xs text-slate-500">{description}</p>

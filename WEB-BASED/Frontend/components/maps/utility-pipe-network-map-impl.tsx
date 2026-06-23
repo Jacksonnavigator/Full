@@ -5,7 +5,7 @@ import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet"
 import type { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson"
 import type { LatLngBoundsExpression } from "leaflet"
 import * as L from "leaflet"
-import { AlertTriangle, Network } from "lucide-react"
+import { AlertTriangle, Database, Gauge, Network, Warehouse, Waves, type LucideIcon } from "lucide-react"
 import CONFIG from "@/lib/config"
 
 const DEFAULT_CENTER: [number, number] = [-6.7924, 39.2083]
@@ -79,8 +79,20 @@ const ASSET_SYMBOLS: Record<string, { color: string; svg: string }> = {
   },
 }
 
+const ASSET_META: Record<string, { label: string; icon: LucideIcon; color: string }> = {
+  pipe_network: { label: "pipe network", icon: Network, color: "#0f766e" },
+  valves: { label: "valves", icon: Gauge, color: "#e11d48" },
+  water_sources: { label: "water sources", icon: Waves, color: "#0284c7" },
+  storage_facilities: { label: "storage facilities", icon: Warehouse, color: "#d97706" },
+  bulk_meters: { label: "bulk meters", icon: Database, color: "#7c3aed" },
+}
+
 function getAssetColor(assetType?: string | null) {
   return ASSET_SYMBOLS[assetType || ""]?.color || "#0f766e"
+}
+
+function getAssetMeta(assetType?: string | null) {
+  return ASSET_META[assetType || ""] || ASSET_META.pipe_network
 }
 
 function createAssetDivIcon(assetType?: string | null) {
@@ -274,6 +286,9 @@ export function UtilityPipeNetworkMapImpl({
     }
   }, [utilityId, previewUrl])
 
+  const assetMeta = useMemo(() => getAssetMeta(assetType), [assetType])
+  const HeaderIcon = assetMeta.icon
+
   const previewCoordinates = useMemo(() => collectGeoJsonCoordinates(geojson), [geojson])
 
   const mapCenter = useMemo<[number, number]>(() => {
@@ -296,10 +311,10 @@ export function UtilityPipeNetworkMapImpl({
     }
 
     return {
-      title: "Pipe network preview ready when uploaded",
+      title: `${title} ready when uploaded`,
       detail: emptyMessage,
     }
-  }, [emptyMessage, error, fileName])
+  }, [emptyMessage, error, fileName, title])
 
   const fitBounds = useMemo<LatLngBoundsExpression | null>(() => {
     if (!previewCoordinates.length) return null
@@ -317,13 +332,11 @@ export function UtilityPipeNetworkMapImpl({
     <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 bg-slate-50/80 px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 shadow-sm shadow-sky-500/20">
-            <Network className="h-4 w-4 text-white" />
-          </div>
+          <HeaderIcon className="h-5 w-5 shrink-0" style={{ color: assetMeta.color }} />
           <div>
             <p className="text-sm font-semibold text-slate-800">{title}</p>
             <p className="mt-0.5 text-xs text-slate-500">
-              Preview the uploaded utility pipe network against the live dashboard map.
+              Preview uploaded utility {assetMeta.label} against the live dashboard map.
             </p>
           </div>
         </div>
@@ -331,7 +344,7 @@ export function UtilityPipeNetworkMapImpl({
 
       {loading ? (
         <div className={`flex ${mapHeightClassName} items-center justify-center bg-slate-50 text-sm text-slate-500`}>
-          Loading utility pipe network...
+          Loading utility {assetMeta.label}...
         </div>
       ) : previewUrl && geojson ? (
         <MapContainer center={mapCenter} zoom={13} scrollWheelZoom className={`${mapHeightClassName} w-full`}>

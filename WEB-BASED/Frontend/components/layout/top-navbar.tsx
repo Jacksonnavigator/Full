@@ -10,14 +10,11 @@ import {
   User,
   LogOut,
   Shield,
-  Sparkles,
   Moon,
   Sun,
   HelpCircle,
   Activity,
-  CheckCircle2,
   Clock,
-  TrendingUp,
   Loader2,
   Settings,
 } from "lucide-react"
@@ -47,7 +44,6 @@ export function TopNavbar() {
   const router = useRouter()
   const { currentUser, logout } = useAuthStore()
   const {
-    reports,
     notifications,
     fetchNotifications,
     getUnreadNotificationCount,
@@ -65,6 +61,9 @@ export function TopNavbar() {
   const unreadCount = getUnreadNotificationCount()
   const recentNotifications = useMemo(() => notifications.slice(0, 5), [notifications])
   const isDarkMode = mounted && resolvedTheme === "dark"
+  const headerTitle = topbarTitle?.title || "Water Leakage Monitoring"
+  const titleHasMonitoringSuffix = headerTitle.endsWith(" Monitoring")
+  const titlePrimary = titleHasMonitoringSuffix ? headerTitle.replace(/ Monitoring$/, "") : headerTitle
 
   useEffect(() => {
     setMounted(true)
@@ -80,28 +79,6 @@ export function TopNavbar() {
     syncPreferences()
     return subscribeToWebUiPreferences(syncPreferences)
   }, [mounted])
-
-  const scopedReports = useMemo(() => {
-    if (!currentUser) return []
-    if (currentUser.role === "admin") return reports
-    if (currentUser.role === "utility_manager") {
-      return reports.filter((report) => report.utilityId === currentUser.utilityId)
-    }
-    if (currentUser.role === "dma_manager") {
-      return reports.filter((report) => report.dmaId === currentUser.dmaId)
-    }
-    return reports
-  }, [currentUser, reports])
-
-  const resolvedCount = useMemo(
-    () => scopedReports.filter((report) => report.status === "approved" || report.status === "closed").length,
-    [scopedReports]
-  )
-  const pendingCount = useMemo(
-    () => scopedReports.filter((report) => ["new", "assigned", "in_progress", "pending_approval"].includes(report.status)).length,
-    [scopedReports]
-  )
-  const efficiency = scopedReports.length > 0 ? Math.round((resolvedCount / scopedReports.length) * 1000) / 10 : 0
 
   useEffect(() => {
     if (!currentUser?.id) return
@@ -245,6 +222,22 @@ export function TopNavbar() {
             <SidebarTrigger className="-ml-1 text-slate-600 transition-all duration-300 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white" />
           </div>
 
+          <div className="hidden min-w-0 items-center md:flex">
+            <h1 className="relative inline-flex min-w-0 flex-col">
+              <span className="truncate text-xl font-black leading-none tracking-tight lg:text-2xl">
+                <span className="bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-500 bg-clip-text text-transparent drop-shadow-sm dark:from-cyan-300 dark:via-blue-400 dark:to-teal-300">
+                  {titlePrimary}
+                </span>
+                {titleHasMonitoringSuffix ? (
+                  <span className="bg-gradient-to-r from-slate-950 via-slate-700 to-slate-950 bg-clip-text text-transparent dark:from-white dark:via-cyan-100 dark:to-white">
+                    {" Monitoring"}
+                  </span>
+                ) : null}
+              </span>
+              <span className="mt-1 h-0.5 w-24 rounded-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent dark:via-cyan-400" />
+            </h1>
+          </div>
+
           {/* Styled MajiScope Name - Mobile Only */}
           <div className="flex min-w-0 items-center gap-2.5 md:hidden">
             <div className="relative shrink-0">
@@ -268,52 +261,8 @@ export function TopNavbar() {
           </div>
         </div>
 
-        {/* Center Content - Quick Stats, Theme, Help, Notifications */}
-        <div className="relative z-10 flex flex-1 items-center justify-between gap-2 sm:gap-3">
-          <div className="hidden min-w-0 max-w-[32rem] flex-1 items-center md:flex">
-            {topbarTitle ? (
-              <div className="min-w-0">
-                <div className="truncate text-base font-semibold leading-tight text-slate-950 dark:text-white">
-                  {topbarTitle.title}
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          {/* Quick Stats - Desktop Only */}
-          {uiPreferences.showHeaderStats ? (
-            <div className="hidden items-center gap-4 rounded-xl bg-slate-100/85 px-4 py-2 shadow-sm shadow-slate-900/[0.025] ring-1 ring-slate-300/80 dark:bg-slate-900/80 dark:shadow-black/20 dark:ring-slate-800 xl:flex">
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100/75">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Resolved</span>
-                <span className="text-sm font-bold text-slate-900">{resolvedCount.toLocaleString("en-US")}</span>
-              </div>
-            </div>
-            <div className="h-8 w-px bg-slate-200" />
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100/75">
-                <Clock className="h-3.5 w-3.5 text-amber-700" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Pending</span>
-                <span className="text-sm font-bold text-slate-900">{pendingCount.toLocaleString("en-US")}</span>
-              </div>
-            </div>
-            <div className="h-8 w-px bg-slate-200" />
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200">
-                <TrendingUp className="h-3.5 w-3.5 text-slate-700" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">Efficiency</span>
-                <span className="text-sm font-bold text-emerald-600">{efficiency.toFixed(1)}%</span>
-              </div>
-            </div>
-            </div>
-          ) : null}
+        {/* Center Content - Theme, Help, Notifications */}
+        <div className="relative z-10 flex flex-1 items-center justify-end gap-2 sm:gap-3">
           {/* Theme Toggle MORDERN */}
           <Tooltip>
             <TooltipTrigger asChild>
@@ -503,7 +452,7 @@ export function TopNavbar() {
                     {currentUser?.name || "User"}
                   </span>
                   <span className={`inline-flex items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeColor(currentUser?.role || "")} px-1.5 py-0.5 text-[9px] font-medium text-white`}>
-                    <Sparkles className="h-2 w-2" />
+                    <Shield className="h-2 w-2" />
                     {getRoleLabel(currentUser?.role || "")}
                   </span>
                 </div>

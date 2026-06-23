@@ -174,9 +174,7 @@ export default function UtilitiesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <Building2 className="h-5 w-5 text-white" />
-              </div>
+              <Building2 className="h-7 w-7 text-sky-600" />
               Utility Management
             </h1>
             <p className="text-slate-500 mt-1">
@@ -198,9 +196,7 @@ export default function UtilitiesPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 bg-gradient-to-br from-cyan-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <Building2 className="h-6 w-6 text-white" />
-                </div>
+                <Building2 className="h-8 w-8 shrink-0 text-sky-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Utilities</p>
                   <p className="text-2xl font-bold text-slate-800">{totalUtilities}</p>
@@ -212,9 +208,7 @@ export default function UtilitiesPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 bg-gradient-to-br from-emerald-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <CheckCircle2 className="h-6 w-6 text-white" />
-                </div>
+                <CheckCircle2 className="h-8 w-8 shrink-0 text-emerald-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Active Utilities</p>
                   <p className="text-2xl font-bold text-slate-800">{activeUtilities}</p>
@@ -226,9 +220,7 @@ export default function UtilitiesPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 bg-gradient-to-br from-blue-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <MapPin className="h-6 w-6 text-white" />
-                </div>
+                <MapPin className="h-8 w-8 shrink-0 text-blue-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total DMAs</p>
                   <p className="text-2xl font-bold text-slate-800">{totalDmas}</p>
@@ -303,14 +295,12 @@ export default function UtilitiesPage() {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "h-11 w-11 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110",
-                      utility.status === "active"
-                        ? "bg-gradient-to-br from-cyan-500 to-blue-600 shadow-cyan-500/20"
-                        : "bg-gradient-to-br from-red-500 to-rose-600 shadow-red-500/20"
-                    )}>
-                      <Building2 className="h-5 w-5 text-white" />
-                    </div>
+                    <Building2
+                      className={cn(
+                        "h-7 w-7 shrink-0",
+                        utility.status === "active" ? "text-sky-600" : "text-rose-600"
+                      )}
+                    />
                     <div>
                       <h3 className="font-semibold text-slate-800">{utility.name}</h3>
                       <EntityStatusBadge status={utility.status} />
@@ -396,9 +386,7 @@ export default function UtilitiesPage() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 shadow-sm shadow-sky-500/20">
-                          <Network className="h-4 w-4 text-white" />
-                        </div>
+                        <Network className="h-5 w-5 shrink-0 text-sky-600" />
                         <div>
                           <p className="text-sm font-semibold text-slate-800">Utility Infrastructure Assets</p>
                           <p className="text-xs text-slate-500">Upload and maintain pipes, valves, water sources, storage facilities, and bulk meters from the dedicated infrastructure page.</p>
@@ -410,7 +398,6 @@ export default function UtilitiesPage() {
                       onClick={() => router.push("/dashboard/utility-infrastructure")}
                       className="rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 text-white shadow-lg shadow-sky-500/20 hover:from-sky-600 hover:to-cyan-700"
                     >
-                      <Network className="mr-2 h-4 w-4" />
                       Manage Assets
                     </Button>
                   </div>

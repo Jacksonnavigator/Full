@@ -15,7 +15,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$lea
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$hooks$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-leaflet/lib/hooks.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/leaflet/dist/leaflet-src.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$triangle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertTriangle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/triangle-alert.js [app-client] (ecmascript) <export default as AlertTriangle>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$database$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Database$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/database.js [app-client] (ecmascript) <export default as Database>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$gauge$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Gauge$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/gauge.js [app-client] (ecmascript) <export default as Gauge>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$network$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Network$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/network.js [app-client] (ecmascript) <export default as Network>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$warehouse$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Warehouse$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/warehouse.js [app-client] (ecmascript) <export default as Warehouse>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$waves$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Waves$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/waves.js [app-client] (ecmascript) <export default as Waves>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$config$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/config.ts [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
@@ -86,8 +90,38 @@ const ASSET_SYMBOLS = {
         svg: '<path d="M5 13a5.5 5.5 0 0 1 11 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.5 12.8 13 9.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.2 15.6h6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
     }
 };
+const ASSET_META = {
+    pipe_network: {
+        label: "pipe network",
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$network$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Network$3e$__["Network"],
+        color: "#0f766e"
+    },
+    valves: {
+        label: "valves",
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$gauge$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Gauge$3e$__["Gauge"],
+        color: "#e11d48"
+    },
+    water_sources: {
+        label: "water sources",
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$waves$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Waves$3e$__["Waves"],
+        color: "#0284c7"
+    },
+    storage_facilities: {
+        label: "storage facilities",
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$warehouse$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Warehouse$3e$__["Warehouse"],
+        color: "#d97706"
+    },
+    bulk_meters: {
+        label: "bulk meters",
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$database$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Database$3e$__["Database"],
+        color: "#7c3aed"
+    }
+};
 function getAssetColor(assetType) {
     return ASSET_SYMBOLS[assetType || ""]?.color || "#0f766e";
+}
+function getAssetMeta(assetType) {
+    return ASSET_META[assetType || ""] || ASSET_META.pipe_network;
 }
 function createAssetDivIcon(assetType) {
     const symbol = ASSET_SYMBOLS[assetType || ""] || ASSET_SYMBOLS.valves;
@@ -263,6 +297,12 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
         utilityId,
         previewUrl
     ]);
+    const assetMeta = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
+        "UtilityPipeNetworkMapImpl.useMemo[assetMeta]": ()=>getAssetMeta(assetType)
+    }["UtilityPipeNetworkMapImpl.useMemo[assetMeta]"], [
+        assetType
+    ]);
+    const HeaderIcon = assetMeta.icon;
     const previewCoordinates = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "UtilityPipeNetworkMapImpl.useMemo[previewCoordinates]": ()=>collectGeoJsonCoordinates(geojson)
     }["UtilityPipeNetworkMapImpl.useMemo[previewCoordinates]"], [
@@ -297,14 +337,15 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
                 return describePreviewIssue(error, fileName);
             }
             return {
-                title: "Pipe network preview ready when uploaded",
+                title: `${title} ready when uploaded`,
                 detail: emptyMessage
             };
         }
     }["UtilityPipeNetworkMapImpl.useMemo[previewMessage]"], [
         emptyMessage,
         error,
-        fileName
+        fileName,
+        title
     ]);
     const fitBounds = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "UtilityPipeNetworkMapImpl.useMemo[fitBounds]": ()=>{
@@ -335,18 +376,14 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex items-center gap-2",
                     children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 shadow-sm shadow-sky-500/20",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$network$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Network$3e$__["Network"], {
-                                className: "h-4 w-4 text-white"
-                            }, void 0, false, {
-                                fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                                lineNumber: 321,
-                                columnNumber: 13
-                            }, this)
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(HeaderIcon, {
+                            className: "h-5 w-5 shrink-0",
+                            style: {
+                                color: assetMeta.color
+                            }
                         }, void 0, false, {
                             fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                            lineNumber: 320,
+                            lineNumber: 335,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -356,40 +393,48 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
                                     children: title
                                 }, void 0, false, {
                                     fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                                    lineNumber: 324,
+                                    lineNumber: 337,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     className: "mt-0.5 text-xs text-slate-500",
-                                    children: "Preview the uploaded utility pipe network against the live dashboard map."
-                                }, void 0, false, {
+                                    children: [
+                                        "Preview uploaded utility ",
+                                        assetMeta.label,
+                                        " against the live dashboard map."
+                                    ]
+                                }, void 0, true, {
                                     fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                                    lineNumber: 325,
+                                    lineNumber: 338,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                            lineNumber: 323,
+                            lineNumber: 336,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                    lineNumber: 319,
+                    lineNumber: 334,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                lineNumber: 318,
+                lineNumber: 333,
                 columnNumber: 7
             }, this),
             loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: `flex ${mapHeightClassName} items-center justify-center bg-slate-50 text-sm text-slate-500`,
-                children: "Loading utility pipe network..."
-            }, void 0, false, {
+                children: [
+                    "Loading utility ",
+                    assetMeta.label,
+                    "..."
+                ]
+            }, void 0, true, {
                 fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                lineNumber: 333,
+                lineNumber: 346,
                 columnNumber: 9
             }, this) : previewUrl && geojson ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$MapContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["MapContainer"], {
                 center: mapCenter,
@@ -401,7 +446,7 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
                         bounds: fitBounds
                     }, void 0, false, {
                         fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                        lineNumber: 338,
+                        lineNumber: 351,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -418,7 +463,7 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
                         detectRetina: true
                     }, void 0, false, {
                         fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                        lineNumber: 364,
+                        lineNumber: 377,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$leaflet$2f$lib$2f$GeoJSON$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["GeoJSON"], {
@@ -447,13 +492,13 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
                         }
                     }, void 0, false, {
                         fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                        lineNumber: 373,
+                        lineNumber: 386,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                lineNumber: 337,
+                lineNumber: 350,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: `flex ${mapHeightClassName} flex-col items-center justify-center gap-3 bg-slate-50 px-6 text-center`,
@@ -464,12 +509,12 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
                             className: "h-5 w-5"
                         }, void 0, false, {
                             fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                            lineNumber: 404,
+                            lineNumber: 417,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                        lineNumber: 403,
+                        lineNumber: 416,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -479,7 +524,7 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
                                 children: previewMessage.title
                             }, void 0, false, {
                                 fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                                lineNumber: 407,
+                                lineNumber: 420,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -487,29 +532,29 @@ function UtilityPipeNetworkMapImpl({ utilityId, previewUrl, fallbackCenter, file
                                 children: previewMessage.detail
                             }, void 0, false, {
                                 fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                                lineNumber: 410,
+                                lineNumber: 423,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                        lineNumber: 406,
+                        lineNumber: 419,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-                lineNumber: 402,
+                lineNumber: 415,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/maps/utility-pipe-network-map-impl.tsx",
-        lineNumber: 317,
+        lineNumber: 332,
         columnNumber: 5
     }, this);
 }
-_s1(UtilityPipeNetworkMapImpl, "EYY6blo4gRE702LkduC3LDeqxVQ=");
+_s1(UtilityPipeNetworkMapImpl, "7tpGCABng9DDLXq0N46KLy17kd4=");
 _c1 = UtilityPipeNetworkMapImpl;
 var _c, _c1;
 __turbopack_context__.k.register(_c, "FitPreviewToData");

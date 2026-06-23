@@ -85,10 +85,10 @@ export function ResolvedImage({ uri, alt, className, fallbackClassName, onClick 
           return
         }
 
-        const resolved = await resolveUploadUrl(uri)
-        if (active) setResolvedUri(resolved)
-      } catch (error) {
-        console.error("Unable to resolve media:", error)
+      const resolved = await resolveUploadUrl(uri)
+      if (active) setResolvedUri(resolved)
+    } catch (error) {
+        console.warn("Media preview unavailable:", error instanceof Error ? error.message : error)
         if (active) setFailed(true)
       }
     }

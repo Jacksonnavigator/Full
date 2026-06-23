@@ -451,7 +451,7 @@ export function UtilityDashboard() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-mono text-xs font-semibold text-foreground">{report.trackingId}</p>
+                      <p className="font-sans text-xs font-extrabold tracking-[0.045em] text-foreground">{report.trackingId}</p>
                       <p className="mt-2 text-sm font-medium text-foreground">{report.description}</p>
                     </div>
                     <PriorityBadge priority={report.priority} />
@@ -490,7 +490,7 @@ export function UtilityDashboard() {
               <tbody className="divide-y">
                 {recentReports.map((report) => (
                   <tr key={report.id} className="hover:bg-muted/50">
-                    <td className="py-3 pr-4 font-mono text-xs font-medium">
+                    <td className="py-3 pr-4 font-sans text-xs font-extrabold tracking-[0.045em]">
                       {report.trackingId}
                     </td>
                     <td className="max-w-xs break-words py-3 pr-4 text-muted-foreground">

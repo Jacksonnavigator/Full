@@ -1,0 +1,36 @@
+[00:00:00.917] Server  LOG     ✓ Ready in 643ms
+[00:00:04.318] Browser WARN    Media preview unavailable: NetworkError when attempting to fetch resource.
+[00:00:04.319] Browser ERROR   Error fetching utilities: NetworkError when attempting to fetch resource.
+[00:00:04.319] Browser ERROR   Error fetching utilities: NetworkError when attempting to fetch resource.
+[00:00:04.319] Browser WARN    Media preview unavailable: NetworkError when attempting to fetch resource.
+[00:00:04.319] Browser ERROR   Error fetching utilities: NetworkError when attempting to fetch resource.
+[00:00:06.171] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:09:51.903] Server  LOG     ✓ Compiled in 337ms
+[00:10:20.022] Server  LOG     ✓ Compiled in 340ms
+[00:11:40.578] Server  LOG     ✓ Compiled in 416ms
+[00:12:51.549] Server  LOG     ✓ Compiled in 281ms
+[00:13:58.402] Server  LOG     ✓ Compiled in 304ms
+[00:16:22.956] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:16:36.781] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:19:23.341] Server  LOG     ✓ Compiled in 385ms
+[00:19:54.025] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:20:13.282] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:20:58.263] Server  LOG     ✓ Compiled in 335ms
+[00:21:53.626] Server  LOG     ✓ Compiled in 285ms
+[00:24:34.723] Server  LOG     ✓ Compiled in 348ms
+[00:32:40.816] Server  LOG     ✓ Compiled in 327ms
+[00:33:01.070] Server  LOG     ✓ Compiled in 334ms
+[00:33:26.212] Server  LOG     ✓ Compiled in 322ms
+[00:35:02.613] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:35:33.236] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
+[00:35:34.242] Browser WARN    Media preview unavailable: Failed to load image payload (502)
+[00:39:15.545] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:39:49.316] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
+[00:39:49.423] Browser WARN    Media preview unavailable: Failed to load image payload (502)
+[00:41:08.614] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:41:08.614] Browser WARN    Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+[00:41:53.352] Server  LOG     ✓ Compiled in 347ms
+[00:48:58.380] Server  LOG     ✓ Compiled in 337ms
+[00:49:54.894] Server  LOG     ✓ Compiled in 344ms
+[00:53:29.193] Server  ERROR   Upload payload proxy error: TypeError: fetch failed
+[00:53:29.299] Browser WARN    Media preview unavailable: Failed to load image payload (502)

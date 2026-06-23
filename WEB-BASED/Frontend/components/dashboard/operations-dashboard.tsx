@@ -3,11 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
-  AlertTriangle,
-  CheckCircle2,
-  Droplets,
   Loader2,
-  Siren,
 } from "lucide-react"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
@@ -58,12 +54,10 @@ import {
 function KpiCard({
   label,
   value,
-  icon: Icon,
   tone,
 }: {
   label: string
   value: number
-  icon: typeof Droplets
   tone: "slate" | "green" | "red" | "amber"
 }) {
   const toneClasses = {
@@ -73,23 +67,11 @@ function KpiCard({
     amber: "border-amber-200/80 bg-amber-50/55 text-amber-950",
   } as const
 
-  const iconClasses = {
-    slate: "bg-slate-300/65 text-slate-700",
-    green: "bg-emerald-100/75 text-emerald-700",
-    red: "bg-rose-100/75 text-rose-700",
-    amber: "bg-amber-100/75 text-amber-700",
-  } as const
-
   return (
-    <div className={cn("flex h-full min-h-[92px] items-center rounded-[18px] border px-3 py-2.5 shadow-sm shadow-slate-900/[0.03]", toneClasses[tone])}>
-      <div className="flex w-full items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
-          <p className="mt-1.5 text-[1.65rem] font-semibold leading-none tracking-tight">{value.toLocaleString()}</p>
-        </div>
-        <div className={cn("rounded-xl p-1.5", iconClasses[tone])}>
-          <Icon className="h-4 w-4" />
-        </div>
+    <div className={cn("flex h-full min-h-[92px] items-center rounded-[18px] border px-4 py-3 shadow-sm shadow-slate-900/[0.03]", toneClasses[tone])}>
+      <div className="w-full">
+        <p className="max-w-[9rem] text-[0.72rem] font-bold uppercase leading-snug tracking-[0.14em] text-slate-600">{label}</p>
+        <p className="mt-3 text-[2.15rem] font-bold leading-none tracking-tight">{value.toLocaleString()}</p>
       </div>
     </div>
   )
@@ -338,24 +320,24 @@ function LeakageTypeDonutCard({ rows }: { rows: LeakageTypeDistributionRow[] }) 
   const total = rows.reduce((sum, row) => sum + row.count, 0)
 
   return (
-    <div className="flex h-full min-h-[180px] flex-col overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
+    <div className="flex h-full min-h-[210px] flex-col overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]">
       <div className="border-b border-slate-200 px-3 py-2">
         <p className="text-xs font-semibold text-slate-900">Leakage by type</p>
         <p className="mt-0.5 text-[11px] text-slate-500">Reported leakage type</p>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col px-2 py-2">
+      <div className="flex min-h-0 flex-1 flex-col justify-between gap-2 px-2 py-2.5">
         {total ? (
           <>
-            <div className="min-h-[112px] flex-1">
+            <div className="h-[108px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={rows}
                     dataKey="count"
                     nameKey="name"
-                    innerRadius={36}
-                    outerRadius={58}
+                    innerRadius={30}
+                    outerRadius={48}
                     paddingAngle={2}
                     stroke="transparent"
                   >
@@ -372,14 +354,14 @@ function LeakageTypeDonutCard({ rows }: { rows: LeakageTypeDistributionRow[] }) 
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="grid shrink-0 gap-1 px-1 text-[11px]">
+            <div className="grid shrink-0 gap-1.5 px-1 pb-0.5 text-[11px]">
               {rows.slice(0, 3).map((row) => (
                 <div key={row.type} className="flex items-center justify-between gap-2 text-slate-600">
                   <span className="flex min-w-0 items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: row.fill }} />
                     <span className="truncate text-slate-700 dark:text-white">{row.name}</span>
                   </span>
-                  <span className="font-semibold text-slate-800">{row.percentage}%</span>
+                  <span className="font-semibold text-slate-800 dark:text-white">{row.percentage}%</span>
                 </div>
               ))}
             </div>
@@ -962,10 +944,10 @@ export function OperationsDashboard() {
     <div className="h-[calc(100dvh-5.5rem)] min-h-[560px] overflow-hidden">
       <div className="grid h-full grid-cols-1 gap-3 xl:grid-cols-[168px_minmax(0,1fr)_280px]">
         <aside className="grid h-full min-h-0 gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1 xl:grid-rows-[repeat(4,minmax(0,1fr))_auto]">
-          <KpiCard label="Total Leak Reports" value={kpis.total} icon={Droplets} tone="slate" />
-          <KpiCard label="Leaks Repaired" value={kpis.repaired} icon={CheckCircle2} tone="green" />
-          <KpiCard label="Urgent Leaks" value={kpis.urgent} icon={Siren} tone="amber" />
-          <KpiCard label="Unattended Leaks" value={kpis.unattended} icon={AlertTriangle} tone="red" />
+          <KpiCard label="Total Leak Reports" value={kpis.total} tone="slate" />
+          <KpiCard label="Leaks Repaired" value={kpis.repaired} tone="green" />
+          <KpiCard label="Urgent Leaks" value={kpis.urgent} tone="amber" />
+          <KpiCard label="Unattended Leaks" value={kpis.unattended} tone="red" />
 
           <div className="min-h-0 rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] sm:col-span-2 xl:col-span-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Map legend</p>
@@ -1030,7 +1012,7 @@ export function OperationsDashboard() {
           />
         </section>
 
-        <aside className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_minmax(0,0.72fr)] gap-3">
+        <aside className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_minmax(210px,0.72fr)] gap-3">
           <section className="rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] backdrop-blur">
             <div className="grid gap-2">
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-300/70 bg-white/45 px-3 py-2 text-xs dark:border-slate-600/70 dark:bg-slate-950/45">

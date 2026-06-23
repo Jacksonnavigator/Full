@@ -460,7 +460,7 @@ export default function EngineersPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 shadow-lg shadow-teal-500/20"><Users className="h-5 w-5 text-white" /></div>
+              <Users className="h-7 w-7 text-teal-600" />
               Engineers
             </h1>
             <p className="mt-1 text-slate-500">Invite engineers by email, assign the role and team, then let them finish their own setup.</p>

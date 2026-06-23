@@ -28,7 +28,7 @@ import {
   MapPin,
   Pencil,
   Plus,
-  Sparkles,
+  Save,
   Trash2,
   Upload,
   XCircle,
@@ -398,9 +398,7 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                {mode === "edit" ? <Pencil className="h-5 w-5 text-white" /> : <Plus className="h-5 w-5 text-white" />}
-              </div>
+              {mode === "edit" ? <Pencil className="h-7 w-7 text-emerald-600" /> : <Plus className="h-7 w-7 text-emerald-600" />}
               {mode === "edit" ? "Edit DMA" : "Create DMA"}
             </h1>
             <p className="text-slate-500 mt-1">
@@ -420,7 +418,7 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
             disabled={isSubmitting}
             className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-600 hover:to-teal-700"
           >
-            {mode === "edit" ? <Sparkles className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
+            {mode === "edit" ? <Save className="mr-2 h-4 w-4" /> : <Plus className="mr-2 h-4 w-4" />}
             {mode === "edit" ? "Save Changes" : "Create DMA"}
           </Button>
         </div>

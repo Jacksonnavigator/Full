@@ -57,7 +57,7 @@ import {
   MapPin,
   Mail,
   Phone,
-  Sparkles,
+  Save,
   Unlink,
   Building2,
   Lock,
@@ -331,9 +331,7 @@ export default function DMAManagersPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-                <UserCog className="h-5 w-5 text-white" />
-              </div>
+              <UserCog className="h-7 w-7 text-violet-600" />
               DMA Managers
             </h1>
             <p className="text-slate-500 mt-1">
@@ -350,9 +348,7 @@ export default function DMAManagersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 bg-gradient-to-br from-violet-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <UserCog className="h-6 w-6 text-white" />
-                </div>
+                <UserCog className="h-8 w-8 shrink-0 text-violet-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Managers</p>
                   <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
@@ -363,9 +359,7 @@ export default function DMAManagersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 bg-gradient-to-br from-emerald-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <CheckCircle2 className="h-6 w-6 text-white" />
-                </div>
+                <CheckCircle2 className="h-8 w-8 shrink-0 text-emerald-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Active Managers</p>
                   <p className="text-2xl font-bold text-slate-800">{stats.active}</p>
@@ -376,9 +370,7 @@ export default function DMAManagersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 bg-gradient-to-br from-blue-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <MapPin className="h-6 w-6 text-white" />
-                </div>
+                <MapPin className="h-8 w-8 shrink-0 text-blue-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">With DMAs</p>
                   <p className="text-2xl font-bold text-slate-800">{stats.assigned}</p>
@@ -389,9 +381,7 @@ export default function DMAManagersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 bg-gradient-to-br from-amber-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <Unlink className="h-6 w-6 text-white" />
-                </div>
+                <Unlink className="h-8 w-8 shrink-0 text-amber-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Unassigned</p>
                   <p className="text-2xl font-bold text-slate-800">{stats.unassigned}</p>
@@ -640,7 +630,7 @@ export default function DMAManagersPage() {
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">Cancel</Button>
             <Button onClick={handleSubmit} className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl">
-              {editingManager ? <><Sparkles className="h-4 w-4 mr-2" />Save Changes</> : <><Plus className="h-4 w-4 mr-2" />Invite Manager</>}
+              {editingManager ? <><Save className="h-4 w-4 mr-2" />Save Changes</> : <><Plus className="h-4 w-4 mr-2" />Invite Manager</>}
             </Button>
           </DialogFooter>
         </DialogContent>

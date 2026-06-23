@@ -82,12 +82,8 @@ export function StatCard({
             </div>
           )}
         </div>
-        <div className="rounded-xl bg-white/12 p-3 ring-1 ring-white/10">
-          <Icon className="h-6 w-6 text-white" />
-        </div>
+        <Icon className="h-7 w-7 shrink-0 text-white/90" />
       </div>
-      {/* Decorative circle */}
-      <div className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full bg-white/[0.04]" />
     </div>
   )
 }

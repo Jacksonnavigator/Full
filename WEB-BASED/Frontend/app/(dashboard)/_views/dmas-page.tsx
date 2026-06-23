@@ -142,9 +142,7 @@ export default function DMAsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                <MapPin className="h-5 w-5 text-white" />
-              </div>
+              <MapPin className="h-7 w-7 text-emerald-600" />
               DMA Management
             </h1>
             <p className="text-slate-500 mt-1">
@@ -169,9 +167,7 @@ export default function DMAsPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 bg-gradient-to-br from-emerald-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <MapPin className="h-6 w-6 text-white" />
-                </div>
+                <MapPin className="h-8 w-8 shrink-0 text-emerald-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total DMAs</p>
                   <p className="text-2xl font-bold text-slate-800">{totalDMAs}</p>
@@ -183,9 +179,7 @@ export default function DMAsPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300 bg-gradient-to-br from-green-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <CheckCircle2 className="h-6 w-6 text-white" />
-                </div>
+                <CheckCircle2 className="h-8 w-8 shrink-0 text-green-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Active DMAs</p>
                   <p className="text-2xl font-bold text-slate-800">{activeDMAs}</p>
@@ -197,9 +191,7 @@ export default function DMAsPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 bg-gradient-to-br from-blue-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <GitBranch className="h-6 w-6 text-white" />
-                </div>
+                <GitBranch className="h-8 w-8 shrink-0 text-blue-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Teams</p>
                   <p className="text-2xl font-bold text-slate-800">{totalTeams}</p>
@@ -211,9 +203,7 @@ export default function DMAsPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 bg-gradient-to-br from-purple-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <FileText className="h-6 w-6 text-white" />
-                </div>
+                <FileText className="h-8 w-8 shrink-0 text-purple-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Reports</p>
                   <p className="text-2xl font-bold text-slate-800">{totalReports}</p>
@@ -290,14 +280,7 @@ export default function DMAsPage() {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "h-11 w-11 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110",
-                      dma.status === "active"
-                        ? "bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/20"
-                        : "bg-gradient-to-br from-red-500 to-rose-600 shadow-red-500/20"
-                    )}>
-                      <MapPin className="h-5 w-5 text-white" />
-                    </div>
+                    <MapPin className={cn("h-6 w-6 shrink-0", dma.status === "active" ? "text-emerald-600" : "text-rose-600")} />
                     <div>
                       <h3 className="font-semibold text-slate-800">{dma.name}</h3>
                       <EntityStatusBadge status={dma.status} />

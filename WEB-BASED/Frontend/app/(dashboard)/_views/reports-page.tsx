@@ -30,7 +30,7 @@ import {
   FileText,
   CheckCircle2,
   Clock,
-  Sparkles,
+  Siren,
   Calendar,
   ChevronRight,
   ChevronsLeft,
@@ -38,9 +38,8 @@ import {
   ChevronLeft,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { LEAKAGE_TYPE_CONFIG } from "@/lib/constants"
 import { formatTanzaniaDateTime } from "@/lib/date-time"
-import type { LeakageType } from "@/lib/types"
+import { LeakageTypeBadge } from "@/components/shared/leakage-type-badge"
 
 type ReportStatus = "new" | "assigned" | "in_progress" | "pending_approval" | "approved" | "rejected" | "closed"
 type ReportPriority = "low" | "medium" | "high" | "critical"
@@ -65,24 +64,6 @@ const PRIORITY_FILTERS: { value: "all" | ReportPriority; label: string }[] = [
 ]
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 150, 200, 250, 300] as const
-
-function LeakageTypeBadge({ type }: { type?: LeakageType }) {
-  const config = LEAKAGE_TYPE_CONFIG[type || "unknown"] || LEAKAGE_TYPE_CONFIG.unknown
-
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold"
-      style={{
-        borderColor: `${config.color}55`,
-        backgroundColor: `${config.color}14`,
-        color: config.color,
-      }}
-    >
-      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: config.color }} />
-      {config.label}
-    </span>
-  )
-}
 
 const getReportLocationLabel = (report: {
   address?: string | null
@@ -308,9 +289,7 @@ export default function ReportsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/20">
-                <FileText className="h-5 w-5 text-white" />
-              </div>
+              <FileText className="h-7 w-7 text-rose-600" />
               Reported Leakage
             </h1>
             <p className="text-slate-500 mt-1">
@@ -328,9 +307,7 @@ export default function ReportsPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-rose-500/10 transition-all duration-300 bg-gradient-to-br from-rose-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center shadow-lg shadow-rose-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <FileText className="h-6 w-6 text-white" />
-                </div>
+                <FileText className="h-8 w-8 shrink-0 text-rose-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Reported Leakage</p>
                   <p className="text-2xl font-bold text-slate-800">{totalReports}</p>
@@ -342,9 +319,7 @@ export default function ReportsPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 bg-gradient-to-br from-blue-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <Sparkles className="h-6 w-6 text-white" />
-                </div>
+                <Siren className="h-8 w-8 shrink-0 text-sky-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">New Reported Leakage</p>
                   <p className="text-2xl font-bold text-slate-800">{newReports}</p>
@@ -356,9 +331,7 @@ export default function ReportsPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 bg-gradient-to-br from-amber-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <Clock className="h-6 w-6 text-white" />
-                </div>
+                <Clock className="h-8 w-8 shrink-0 text-amber-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">In Progress</p>
                   <p className="text-2xl font-bold text-slate-800">{inProgressReports}</p>
@@ -370,9 +343,7 @@ export default function ReportsPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 bg-gradient-to-br from-violet-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <CheckCircle2 className="h-6 w-6 text-white" />
-                </div>
+                <CheckCircle2 className="h-8 w-8 shrink-0 text-violet-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Awaiting DMA Approval</p>
                   <p className="text-2xl font-bold text-slate-800">{pendingApproval}</p>
@@ -542,18 +513,14 @@ export default function ReportsPage() {
                         {/* Tracking ID */}
                         <TableCell className="px-4 py-4 align-top">
                           <div className="flex items-start gap-3">
-                            <div className={cn(
-                              "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-lg",
-                              isNew
-                                ? "bg-gradient-to-br from-blue-500 to-cyan-600"
-                                : isPending
-                                  ? "bg-gradient-to-br from-violet-500 to-purple-600"
-                                  : "bg-gradient-to-br from-rose-500 to-pink-600"
-                            )}>
-                              <FileText className="h-5 w-5 text-white" />
-                            </div>
+                            <FileText
+                              className={cn(
+                                "mt-0.5 h-5 w-5 shrink-0",
+                                isNew ? "text-sky-600" : isPending ? "text-violet-600" : "text-rose-600"
+                              )}
+                            />
                             <div className="space-y-1">
-                              <span className="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-slate-700 whitespace-nowrap">
+                              <span className="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 font-sans text-xs font-extrabold tracking-[0.045em] text-slate-700 whitespace-nowrap">
                                 {report.trackingId}
                               </span>
                               {!isDMA && report.dmaName ? (
@@ -579,9 +546,7 @@ export default function ReportsPage() {
                         {/* Location */}
                         <TableCell className="px-4 py-4 align-top">
                           <div className="flex items-start gap-2">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100">
-                              <MapPin className="h-4 w-4 text-emerald-600" />
-                            </div>
+                            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
                             <div className="space-y-1">
                               <p className="text-sm font-medium leading-snug text-slate-700">
                                 {getReportLocationLabel(report)}

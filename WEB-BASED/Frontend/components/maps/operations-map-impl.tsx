@@ -1000,7 +1000,7 @@ export function OperationsMapImpl({
                         <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                           {meta.label}
                         </div>
-                        <h3 className="text-sm font-semibold text-slate-900">{report.trackingId}</h3>
+                        <h3 className="font-sans text-sm font-extrabold tracking-[0.04em] text-slate-900">{report.trackingId}</h3>
                         <p className="line-clamp-3 text-sm text-slate-600">{report.description}</p>
                       </div>
 

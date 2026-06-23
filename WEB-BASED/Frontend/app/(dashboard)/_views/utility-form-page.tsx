@@ -30,7 +30,7 @@ import {
   Pencil,
   Phone,
   Plus,
-  Sparkles,
+  Save,
   Trash2,
   Upload,
   XCircle,
@@ -481,9 +481,7 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
           </Button>
           <div>
             <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-800">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20">
-                {mode === "edit" ? <Pencil className="h-5 w-5 text-white" /> : <Plus className="h-5 w-5 text-white" />}
-              </div>
+              {mode === "edit" ? <Pencil className="h-7 w-7 text-sky-600" /> : <Plus className="h-7 w-7 text-sky-600" />}
               {mode === "edit" ? "Edit Utility" : "Create Utility"}
             </h1>
             <p className="mt-1 text-slate-500">
@@ -506,7 +504,7 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
             {isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : mode === "edit" ? (
-              <Sparkles className="mr-2 h-4 w-4" />
+              <Save className="mr-2 h-4 w-4" />
             ) : null}
             {mode === "edit" ? "Save Changes" : "Create Utility"}
           </Button>

@@ -537,11 +537,7 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-client] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$triangle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertTriangle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/triangle-alert.js [app-client] (ecmascript) <export default as AlertTriangle>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check.js [app-client] (ecmascript) <export default as CheckCircle2>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$droplets$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Droplets$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/droplets.js [app-client] (ecmascript) <export default as Droplets>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-client] (ecmascript) <export default as Loader2>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$siren$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Siren$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/siren.js [app-client] (ecmascript) <export default as Siren>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/store/auth-store.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$data$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/store/data-store.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$maps$2f$operations$2d$map$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/maps/operations-map.tsx [app-client] (ecmascript)");
@@ -579,71 +575,43 @@ var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.sign
 ;
 ;
 ;
-function KpiCard({ label, value, icon: Icon, tone }) {
+function KpiCard({ label, value, tone }) {
     const toneClasses = {
         slate: "border-slate-300/80 bg-slate-100/85 text-slate-950",
         green: "border-emerald-200/80 bg-emerald-50/55 text-emerald-950",
         red: "border-rose-200/80 bg-rose-50/55 text-rose-950",
         amber: "border-amber-200/80 bg-amber-50/55 text-amber-950"
     };
-    const iconClasses = {
-        slate: "bg-slate-300/65 text-slate-700",
-        green: "bg-emerald-100/75 text-emerald-700",
-        red: "bg-rose-100/75 text-rose-700",
-        amber: "bg-amber-100/75 text-amber-700"
-    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("rounded-[18px] border px-3 py-2.5 shadow-sm shadow-slate-900/[0.03]", toneClasses[tone]),
+        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex h-full min-h-[92px] items-center rounded-[18px] border px-4 py-3 shadow-sm shadow-slate-900/[0.03]", toneClasses[tone]),
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "flex items-start justify-between gap-3",
+            className: "w-full",
             children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                            className: "text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500",
-                            children: label
-                        }, void 0, false, {
-                            fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 87,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                            className: "mt-1.5 text-[1.65rem] font-semibold leading-none tracking-tight",
-                            children: value.toLocaleString()
-                        }, void 0, false, {
-                            fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 88,
-                            columnNumber: 11
-                        }, this)
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                    lineNumber: 86,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("rounded-xl p-1.5", iconClasses[tone]),
-                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Icon, {
-                        className: "h-4 w-4"
-                    }, void 0, false, {
-                        fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 91,
-                        columnNumber: 11
-                    }, this)
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: "max-w-[9rem] text-[0.72rem] font-bold uppercase leading-snug tracking-[0.14em] text-slate-600",
+                    children: label
                 }, void 0, false, {
                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                    lineNumber: 90,
+                    lineNumber: 73,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    className: "mt-3 text-[2.15rem] font-bold leading-none tracking-tight",
+                    children: value.toLocaleString()
+                }, void 0, false, {
+                    fileName: "[project]/components/dashboard/operations-dashboard.tsx",
+                    lineNumber: 74,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-            lineNumber: 85,
+            lineNumber: 72,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-        lineNumber: 84,
+        lineNumber: 71,
         columnNumber: 5
     }, this);
 }
@@ -724,6 +692,7 @@ function ComparisonBarChartView({ rows, height, leftMargin = -10 }) {
             resolved: row.resolved
         }));
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "min-h-0",
         style: {
             height
         },
@@ -748,7 +717,7 @@ function ComparisonBarChartView({ rows, height, leftMargin = -10 }) {
                         vertical: true
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 209,
+                        lineNumber: 191,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -766,7 +735,7 @@ function ComparisonBarChartView({ rows, height, leftMargin = -10 }) {
                         }
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 210,
+                        lineNumber: 192,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -781,7 +750,7 @@ function ComparisonBarChartView({ rows, height, leftMargin = -10 }) {
                         tickLine: false
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 217,
+                        lineNumber: 199,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -804,7 +773,7 @@ function ComparisonBarChartView({ rows, height, leftMargin = -10 }) {
                         }
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 226,
+                        lineNumber: 208,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Legend"], {
@@ -817,7 +786,7 @@ function ComparisonBarChartView({ rows, height, leftMargin = -10 }) {
                         formatter: (value)=>value === "reported" ? "Reported" : "Resolved"
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 240,
+                        lineNumber: 222,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Bar"], {
@@ -827,7 +796,7 @@ function ComparisonBarChartView({ rows, height, leftMargin = -10 }) {
                         barSize: 8
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 245,
+                        lineNumber: 227,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Bar"], {
@@ -837,23 +806,23 @@ function ComparisonBarChartView({ rows, height, leftMargin = -10 }) {
                         barSize: 8
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 246,
+                        lineNumber: 228,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                lineNumber: 202,
+                lineNumber: 184,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-            lineNumber: 201,
+            lineNumber: 183,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-        lineNumber: 200,
+        lineNumber: 182,
         columnNumber: 5
     }, this);
 }
@@ -889,12 +858,12 @@ function ComparisonBarChartCard({ title, subtitle, rows }) {
         dashboardRowLimit
     ]);
     const hasAggregatedRows = rows.length > dashboardRowLimit;
-    const chartHeight = 184;
+    const chartHeight = "100%";
     const fullChartHeight = Math.max(360, Math.min(960, rows.length * 42 + 120));
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]",
+                className: "flex h-full min-h-[220px] flex-col overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex items-start justify-between gap-3 border-b border-slate-200 px-3 py-2",
@@ -907,7 +876,7 @@ function ComparisonBarChartCard({ title, subtitle, rows }) {
                                         children: title
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                        lineNumber: 290,
+                                        lineNumber: 272,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -915,13 +884,13 @@ function ComparisonBarChartCard({ title, subtitle, rows }) {
                                         children: subtitle
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                        lineNumber: 291,
+                                        lineNumber: 273,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                lineNumber: 289,
+                                lineNumber: 271,
                                 columnNumber: 11
                             }, this),
                             hasAggregatedRows ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -932,41 +901,41 @@ function ComparisonBarChartCard({ title, subtitle, rows }) {
                                 children: "View all"
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                lineNumber: 294,
+                                lineNumber: 276,
                                 columnNumber: 13
                             }, this) : null
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 288,
+                        lineNumber: 270,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "max-h-[230px] overflow-hidden px-2 py-2",
+                        className: "min-h-0 flex-1 overflow-hidden px-2 py-2",
                         children: visibleRows.length ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ComparisonBarChartView, {
                             rows: visibleRows,
                             height: chartHeight
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 307,
+                            lineNumber: 289,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "rounded-xl border border-slate-200 bg-slate-50 px-3 py-4 text-center text-xs text-slate-500",
+                            className: "flex h-full min-h-[120px] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-4 text-center text-xs text-slate-500",
                             children: "No reports available for this scope yet."
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 309,
+                            lineNumber: 291,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 305,
+                        lineNumber: 287,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                lineNumber: 287,
+                lineNumber: 269,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -982,20 +951,20 @@ function ComparisonBarChartCard({ title, subtitle, rows }) {
                                     children: title
                                 }, void 0, false, {
                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                    lineNumber: 319,
+                                    lineNumber: 301,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: subtitle
                                 }, void 0, false, {
                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                    lineNumber: 320,
+                                    lineNumber: 302,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 318,
+                            lineNumber: 300,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1006,30 +975,30 @@ function ComparisonBarChartCard({ title, subtitle, rows }) {
                                 leftMargin: 16
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                lineNumber: 324,
+                                lineNumber: 306,
                                 columnNumber: 15
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "rounded-xl border border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500",
                                 children: "No reports available for this scope yet."
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                lineNumber: 326,
+                                lineNumber: 308,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 322,
+                            lineNumber: 304,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                    lineNumber: 317,
+                    lineNumber: 299,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                lineNumber: 316,
+                lineNumber: 298,
                 columnNumber: 7
             }, this)
         ]
@@ -1040,7 +1009,7 @@ _c2 = ComparisonBarChartCard;
 function LeakageTypeDonutCard({ rows }) {
     const total = rows.reduce((sum, row)=>sum + row.count, 0);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]",
+        className: "flex h-full min-h-[210px] flex-col overflow-hidden rounded-[18px] border border-slate-300/80 bg-slate-100/85 shadow-sm shadow-slate-900/[0.025]",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "border-b border-slate-200 px-3 py-2",
@@ -1050,7 +1019,7 @@ function LeakageTypeDonutCard({ rows }) {
                         children: "Leakage by type"
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 343,
+                        lineNumber: 325,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1058,21 +1027,21 @@ function LeakageTypeDonutCard({ rows }) {
                         children: "Reported leakage type"
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 344,
+                        lineNumber: 326,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                lineNumber: 342,
+                lineNumber: 324,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "px-2 py-2",
+                className: "flex min-h-0 flex-1 flex-col justify-between gap-2 px-2 py-2.5",
                 children: total ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "h-[132px]",
+                            className: "h-[108px] shrink-0",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
                                 width: "100%",
                                 height: "100%",
@@ -1082,20 +1051,20 @@ function LeakageTypeDonutCard({ rows }) {
                                             data: rows,
                                             dataKey: "count",
                                             nameKey: "name",
-                                            innerRadius: 36,
-                                            outerRadius: 58,
+                                            innerRadius: 30,
+                                            outerRadius: 48,
                                             paddingAngle: 2,
                                             stroke: "transparent",
                                             children: rows.map((row)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Cell$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Cell"], {
                                                     fill: row.fill
                                                 }, row.type, false, {
                                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                    lineNumber: 363,
+                                                    lineNumber: 345,
                                                     columnNumber: 23
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                            lineNumber: 353,
+                                            lineNumber: 335,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -1105,27 +1074,27 @@ function LeakageTypeDonutCard({ rows }) {
                                                 ]
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                            lineNumber: 366,
+                                            lineNumber: 348,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                    lineNumber: 352,
+                                    lineNumber: 334,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                lineNumber: 351,
+                                lineNumber: 333,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 350,
+                            lineNumber: 332,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "grid gap-1 px-1 text-[11px]",
+                            className: "grid shrink-0 gap-1.5 px-1 pb-0.5 text-[11px]",
                             children: rows.slice(0, 3).map((row)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "flex items-center justify-between gap-2 text-slate-600",
                                     children: [
@@ -1139,7 +1108,7 @@ function LeakageTypeDonutCard({ rows }) {
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                    lineNumber: 379,
+                                                    lineNumber: 361,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1147,55 +1116,55 @@ function LeakageTypeDonutCard({ rows }) {
                                                     children: row.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                    lineNumber: 380,
+                                                    lineNumber: 362,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                            lineNumber: 378,
+                                            lineNumber: 360,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                            className: "font-semibold text-slate-800",
+                                            className: "font-semibold text-slate-800 dark:text-white",
                                             children: [
                                                 row.percentage,
                                                 "%"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                            lineNumber: 382,
+                                            lineNumber: 364,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, row.type, true, {
                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                    lineNumber: 377,
+                                    lineNumber: 359,
                                     columnNumber: 17
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 375,
+                            lineNumber: 357,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-6 text-center text-xs text-slate-500",
+                    className: "flex h-full min-h-[120px] items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-6 text-center text-xs text-slate-500",
                     children: "No leakage type data available yet."
                 }, void 0, false, {
                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                    lineNumber: 388,
+                    lineNumber: 370,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                lineNumber: 347,
+                lineNumber: 329,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-        lineNumber: 341,
+        lineNumber: 323,
         columnNumber: 5
     }, this);
 }
@@ -1325,7 +1294,7 @@ function OperationsDashboard() {
     const mapFocusedUtilityId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "OperationsDashboard.useMemo[mapFocusedUtilityId]": ()=>{
             if (!isAdmin || selectedUtilityId !== "all" || selectedDMAId !== "all") return null;
-            if (dashboardLevel !== "dma" && dashboardLevel !== "detail") return null;
+            if (dashboardLevel !== "utility" && dashboardLevel !== "dma" && dashboardLevel !== "detail") return null;
             if (!mapViewCenter) return null;
             return visibleUtilities.find({
                 "OperationsDashboard.useMemo[mapFocusedUtilityId]": (utility)=>isPointInBoundary(mapViewCenter, utility.boundaryGeojson)
@@ -1381,6 +1350,17 @@ function OperationsDashboard() {
     }["OperationsDashboard.useEffect"], [
         selectedDMAId,
         visibleDMAs
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "OperationsDashboard.useEffect": ()=>{
+            if (isAdmin && selectedUtilityId === "all" && selectedDMAId !== "all") {
+                setSelectedDMAId("all");
+            }
+        }
+    }["OperationsDashboard.useEffect"], [
+        isAdmin,
+        selectedDMAId,
+        selectedUtilityId
     ]);
     const scopedReports = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "OperationsDashboard.useMemo[scopedReports]": ()=>{
@@ -1603,10 +1583,13 @@ function OperationsDashboard() {
                     };
                 }
             }["OperationsDashboard.useMemo[boundaryOverlays].buildDMAOverlay"];
-            if (dashboardLevel === "national" || dashboardLevel === "utility") {
+            if (dashboardLevel === "national") {
+                return [];
+            }
+            if (dashboardLevel === "utility") {
                 const utilitiesForBoundary = activeUtility?.boundaryGeojson ? [
                     activeUtility
-                ] : visibleUtilities;
+                ] : [];
                 return utilitiesForBoundary.map(buildUtilityOverlay).filter(isOperationsMapBoundaryOverlay);
             }
             if (selectedDMAId !== "all") {
@@ -1716,9 +1699,12 @@ function OperationsDashboard() {
     ]);
     const utilityAggregateMarkers = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "OperationsDashboard.useMemo[utilityAggregateMarkers]": ()=>{
-            return visibleUtilities.map({
+            const utilitiesForMarkers = selectedUtilityId !== "all" || isUtility || isDMA ? visibleUtilities.filter({
+                "OperationsDashboard.useMemo[utilityAggregateMarkers]": (utility)=>!effectiveUtilityId || utility.id === effectiveUtilityId
+            }["OperationsDashboard.useMemo[utilityAggregateMarkers]"]) : visibleUtilities;
+            return utilitiesForMarkers.map({
                 "OperationsDashboard.useMemo[utilityAggregateMarkers]": (utility)=>{
-                    const utilityReports = filteredReports.filter({
+                    const utilityReports = scopedReports.filter({
                         "OperationsDashboard.useMemo[utilityAggregateMarkers].utilityReports": (report)=>report.utilityId === utility.id
                     }["OperationsDashboard.useMemo[utilityAggregateMarkers].utilityReports"]);
                     const utilityMapReports = utilityReports.filter(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$report$2d$metrics$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["hasUsableCoordinates"]);
@@ -1744,7 +1730,11 @@ function OperationsDashboard() {
             }["OperationsDashboard.useMemo[utilityAggregateMarkers]"]).filter(isOperationsMapAggregateMarker);
         }
     }["OperationsDashboard.useMemo[utilityAggregateMarkers]"], [
-        filteredReports,
+        effectiveUtilityId,
+        isDMA,
+        isUtility,
+        scopedReports,
+        selectedUtilityId,
         visibleUtilities
     ]);
     const dmaAggregateMarkers = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
@@ -1906,19 +1896,19 @@ function OperationsDashboard() {
                         className: "h-4 w-4 animate-spin"
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 939,
+                        lineNumber: 936,
                         columnNumber: 11
                     }, this),
                     "Loading leakage dashboard..."
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                lineNumber: 938,
+                lineNumber: 935,
                 columnNumber: 11
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-            lineNumber: 937,
+            lineNumber: 934,
             columnNumber: 7
         }, this);
     }
@@ -1928,61 +1918,57 @@ function OperationsDashboard() {
             className: "grid h-full grid-cols-1 gap-3 xl:grid-cols-[168px_minmax(0,1fr)_280px]",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("aside", {
-                    className: "grid h-full gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1",
+                    className: "grid h-full min-h-0 gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1 xl:grid-rows-[repeat(4,minmax(0,1fr))_auto]",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
                             label: "Total Leak Reports",
                             value: kpis.total,
-                            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$droplets$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Droplets$3e$__["Droplets"],
                             tone: "slate"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 950,
+                            lineNumber: 947,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
                             label: "Leaks Repaired",
                             value: kpis.repaired,
-                            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__["CheckCircle2"],
                             tone: "green"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 951,
+                            lineNumber: 948,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
                             label: "Urgent Leaks",
                             value: kpis.urgent,
-                            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$siren$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Siren$3e$__["Siren"],
                             tone: "amber"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 952,
+                            lineNumber: 949,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
                             label: "Unattended Leaks",
                             value: kpis.unattended,
-                            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$triangle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertTriangle$3e$__["AlertTriangle"],
                             tone: "red"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 953,
+                            lineNumber: 950,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] sm:col-span-2 xl:col-span-1",
+                            className: "min-h-0 rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] sm:col-span-2 xl:col-span-1",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     className: "text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500",
                                     children: "Map legend"
                                 }, void 0, false, {
                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                    lineNumber: 956,
+                                    lineNumber: 953,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "mt-2.5 space-y-1.5 text-xs text-slate-700",
+                                    className: "mt-2.5 max-h-[150px] space-y-1.5 overflow-y-auto pr-1 text-xs text-slate-700",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "flex items-center gap-2",
@@ -1991,14 +1977,14 @@ function OperationsDashboard() {
                                                     className: "h-2.5 w-2.5 rounded-full bg-rose-600"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                    lineNumber: 959,
+                                                    lineNumber: 956,
                                                     columnNumber: 17
                                                 }, this),
                                                 "Open / rejected"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                            lineNumber: 958,
+                                            lineNumber: 955,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2008,14 +1994,14 @@ function OperationsDashboard() {
                                                     className: "h-2.5 w-2.5 rounded-full bg-violet-600"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                    lineNumber: 963,
+                                                    lineNumber: 960,
                                                     columnNumber: 17
                                                 }, this),
                                                 "Pending approval"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                            lineNumber: 962,
+                                            lineNumber: 959,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2025,14 +2011,14 @@ function OperationsDashboard() {
                                                     className: "h-2.5 w-2.5 rounded-full bg-emerald-600"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                    lineNumber: 967,
+                                                    lineNumber: 964,
                                                     columnNumber: 17
                                                 }, this),
                                                 "Repaired (approved / closed)"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                            lineNumber: 966,
+                                            lineNumber: 963,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2042,32 +2028,32 @@ function OperationsDashboard() {
                                                     className: "h-2.5 w-2.5 rounded-full bg-blue-700"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                    lineNumber: 971,
+                                                    lineNumber: 968,
                                                     columnNumber: 17
                                                 }, this),
                                                 "Pipe network"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                            lineNumber: 970,
+                                            lineNumber: 967,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                    lineNumber: 957,
+                                    lineNumber: 954,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 955,
+                            lineNumber: 952,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                    lineNumber: 949,
+                    lineNumber: 946,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -2110,16 +2096,16 @@ function OperationsDashboard() {
                         onReportSelect: (reportId)=>router.push(`/dashboard/reports/${reportId}`)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                        lineNumber: 979,
+                        lineNumber: 976,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                    lineNumber: 978,
+                    lineNumber: 975,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("aside", {
-                    className: "grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] gap-3",
+                    className: "grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)_minmax(210px,0.72fr)] gap-3",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
                             className: "rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] backdrop-blur",
@@ -2134,7 +2120,7 @@ function OperationsDashboard() {
                                                 children: hierarchyLabel
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                lineNumber: 1022,
+                                                lineNumber: 1019,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2145,13 +2131,13 @@ function OperationsDashboard() {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                lineNumber: 1023,
+                                                lineNumber: 1020,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                        lineNumber: 1021,
+                                        lineNumber: 1018,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -2165,12 +2151,12 @@ function OperationsDashboard() {
                                                     placeholder: "Utility / Region"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                    lineNumber: 1031,
+                                                    lineNumber: 1028,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                lineNumber: 1030,
+                                                lineNumber: 1027,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -2181,7 +2167,7 @@ function OperationsDashboard() {
                                                         children: "All utilities"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                        lineNumber: 1034,
+                                                        lineNumber: 1031,
                                                         columnNumber: 30
                                                     }, this) : null,
                                                     visibleUtilities.map((utility)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2189,25 +2175,25 @@ function OperationsDashboard() {
                                                             children: utility.name
                                                         }, utility.id, false, {
                                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                            lineNumber: 1036,
+                                                            lineNumber: 1033,
                                                             columnNumber: 21
                                                         }, this))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                lineNumber: 1033,
+                                                lineNumber: 1030,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                        lineNumber: 1025,
+                                        lineNumber: 1022,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
                                         value: selectedDMAId,
                                         onValueChange: setSelectedDMAId,
-                                        disabled: isDMA || !visibleDMAs.length,
+                                        disabled: isDMA || isAdmin && selectedUtilityId === "all" || !visibleDMAs.length,
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
                                                 className: "h-9 rounded-2xl border-slate-300 bg-slate-100 px-3 text-sm",
@@ -2215,12 +2201,12 @@ function OperationsDashboard() {
                                                     placeholder: "DMA / District"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                    lineNumber: 1045,
+                                                    lineNumber: 1046,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                lineNumber: 1044,
+                                                lineNumber: 1045,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -2231,7 +2217,7 @@ function OperationsDashboard() {
                                                         children: "All DMAs"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                        lineNumber: 1048,
+                                                        lineNumber: 1049,
                                                         columnNumber: 29
                                                     }, this) : null,
                                                     visibleDMAs.map((dma)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2239,30 +2225,30 @@ function OperationsDashboard() {
                                                             children: dma.name
                                                         }, dma.id, false, {
                                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                            lineNumber: 1050,
+                                                            lineNumber: 1051,
                                                             columnNumber: 21
                                                         }, this))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                                lineNumber: 1047,
+                                                lineNumber: 1048,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                        lineNumber: 1043,
+                                        lineNumber: 1040,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                                lineNumber: 1020,
+                                lineNumber: 1017,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 1019,
+                            lineNumber: 1016,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ComparisonBarChartCard, {
@@ -2271,35 +2257,35 @@ function OperationsDashboard() {
                             rows: comparisonRows
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 1059,
+                            lineNumber: 1060,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(LeakageTypeDonutCard, {
                             rows: leakageTypeRows
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                            lineNumber: 1064,
+                            lineNumber: 1065,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-                    lineNumber: 1018,
+                    lineNumber: 1015,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-            lineNumber: 948,
+            lineNumber: 945,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/dashboard/operations-dashboard.tsx",
-        lineNumber: 947,
+        lineNumber: 944,
         columnNumber: 5
     }, this);
 }
-_s1(OperationsDashboard, "jWz7Wkz4pIf7xFn9aYHj6vUjCbU=", false, function() {
+_s1(OperationsDashboard, "QfwB8Pb67+M1I6cWyw30MUSbPkg=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"],

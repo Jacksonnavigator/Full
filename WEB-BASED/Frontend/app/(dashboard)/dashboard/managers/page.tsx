@@ -58,7 +58,7 @@ import {
   Lock,
   Building2,
   CheckCircle2,
-  Sparkles,
+  Save,
   ArrowUpDown,
   User,
   ChevronRight,
@@ -415,9 +415,7 @@ export default function UtilityManagersPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-                <Users className="h-5 w-5 text-white" />
-              </div>
+              <Users className="h-7 w-7 text-violet-600" />
               Utility Managers
             </h1>
             <p className="text-slate-500 mt-1">Create and manage Utility Managers and assign them to utilities</p>
@@ -436,9 +434,7 @@ export default function UtilityManagersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 bg-gradient-to-br from-violet-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <Users className="h-6 w-6 text-white" />
-                </div>
+                <Users className="h-8 w-8 shrink-0 text-violet-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Managers</p>
                   <p className="text-2xl font-bold text-slate-800">{totalManagers}</p>
@@ -450,9 +446,7 @@ export default function UtilityManagersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 bg-gradient-to-br from-emerald-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <CheckCircle2 className="h-6 w-6 text-white" />
-                </div>
+                <CheckCircle2 className="h-8 w-8 shrink-0 text-emerald-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Active Managers</p>
                   <p className="text-2xl font-bold text-slate-800">{activeManagers}</p>
@@ -464,9 +458,7 @@ export default function UtilityManagersPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 bg-gradient-to-br from-blue-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
-                  <Building2 className="h-6 w-6 text-white" />
-                </div>
+                <Building2 className="h-8 w-8 shrink-0 text-blue-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Assigned to Utilities</p>
                   <p className="text-2xl font-bold text-slate-800">{assignedManagers}</p>
@@ -921,7 +913,7 @@ export default function UtilityManagersPage() {
             >
               {editingManager ? (
                 <>
-                  <Sparkles className="h-4 w-4 mr-2" />
+                  <Save className="h-4 w-4 mr-2" />
                   Save Changes
                 </>
               ) : (

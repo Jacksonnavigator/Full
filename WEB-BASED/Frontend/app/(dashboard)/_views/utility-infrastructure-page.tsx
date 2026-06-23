@@ -309,9 +309,7 @@ export default function UtilityInfrastructurePage() {
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-sm", asset.color)}>
-                    <Icon className="h-5 w-5 text-white" />
-                  </div>
+                  <Icon className="mt-0.5 h-6 w-6 shrink-0 text-sky-600 dark:text-sky-300" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <div>

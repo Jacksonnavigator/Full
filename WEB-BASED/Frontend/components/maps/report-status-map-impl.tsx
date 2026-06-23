@@ -232,7 +232,7 @@ export function ReportStatusMapImpl({
                 <Popup>
                   <div className="min-w-[240px] space-y-3">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      <p className="font-sans text-xs font-extrabold uppercase tracking-[0.045em] text-slate-400">
                         {count > 1 ? `${count} reports nearby` : cluster.reports[0]?.trackingId}
                       </p>
                       <p className="text-sm font-semibold text-slate-800">
@@ -248,7 +248,7 @@ export function ReportStatusMapImpl({
                             className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"
                           >
                             <div className="flex items-center justify-between gap-3">
-                              <span className="font-semibold text-slate-700">{report.trackingId}</span>
+                              <span className="font-sans font-extrabold tracking-[0.04em] text-slate-700">{report.trackingId}</span>
                               <span style={{ color: reportColor.stroke }}>{reportColor.label}</span>
                             </div>
                             <p className="mt-1 line-clamp-2 text-slate-500">{report.description}</p>

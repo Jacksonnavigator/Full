@@ -1386,7 +1386,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$lock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Lock$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/lock.js [app-client] (ecmascript) <export default as Lock>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$building$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Building2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/building-2.js [app-client] (ecmascript) <export default as Building2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check.js [app-client] (ecmascript) <export default as CheckCircle2>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$sparkles$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Sparkles$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/sparkles.js [app-client] (ecmascript) <export default as Sparkles>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/save.js [app-client] (ecmascript) <export default as Save>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$user$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__User$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/user.js [app-client] (ecmascript) <export default as User>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layers$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Layers$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/layers.js [app-client] (ecmascript) <export default as Layers>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/file-text.js [app-client] (ecmascript) <export default as FileText>");
@@ -1807,15 +1807,8 @@ function UtilityManagersPage() {
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                                         className: "text-2xl font-bold text-slate-800 flex items-center gap-3",
                                         children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__["Users"], {
-                                                    className: "h-5 w-5 text-white"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 419,
-                                                    columnNumber: 17
-                                                }, this)
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__["Users"], {
+                                                className: "h-7 w-7 text-violet-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
                                                 lineNumber: 418,
@@ -1833,7 +1826,7 @@ function UtilityManagersPage() {
                                         children: "Create and manage Utility Managers and assign them to utilities"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 423,
+                                        lineNumber: 421,
                                         columnNumber: 13
                                     }, this)
                                 ]
@@ -1850,14 +1843,14 @@ function UtilityManagersPage() {
                                         className: "h-4 w-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 429,
+                                        lineNumber: 427,
                                         columnNumber: 13
                                     }, this),
                                     "Invite Manager"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 425,
+                                lineNumber: 423,
                                 columnNumber: 11
                             }, this)
                         ]
@@ -1876,18 +1869,11 @@ function UtilityManagersPage() {
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex items-center gap-4",
                                         children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform duration-300",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__["Users"], {
-                                                    className: "h-6 w-6 text-white"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 440,
-                                                    columnNumber: 19
-                                                }, this)
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__["Users"], {
+                                                className: "h-8 w-8 shrink-0 text-violet-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 439,
+                                                lineNumber: 437,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1897,7 +1883,7 @@ function UtilityManagersPage() {
                                                         children: "Total Managers"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 443,
+                                                        lineNumber: 439,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1905,29 +1891,29 @@ function UtilityManagersPage() {
                                                         children: totalManagers
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 444,
+                                                        lineNumber: 440,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 442,
+                                                lineNumber: 438,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 438,
+                                        lineNumber: 436,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 437,
+                                    lineNumber: 435,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 436,
+                                lineNumber: 434,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1937,18 +1923,11 @@ function UtilityManagersPage() {
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex items-center gap-4",
                                         children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform duration-300",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__["CheckCircle2"], {
-                                                    className: "h-6 w-6 text-white"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 454,
-                                                    columnNumber: 19
-                                                }, this)
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__["CheckCircle2"], {
+                                                className: "h-8 w-8 shrink-0 text-emerald-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 453,
+                                                lineNumber: 449,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1958,7 +1937,7 @@ function UtilityManagersPage() {
                                                         children: "Active Managers"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 457,
+                                                        lineNumber: 451,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1966,29 +1945,29 @@ function UtilityManagersPage() {
                                                         children: activeManagers
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 458,
+                                                        lineNumber: 452,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 456,
+                                                lineNumber: 450,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 452,
+                                        lineNumber: 448,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 451,
+                                    lineNumber: 447,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 450,
+                                lineNumber: 446,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1998,18 +1977,11 @@ function UtilityManagersPage() {
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex items-center gap-4",
                                         children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$building$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Building2$3e$__["Building2"], {
-                                                    className: "h-6 w-6 text-white"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 468,
-                                                    columnNumber: 19
-                                                }, this)
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$building$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Building2$3e$__["Building2"], {
+                                                className: "h-8 w-8 shrink-0 text-blue-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 467,
+                                                lineNumber: 461,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2019,7 +1991,7 @@ function UtilityManagersPage() {
                                                         children: "Assigned to Utilities"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 471,
+                                                        lineNumber: 463,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2027,35 +1999,35 @@ function UtilityManagersPage() {
                                                         children: assignedManagers
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 472,
+                                                        lineNumber: 464,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 470,
+                                                lineNumber: 462,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 466,
+                                        lineNumber: 460,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 465,
+                                    lineNumber: 459,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 464,
+                                lineNumber: 458,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                        lineNumber: 435,
+                        lineNumber: 433,
                         columnNumber: 9
                     }, this)
                 ]
@@ -2074,14 +2046,14 @@ function UtilityManagersPage() {
                                 className: "absolute inset-0 rounded-xl bg-gradient-to-r from-violet-400/10 to-purple-500/10 blur-lg opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 483,
+                                lineNumber: 475,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$search$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Search$3e$__["Search"], {
                                 className: "absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 484,
+                                lineNumber: 476,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2091,13 +2063,13 @@ function UtilityManagersPage() {
                                 className: "pl-11 h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20 shadow-sm"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 485,
+                                lineNumber: 477,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                        lineNumber: 482,
+                        lineNumber: 474,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2107,7 +2079,7 @@ function UtilityManagersPage() {
                                 className: "h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 493,
+                                lineNumber: 485,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2118,19 +2090,19 @@ function UtilityManagersPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 494,
+                                lineNumber: 486,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                        lineNumber: 492,
+                        lineNumber: 484,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                lineNumber: 481,
+                lineNumber: 473,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2148,7 +2120,7 @@ function UtilityManagersPage() {
                                         children: "No managers found"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 504,
+                                        lineNumber: 496,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2156,7 +2128,7 @@ function UtilityManagersPage() {
                                         children: search ? "Try adjusting your search terms" : "Get started by inviting your first utility manager"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 505,
+                                        lineNumber: 497,
                                         columnNumber: 17
                                     }, this),
                                     !search ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2167,20 +2139,20 @@ function UtilityManagersPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 513,
+                                                lineNumber: 505,
                                                 columnNumber: 21
                                             }, this),
                                             "Invite Manager"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 509,
+                                        lineNumber: 501,
                                         columnNumber: 19
                                     }, this) : null
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 503,
+                                lineNumber: 495,
                                 columnNumber: 15
                             }, this) : filteredManagers.map((manager)=>{
                                 const utility = utilities.find((u)=>u.id === manager.utilityId);
@@ -2198,12 +2170,12 @@ function UtilityManagersPage() {
                                                         children: getInitials(manager.name)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 531,
+                                                        lineNumber: 523,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 530,
+                                                    lineNumber: 522,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2214,7 +2186,7 @@ function UtilityManagersPage() {
                                                             children: manager.name
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 539,
+                                                            lineNumber: 531,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2222,7 +2194,7 @@ function UtilityManagersPage() {
                                                             children: "Utility Manager"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 540,
+                                                            lineNumber: 532,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2230,7 +2202,7 @@ function UtilityManagersPage() {
                                                             children: manager.email
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 541,
+                                                            lineNumber: 533,
                                                             columnNumber: 23
                                                         }, this),
                                                         manager.phone ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2238,19 +2210,19 @@ function UtilityManagersPage() {
                                                             children: manager.phone
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 542,
+                                                            lineNumber: 534,
                                                             columnNumber: 40
                                                         }, this) : null
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 538,
+                                                    lineNumber: 530,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 529,
+                                            lineNumber: 521,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2262,7 +2234,7 @@ function UtilityManagersPage() {
                                                         children: "Assigned Utility"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 547,
+                                                        lineNumber: 539,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2270,18 +2242,18 @@ function UtilityManagersPage() {
                                                         children: utility?.name || "Unassigned"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 548,
+                                                        lineNumber: 540,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 546,
+                                                lineNumber: 538,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 545,
+                                            lineNumber: 537,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2291,14 +2263,14 @@ function UtilityManagersPage() {
                                                     status: manager.status ?? "active"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 552,
+                                                    lineNumber: 544,
                                                     columnNumber: 21
                                                 }, this),
                                                 renderOnboardingBadge(manager.onboardingStatus)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 551,
+                                            lineNumber: 543,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2313,14 +2285,14 @@ function UtilityManagersPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 556,
+                                                            lineNumber: 548,
                                                             columnNumber: 100
                                                         }, this),
                                                         "Details"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 556,
+                                                    lineNumber: 548,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2332,14 +2304,14 @@ function UtilityManagersPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 557,
+                                                            lineNumber: 549,
                                                             columnNumber: 97
                                                         }, this),
                                                         "Edit"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 557,
+                                                    lineNumber: 549,
                                                     columnNumber: 21
                                                 }, this),
                                                 manager.onboardingStatus !== "completed" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2351,14 +2323,14 @@ function UtilityManagersPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 558,
+                                                            lineNumber: 550,
                                                             columnNumber: 148
                                                         }, this),
                                                         "Resend"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 558,
+                                                    lineNumber: 550,
                                                     columnNumber: 65
                                                 }, this) : null,
                                                 manager.utilityId ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2371,14 +2343,14 @@ function UtilityManagersPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 559,
+                                                            lineNumber: 551,
                                                             columnNumber: 149
                                                         }, this),
                                                         "Unassign"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 559,
+                                                    lineNumber: 551,
                                                     columnNumber: 42
                                                 }, this) : null,
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2391,32 +2363,32 @@ function UtilityManagersPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 560,
+                                                            lineNumber: 552,
                                                             columnNumber: 122
                                                         }, this),
                                                         "Delete"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 560,
+                                                    lineNumber: 552,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 555,
+                                            lineNumber: 547,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, manager.id, true, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 522,
+                                    lineNumber: 514,
                                     columnNumber: 17
                                 }, this);
                             })
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                            lineNumber: 501,
+                            lineNumber: 493,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2437,19 +2409,19 @@ function UtilityManagersPage() {
                                                                 className: "h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                lineNumber: 572,
+                                                                lineNumber: 564,
                                                                 columnNumber: 23
                                                             }, this),
                                                             "Manager"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 571,
+                                                        lineNumber: 563,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 570,
+                                                    lineNumber: 562,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -2461,19 +2433,19 @@ function UtilityManagersPage() {
                                                                 className: "h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                lineNumber: 578,
+                                                                lineNumber: 570,
                                                                 columnNumber: 23
                                                             }, this),
                                                             "Contact"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 577,
+                                                        lineNumber: 569,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 576,
+                                                    lineNumber: 568,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -2485,19 +2457,19 @@ function UtilityManagersPage() {
                                                                 className: "h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                lineNumber: 584,
+                                                                lineNumber: 576,
                                                                 columnNumber: 23
                                                             }, this),
                                                             "Assigned Utility"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 583,
+                                                        lineNumber: 575,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 582,
+                                                    lineNumber: 574,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -2509,19 +2481,19 @@ function UtilityManagersPage() {
                                                                 className: "h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                lineNumber: 590,
+                                                                lineNumber: 582,
                                                                 columnNumber: 23
                                                             }, this),
                                                             "Status"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 589,
+                                                        lineNumber: 581,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 588,
+                                                    lineNumber: 580,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -2529,18 +2501,18 @@ function UtilityManagersPage() {
                                                     children: "Actions"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 594,
+                                                    lineNumber: 586,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 569,
+                                            lineNumber: 561,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 568,
+                                        lineNumber: 560,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -2557,12 +2529,12 @@ function UtilityManagersPage() {
                                                                 className: "h-8 w-8 text-slate-400"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                lineNumber: 603,
+                                                                lineNumber: 595,
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 602,
+                                                            lineNumber: 594,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2572,7 +2544,7 @@ function UtilityManagersPage() {
                                                                     children: "No managers found"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 606,
+                                                                    lineNumber: 598,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2580,13 +2552,13 @@ function UtilityManagersPage() {
                                                                     children: search ? "Try adjusting your search terms" : "Get started by inviting your first utility manager"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 607,
+                                                                    lineNumber: 599,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 605,
+                                                            lineNumber: 597,
                                                             columnNumber: 25
                                                         }, this),
                                                         !search && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2597,30 +2569,30 @@ function UtilityManagersPage() {
                                                                     className: "h-4 w-4 mr-2"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 616,
+                                                                    lineNumber: 608,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 "Invite Manager"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 612,
+                                                            lineNumber: 604,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 601,
+                                                    lineNumber: 593,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 600,
+                                                lineNumber: 592,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 599,
+                                            lineNumber: 591,
                                             columnNumber: 19
                                         }, this) : filteredManagers.map((manager, index)=>{
                                             const utility = utilities.find((u)=>u.id === manager.utilityId);
@@ -2640,12 +2612,12 @@ function UtilityManagersPage() {
                                                                         children: getInitials(manager.name)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                        lineNumber: 647,
+                                                                        lineNumber: 639,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 641,
+                                                                    lineNumber: 633,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2655,7 +2627,7 @@ function UtilityManagersPage() {
                                                                             children: manager.name
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 657,
+                                                                            lineNumber: 649,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2663,24 +2635,24 @@ function UtilityManagersPage() {
                                                                             children: "Utility Manager"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 658,
+                                                                            lineNumber: 650,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 656,
+                                                                    lineNumber: 648,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 640,
+                                                            lineNumber: 632,
                                                             columnNumber: 27
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 639,
+                                                        lineNumber: 631,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2695,7 +2667,7 @@ function UtilityManagersPage() {
                                                                             className: "h-3.5 w-3.5 text-slate-400"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 667,
+                                                                            lineNumber: 659,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2703,13 +2675,13 @@ function UtilityManagersPage() {
                                                                             children: manager.email
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 668,
+                                                                            lineNumber: 660,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 666,
+                                                                    lineNumber: 658,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 manager.phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2719,31 +2691,31 @@ function UtilityManagersPage() {
                                                                             className: "h-3.5 w-3.5 text-slate-400"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 672,
+                                                                            lineNumber: 664,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                             children: manager.phone
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 673,
+                                                                            lineNumber: 665,
                                                                             columnNumber: 33
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 671,
+                                                                    lineNumber: 663,
                                                                     columnNumber: 31
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 665,
+                                                            lineNumber: 657,
                                                             columnNumber: 27
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 664,
+                                                        lineNumber: 656,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2757,12 +2729,12 @@ function UtilityManagersPage() {
                                                                         className: "h-4 w-4 text-cyan-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                        lineNumber: 684,
+                                                                        lineNumber: 676,
                                                                         columnNumber: 33
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 683,
+                                                                    lineNumber: 675,
                                                                     columnNumber: 31
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2770,13 +2742,13 @@ function UtilityManagersPage() {
                                                                     children: utility.name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 686,
+                                                                    lineNumber: 678,
                                                                     columnNumber: 31
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 682,
+                                                            lineNumber: 674,
                                                             columnNumber: 29
                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
                                                             variant: "outline",
@@ -2786,19 +2758,19 @@ function UtilityManagersPage() {
                                                                     className: "h-3 w-3 mr-1"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 690,
+                                                                    lineNumber: 682,
                                                                     columnNumber: 31
                                                                 }, this),
                                                                 "Unassigned"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 689,
+                                                            lineNumber: 681,
                                                             columnNumber: 29
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 680,
+                                                        lineNumber: 672,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2810,19 +2782,19 @@ function UtilityManagersPage() {
                                                                     status: manager.status ?? "active"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 699,
+                                                                    lineNumber: 691,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 renderOnboardingBadge(manager.onboardingStatus)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 698,
+                                                            lineNumber: 690,
                                                             columnNumber: 27
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 697,
+                                                        lineNumber: 689,
                                                         columnNumber: 25
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2840,7 +2812,7 @@ function UtilityManagersPage() {
                                                                                 className: "h-4 w-4 text-slate-500"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                lineNumber: 713,
+                                                                                lineNumber: 705,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2848,18 +2820,18 @@ function UtilityManagersPage() {
                                                                                 children: "Actions"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                lineNumber: 714,
+                                                                                lineNumber: 706,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                        lineNumber: 708,
+                                                                        lineNumber: 700,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 707,
+                                                                    lineNumber: 699,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -2874,14 +2846,14 @@ function UtilityManagersPage() {
                                                                                     className: "h-4 w-4 text-blue-500"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 725,
+                                                                                    lineNumber: 717,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 "View Details"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 721,
+                                                                            lineNumber: 713,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2892,14 +2864,14 @@ function UtilityManagersPage() {
                                                                                     className: "h-4 w-4 text-violet-500"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 732,
+                                                                                    lineNumber: 724,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 "Edit Manager"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 728,
+                                                                            lineNumber: 720,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         manager.onboardingStatus !== "completed" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2910,14 +2882,14 @@ function UtilityManagersPage() {
                                                                                     className: "h-4 w-4 text-cyan-500"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 740,
+                                                                                    lineNumber: 732,
                                                                                     columnNumber: 35
                                                                                 }, this),
                                                                                 resendingInviteId === manager.id ? "Sending..." : "Resend Invite"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 736,
+                                                                            lineNumber: 728,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         manager.utilityId && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2928,14 +2900,14 @@ function UtilityManagersPage() {
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 749,
+                                                                                    lineNumber: 741,
                                                                                     columnNumber: 35
                                                                                 }, this),
                                                                                 "Unassign from Utility"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 745,
+                                                                            lineNumber: 737,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2946,65 +2918,65 @@ function UtilityManagersPage() {
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 757,
+                                                                                    lineNumber: 749,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 "Delete Manager"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 753,
+                                                                            lineNumber: 745,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 717,
+                                                                    lineNumber: 709,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 706,
+                                                            lineNumber: 698,
                                                             columnNumber: 27
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 705,
+                                                        lineNumber: 697,
                                                         columnNumber: 25
                                                     }, this)
                                                 ]
                                             }, manager.id, true, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 629,
+                                                lineNumber: 621,
                                                 columnNumber: 23
                                             }, this);
                                         })
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 597,
+                                        lineNumber: 589,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 567,
+                                lineNumber: 559,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                            lineNumber: 566,
+                            lineNumber: 558,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                    lineNumber: 500,
+                    lineNumber: 492,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                lineNumber: 499,
+                lineNumber: 491,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3024,30 +2996,30 @@ function UtilityManagersPage() {
                                             className: "h-4 w-4 text-white"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 780,
+                                            lineNumber: 772,
                                             columnNumber: 19
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
                                             className: "h-4 w-4 text-white"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 782,
+                                            lineNumber: 774,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 778,
+                                        lineNumber: 770,
                                         columnNumber: 15
                                     }, this),
                                     editingManager ? "Edit Utility Manager" : "Invite Utility Manager"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 777,
+                                lineNumber: 769,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                            lineNumber: 776,
+                            lineNumber: 768,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3062,7 +3034,7 @@ function UtilityManagersPage() {
                                             children: "Email"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 790,
+                                            lineNumber: 782,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3074,13 +3046,13 @@ function UtilityManagersPage() {
                                             className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 791,
+                                            lineNumber: 783,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 789,
+                                    lineNumber: 781,
                                     columnNumber: 13
                                 }, this),
                                 editingManager && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -3094,7 +3066,7 @@ function UtilityManagersPage() {
                                                     children: "Full Name"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 803,
+                                                    lineNumber: 795,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3105,13 +3077,13 @@ function UtilityManagersPage() {
                                                     className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 804,
+                                                    lineNumber: 796,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 802,
+                                            lineNumber: 794,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3123,7 +3095,7 @@ function UtilityManagersPage() {
                                                     children: "Phone"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 813,
+                                                    lineNumber: 805,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3135,13 +3107,13 @@ function UtilityManagersPage() {
                                                     className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 814,
+                                                    lineNumber: 806,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 812,
+                                            lineNumber: 804,
                                             columnNumber: 17
                                         }, this)
                                     ]
@@ -3154,7 +3126,7 @@ function UtilityManagersPage() {
                                             children: "Assigned Utility"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 826,
+                                            lineNumber: 818,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3167,12 +3139,12 @@ function UtilityManagersPage() {
                                                         placeholder: availableUtilities.length === 0 ? "No unassigned utilities available" : "Select a utility"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 829,
+                                                        lineNumber: 821,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 828,
+                                                    lineNumber: 820,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3183,7 +3155,7 @@ function UtilityManagersPage() {
                                                         children: "No unassigned utilities"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 833,
+                                                        lineNumber: 825,
                                                         columnNumber: 21
                                                     }, this) : availableUtilities.map((u)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
                                                             value: u.id,
@@ -3191,18 +3163,18 @@ function UtilityManagersPage() {
                                                             children: u.name
                                                         }, u.id, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 838,
+                                                            lineNumber: 830,
                                                             columnNumber: 23
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 831,
+                                                    lineNumber: 823,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 827,
+                                            lineNumber: 819,
                                             columnNumber: 15
                                         }, this),
                                         availableUtilities.length === 0 && !editingManager && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3210,13 +3182,13 @@ function UtilityManagersPage() {
                                             children: "All active utilities have managers assigned. Create a new utility or unassign an existing manager first."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 846,
+                                            lineNumber: 838,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 825,
+                                    lineNumber: 817,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3227,7 +3199,7 @@ function UtilityManagersPage() {
                                             children: "Status"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 852,
+                                            lineNumber: 844,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3238,12 +3210,12 @@ function UtilityManagersPage() {
                                                     className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl",
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 855,
+                                                        lineNumber: 847,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 854,
+                                                    lineNumber: 846,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3259,19 +3231,19 @@ function UtilityManagersPage() {
                                                                         className: "h-4 w-4 text-emerald-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                        lineNumber: 860,
+                                                                        lineNumber: 852,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Active"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                lineNumber: 859,
+                                                                lineNumber: 851,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 858,
+                                                            lineNumber: 850,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3284,37 +3256,37 @@ function UtilityManagersPage() {
                                                                         className: "h-4 w-4 rounded-full bg-slate-400"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                        lineNumber: 866,
+                                                                        lineNumber: 858,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Inactive"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                lineNumber: 865,
+                                                                lineNumber: 857,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 864,
+                                                            lineNumber: 856,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 857,
+                                                    lineNumber: 849,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 853,
+                                            lineNumber: 845,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 851,
+                                    lineNumber: 843,
                                     columnNumber: 13
                                 }, this),
                                 editingManager ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3327,14 +3299,14 @@ function UtilityManagersPage() {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 877,
+                                                    lineNumber: 869,
                                                     columnNumber: 19
                                                 }, this),
                                                 "Change Password (leave blank to keep current)"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 876,
+                                            lineNumber: 868,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3351,7 +3323,7 @@ function UtilityManagersPage() {
                                                             className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20 pr-10"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 882,
+                                                            lineNumber: 874,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3364,24 +3336,24 @@ function UtilityManagersPage() {
                                                                 className: "h-4 w-4 text-muted-foreground"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                lineNumber: 896,
+                                                                lineNumber: 888,
                                                                 columnNumber: 39
                                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
                                                                 className: "h-4 w-4 text-muted-foreground"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                lineNumber: 896,
+                                                                lineNumber: 888,
                                                                 columnNumber: 94
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 889,
+                                                            lineNumber: 881,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 881,
+                                                    lineNumber: 873,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3392,32 +3364,32 @@ function UtilityManagersPage() {
                                                     className: "h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 899,
+                                                    lineNumber: 891,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 880,
+                                            lineNumber: 872,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 875,
+                                    lineNumber: 867,
                                     columnNumber: 15
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-4 text-sm text-slate-600",
                                     children: "The system will send this manager a secure setup link so they can finish their own profile and password."
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 909,
+                                    lineNumber: 901,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                            lineNumber: 788,
+                            lineNumber: 780,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -3430,7 +3402,7 @@ function UtilityManagersPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 915,
+                                    lineNumber: 907,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3438,11 +3410,11 @@ function UtilityManagersPage() {
                                     className: "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl",
                                     children: editingManager ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                         children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$sparkles$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Sparkles$3e$__["Sparkles"], {
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__["Save"], {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 924,
+                                                lineNumber: 916,
                                                 columnNumber: 19
                                             }, this),
                                             "Save Changes"
@@ -3453,7 +3425,7 @@ function UtilityManagersPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 929,
+                                                lineNumber: 921,
                                                 columnNumber: 19
                                             }, this),
                                             "Invite Manager"
@@ -3461,24 +3433,24 @@ function UtilityManagersPage() {
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 918,
+                                    lineNumber: 910,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                            lineNumber: 914,
+                            lineNumber: 906,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                    lineNumber: 775,
+                    lineNumber: 767,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                lineNumber: 774,
+                lineNumber: 766,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$confirm$2d$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ConfirmDialog"], {
@@ -3490,7 +3462,7 @@ function UtilityManagersPage() {
                 onConfirm: handleDelete
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                lineNumber: 939,
+                lineNumber: 931,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3509,24 +3481,24 @@ function UtilityManagersPage() {
                                             className: "h-5 w-5 text-white"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 954,
+                                            lineNumber: 946,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 953,
+                                        lineNumber: 945,
                                         columnNumber: 15
                                     }, this),
                                     "Manager Details"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                lineNumber: 952,
+                                lineNumber: 944,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                            lineNumber: 951,
+                            lineNumber: 943,
                             columnNumber: 11
                         }, this),
                         viewingManager && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3546,12 +3518,12 @@ function UtilityManagersPage() {
                                                         children: getInitials(viewingManager.name)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                        lineNumber: 966,
+                                                        lineNumber: 958,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 965,
+                                                    lineNumber: 957,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3562,7 +3534,7 @@ function UtilityManagersPage() {
                                                             children: viewingManager.name
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 971,
+                                                            lineNumber: 963,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3570,7 +3542,7 @@ function UtilityManagersPage() {
                                                             children: "Utility Manager"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 972,
+                                                            lineNumber: 964,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3580,7 +3552,7 @@ function UtilityManagersPage() {
                                                                     status: viewingManager.status ?? "active"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 974,
+                                                                    lineNumber: 966,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3590,14 +3562,14 @@ function UtilityManagersPage() {
                                                                             className: "h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 976,
+                                                                            lineNumber: 968,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         viewingManager.email
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 975,
+                                                                    lineNumber: 967,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 viewingManager.phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3607,42 +3579,42 @@ function UtilityManagersPage() {
                                                                             className: "h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 981,
+                                                                            lineNumber: 973,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         viewingManager.phone
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 980,
+                                                                    lineNumber: 972,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 973,
+                                                            lineNumber: 965,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 970,
+                                                    lineNumber: 962,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                            lineNumber: 964,
+                                            lineNumber: 956,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 963,
+                                        lineNumber: 955,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                    lineNumber: 962,
+                                    lineNumber: 954,
                                     columnNumber: 15
                                 }, this),
                                 viewingManager.utilityId && (()=>{
@@ -3669,12 +3641,12 @@ function UtilityManagersPage() {
                                                                         className: "h-5 w-5 text-white"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                        lineNumber: 1007,
+                                                                        lineNumber: 999,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1006,
+                                                                    lineNumber: 998,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3684,7 +3656,7 @@ function UtilityManagersPage() {
                                                                             children: utility.name
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1010,
+                                                                            lineNumber: 1002,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3692,13 +3664,13 @@ function UtilityManagersPage() {
                                                                             children: "Assigned Utility"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1011,
+                                                                            lineNumber: 1003,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1009,
+                                                                    lineNumber: 1001,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$status$2d$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EntityStatusBadge"], {
@@ -3706,13 +3678,13 @@ function UtilityManagersPage() {
                                                                     className: "ml-auto"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1013,
+                                                                    lineNumber: 1005,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 1005,
+                                                            lineNumber: 997,
                                                             columnNumber: 25
                                                         }, this),
                                                         utility.description && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3720,7 +3692,7 @@ function UtilityManagersPage() {
                                                             children: utility.description
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 1016,
+                                                            lineNumber: 1008,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3736,14 +3708,14 @@ function UtilityManagersPage() {
                                                                                     className: "h-3.5 w-3.5"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 1021,
+                                                                                    lineNumber: 1013,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "DMAs"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1020,
+                                                                            lineNumber: 1012,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3751,13 +3723,13 @@ function UtilityManagersPage() {
                                                                             children: utilityDMAs.length
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1024,
+                                                                            lineNumber: 1016,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1019,
+                                                                    lineNumber: 1011,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3770,14 +3742,14 @@ function UtilityManagersPage() {
                                                                                     className: "h-3.5 w-3.5"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 1028,
+                                                                                    lineNumber: 1020,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "DMA Managers"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1027,
+                                                                            lineNumber: 1019,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3785,13 +3757,13 @@ function UtilityManagersPage() {
                                                                             children: utilityManagers.length
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1031,
+                                                                            lineNumber: 1023,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1026,
+                                                                    lineNumber: 1018,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3804,14 +3776,14 @@ function UtilityManagersPage() {
                                                                                     className: "h-3.5 w-3.5"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 1035,
+                                                                                    lineNumber: 1027,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "Engineers"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1034,
+                                                                            lineNumber: 1026,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3819,13 +3791,13 @@ function UtilityManagersPage() {
                                                                             children: utilityEngineers.length
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1038,
+                                                                            lineNumber: 1030,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1033,
+                                                                    lineNumber: 1025,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3838,14 +3810,14 @@ function UtilityManagersPage() {
                                                                                     className: "h-3.5 w-3.5"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 1042,
+                                                                                    lineNumber: 1034,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "Reports"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1041,
+                                                                            lineNumber: 1033,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3853,30 +3825,30 @@ function UtilityManagersPage() {
                                                                             children: utilityReports.length
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1045,
+                                                                            lineNumber: 1037,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1040,
+                                                                    lineNumber: 1032,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 1018,
+                                                            lineNumber: 1010,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 1004,
+                                                    lineNumber: 996,
                                                     columnNumber: 23
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 1003,
+                                                lineNumber: 995,
                                                 columnNumber: 21
                                             }, this),
                                             utilityDMAs.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3891,7 +3863,7 @@ function UtilityManagersPage() {
                                                                     className: "h-5 w-5 text-blue-500"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1056,
+                                                                    lineNumber: 1048,
                                                                     columnNumber: 29
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
@@ -3902,13 +3874,13 @@ function UtilityManagersPage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1057,
+                                                                    lineNumber: 1049,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 1055,
+                                                            lineNumber: 1047,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3930,7 +3902,7 @@ function UtilityManagersPage() {
                                                                                             className: "h-4 w-4 text-blue-500"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                            lineNumber: 1068,
+                                                                                            lineNumber: 1060,
                                                                                             columnNumber: 39
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3938,26 +3910,26 @@ function UtilityManagersPage() {
                                                                                             children: dma.name
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                            lineNumber: 1069,
+                                                                                            lineNumber: 1061,
                                                                                             columnNumber: 39
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 1067,
+                                                                                    lineNumber: 1059,
                                                                                     columnNumber: 37
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$status$2d$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["EntityStatusBadge"], {
                                                                                     status: dma.status
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 1071,
+                                                                                    lineNumber: 1063,
                                                                                     columnNumber: 37
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1066,
+                                                                            lineNumber: 1058,
                                                                             columnNumber: 35
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3970,7 +3942,7 @@ function UtilityManagersPage() {
                                                                                             className: "h-3 w-3"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                            lineNumber: 1075,
+                                                                                            lineNumber: 1067,
                                                                                             columnNumber: 39
                                                                                         }, this),
                                                                                         "Manager: ",
@@ -3978,7 +3950,7 @@ function UtilityManagersPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 1074,
+                                                                                    lineNumber: 1066,
                                                                                     columnNumber: 37
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3988,7 +3960,7 @@ function UtilityManagersPage() {
                                                                                             className: "h-3 w-3"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                            lineNumber: 1079,
+                                                                                            lineNumber: 1071,
                                                                                             columnNumber: 39
                                                                                         }, this),
                                                                                         "Engineers: ",
@@ -3996,7 +3968,7 @@ function UtilityManagersPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 1078,
+                                                                                    lineNumber: 1070,
                                                                                     columnNumber: 37
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4006,7 +3978,7 @@ function UtilityManagersPage() {
                                                                                             className: "h-3 w-3"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                            lineNumber: 1083,
+                                                                                            lineNumber: 1075,
                                                                                             columnNumber: 39
                                                                                         }, this),
                                                                                         "Reports: ",
@@ -4014,60 +3986,60 @@ function UtilityManagersPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                                    lineNumber: 1082,
+                                                                                    lineNumber: 1074,
                                                                                     columnNumber: 37
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                            lineNumber: 1073,
+                                                                            lineNumber: 1065,
                                                                             columnNumber: 35
                                                                         }, this)
                                                                     ]
                                                                 }, dma.id, true, {
                                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                                    lineNumber: 1065,
+                                                                    lineNumber: 1057,
                                                                     columnNumber: 33
                                                                 }, this);
                                                             })
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                            lineNumber: 1059,
+                                                            lineNumber: 1051,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                    lineNumber: 1054,
+                                                    lineNumber: 1046,
                                                     columnNumber: 25
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                                lineNumber: 1053,
+                                                lineNumber: 1045,
                                                 columnNumber: 23
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                                        lineNumber: 1001,
+                                        lineNumber: 993,
                                         columnNumber: 19
                                     }, this);
                                 })()
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                            lineNumber: 960,
+                            lineNumber: 952,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                    lineNumber: 950,
+                    lineNumber: 942,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/dashboard/managers/page.tsx",
-                lineNumber: 949,
+                lineNumber: 941,
                 columnNumber: 7
             }, this)
         ]

@@ -990,15 +990,8 @@ function UtilityInfrastructurePage() {
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex items-start gap-3",
                                         children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br shadow-sm", asset.color),
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Icon, {
-                                                    className: "h-5 w-5 text-white"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                    lineNumber: 313,
-                                                    columnNumber: 21
-                                                }, this)
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Icon, {
+                                                className: "mt-0.5 h-6 w-6 shrink-0 text-sky-600 dark:text-sky-300"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
                                                 lineNumber: 312,
@@ -1016,7 +1009,7 @@ function UtilityInfrastructurePage() {
                                                                     children: asset.label
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                                    lineNumber: 318,
+                                                                    lineNumber: 316,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1024,18 +1017,18 @@ function UtilityInfrastructurePage() {
                                                                     children: asset.description
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                                    lineNumber: 319,
+                                                                    lineNumber: 317,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                            lineNumber: 317,
+                                                            lineNumber: 315,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                        lineNumber: 316,
+                                                        lineNumber: 314,
                                                         columnNumber: 21
                                                     }, this),
                                                     file ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1044,19 +1037,19 @@ function UtilityInfrastructurePage() {
                                                             children: file.uploadedAt ? `Updated ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$date$2d$time$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatTanzaniaDateTime"])(file.uploadedAt)}` : "Uploaded"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                            lineNumber: 324,
+                                                            lineNumber: 322,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                        lineNumber: 323,
+                                                        lineNumber: 321,
                                                         columnNumber: 23
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "mt-2 text-xs font-medium text-slate-400",
                                                         children: "No file uploaded yet."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                        lineNumber: 327,
+                                                        lineNumber: 325,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1076,20 +1069,20 @@ function UtilityInfrastructurePage() {
                                                                         className: "mr-1.5 h-3.5 w-3.5 animate-spin"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                                        lineNumber: 340,
+                                                                        lineNumber: 338,
                                                                         columnNumber: 33
                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
                                                                         className: "mr-1.5 h-3.5 w-3.5"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                                        lineNumber: 340,
+                                                                        lineNumber: 338,
                                                                         columnNumber: 91
                                                                     }, this),
                                                                     file ? "Replace" : "Upload"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                                lineNumber: 330,
+                                                                lineNumber: 328,
                                                                 columnNumber: 23
                                                             }, this),
                                                             file ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -1109,14 +1102,14 @@ function UtilityInfrastructurePage() {
                                                                                 className: "mr-1.5 h-3.5 w-3.5"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                                                lineNumber: 356,
+                                                                                lineNumber: 354,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             "Download"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                                        lineNumber: 345,
+                                                                        lineNumber: 343,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1134,14 +1127,14 @@ function UtilityInfrastructurePage() {
                                                                                 className: "mr-1.5 h-3.5 w-3.5"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                                                lineNumber: 370,
+                                                                                lineNumber: 368,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             "Remove"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                                        lineNumber: 359,
+                                                                        lineNumber: 357,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
@@ -1149,13 +1142,13 @@ function UtilityInfrastructurePage() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                        lineNumber: 329,
+                                                        lineNumber: 327,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                                                lineNumber: 315,
+                                                lineNumber: 313,
                                                 columnNumber: 19
                                             }, this)
                                         ]
@@ -1196,12 +1189,12 @@ function UtilityInfrastructurePage() {
                             emptyMessage: `Upload one GeoPackage (.gpkg) file containing ${selectedAsset.label.toLowerCase()} geometry and attributes to preview this utility layer.`
                         }, void 0, false, {
                             fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                            lineNumber: 385,
+                            lineNumber: 383,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                        lineNumber: 384,
+                        lineNumber: 382,
                         columnNumber: 9
                     }, this)
                 ]
@@ -1218,7 +1211,7 @@ function UtilityInfrastructurePage() {
                 onChange: handleUpload
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/utility-infrastructure-page.tsx",
-                lineNumber: 402,
+                lineNumber: 400,
                 columnNumber: 7
             }, this)
         ]
