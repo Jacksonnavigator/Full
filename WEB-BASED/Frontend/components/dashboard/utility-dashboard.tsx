@@ -446,7 +446,7 @@ export function UtilityDashboard() {
                 <button
                   key={report.id}
                   type="button"
-                  onClick={() => router.push(`/dashboard/reports/${report.id}`)}
+                  onClick={() => router.push(`/dashboard/reports/${report.trackingId || report.id}`)}
                   className="w-full rounded-2xl border border-border/70 bg-card p-4 text-left transition-all hover:border-primary/30 hover:bg-muted/30"
                 >
                   <div className="flex items-start justify-between gap-3">

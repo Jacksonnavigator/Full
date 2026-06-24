@@ -21,6 +21,7 @@ import type { EntityStatus } from "@/lib/types"
 
 interface Team {
   id: string
+  slug?: string | null
   name: string
   description: string | null
   dmaId: string
@@ -39,6 +40,7 @@ interface Team {
 
 const mapTeam = (raw: Record<string, unknown>): Team => ({
   id: raw.id as string,
+  slug: (raw.slug as string | null) ?? null,
   name: raw.name as string,
   description: (raw.description as string | null) ?? null,
   dmaId: raw.dma_id as string,
@@ -309,7 +311,7 @@ export default function TeamsPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => router.push(`/teams/${team.id}`)}>
+                      <DropdownMenuItem onClick={() => router.push(`/dashboard/teams/${team.slug || team.id}`)}>
                         <Settings className="mr-2 h-4 w-4" />
                         Manage Team
                       </DropdownMenuItem>
@@ -348,7 +350,7 @@ export default function TeamsPage() {
                   </div>
                 </div>
 
-                <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => router.push(`/teams/${team.id}`)}>
+                <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => router.push(`/dashboard/teams/${team.slug || team.id}`)}>
                   <Settings className="mr-2 h-4 w-4" />
                   Manage Team Members
                 </Button>

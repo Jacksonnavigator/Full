@@ -78,6 +78,7 @@ class Utility(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), unique=True, nullable=False, index=True)
+    slug = Column(String(255), unique=True, nullable=True, index=True)
     region_name = Column(String(100), nullable=True, index=True)
     description = Column(String, nullable=True)
     contact_phone = Column(String(20), nullable=True)
@@ -213,6 +214,7 @@ class DMA(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
+    slug = Column(String(255), unique=True, nullable=True, index=True)
     description = Column(String, nullable=True)
     utility_id = Column(String(36), ForeignKey("utility.id", ondelete="CASCADE"), nullable=False, index=True)
     # Geospatial fields for location-based report assignment
@@ -223,7 +225,10 @@ class DMA(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
-    __table_args__ = (UniqueConstraint("name", "utility_id", name="uq_dma_name_utility"),)
+    __table_args__ = (
+        UniqueConstraint("name", "utility_id", name="uq_dma_name_utility"),
+        UniqueConstraint("utility_id", "slug", name="uq_dma_utility_slug"),
+    )
     
     # Relationships
     utility = relationship("Utility", back_populates="dmas")
@@ -280,6 +285,7 @@ class Team(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
+    slug = Column(String(255), unique=True, nullable=True, index=True)
     description = Column(String, nullable=True)
     dma_id = Column(String(36), ForeignKey("dma.id", ondelete="CASCADE"), nullable=False, index=True)
     leader_id = Column(String(36), ForeignKey("engineer.id"), nullable=True, unique=True, index=True)

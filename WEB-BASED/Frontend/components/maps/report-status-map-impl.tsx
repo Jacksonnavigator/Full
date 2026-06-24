@@ -259,7 +259,7 @@ export function ReportStatusMapImpl({
                                   size="sm"
                                   variant="outline"
                                   className="h-8 rounded-lg px-3"
-                                  onClick={() => onReportSelect(report.id)}
+                                  onClick={() => onReportSelect(report.trackingId || report.id)}
                                 >
                                   View
                                 </Button>

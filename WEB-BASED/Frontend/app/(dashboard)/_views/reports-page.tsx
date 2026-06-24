@@ -260,8 +260,8 @@ export default function ReportsPage() {
     if (currentPage > totalPages) setCurrentPage(totalPages)
   }, [currentPage, totalPages])
 
-  function openDetail(report: { id: string }) {
-    router.push(`/dashboard/reports/${report.id}`)
+  function openDetail(report: { id: string; trackingId?: string }) {
+    router.push(`/dashboard/reports/${report.trackingId || report.id}`)
   }
 
   // Stats

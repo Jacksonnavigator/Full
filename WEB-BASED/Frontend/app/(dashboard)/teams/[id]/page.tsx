@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, usePathname, useRouter } from "next/navigation"
 import { CONFIG } from "@/lib/config"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,7 @@ interface TeamMember {
 
 interface TeamDetails {
   id: string
+  slug?: string | null
   name: string
   description: string | null
   dma_id: string
@@ -33,9 +34,10 @@ interface TeamDetails {
 }
 
 export default function TeamMembersPage() {
-  const params = useParams<{ id: string }>()
+  const params = useParams<{ id?: string; teamId?: string }>()
+  const pathname = usePathname()
   const router = useRouter()
-  const teamId = params?.id
+  const teamId = params?.teamId || params?.id
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -56,6 +58,10 @@ export default function TeamMembersPage() {
       }
       const data = await response.json()
       setTeam(data.team)
+      const canonicalId = data.team?.slug || data.team?.id
+      if (canonicalId && pathname !== `/dashboard/teams/${canonicalId}`) {
+        router.replace(`/dashboard/teams/${canonicalId}`)
+      }
       setEligibleEngineers(data.eligibleEngineers || [])
       setSelectedEngineerIds(data.currentMemberIds || [])
     } catch (error) {

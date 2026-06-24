@@ -27,6 +27,7 @@ export interface GeoJsonPolygon {
 // Types
 export interface Utility {
   id: string
+  slug?: string | null
   name: string
   regionName?: string | null
   description: string | null
@@ -114,6 +115,7 @@ async function writeUtility(endpoint: string, method: "POST" | "PUT", data: Part
 
 export interface DMA {
   id: string
+  slug?: string | null
   name: string
   description: string | null
   utilityId: string

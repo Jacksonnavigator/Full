@@ -150,7 +150,7 @@ function QueueCard({
             <Route className="mr-2 h-4 w-4" />
             Resolve Routing
           </Button>
-          <Button variant="outline" className="rounded-xl" onClick={() => onOpen(report.id)}>
+          <Button variant="outline" className="rounded-xl" onClick={() => onOpen(report.trackingId || report.id)}>
             <ExternalLink className="mr-2 h-4 w-4" />
             Open Full Report
           </Button>

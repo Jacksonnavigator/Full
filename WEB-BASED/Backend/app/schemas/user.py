@@ -182,6 +182,7 @@ class UtilityInfrastructureAssetResponse(BaseModel):
 class UtilityResponse(UtilityBase):
     """Schema for utility response"""
     id: str
+    slug: Optional[str] = None
     service_areas: List[UtilityServiceAreaResponse] = Field(default_factory=list)
     infrastructure_layers: List[UtilityInfrastructureAssetResponse] = Field(default_factory=list)
     created_at: datetime
@@ -323,6 +324,7 @@ class DMAUpdate(BaseModel):
 class DMAResponse(DMABase):
     """Schema for DMA response"""
     id: str
+    slug: Optional[str] = None
     utility_name: Optional[str] = None
     manager_id: Optional[str] = None
     manager_name: Optional[str] = None
@@ -430,6 +432,7 @@ class TeamUpdate(BaseModel):
 class TeamResponse(TeamBase):
     """Schema for team response"""
     id: str
+    slug: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

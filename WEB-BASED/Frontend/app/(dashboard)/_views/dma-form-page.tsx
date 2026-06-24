@@ -126,7 +126,11 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
   const utilityName = currentUser?.utilityName || utilityFromList?.name || utilityByManager?.name || ""
 
   const editingDMA = useMemo(
-    () => (mode === "edit" && dmaId ? dmas.find((dma) => dma.id === dmaId) ?? null : null),
+    () => (
+      mode === "edit" && dmaId
+        ? dmas.find((dma) => dma.id === dmaId || dma.slug === dmaId) ?? null
+        : null
+    ),
     [dmaId, dmas, mode],
   )
 

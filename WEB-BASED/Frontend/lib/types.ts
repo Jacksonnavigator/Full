@@ -47,6 +47,7 @@ export interface User {
 
 export interface Utility {
   id: string
+  slug?: string | null
   name: string
   regionName?: string | null
   description: string
@@ -98,6 +99,7 @@ export interface UtilityServiceArea {
 
 export interface DMA {
   id: string
+  slug?: string | null
   name: string
   utilityId: string
   utilityName: string

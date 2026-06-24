@@ -16,6 +16,8 @@ from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
+from app.services.slugs import slugify
+
 
 def _run_postgres_ddl_without_timeout(
     connection,
@@ -74,6 +76,7 @@ def run_safe_startup_migrations(engine: Engine) -> None:
     _migrate_report_workflow_columns(engine)
     _migrate_report_leakage_type_column(engine)
     _migrate_utility_contact_columns(engine)
+    _migrate_human_readable_slugs(engine)
     _migrate_utility_service_area_table(engine)
     _migrate_dma_boundary_columns(engine)
     _migrate_utility_infrastructure_layer_table(engine)
@@ -714,6 +717,130 @@ def _migrate_utility_service_area_table(engine: Engine) -> None:
                     statement,
                 ):
                     return
+
+
+def _unique_slug(base_slug: str, used_slugs: set[str]) -> str:
+    candidate = base_slug
+    suffix = 2
+    while candidate in used_slugs:
+        candidate = f"{base_slug}-{suffix}"
+        suffix += 1
+    used_slugs.add(candidate)
+    return candidate
+
+
+def _migrate_human_readable_slugs(engine: Engine) -> None:
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    is_postgres = engine.dialect.name.startswith("postgresql")
+
+    if "utility" in existing_tables:
+        utility_columns = {column["name"] for column in inspector.get_columns("utility")}
+        if "slug" not in utility_columns:
+            with engine.begin() as connection:
+                statement = (
+                    'ALTER TABLE "utility" ADD COLUMN IF NOT EXISTS slug VARCHAR(255)'
+                    if is_postgres
+                    else "ALTER TABLE utility ADD COLUMN slug VARCHAR(255)"
+                )
+                if is_postgres:
+                    if not _run_postgres_ddl_without_timeout(connection, statement):
+                        return
+                else:
+                    connection.exec_driver_sql(statement)
+
+        with engine.begin() as connection:
+            rows = connection.execute(text("SELECT id, name, slug FROM utility ORDER BY created_at, id")).mappings().all()
+            used_slugs = {str(row["slug"]) for row in rows if row["slug"]}
+            for row in rows:
+                if row["slug"]:
+                    continue
+                slug = _unique_slug(slugify(str(row["name"]), fallback="utility"), used_slugs)
+                connection.execute(
+                    text("UPDATE utility SET slug = :slug WHERE id = :utility_id"),
+                    {"slug": slug, "utility_id": row["id"]},
+                )
+
+        with engine.begin() as connection:
+            statement = (
+                'CREATE UNIQUE INDEX IF NOT EXISTS ix_utility_slug_unique ON "utility" (slug)'
+                if is_postgres
+                else "CREATE UNIQUE INDEX IF NOT EXISTS ix_utility_slug_unique ON utility (slug)"
+            )
+            if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, statement)
+            else:
+                connection.exec_driver_sql(statement)
+
+    if "dma" in existing_tables:
+        dma_columns = {column["name"] for column in inspector.get_columns("dma")}
+        if "slug" not in dma_columns:
+            with engine.begin() as connection:
+                statement = (
+                    "ALTER TABLE dma ADD COLUMN IF NOT EXISTS slug VARCHAR(255)"
+                    if is_postgres
+                    else "ALTER TABLE dma ADD COLUMN slug VARCHAR(255)"
+                )
+                if is_postgres:
+                    if not _run_postgres_ddl_without_timeout(connection, statement):
+                        return
+                else:
+                    connection.exec_driver_sql(statement)
+
+        with engine.begin() as connection:
+            rows = connection.execute(text("SELECT id, utility_id, name, slug FROM dma ORDER BY utility_id, created_at, id")).mappings().all()
+            used_slugs = {str(row["slug"]) for row in rows if row["slug"]}
+            for row in rows:
+                if row["slug"]:
+                    continue
+                slug = _unique_slug(slugify(str(row["name"]), fallback="dma"), used_slugs)
+                connection.execute(
+                    text("UPDATE dma SET slug = :slug WHERE id = :dma_id"),
+                    {"slug": slug, "dma_id": row["id"]},
+                )
+
+        with engine.begin() as connection:
+            statement = (
+                "CREATE UNIQUE INDEX IF NOT EXISTS ix_dma_slug_unique ON dma (slug)"
+            )
+            if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, statement)
+            else:
+                connection.exec_driver_sql(statement)
+
+    if "team" in existing_tables:
+        team_columns = {column["name"] for column in inspector.get_columns("team")}
+        if "slug" not in team_columns:
+            with engine.begin() as connection:
+                statement = (
+                    "ALTER TABLE team ADD COLUMN IF NOT EXISTS slug VARCHAR(255)"
+                    if is_postgres
+                    else "ALTER TABLE team ADD COLUMN slug VARCHAR(255)"
+                )
+                if is_postgres:
+                    if not _run_postgres_ddl_without_timeout(connection, statement):
+                        return
+                else:
+                    connection.exec_driver_sql(statement)
+
+        with engine.begin() as connection:
+            rows = connection.execute(text("SELECT id, name, slug FROM team ORDER BY dma_id, created_at, id")).mappings().all()
+            used_slugs = {str(row["slug"]) for row in rows if row["slug"]}
+            for row in rows:
+                if row["slug"]:
+                    continue
+                slug = _unique_slug(slugify(str(row["name"]), fallback="team"), used_slugs)
+                connection.execute(
+                    text("UPDATE team SET slug = :slug WHERE id = :team_id"),
+                    {"slug": slug, "team_id": row["id"]},
+                )
+
+        with engine.begin() as connection:
+            statement = "CREATE UNIQUE INDEX IF NOT EXISTS ix_team_slug_unique ON team (slug)"
+            if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, statement)
+            else:
+                connection.exec_driver_sql(statement)
 
 
 def _migrate_geographic_assignment_columns(engine: Engine) -> None:

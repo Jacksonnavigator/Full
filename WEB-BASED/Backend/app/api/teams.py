@@ -15,6 +15,7 @@ from app.models import DMA, Engineer, Report, Team, Utility
 from app.models.user import EntityStatusEnum
 from app.schemas.user import TeamCreate, TeamResponse, TeamUpdate
 from app.security.dependencies import CurrentUser, get_current_user
+from app.services.slugs import slugify
 
 teams_router = APIRouter(prefix="/api/teams", tags=["teams"])
 
@@ -58,6 +59,7 @@ def _build_team_with_details(team: Team, db: Session) -> TeamWithDetails:
 
     return TeamWithDetails(
         id=team.id,
+        slug=team.slug,
         name=team.name,
         description=team.description,
         dma_id=team.dma_id,
@@ -75,6 +77,25 @@ def _build_team_with_details(team: Team, db: Session) -> TeamWithDetails:
         active_reports=active_reports,
         engineer_ids=[member.id for member in members],
     )
+
+
+def _make_unique_team_slug(db: Session, name: str, exclude_team_id: Optional[str] = None) -> str:
+    base_slug = slugify(name, fallback="team")
+    candidate = base_slug
+    suffix = 2
+
+    while True:
+        query = db.query(Team).filter(Team.slug == candidate)
+        if exclude_team_id:
+            query = query.filter(Team.id != exclude_team_id)
+        if not query.first():
+            return candidate
+        candidate = f"{base_slug}-{suffix}"
+        suffix += 1
+
+
+def _get_team_by_identifier(db: Session, identifier: str) -> Optional[Team]:
+    return db.query(Team).filter(or_(Team.id == identifier, Team.slug == identifier)).first()
 
 
 def _get_team_utility_id(team: Team, db: Session) -> Optional[str]:
@@ -149,7 +170,7 @@ async def get_team(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team = _get_team_by_identifier(db, team_id)
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -178,6 +199,7 @@ async def create_team(
     new_team = Team(
         dma_id=dma.id,
         name=team_data.name,
+        slug=_make_unique_team_slug(db, team_data.name),
         description=team_data.description,
         status=team_data.status,
     )
@@ -196,7 +218,7 @@ async def update_team(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team = _get_team_by_identifier(db, team_id)
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -219,6 +241,8 @@ async def update_team(
 
     if "name" in update_data:
         team.name = update_data["name"]
+    if not team.slug:
+        team.slug = _make_unique_team_slug(db, team.name, exclude_team_id=team.id)
     if "description" in update_data:
         team.description = update_data["description"]
     if "status" in update_data and update_data["status"] is not None:
@@ -246,7 +270,7 @@ async def get_team_members(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team = _get_team_by_identifier(db, team_id)
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -269,16 +293,17 @@ async def get_team_members(
             "status": leader_engineer.status.value if hasattr(leader_engineer.status, "value") else leader_engineer.status,
         }
 
-    members = db.query(Engineer).filter(Engineer.team_id == team_id).order_by(Engineer.name).all()
+    members = db.query(Engineer).filter(Engineer.team_id == team.id).order_by(Engineer.name).all()
     eligible_query = db.query(Engineer).filter(
         Engineer.dma_id == team.dma_id,
         Engineer.status == EntityStatusEnum.ACTIVE,
-        or_(Engineer.team_id == None, Engineer.team_id == team_id),
+        or_(Engineer.team_id == None, Engineer.team_id == team.id),
     ).order_by(Engineer.name)
 
     return {
         "team": {
             "id": team.id,
+            "slug": team.slug,
             "name": team.name,
             "description": team.description,
             "dma_id": team.dma_id,
@@ -338,7 +363,7 @@ async def add_team_members(
             detail="Engineer IDs are required",
         )
 
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team = _get_team_by_identifier(db, team_id)
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -356,7 +381,7 @@ async def add_team_members(
 
     ineligible = []
     for engineer in engineers:
-        if engineer.dma_id != team.dma_id or (engineer.team_id is not None and engineer.team_id != team_id):
+        if engineer.dma_id != team.dma_id or (engineer.team_id is not None and engineer.team_id != team.id):
             ineligible.append(engineer.name)
 
     if ineligible:
@@ -366,7 +391,7 @@ async def add_team_members(
         )
 
     for engineer in engineers:
-        engineer.team_id = team_id
+        engineer.team_id = team.id
         engineer.dma_id = team.dma_id
 
     db.commit()
@@ -387,7 +412,7 @@ async def remove_team_members(
             detail="Engineer IDs are required",
         )
 
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team = _get_team_by_identifier(db, team_id)
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -415,7 +440,7 @@ async def get_team_leader(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team = _get_team_by_identifier(db, team_id)
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -439,7 +464,7 @@ async def get_team_leader(
     eligible_query = db.query(Engineer).filter(
         Engineer.dma_id == team.dma_id,
         Engineer.status == EntityStatusEnum.ACTIVE,
-        or_(Engineer.team_id == None, Engineer.team_id == team_id),
+        or_(Engineer.team_id == None, Engineer.team_id == team.id),
     ).order_by(Engineer.name)
 
     return {
@@ -459,6 +484,7 @@ async def get_team_leader(
         ],
         "team": {
             "id": team.id,
+            "slug": team.slug,
             "name": team.name,
             "dma_id": team.dma_id,
         },
@@ -485,7 +511,7 @@ async def assign_team_leader(
             detail="Engineer ID is required",
         )
 
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team = _get_team_by_identifier(db, team_id)
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -513,7 +539,7 @@ async def assign_team_leader(
             detail="Engineer must be active",
         )
 
-    if engineer.team_id and engineer.team_id != team_id:
+    if engineer.team_id and engineer.team_id != team.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Engineer is already a member of another team",
@@ -523,7 +549,7 @@ async def assign_team_leader(
         db.query(Engineer).filter(Engineer.id == team.leader_id).update({"role": "engineer"})
 
     if not engineer.team_id:
-        engineer.team_id = team_id
+        engineer.team_id = team.id
     engineer.role = "team_leader"
     engineer.dma_id = team.dma_id
     team.leader_id = data.engineer_id
@@ -538,7 +564,7 @@ async def remove_team_leader(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team = _get_team_by_identifier(db, team_id)
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -566,7 +592,7 @@ async def delete_team(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    team = db.query(Team).filter(Team.id == team_id).first()
+    team = _get_team_by_identifier(db, team_id)
     if not team:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -575,6 +601,6 @@ async def delete_team(
 
     _ensure_team_write_access(current_user, team.dma_id)
 
-    db.query(Engineer).filter(Engineer.team_id == team_id).update({"team_id": None})
+    db.query(Engineer).filter(Engineer.team_id == team.id).update({"team_id": None})
     db.delete(team)
     db.commit()

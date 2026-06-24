@@ -167,7 +167,11 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
   const isUtilityManager = currentUser?.role === "utility_manager"
 
   const editingUtility = useMemo(
-    () => (mode === "edit" && utilityId ? utilities.find((utility) => utility.id === utilityId) ?? null : null),
+    () => (
+      mode === "edit" && utilityId
+        ? utilities.find((utility) => utility.id === utilityId || utility.slug === utilityId) ?? null
+        : null
+    ),
     [mode, utilities, utilityId]
   )
 

@@ -1032,7 +1032,7 @@ export function OperationsMapImpl({
                         </div>
                       </div>
 
-                      <Button type="button" className="w-full" onClick={() => onReportSelect?.(report.id)}>
+                      <Button type="button" className="w-full" onClick={() => onReportSelect?.(report.trackingId || report.id)}>
                         Open report
                       </Button>
                     </div>

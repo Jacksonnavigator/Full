@@ -130,7 +130,7 @@ export default function UtilitiesPage() {
   }
 
   function openEditDialog(utility: Utility) {
-    router.push(`/dashboard/utilities/${utility.id}/edit`)
+    router.push(`/dashboard/utilities/${utility.slug || utility.id}/edit`)
   }
 
   async function handleDelete() {

@@ -111,7 +111,7 @@ export default function DMAsPage() {
   }
 
   function openEditPage(dma: DMA) {
-    router.push(`/dashboard/dmas/${dma.id}/edit`)
+    router.push(`/dashboard/dmas/${dma.slug || dma.id}/edit`)
   }
 
   async function handleDelete() {

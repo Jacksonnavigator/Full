@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import xml.etree.ElementTree as ET
 import zipfile
 from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Response
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from shapely import wkb
 from shapely.geometry import mapping, shape
@@ -38,6 +39,7 @@ from app.services.hierarchy import (
     find_utility_by_region_name,
     resolve_region_name_hint,
 )
+from app.services.slugs import slugify
 
 utilities_router = APIRouter(prefix="/api/utilities", tags=["utilities"])
 
@@ -71,6 +73,24 @@ PIPE_NETWORK_REQUIRED_TEXT_COLUMNS = {
 }
 
 _infrastructure_geojson_cache: dict[tuple[Any, ...], dict[str, Any]] = {}
+
+
+def _make_unique_utility_slug(db: Session, name: str, exclude_utility_id: Optional[str] = None) -> str:
+    base_slug = slugify(name, fallback="utility")
+    candidate = base_slug
+    suffix = 2
+    while True:
+        query = db.query(Utility).filter(Utility.slug == candidate)
+        if exclude_utility_id:
+            query = query.filter(Utility.id != exclude_utility_id)
+        if not query.first():
+            return candidate
+        candidate = f"{base_slug}-{suffix}"
+        suffix += 1
+
+
+def _get_utility_by_identifier(db: Session, identifier: str) -> Optional[Utility]:
+    return db.query(Utility).filter(or_(Utility.id == identifier, Utility.slug == identifier)).first()
 
 UTILITY_INFRASTRUCTURE_ASSETS: dict[str, dict[str, Any]] = {
     "pipe_network": {
@@ -195,6 +215,7 @@ def _build_utility_response(utility: Utility, db: Optional[Session] = None) -> U
 
     return UtilityResponse(
         id=utility.id,
+        slug=utility.slug,
         name=utility.name,
         region_name=utility.region_name,
         description=utility.description,
@@ -1391,10 +1412,10 @@ async def get_utility(
     db: Session = Depends(get_db),
 ):
     """
-    Get utility by ID
+    Get utility by ID or slug
     Requires authentication
     """
-    utility = db.query(Utility).filter(Utility.id == utility_id).first()
+    utility = _get_utility_by_identifier(db, utility_id)
     
     if not utility:
         raise HTTPException(
@@ -1427,6 +1448,7 @@ async def create_utility(
 
     new_utility = Utility(
         name=utility_data.name,
+        slug=_make_unique_utility_slug(db, utility_data.name),
         region_name=utility_data.region_name,
         description=utility_data.description,
         contact_phone=utility_data.contact_phone,
@@ -1459,7 +1481,7 @@ async def update_utility(
     Update utility details
     Requires admin role
     """
-    utility = db.query(Utility).filter(Utility.id == utility_id).first()
+    utility = _get_utility_by_identifier(db, utility_id)
     
     if not utility:
         raise HTTPException(
@@ -1482,6 +1504,8 @@ async def update_utility(
         utility.boundary_status = "verified" if boundary_geojson_raw else "none"
     if service_areas is not None:
         _replace_utility_service_areas(utility, [UtilityServiceAreaCreate(**area) if isinstance(area, dict) else area for area in service_areas])
+    if not utility.slug:
+        utility.slug = _make_unique_utility_slug(db, update_data.get("name") or utility.name, exclude_utility_id=utility.id)
     for field, value in update_data.items():
         setattr(utility, field, value)
 
@@ -1508,7 +1532,7 @@ async def patch_utility(
     Partially update utility
     Requires admin role
     """
-    utility = db.query(Utility).filter(Utility.id == utility_id).first()
+    utility = _get_utility_by_identifier(db, utility_id)
     
     if not utility:
         raise HTTPException(
@@ -1531,6 +1555,8 @@ async def patch_utility(
         utility.boundary_status = "verified" if boundary_geojson_raw else "none"
     if service_areas is not None:
         _replace_utility_service_areas(utility, [UtilityServiceAreaCreate(**area) if isinstance(area, dict) else area for area in service_areas])
+    if not utility.slug:
+        utility.slug = _make_unique_utility_slug(db, update_data.get("name") or utility.name, exclude_utility_id=utility.id)
     for field, value in update_data.items():
         setattr(utility, field, value)
 
@@ -1556,7 +1582,7 @@ async def delete_utility(
     Delete utility by ID
     Requires admin role
     """
-    utility = db.query(Utility).filter(Utility.id == utility_id).first()
+    utility = _get_utility_by_identifier(db, utility_id)
     
     if not utility:
         raise HTTPException(

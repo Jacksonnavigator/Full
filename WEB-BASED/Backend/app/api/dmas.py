@@ -8,6 +8,7 @@ import json
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models import DMA, DMAManager, Engineer, Report, Team
@@ -18,8 +19,27 @@ from app.schemas.user import (
     DMAListResponse,
 )
 from app.security.dependencies import get_current_user, require_admin, CurrentUser
+from app.services.slugs import slugify
 
 dmas_router = APIRouter(prefix="/api/dmas", tags=["dmas"])
+
+
+def _make_unique_dma_slug(db: Session, utility_id: str, name: str, exclude_dma_id: Optional[str] = None) -> str:
+    base_slug = slugify(name, fallback="dma")
+    candidate = base_slug
+    suffix = 2
+    while True:
+        query = db.query(DMA).filter(DMA.slug == candidate)
+        if exclude_dma_id:
+            query = query.filter(DMA.id != exclude_dma_id)
+        if not query.first():
+            return candidate
+        candidate = f"{base_slug}-{suffix}"
+        suffix += 1
+
+
+def _get_dma_by_identifier(db: Session, identifier: str) -> Optional[DMA]:
+    return db.query(DMA).filter(or_(DMA.id == identifier, DMA.slug == identifier)).first()
 
 
 def _serialize_boundary_geojson(boundary_geojson: Optional[dict[str, Any]]) -> Optional[str]:
@@ -123,6 +143,7 @@ def transform_dma(dma: DMA) -> dict:
     
     return {
         "id": dma.id,
+        "slug": dma.slug,
         "utility_id": dma.utility_id,
         "utility_name": utility_name,
         "name": dma.name,
@@ -177,8 +198,8 @@ async def get_dma(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Get DMA by ID (requires authentication)"""
-    dma = db.query(DMA).filter(DMA.id == dma_id).first()
+    """Get DMA by ID or slug (requires authentication)"""
+    dma = _get_dma_by_identifier(db, dma_id)
     
     if not dma:
         raise HTTPException(
@@ -222,6 +243,7 @@ async def create_dma(
     new_dma = DMA(
         utility_id=dma_data.utility_id,
         name=dma_data.name,
+        slug=_make_unique_dma_slug(db, dma_data.utility_id, dma_data.name),
         description=dma_data.description,
         center_latitude=dma_data.center_latitude,
         center_longitude=dma_data.center_longitude,
@@ -244,7 +266,7 @@ async def update_dma(
     db: Session = Depends(get_db),
 ):
     """Update DMA details (admin or utility manager of that utility)"""
-    dma = db.query(DMA).filter(DMA.id == dma_id).first()
+    dma = _get_dma_by_identifier(db, dma_id)
     
     if not dma:
         raise HTTPException(
@@ -270,6 +292,8 @@ async def update_dma(
     update_data = dma_data.model_dump(exclude_unset=True)
     if "boundary_geojson" in update_data:
         dma.boundary_geojson = _serialize_boundary_geojson(update_data.pop("boundary_geojson"))
+    if not dma.slug:
+        dma.slug = _make_unique_dma_slug(db, dma.utility_id, update_data.get("name") or dma.name, exclude_dma_id=dma.id)
     for field, value in update_data.items():
         setattr(dma, field, value)
     
@@ -287,7 +311,7 @@ async def patch_dma(
     db: Session = Depends(get_db),
 ):
     """Partially update DMA (admin or utility manager of that utility)"""
-    dma = db.query(DMA).filter(DMA.id == dma_id).first()
+    dma = _get_dma_by_identifier(db, dma_id)
     
     if not dma:
         raise HTTPException(
@@ -313,6 +337,8 @@ async def patch_dma(
     update_data = dma_data.model_dump(exclude_unset=True)
     if "boundary_geojson" in update_data:
         dma.boundary_geojson = _serialize_boundary_geojson(update_data.pop("boundary_geojson"))
+    if not dma.slug:
+        dma.slug = _make_unique_dma_slug(db, dma.utility_id, update_data.get("name") or dma.name, exclude_dma_id=dma.id)
     for field, value in update_data.items():
         setattr(dma, field, value)
     
@@ -329,7 +355,7 @@ async def delete_dma(
     db: Session = Depends(get_db),
 ):
     """Delete DMA by ID (admin or utility manager of that utility)"""
-    dma = db.query(DMA).filter(DMA.id == dma_id).first()
+    dma = _get_dma_by_identifier(db, dma_id)
     
     if not dma:
         raise HTTPException(

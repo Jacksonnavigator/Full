@@ -736,8 +736,8 @@ async def get_report(
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Get report by ID (requires authentication)"""
-    report = db.query(Report).filter(Report.id == report_id).first()
+    """Get report by ID or tracking ID (requires authentication)"""
+    report = db.query(Report).filter(or_(Report.id == report_id, Report.tracking_id == report_id)).first()
     
     if not report:
         raise HTTPException(

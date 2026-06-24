@@ -343,7 +343,8 @@ export default function ReportDetailPage() {
     return []
   }, [currentUser, isAdmin, isUtility, isDMA, reports])
 
-  const report = scopedReports.find((item) => item.id === reportId) ?? directReport
+  const report = scopedReports.find((item) => item.id === reportId || item.trackingId === reportId) ?? directReport
+  const reportRecordId = report?.id ?? null
   const slaMeta = report ? getSlaMeta(report) : null
   const latestWorkflowNote = report?.notes?.trim() || null
   const workflowSteps = report ? getWorkflowSteps(report) : []
@@ -371,7 +372,7 @@ export default function ReportDetailPage() {
   }, [dmas, resolveUtilityId])
 
   const loadActivityLogs = async () => {
-    if (!currentUser || !reportId) {
+    if (!currentUser || !reportRecordId) {
       setActivityLogs([])
       return
     }
@@ -379,7 +380,7 @@ export default function ReportDetailPage() {
     setLogsLoading(true)
     try {
       const response = await apiClient.get<{ total: number; items: ReportActivityLog[] }>(
-        `/logs/report/${reportId}`
+        `/logs/report/${reportRecordId}`
       )
       if (!response.success || !response.data) {
         setActivityLogs([])
@@ -397,7 +398,7 @@ export default function ReportDetailPage() {
 
   useEffect(() => {
     void loadActivityLogs()
-  }, [currentUser, reportId])
+  }, [currentUser, reportRecordId])
 
   useEffect(() => {
     setDirectReport(null)
