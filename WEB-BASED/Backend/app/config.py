@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     public_backend_url: str = Field(default="", alias="PUBLIC_BACKEND_URL")
     cors_origins_raw: str = Field(default="", alias="CORS_ORIGINS")
     cors_origin_regex: str = Field(
-        default=r"^https:\/\/.*\.onrender\.com$|^http:\/\/localhost:3000$|^http:\/\/127\.0\.0\.1:3000$",
+        default=r"^https:\/\/.*\.onrender\.com$",
         alias="CORS_ORIGIN_REGEX",
     )
     
@@ -134,6 +134,8 @@ class Settings(BaseSettings):
     def normalize_runtime_fields(self) -> "Settings":
         self.environment = self.environment.strip().lower()
         self.public_backend_url = self.public_backend_url.rstrip("/")
+        if self.environment == "production" and "frontend_url" not in self.__pydantic_fields_set__:
+            self.frontend_url = ""
         if "debug" not in self.__pydantic_fields_set__:
             self.debug = self.environment == "development"
         if "run_startup_migrations" not in self.__pydantic_fields_set__:
@@ -153,7 +155,7 @@ class Settings(BaseSettings):
             if origin.strip()
         ]
 
-        origins = list(self.default_cors_origins)
+        origins = list(self.default_cors_origins) if self.environment != "production" else []
         for origin in configured_origins:
             if origin not in origins:
                 origins.append(origin)

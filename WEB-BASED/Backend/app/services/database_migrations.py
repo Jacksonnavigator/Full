@@ -19,6 +19,7 @@ from sqlalchemy.exc import OperationalError
 
 def _run_postgres_ddl_without_timeout(connection, statement: str) -> None:
     connection.exec_driver_sql("SET LOCAL statement_timeout = 0")
+    connection.exec_driver_sql("SET LOCAL lock_timeout = 0")
     connection.exec_driver_sql(statement)
 
 
@@ -582,34 +583,39 @@ def _migrate_utility_contact_columns(engine: Engine) -> None:
         return
 
     columns = {column["name"] for column in inspector.get_columns("utility")}
-    quoted_table_name = '"utility"' if engine.dialect.name.startswith("postgresql") else "utility"
+    is_postgres = engine.dialect.name.startswith("postgresql")
+    quoted_table_name = '"utility"' if is_postgres else "utility"
+    add_column_clause = "ADD COLUMN IF NOT EXISTS" if is_postgres else "ADD COLUMN"
     statements: list[str] = []
 
     if "contact_phone" not in columns:
-        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN contact_phone VARCHAR(20)")
+        statements.append(f"ALTER TABLE {quoted_table_name} {add_column_clause} contact_phone VARCHAR(20)")
     if "contact_email" not in columns:
-        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN contact_email VARCHAR(255)")
+        statements.append(f"ALTER TABLE {quoted_table_name} {add_column_clause} contact_email VARCHAR(255)")
     if "contact_address" not in columns:
-        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN contact_address VARCHAR(255)")
+        statements.append(f"ALTER TABLE {quoted_table_name} {add_column_clause} contact_address VARCHAR(255)")
     if "center_latitude" not in columns:
-        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN center_latitude FLOAT")
+        statements.append(f"ALTER TABLE {quoted_table_name} {add_column_clause} center_latitude FLOAT")
     if "center_longitude" not in columns:
-        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN center_longitude FLOAT")
+        statements.append(f"ALTER TABLE {quoted_table_name} {add_column_clause} center_longitude FLOAT")
     if "boundary_geojson" not in columns:
-        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN boundary_geojson TEXT")
+        statements.append(f"ALTER TABLE {quoted_table_name} {add_column_clause} boundary_geojson TEXT")
     if "boundary_source_type" not in columns:
-        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN boundary_source_type VARCHAR(32)")
+        statements.append(f"ALTER TABLE {quoted_table_name} {add_column_clause} boundary_source_type VARCHAR(32)")
     if "boundary_status" not in columns:
-        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN boundary_status VARCHAR(32)")
+        statements.append(f"ALTER TABLE {quoted_table_name} {add_column_clause} boundary_status VARCHAR(32)")
     if "region_name" not in columns:
-        statements.append(f"ALTER TABLE {quoted_table_name} ADD COLUMN region_name VARCHAR(100)")
+        statements.append(f"ALTER TABLE {quoted_table_name} {add_column_clause} region_name VARCHAR(100)")
 
     if not statements:
         return
 
     with engine.begin() as connection:
         for statement in statements:
-            connection.exec_driver_sql(statement)
+            if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, statement)
+            else:
+                connection.exec_driver_sql(statement)
 
 
 def _migrate_utility_service_area_table(engine: Engine) -> None:
@@ -643,6 +649,8 @@ def _migrate_utility_service_area_table(engine: Engine) -> None:
             return
 
         if engine.dialect.name.startswith("postgresql"):
+            connection.exec_driver_sql("SET LOCAL statement_timeout = 0")
+            connection.exec_driver_sql("SET LOCAL lock_timeout = 0")
             connection.exec_driver_sql(
                 """
                 CREATE TABLE IF NOT EXISTS utility_service_area (
