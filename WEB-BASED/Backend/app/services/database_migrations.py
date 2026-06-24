@@ -17,10 +17,32 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 
 
-def _run_postgres_ddl_without_timeout(connection, statement: str) -> None:
-    connection.exec_driver_sql("SET LOCAL statement_timeout = 0")
-    connection.exec_driver_sql("SET LOCAL lock_timeout = 0")
-    connection.exec_driver_sql(statement)
+def _run_postgres_ddl_without_timeout(
+    connection,
+    statement: str,
+    *,
+    required: bool = False,
+) -> bool:
+    connection.exec_driver_sql("SET LOCAL statement_timeout = '30s'")
+    connection.exec_driver_sql("SET LOCAL lock_timeout = '5s'")
+    try:
+        connection.exec_driver_sql(statement)
+    except OperationalError as exc:
+        if _is_lock_or_statement_timeout(exc):
+            compact_statement = " ".join(statement.split())
+            if required:
+                print(
+                    "[startup-migrations] Required PostgreSQL DDL could not get a "
+                    f"database lock in time: {compact_statement}"
+                )
+                raise
+            print(
+                "[startup-migrations] Skipping PostgreSQL DDL because the database "
+                f"did not grant the lock quickly enough: {compact_statement}"
+            )
+            return False
+        raise
+    return True
 
 
 def _is_lock_or_statement_timeout(exc: OperationalError) -> bool:
@@ -98,10 +120,11 @@ def _migrate_dma_boundary_columns(engine: Engine) -> None:
 
     with engine.begin() as connection:
         if engine.dialect.name.startswith("postgresql"):
-            _run_postgres_ddl_without_timeout(
+            if not _run_postgres_ddl_without_timeout(
                 connection,
                 'ALTER TABLE dma ADD COLUMN IF NOT EXISTS boundary_geojson TEXT',
-            )
+            ):
+                return
         else:
             connection.exec_driver_sql("ALTER TABLE dma ADD COLUMN boundary_geojson TEXT")
 
@@ -115,7 +138,7 @@ def _migrate_utility_infrastructure_layer_table(engine: Engine) -> None:
 
     with engine.begin() as connection:
         if engine.dialect.name.startswith("postgresql"):
-            _run_postgres_ddl_without_timeout(
+            created_table = _run_postgres_ddl_without_timeout(
                 connection,
                 '''
                 CREATE TABLE IF NOT EXISTS utility_infrastructure_layer (
@@ -134,9 +157,15 @@ def _migrate_utility_infrastructure_layer_table(engine: Engine) -> None:
                 )
                 '''
             )
-            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_utility_id ON utility_infrastructure_layer (utility_id)")
-            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_asset_type ON utility_infrastructure_layer (asset_type)")
-            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_uploaded_by_manager_id ON utility_infrastructure_layer (uploaded_by_manager_id)")
+            if not created_table:
+                return
+            for statement in [
+                "CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_utility_id ON utility_infrastructure_layer (utility_id)",
+                "CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_asset_type ON utility_infrastructure_layer (asset_type)",
+                "CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_uploaded_by_manager_id ON utility_infrastructure_layer (uploaded_by_manager_id)",
+            ]:
+                if not _run_postgres_ddl_without_timeout(connection, statement):
+                    return
         else:
             connection.exec_driver_sql(
                 '''
@@ -170,10 +199,11 @@ def _drop_legacy_utility_pipe_network_table(engine: Engine) -> None:
 
     with engine.begin() as connection:
         if engine.dialect.name.startswith("postgresql"):
-            _run_postgres_ddl_without_timeout(
+            if not _run_postgres_ddl_without_timeout(
                 connection,
                 'DROP TABLE IF EXISTS utility_pipe_network CASCADE',
-            )
+            ):
+                return
         else:
             connection.exec_driver_sql("DROP TABLE IF EXISTS utility_pipe_network")
 
@@ -187,16 +217,21 @@ def _migrate_report_leakage_type_column(engine: Engine) -> None:
     if "leakage_type" not in columns:
         with engine.begin() as connection:
             if engine.dialect.name.startswith("postgresql"):
-                _run_postgres_ddl_without_timeout(
+                if not _run_postgres_ddl_without_timeout(
                     connection,
                     "ALTER TABLE report ADD COLUMN IF NOT EXISTS leakage_type VARCHAR(50) NOT NULL DEFAULT 'unknown'",
-                )
+                ):
+                    return
             else:
                 connection.exec_driver_sql("ALTER TABLE report ADD COLUMN leakage_type VARCHAR(50) NOT NULL DEFAULT 'unknown'")
 
     with engine.begin() as connection:
         if engine.dialect.name.startswith("postgresql"):
-            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)")
+            if not _run_postgres_ddl_without_timeout(
+                connection,
+                "CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)",
+            ):
+                return
         else:
             connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)")
 
@@ -613,7 +648,11 @@ def _migrate_utility_contact_columns(engine: Engine) -> None:
     with engine.begin() as connection:
         for statement in statements:
             if is_postgres:
-                _run_postgres_ddl_without_timeout(connection, statement)
+                if not _run_postgres_ddl_without_timeout(
+                    connection,
+                    statement,
+                ):
+                    return
             else:
                 connection.exec_driver_sql(statement)
 
@@ -649,9 +688,7 @@ def _migrate_utility_service_area_table(engine: Engine) -> None:
             return
 
         if engine.dialect.name.startswith("postgresql"):
-            connection.exec_driver_sql("SET LOCAL statement_timeout = 0")
-            connection.exec_driver_sql("SET LOCAL lock_timeout = 0")
-            connection.exec_driver_sql(
+            ddl_statements = [
                 """
                 CREATE TABLE IF NOT EXISTS utility_service_area (
                     id VARCHAR(36) PRIMARY KEY,
@@ -664,13 +701,19 @@ def _migrate_utility_service_area_table(engine: Engine) -> None:
                     updated_at TIMESTAMP NOT NULL,
                     CONSTRAINT uq_utility_service_area_named UNIQUE (utility_id, category, name, region_name)
                 )
-                """
-            )
-            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_utility_id ON utility_service_area (utility_id)")
-            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_category ON utility_service_area (category)")
-            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_name ON utility_service_area (name)")
-            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_region_name ON utility_service_area (region_name)")
-            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_service_area_admin_area_id ON utility_service_area (admin_area_id)")
+                """,
+                "CREATE INDEX IF NOT EXISTS ix_utility_service_area_utility_id ON utility_service_area (utility_id)",
+                "CREATE INDEX IF NOT EXISTS ix_utility_service_area_category ON utility_service_area (category)",
+                "CREATE INDEX IF NOT EXISTS ix_utility_service_area_name ON utility_service_area (name)",
+                "CREATE INDEX IF NOT EXISTS ix_utility_service_area_region_name ON utility_service_area (region_name)",
+                "CREATE INDEX IF NOT EXISTS ix_utility_service_area_admin_area_id ON utility_service_area (admin_area_id)",
+            ]
+            for statement in ddl_statements:
+                if not _run_postgres_ddl_without_timeout(
+                    connection,
+                    statement,
+                ):
+                    return
 
 
 def _migrate_geographic_assignment_columns(engine: Engine) -> None:
