@@ -708,62 +708,6 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
               )}
             </div>
 
-            <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4">
-              <div className="space-y-3">
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-medium text-slate-700">Utility Boundary Geometry</Label>
-                  <p className="text-xs text-slate-500">
-                    Upload an optional GIS boundary file when the utility has official service polygons.
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Supported upload formats: GeoPackage (.gpkg), GeoJSON (.geojson), or JSON (.json). Files may contain one or many polygons.
-                  </p>
-                </div>
-                <Input
-                  id="utility-boundary-file"
-                  type="file"
-                  accept=".gpkg,.geojson,.json"
-                  className="hidden"
-                  onChange={handleBoundaryFileUpload}
-                  disabled={isExtractingBoundary}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-xl"
-                  disabled={isExtractingBoundary}
-                  onClick={() => document.getElementById("utility-boundary-file")?.click()}
-                >
-                  {isExtractingBoundary ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Upload className="mr-2 h-4 w-4" />
-                  )}
-                  {isExtractingBoundary ? "Extracting..." : "Upload Boundary File"}
-                </Button>
-                {formBoundaryGeojson ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="ml-2 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                    onClick={() => setFormBoundaryGeojson(null)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Clear Boundary
-                  </Button>
-                ) : null}
-              </div>
-
-              {formBoundaryGeojson ? (
-                <div className="rounded-2xl border border-cyan-200 bg-cyan-50/70 px-4 py-5 text-sm text-cyan-900">
-                  Uploaded utility boundary is ready for preview. Save the utility to use it for dashboard hierarchy and report routing.
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
-                  No utility boundary uploaded. The system will use the center point as a fallback marker, and admins can still route reports manually when needed.
-                </div>
-              )}
-            </div>
           </CardContent>
         </Card>
 
@@ -817,6 +761,67 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
                   }}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
+            <CardContent className="space-y-4 p-5">
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium text-slate-700">Utility Boundary Geometry</Label>
+                  <p className="text-xs text-slate-500">
+                    Upload an optional GIS boundary file when the utility has official service polygons.
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Supported upload formats: GeoPackage (.gpkg), GeoJSON (.geojson), or JSON (.json). Files may contain one or many polygons.
+                  </p>
+                </div>
+                <Input
+                  id="utility-boundary-file"
+                  type="file"
+                  accept=".gpkg,.geojson,.json"
+                  className="hidden"
+                  onChange={handleBoundaryFileUpload}
+                  disabled={isExtractingBoundary}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-xl"
+                    disabled={isExtractingBoundary}
+                    onClick={() => document.getElementById("utility-boundary-file")?.click()}
+                  >
+                    {isExtractingBoundary ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="mr-2 h-4 w-4" />
+                    )}
+                    {isExtractingBoundary ? "Extracting..." : "Upload Boundary File"}
+                  </Button>
+                  {formBoundaryGeojson ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                      onClick={() => setFormBoundaryGeojson(null)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Clear Boundary
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+
+              {formBoundaryGeojson ? (
+                <div className="rounded-2xl border border-cyan-200 bg-cyan-50/70 px-4 py-5 text-sm text-cyan-900">
+                  Uploaded utility boundary is ready for preview. Save the utility to use it for dashboard hierarchy and report routing.
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500">
+                  No utility boundary uploaded. The system will use the center point as a fallback marker, and admins can still route reports manually when needed.
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
