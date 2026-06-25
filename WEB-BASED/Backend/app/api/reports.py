@@ -814,6 +814,7 @@ async def get_report_by_tracking_id(
 @reports_router.post("", response_model=ReportWithDetails, status_code=status.HTTP_201_CREATED)
 async def create_report(
     report_data: ReportCreate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -888,6 +889,7 @@ async def create_report(
             f"Report {new_report.tracking_id} was created from the authenticated workflow. "
             f"Utility: {_report_utility_label(utility)}. DMA: {_report_dma_label(dma, utility)}."
         ),
+        request=request,
         actor=current_user,
     )
     db.commit()
@@ -903,6 +905,7 @@ async def create_report(
 @reports_router.post("/anonymous", response_model=ReportWithDetails, status_code=status.HTTP_201_CREATED)
 async def create_anonymous_report(
     report_data: AnonymousReportCreate,
+    request: Request,
     db: Session = Depends(get_db),
 ):
     """Create a new anonymous report from mobile app (no authentication required)"""
@@ -984,6 +987,7 @@ async def create_anonymous_report(
             f"Anonymous report {tracking_id} was created. "
             f"Utility: {_report_utility_label(utility)}. DMA: {_report_dma_label(dma, utility)}."
         ),
+        request=request,
         actor_name=report_data.reported_by or "Anonymous",
         actor_role="anonymous_reporter",
     )
@@ -1037,6 +1041,7 @@ async def get_public_report_history(
 async def claim_public_report_history(
     history_key: str,
     tracking_id: str,
+    request: Request,
     db: Session = Depends(get_db),
 ):
     cleaned_key = _clean_note(history_key)
@@ -1059,6 +1064,7 @@ async def claim_public_report_history(
         report=report,
         action="public_history_claimed",
         details=_build_public_history_claim_details(cleaned_key),
+        request=request,
         actor_name="Anonymous",
         actor_role="anonymous_reporter",
     )
@@ -1103,6 +1109,7 @@ async def get_reports_by_location(
 async def update_report(
     report_id: str,
     report_data: ReportUpdate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -1123,6 +1130,7 @@ async def update_report(
         if report.dma_id != current_user.dma_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     
+    before_data = _report_audit_snapshot(report)
     update_data = report_data.dict(exclude_unset=True)
     incoming_photos = update_data.pop("photos", None)
     next_utility_id = update_data.pop("utility_id", None) if "utility_id" in update_data else None
@@ -1179,7 +1187,10 @@ async def update_report(
             report=report,
             action="report_updated",
             details=details,
+            request=request,
             actor=current_user,
+            before_data=before_data,
+            metadata={"changed_fields": sorted(set(changed_fields))},
         )
     
     db.commit()
@@ -1192,17 +1203,19 @@ async def update_report(
 async def patch_report(
     report_id: str,
     report_data: ReportUpdate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """Partially update report (requires authentication)"""
-    return await update_report(report_id, report_data, current_user, db)
+    return await update_report(report_id, report_data, request, current_user, db)
 
 
 @reports_router.post("/{report_id}/status", response_model=ReportWithDetails)
 async def update_report_status(
     report_id: str,
     status_update: ReportStatusUpdateRequest,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -1223,6 +1236,7 @@ async def update_report_status(
         if report.dma_id != current_user.dma_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     
+    before_data = _report_audit_snapshot(report)
     report.status = status_update.status
     if status_update.notes:
         report.notes = status_update.notes
@@ -1279,7 +1293,13 @@ async def update_report_status(
         action="report_status_changed",
         details=f"Status changed to {getattr(status_update.status, 'value', status_update.status)}."
         + (f" Notes: {status_update.notes}" if status_update.notes else ""),
+        request=request,
         actor=current_user,
+        before_data=before_data,
+        metadata={
+            "new_status": getattr(status_update.status, "value", status_update.status),
+            "notes": status_update.notes,
+        },
     )
     
     db.commit()
@@ -1294,6 +1314,7 @@ async def update_report_status(
 async def assign_report(
     report_id: str,
     assign_data: AssignReportRequest,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -1330,6 +1351,7 @@ async def assign_report(
             detail="Team must be from the same DMA as the report",
         )
     
+    before_data = _report_audit_snapshot(report)
     # Assign report
     report.team_id = assign_data.team_id
     report.assigned_engineer_id = None
@@ -1340,7 +1362,10 @@ async def assign_report(
         report=report,
         action="report_assigned",
         details=f"Assigned to team {team.name}.",
+        request=request,
         actor=current_user,
+        before_data=before_data,
+        metadata={"assigned_team_id": team.id, "assigned_team_name": team.name},
     )
     team_notifications = _queue_team_member_notifications(
         db,
@@ -1364,6 +1389,7 @@ async def assign_report(
 async def approve_report(
     report_id: str,
     decision: ReportReviewDecisionRequest,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -1392,6 +1418,7 @@ async def approve_report(
             detail="Report must be in 'pending_approval' status to approve",
         )
     
+    before_data = _report_audit_snapshot(report)
     report.status = ReportStatusEnum.APPROVED
     report.dma_review_notes = _clean_note(decision.notes)
     if decision.notes:
@@ -1406,7 +1433,10 @@ async def approve_report(
         report=report,
         action="report_approved",
         details=approval_details,
+        request=request,
         actor=current_user,
+        before_data=before_data,
+        metadata={"decision": "approved", "notes": decision.notes},
     )
     engineer_notification = _queue_engineer_notification(
         db,
@@ -1447,6 +1477,7 @@ async def approve_report(
 async def reject_report(
     report_id: str,
     decision: ReportReviewDecisionRequest,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -1475,6 +1506,7 @@ async def reject_report(
             detail="Report must be in 'pending_approval' status to reject",
         )
     
+    before_data = _report_audit_snapshot(report)
     report.status = ReportStatusEnum.ASSIGNED
     report.dma_review_notes = _clean_note(decision.notes)
     if decision.notes:
@@ -1489,7 +1521,10 @@ async def reject_report(
         report=report,
         action="report_rejected",
         details=rejection_details,
+        request=request,
         actor=current_user,
+        before_data=before_data,
+        metadata={"decision": "rejected", "notes": decision.notes},
     )
     engineer_notification = _queue_engineer_notification(
         db,

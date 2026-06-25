@@ -5,6 +5,7 @@ Activity log routes for auditable workflow history.
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
@@ -62,6 +63,15 @@ def _apply_log_scope(query, current_user: CurrentUser):
     return query
 
 
+def _apply_status_filter(query, value: str | None):
+    if not value:
+        return query
+    normalized = value.strip().lower()
+    if normalized == "success":
+        return query.filter(or_(ActivityLog.status.is_(None), func.lower(ActivityLog.status) == "success"))
+    return query.filter(func.lower(ActivityLog.status) == normalized)
+
+
 @logs_router.get("", response_model=ActivityLogListResponse)
 async def list_activity_logs(
     action: str | None = Query(None),
@@ -85,11 +95,11 @@ async def list_activity_logs(
     if action:
         query = query.filter(ActivityLog.action.ilike(f"%{action}%"))
     if event_type:
-        query = query.filter(ActivityLog.event_type == event_type)
+        query = query.filter(func.lower(ActivityLog.event_type) == event_type.strip().lower())
     if log_status:
-        query = query.filter(ActivityLog.status == log_status)
+        query = _apply_status_filter(query, log_status)
     if entity:
-        query = query.filter(ActivityLog.entity == entity)
+        query = query.filter(func.lower(ActivityLog.entity) == entity.strip().lower())
     if entity_id:
         query = query.filter(ActivityLog.entity_id == entity_id)
     if user_role:
@@ -105,11 +115,11 @@ async def list_activity_logs(
     if search:
         pattern = f"%{search}%"
         query = query.filter(
-            (ActivityLog.user_name.ilike(pattern))
-            | (ActivityLog.action.ilike(pattern))
-            | (ActivityLog.entity.ilike(pattern))
-            | (ActivityLog.target_name.ilike(pattern))
-            | (ActivityLog.details.ilike(pattern))
+            (func.coalesce(ActivityLog.user_name, "").ilike(pattern))
+            | (func.coalesce(ActivityLog.action, "").ilike(pattern))
+            | (func.coalesce(ActivityLog.entity, "").ilike(pattern))
+            | (func.coalesce(ActivityLog.target_name, "").ilike(pattern))
+            | (func.coalesce(ActivityLog.details, "").ilike(pattern))
         )
 
     total = query.count()
@@ -197,11 +207,11 @@ async def filter_activity_logs(
     if filter_data.action:
         query = query.filter(ActivityLog.action.ilike(f"%{filter_data.action}%"))
     if filter_data.event_type:
-        query = query.filter(ActivityLog.event_type == filter_data.event_type)
+        query = query.filter(func.lower(ActivityLog.event_type) == filter_data.event_type.strip().lower())
     if filter_data.status:
-        query = query.filter(ActivityLog.status == filter_data.status)
+        query = _apply_status_filter(query, filter_data.status)
     if filter_data.entity:
-        query = query.filter(ActivityLog.entity == filter_data.entity)
+        query = query.filter(func.lower(ActivityLog.entity) == filter_data.entity.strip().lower())
     if filter_data.entity_id:
         query = query.filter(ActivityLog.entity_id == filter_data.entity_id)
     if filter_data.utility_id:

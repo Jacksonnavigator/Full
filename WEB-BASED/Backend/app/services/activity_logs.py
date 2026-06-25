@@ -236,9 +236,13 @@ def log_report_activity(
     report: Report,
     action: str,
     details: Optional[str],
+    request: Optional[Request] = None,
     actor: Optional[Any] = None,
     actor_name: Optional[str] = None,
     actor_role: Optional[str] = None,
+    before_data: Optional[dict[str, Any]] = None,
+    after_data: Optional[dict[str, Any]] = None,
+    metadata: Optional[dict[str, Any]] = None,
     flush: bool = True,
 ) -> ActivityLog:
     user_id = None
@@ -268,6 +272,41 @@ def log_report_activity(
         elif actor_type in {"engineer", "team_leader"}:
             engineer_id = actor_id
 
+    report_snapshot = {
+        "id": getattr(report, "id", None),
+        "tracking_id": getattr(report, "tracking_id", None),
+        "description": getattr(report, "description", None),
+        "address": getattr(report, "address", None),
+        "region_name": getattr(report, "region_name", None),
+        "district_name": getattr(report, "district_name", None),
+        "latitude": getattr(report, "latitude", None),
+        "longitude": getattr(report, "longitude", None),
+        "priority": getattr(getattr(report, "priority", None), "value", getattr(report, "priority", None)),
+        "leakage_type": getattr(getattr(report, "leakage_type", None), "value", getattr(report, "leakage_type", None)),
+        "status": getattr(getattr(report, "status", None), "value", getattr(report, "status", None)),
+        "utility_id": getattr(report, "utility_id", None),
+        "dma_id": getattr(report, "dma_id", None),
+        "team_id": getattr(report, "team_id", None),
+        "assigned_engineer_id": getattr(report, "assigned_engineer_id", None),
+        "reporter_name": getattr(report, "reporter_name", None),
+        "reporter_phone": getattr(report, "reporter_phone", None),
+        "notes": getattr(report, "notes", None),
+        "engineer_submission_notes": getattr(report, "engineer_submission_notes", None),
+        "team_leader_review_notes": getattr(report, "team_leader_review_notes", None),
+        "dma_review_notes": getattr(report, "dma_review_notes", None),
+        "sla_deadline": getattr(report, "sla_deadline", None),
+        "resolved_at": getattr(report, "resolved_at", None),
+        "created_at": getattr(report, "created_at", None),
+        "updated_at": getattr(report, "updated_at", None),
+    }
+    merged_metadata = {
+        "tracking_id": getattr(report, "tracking_id", None),
+        "audit_source": "report_workflow",
+        "report": report_snapshot,
+    }
+    if metadata:
+        merged_metadata.update(metadata)
+
     return create_activity_log(
         db,
         action=action,
@@ -279,6 +318,13 @@ def log_report_activity(
         event_type="report",
         status="success",
         target_name=getattr(report, "tracking_id", None),
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent") if request else None,
+        request_method=request.method if request else None,
+        request_path=str(request.url.path) if request else None,
+        before_data=before_data,
+        after_data=after_data or report_snapshot,
+        metadata_json=merged_metadata,
         user_id=user_id,
         utility_mgr_id=utility_mgr_id,
         dma_mgr_id=dma_mgr_id,
