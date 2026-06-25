@@ -7,7 +7,7 @@ Includes manager and utility info for proper frontend integration
 import json
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.database.session import get_db
@@ -19,6 +19,7 @@ from app.schemas.user import (
     DMAListResponse,
 )
 from app.security.dependencies import get_current_user, require_admin, CurrentUser
+from app.services.activity_logs import audit_log
 from app.services.slugs import slugify
 
 dmas_router = APIRouter(prefix="/api/dmas", tags=["dmas"])
@@ -40,6 +41,20 @@ def _make_unique_dma_slug(db: Session, utility_id: str, name: str, exclude_dma_i
 
 def _get_dma_by_identifier(db: Session, identifier: str) -> Optional[DMA]:
     return db.query(DMA).filter(or_(DMA.id == identifier, DMA.slug == identifier)).first()
+
+
+def _dma_audit_snapshot(dma: DMA) -> dict[str, Any]:
+    return {
+        "id": dma.id,
+        "slug": dma.slug,
+        "utility_id": dma.utility_id,
+        "name": dma.name,
+        "description": dma.description,
+        "center_latitude": dma.center_latitude,
+        "center_longitude": dma.center_longitude,
+        "boundary_geojson": _deserialize_boundary_geojson(dma.boundary_geojson),
+        "status": dma.status.value if hasattr(dma.status, "value") else dma.status,
+    }
 
 
 def _serialize_boundary_geojson(boundary_geojson: Optional[dict[str, Any]]) -> Optional[str]:
@@ -221,6 +236,7 @@ async def get_dma(
 @dmas_router.post("", response_model=DMAResponse, status_code=status.HTTP_201_CREATED)
 async def create_dma(
     dma_data: DMACreate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -252,6 +268,21 @@ async def create_dma(
     )
     
     db.add(new_dma)
+    db.flush()
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="dma.create",
+        event_type="dma",
+        status="success",
+        entity="dma",
+        entity_id=new_dma.id,
+        target_name=new_dma.name,
+        after_data=_dma_audit_snapshot(new_dma),
+        utility_id=new_dma.utility_id,
+        dma_id=new_dma.id,
+    )
     db.commit()
     db.refresh(new_dma)
     
@@ -262,6 +293,7 @@ async def create_dma(
 async def update_dma(
     dma_id: str,
     dma_data: DMAUpdate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -289,6 +321,7 @@ async def update_dma(
                 detail="Utility managers can only update DMAs in their own utility",
             )
     
+    before_data = _dma_audit_snapshot(dma)
     update_data = dma_data.model_dump(exclude_unset=True)
     if "boundary_geojson" in update_data:
         dma.boundary_geojson = _serialize_boundary_geojson(update_data.pop("boundary_geojson"))
@@ -299,6 +332,21 @@ async def update_dma(
     for field, value in update_data.items():
         setattr(dma, field, value)
     
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="dma.update",
+        event_type="dma",
+        status="success",
+        entity="dma",
+        entity_id=dma.id,
+        target_name=dma.name,
+        before_data=before_data,
+        after_data=_dma_audit_snapshot(dma),
+        utility_id=dma.utility_id,
+        dma_id=dma.id,
+    )
     db.commit()
     db.refresh(dma)
     
@@ -309,6 +357,7 @@ async def update_dma(
 async def patch_dma(
     dma_id: str,
     dma_data: DMAUpdate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -336,6 +385,7 @@ async def patch_dma(
                 detail="Utility managers can only update DMAs in their own utility",
             )
     
+    before_data = _dma_audit_snapshot(dma)
     update_data = dma_data.model_dump(exclude_unset=True)
     if "boundary_geojson" in update_data:
         dma.boundary_geojson = _serialize_boundary_geojson(update_data.pop("boundary_geojson"))
@@ -346,6 +396,21 @@ async def patch_dma(
     for field, value in update_data.items():
         setattr(dma, field, value)
     
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="dma.update",
+        event_type="dma",
+        status="success",
+        entity="dma",
+        entity_id=dma.id,
+        target_name=dma.name,
+        before_data=before_data,
+        after_data=_dma_audit_snapshot(dma),
+        utility_id=dma.utility_id,
+        dma_id=dma.id,
+    )
     db.commit()
     db.refresh(dma)
     
@@ -355,6 +420,7 @@ async def patch_dma(
 @dmas_router.delete("/{dma_id}", status_code=status.HTTP_200_OK)
 async def delete_dma(
     dma_id: str,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -382,6 +448,21 @@ async def delete_dma(
                 detail="Utility managers can only delete DMAs from their own utility",
             )
     
+    before_data = _dma_audit_snapshot(dma)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="dma.delete",
+        event_type="dma",
+        status="success",
+        entity="dma",
+        entity_id=dma.id,
+        target_name=dma.name,
+        before_data=before_data,
+        utility_id=dma.utility_id,
+        dma_id=dma.id,
+    )
     db.delete(dma)
     db.commit()
     

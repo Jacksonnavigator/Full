@@ -3,7 +3,7 @@ Report Routes
 CRUD operations for reports in the simplified DMA -> Team -> Engineer flow.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session, joinedload, selectinload
 from app.database.session import get_db
@@ -24,7 +24,7 @@ from app.schemas.user import (
 )
 from app.constants.enums import ReportStatus, ReportPriority
 from app.security.dependencies import get_current_user, CurrentUser
-from typing import Optional, List, Tuple
+from typing import Any, Optional, List, Tuple
 from pydantic import BaseModel, Field
 from datetime import datetime
 import re
@@ -41,7 +41,7 @@ from app.services.hierarchy import (
     resolve_region_name_hint,
 )
 from app.services.push_notifications import create_notification_record, deliver_notifications_push
-from app.services.activity_logs import log_report_activity
+from app.services.activity_logs import audit_log, log_report_activity
 
 
 reports_router = APIRouter(prefix="/api/reports", tags=["reports"])
@@ -98,6 +98,29 @@ class AssignReportRequest(BaseModel):
 
 def _report_link(report_id: str) -> str:
     return f"/dashboard/reports/{report_id}"
+
+
+def _report_audit_snapshot(report: Report) -> dict[str, Any]:
+    return {
+        "id": report.id,
+        "tracking_id": report.tracking_id,
+        "description": report.description,
+        "latitude": report.latitude,
+        "longitude": report.longitude,
+        "address": report.address,
+        "region_name": report.region_name,
+        "district_name": report.district_name,
+        "priority": report.priority.value if hasattr(report.priority, "value") else report.priority,
+        "leakage_type": report.leakage_type.value if hasattr(report.leakage_type, "value") else report.leakage_type,
+        "status": report.status.value if hasattr(report.status, "value") else report.status,
+        "utility_id": report.utility_id,
+        "dma_id": report.dma_id,
+        "team_id": report.team_id,
+        "assigned_engineer_id": report.assigned_engineer_id,
+        "resolved_at": report.resolved_at,
+        "created_at": report.created_at,
+        "updated_at": report.updated_at,
+    }
 
 
 def _generate_tracking_id(prefix: str = "REP") -> str:
@@ -1506,6 +1529,7 @@ async def reject_report(
 @reports_router.delete("/{report_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_report(
     report_id: str,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -1526,6 +1550,22 @@ async def delete_report(
         if report.dma_id != current_user.dma_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     
+    before_data = _report_audit_snapshot(report)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="report.delete",
+        event_type="report",
+        status="success",
+        entity="report",
+        entity_id=report.id,
+        target_name=report.tracking_id,
+        before_data=before_data,
+        utility_id=report.utility_id,
+        dma_id=report.dma_id,
+        metadata={"tracking_id": report.tracking_id},
+    )
     db.delete(report)
     db.commit()
 

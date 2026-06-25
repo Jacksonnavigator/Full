@@ -516,63 +516,117 @@ def _migrate_activity_log_constraints(engine: Engine) -> None:
                 "SELECT sql FROM sqlite_master WHERE type='table' AND name='activity_log'"
             ).fetchone()
             create_sql = row[0] if row else ""
-            if "uq_log_entity" not in create_sql and "UNIQUE (entity, entity_id)" not in create_sql:
-                return
+            if "uq_log_entity" in create_sql or "UNIQUE (entity, entity_id)" in create_sql:
+                statements = [
+                    "PRAGMA foreign_keys=OFF",
+                    """
+                    CREATE TABLE IF NOT EXISTS activity_log_new (
+                        id VARCHAR(36) PRIMARY KEY,
+                        action VARCHAR(100) NOT NULL,
+                        user_id VARCHAR(36),
+                        utility_mgr_id VARCHAR(36),
+                        dma_mgr_id VARCHAR(36),
+                        engineer_id VARCHAR(36),
+                        user_name VARCHAR(255) NOT NULL,
+                        user_role VARCHAR(50) NOT NULL,
+                        entity VARCHAR(100) NOT NULL,
+                        entity_id VARCHAR(36) NOT NULL,
+                        details TEXT,
+                        utility_id VARCHAR(36),
+                        dma_id VARCHAR(36),
+                        timestamp DATETIME NOT NULL,
+                        FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL,
+                        FOREIGN KEY(utility_mgr_id) REFERENCES utility_manager(id) ON DELETE SET NULL,
+                        FOREIGN KEY(dma_mgr_id) REFERENCES dma_manager(id) ON DELETE SET NULL,
+                        FOREIGN KEY(engineer_id) REFERENCES engineer(id) ON DELETE SET NULL,
+                        FOREIGN KEY(utility_id) REFERENCES utility(id) ON DELETE SET NULL,
+                        FOREIGN KEY(dma_id) REFERENCES dma(id) ON DELETE SET NULL
+                    )
+                    """,
+                    """
+                    INSERT INTO activity_log_new (
+                        id, action, user_id, utility_mgr_id, dma_mgr_id, engineer_id, user_name, user_role,
+                        entity, entity_id, details, utility_id, dma_id, timestamp
+                    )
+                    SELECT
+                        id, action, user_id, utility_mgr_id, dma_mgr_id, engineer_id, user_name, user_role,
+                        entity, entity_id, details, utility_id, dma_id, timestamp
+                    FROM activity_log
+                    """,
+                    "DROP TABLE IF EXISTS activity_log",
+                    "ALTER TABLE activity_log_new RENAME TO activity_log",
+                    "CREATE INDEX IF NOT EXISTS ix_activity_log_user_id ON activity_log (user_id)",
+                    "CREATE INDEX IF NOT EXISTS ix_activity_log_utility_mgr_id ON activity_log (utility_mgr_id)",
+                    "CREATE INDEX IF NOT EXISTS ix_activity_log_dma_mgr_id ON activity_log (dma_mgr_id)",
+                    "CREATE INDEX IF NOT EXISTS ix_activity_log_engineer_id ON activity_log (engineer_id)",
+                    "CREATE INDEX IF NOT EXISTS ix_activity_log_utility_id ON activity_log (utility_id)",
+                    "CREATE INDEX IF NOT EXISTS ix_activity_log_dma_id ON activity_log (dma_id)",
+                    "CREATE INDEX IF NOT EXISTS ix_activity_log_timestamp ON activity_log (timestamp)",
+                    "PRAGMA foreign_keys=ON",
+                ]
+                for statement in statements:
+                    connection.exec_driver_sql(statement)
 
-            statements = [
-                "PRAGMA foreign_keys=OFF",
-                """
-                CREATE TABLE IF NOT EXISTS activity_log_new (
-                    id VARCHAR(36) PRIMARY KEY,
-                    action VARCHAR(100) NOT NULL,
-                    user_id VARCHAR(36),
-                    utility_mgr_id VARCHAR(36),
-                    dma_mgr_id VARCHAR(36),
-                    engineer_id VARCHAR(36),
-                    user_name VARCHAR(255) NOT NULL,
-                    user_role VARCHAR(50) NOT NULL,
-                    entity VARCHAR(100) NOT NULL,
-                    entity_id VARCHAR(36) NOT NULL,
-                    details TEXT,
-                    utility_id VARCHAR(36),
-                    dma_id VARCHAR(36),
-                    timestamp DATETIME NOT NULL,
-                    FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE SET NULL,
-                    FOREIGN KEY(utility_mgr_id) REFERENCES utility_manager(id) ON DELETE SET NULL,
-                    FOREIGN KEY(dma_mgr_id) REFERENCES dma_manager(id) ON DELETE SET NULL,
-                    FOREIGN KEY(engineer_id) REFERENCES engineer(id) ON DELETE SET NULL,
-                    FOREIGN KEY(utility_id) REFERENCES utility(id) ON DELETE SET NULL,
-                    FOREIGN KEY(dma_id) REFERENCES dma(id) ON DELETE SET NULL
-                )
-                """,
-                """
-                INSERT INTO activity_log_new (
-                    id, action, user_id, utility_mgr_id, dma_mgr_id, engineer_id, user_name, user_role,
-                    entity, entity_id, details, utility_id, dma_id, timestamp
-                )
-                SELECT
-                    id, action, user_id, utility_mgr_id, dma_mgr_id, engineer_id, user_name, user_role,
-                    entity, entity_id, details, utility_id, dma_id, timestamp
-                FROM activity_log
-                """,
-                "DROP TABLE IF EXISTS activity_log",
-                "ALTER TABLE activity_log_new RENAME TO activity_log",
-                "CREATE INDEX IF NOT EXISTS ix_activity_log_user_id ON activity_log (user_id)",
-                "CREATE INDEX IF NOT EXISTS ix_activity_log_utility_mgr_id ON activity_log (utility_mgr_id)",
-                "CREATE INDEX IF NOT EXISTS ix_activity_log_dma_mgr_id ON activity_log (dma_mgr_id)",
-                "CREATE INDEX IF NOT EXISTS ix_activity_log_engineer_id ON activity_log (engineer_id)",
-                "CREATE INDEX IF NOT EXISTS ix_activity_log_utility_id ON activity_log (utility_id)",
-                "CREATE INDEX IF NOT EXISTS ix_activity_log_dma_id ON activity_log (dma_id)",
-                "CREATE INDEX IF NOT EXISTS ix_activity_log_timestamp ON activity_log (timestamp)",
-                "PRAGMA foreign_keys=ON",
-            ]
-            for statement in statements:
-                connection.exec_driver_sql(statement)
-        return
+        inspector = inspect(engine)
 
     if engine.dialect.name.startswith("postgresql"):
         with engine.begin() as connection:
             connection.execute(text('ALTER TABLE "activity_log" DROP CONSTRAINT IF EXISTS uq_log_entity'))
+
+    columns = {column["name"] for column in inspector.get_columns("activity_log")}
+    is_postgres = engine.dialect.name.startswith("postgresql")
+    json_type = "JSONB" if is_postgres else "JSON"
+    text_type = "TEXT"
+    column_definitions = {
+        "event_type": "VARCHAR(100)",
+        "status": "VARCHAR(32)",
+        "target_name": "VARCHAR(255)",
+        "ip_address": "VARCHAR(64)",
+        "user_agent": text_type,
+        "request_method": "VARCHAR(16)",
+        "request_path": "VARCHAR(500)",
+        "before_data": json_type,
+        "after_data": json_type,
+        "metadata_json": json_type,
+        "error_message": text_type,
+    }
+
+    for column_name, column_type in column_definitions.items():
+        if column_name in columns:
+            continue
+        statement = (
+            f'ALTER TABLE "activity_log" ADD COLUMN IF NOT EXISTS {column_name} {column_type}'
+            if is_postgres
+            else f"ALTER TABLE activity_log ADD COLUMN {column_name} {column_type}"
+        )
+        with engine.begin() as connection:
+            if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, statement)
+            else:
+                connection.exec_driver_sql(statement)
+
+    index_columns = [
+        "event_type",
+        "status",
+        "entity",
+        "entity_id",
+        "user_role",
+        "utility_id",
+        "dma_id",
+        "timestamp",
+    ]
+    for column_name in index_columns:
+        index_name = f"ix_activity_log_{column_name}"
+        statement = (
+            f'CREATE INDEX IF NOT EXISTS {index_name} ON "activity_log" ({column_name})'
+            if is_postgres
+            else f"CREATE INDEX IF NOT EXISTS {index_name} ON activity_log ({column_name})"
+        )
+        with engine.begin() as connection:
+            if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, statement)
+            else:
+                connection.exec_driver_sql(statement)
 
 
 def _migrate_report_workflow_columns(engine: Engine) -> None:

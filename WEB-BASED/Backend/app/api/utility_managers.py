@@ -6,7 +6,7 @@ CRUD plus invite-based onboarding for utility managers.
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -21,6 +21,8 @@ from app.schemas.user import (
     UtilityManagerUpdate,
 )
 from app.security.auth import hash_password
+from app.security.dependencies import CurrentUser, get_current_user
+from app.services.activity_logs import audit_log
 from app.services.engineer_invites import (
     build_invite_url,
     generate_invite_token,
@@ -57,6 +59,19 @@ def _transform_manager(manager: UtilityManager) -> dict:
         "avatar": manager.avatar,
         "created_at": manager.created_at,
         "updated_at": manager.updated_at,
+    }
+
+
+def _manager_audit_snapshot(manager: UtilityManager) -> dict:
+    return {
+        "id": manager.id,
+        "name": manager.name,
+        "email": manager.email,
+        "phone": manager.phone,
+        "status": manager.status.value if hasattr(manager.status, "value") else manager.status,
+        "utility_id": manager.utility_id,
+        "onboarding_status": _build_onboarding_status(manager),
+        "setup_completed_at": manager.setup_completed_at,
     }
 
 
@@ -127,6 +142,8 @@ async def get_utility_manager(manager_id: str, db: Session = Depends(get_db)):
 @utility_managers_router.post("/invitations", status_code=status.HTTP_201_CREATED)
 async def invite_utility_manager(
     payload: UtilityManagerInvitationCreate,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     _check_email_uniqueness(payload.email, None, db)
@@ -150,6 +167,21 @@ async def invite_utility_manager(
     )
 
     db.add(manager)
+    db.flush()
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="utility_manager.invite",
+        event_type="manager",
+        status="success",
+        entity="utility_manager",
+        entity_id=manager.id,
+        target_name=manager.email,
+        after_data=_manager_audit_snapshot(manager),
+        utility_id=utility.id,
+        metadata={"delivery": "pending"},
+    )
     db.commit()
     db.refresh(manager)
 
@@ -170,7 +202,12 @@ async def invite_utility_manager(
 
 
 @utility_managers_router.post("/{manager_id}/resend-invite")
-async def resend_utility_manager_invite(manager_id: str, db: Session = Depends(get_db)):
+async def resend_utility_manager_invite(
+    manager_id: str,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     manager = db.query(UtilityManager).filter(UtilityManager.id == manager_id).first()
     if not manager:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utility manager assignment not found")
@@ -183,6 +220,19 @@ async def resend_utility_manager_invite(manager_id: str, db: Session = Depends(g
     manager.invite_token_hash = hash_invite_token(raw_token)
     manager.invite_sent_at = now
     manager.invite_expires_at = now + timedelta(hours=settings.invite_token_expiry_hours)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="utility_manager.invite_resend",
+        event_type="manager",
+        status="success",
+        entity="utility_manager",
+        entity_id=manager.id,
+        target_name=manager.email,
+        after_data=_manager_audit_snapshot(manager),
+        utility_id=utility.id,
+    )
     db.commit()
     db.refresh(manager)
 
@@ -205,6 +255,8 @@ async def resend_utility_manager_invite(manager_id: str, db: Session = Depends(g
 @utility_managers_router.post("", response_model=UtilityManagerResponse, status_code=status.HTTP_201_CREATED)
 async def create_utility_manager(
     manager_data: UtilityManagerCreate,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     from sqlalchemy.exc import IntegrityError
@@ -224,6 +276,20 @@ async def create_utility_manager(
         )
 
         db.add(new_manager)
+        db.flush()
+        audit_log(
+            db,
+            request=request,
+            actor=current_user,
+            action="utility_manager.create",
+            event_type="manager",
+            status="success",
+            entity="utility_manager",
+            entity_id=new_manager.id,
+            target_name=new_manager.name,
+            after_data=_manager_audit_snapshot(new_manager),
+            utility_id=new_manager.utility_id,
+        )
         db.commit()
         db.refresh(new_manager)
         return UtilityManagerResponse(**_transform_manager(new_manager))
@@ -241,6 +307,8 @@ async def create_utility_manager(
 async def update_utility_manager(
     manager_id: str,
     manager_data: UtilityManagerUpdate,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     from sqlalchemy.exc import IntegrityError
@@ -249,6 +317,7 @@ async def update_utility_manager(
         manager = db.query(UtilityManager).filter(UtilityManager.id == manager_id).first()
         if not manager:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utility manager not found")
+        before_data = _manager_audit_snapshot(manager)
 
         _check_email_uniqueness(manager_data.email, manager_id, db)
         if manager_data.utility_id:
@@ -263,6 +332,20 @@ async def update_utility_manager(
             manager.password = hash_password(manager_data.password)
             manager.setup_completed_at = manager.setup_completed_at or _utcnow()
 
+        audit_log(
+            db,
+            request=request,
+            actor=current_user,
+            action="utility_manager.update",
+            event_type="manager",
+            status="success",
+            entity="utility_manager",
+            entity_id=manager.id,
+            target_name=manager.name,
+            before_data=before_data,
+            after_data=_manager_audit_snapshot(manager),
+            utility_id=manager.utility_id,
+        )
         db.commit()
         db.refresh(manager)
         return UtilityManagerResponse(**_transform_manager(manager))
@@ -277,9 +360,28 @@ async def update_utility_manager(
 
 
 @utility_managers_router.delete("/{manager_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_utility_manager(manager_id: str, db: Session = Depends(get_db)):
+async def delete_utility_manager(
+    manager_id: str,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     manager = db.query(UtilityManager).filter(UtilityManager.id == manager_id).first()
     if not manager:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Utility manager assignment not found")
+    before_data = _manager_audit_snapshot(manager)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="utility_manager.delete",
+        event_type="manager",
+        status="success",
+        entity="utility_manager",
+        entity_id=manager.id,
+        target_name=manager.name,
+        before_data=before_data,
+        utility_id=manager.utility_id,
+    )
     db.delete(manager)
     db.commit()

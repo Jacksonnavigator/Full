@@ -5,7 +5,7 @@ CRUD operations for teams in the simplified DMA -> Team -> Engineer flow.
 
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import BaseModel, Field
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload, selectinload
@@ -15,6 +15,7 @@ from app.models import DMA, Engineer, Report, Team, Utility
 from app.models.user import EntityStatusEnum
 from app.schemas.user import TeamCreate, TeamResponse, TeamUpdate
 from app.security.dependencies import CurrentUser, get_current_user
+from app.services.activity_logs import audit_log
 from app.services.slugs import slugify
 
 teams_router = APIRouter(prefix="/api/teams", tags=["teams"])
@@ -103,6 +104,21 @@ def _get_team_utility_id(team: Team, db: Session) -> Optional[str]:
     return dma.utility_id if dma else None
 
 
+def _team_audit_snapshot(team: Team, db: Session) -> dict:
+    member_ids = [engineer.id for engineer in (team.engineers or [])]
+    return {
+        "id": team.id,
+        "slug": team.slug,
+        "name": team.name,
+        "description": team.description,
+        "dma_id": team.dma_id,
+        "utility_id": _get_team_utility_id(team, db),
+        "leader_id": team.leader_id,
+        "member_ids": member_ids,
+        "status": team.status.value if hasattr(team.status, "value") else team.status,
+    }
+
+
 def _ensure_team_read_access(current_user: CurrentUser, team: Team, db: Session) -> None:
     if current_user.user_type == "user":
         return
@@ -184,6 +200,7 @@ async def get_team(
 @teams_router.post("", response_model=TeamWithDetails, status_code=status.HTTP_201_CREATED)
 async def create_team(
     team_data: TeamCreate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -205,6 +222,24 @@ async def create_team(
     )
 
     db.add(new_team)
+    db.flush()
+    previous_leader_id = team.leader_id
+    db.query(Engineer).filter(Engineer.id == previous_leader_id).update({"role": "engineer"})
+    team.leader_id = None
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="team.create",
+        event_type="team",
+        status="success",
+        entity="team",
+        entity_id=new_team.id,
+        target_name=new_team.name,
+        after_data=_team_audit_snapshot(new_team, db),
+        utility_id=dma.utility_id,
+        dma_id=dma.id,
+    )
     db.commit()
     db.refresh(new_team)
 
@@ -215,6 +250,7 @@ async def create_team(
 async def update_team(
     team_id: str,
     team_data: TeamUpdate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -226,6 +262,7 @@ async def update_team(
         )
 
     _ensure_team_write_access(current_user, team.dma_id)
+    before_data = _team_audit_snapshot(team, db)
 
     update_data = team_data.dict(exclude_unset=True)
 
@@ -249,6 +286,21 @@ async def update_team(
     if "status" in update_data and update_data["status"] is not None:
         team.status = update_data["status"]
 
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="team.update",
+        event_type="team",
+        status="success",
+        entity="team",
+        entity_id=team.id,
+        target_name=team.name,
+        before_data=before_data,
+        after_data=_team_audit_snapshot(team, db),
+        utility_id=_get_team_utility_id(team, db),
+        dma_id=team.dma_id,
+    )
     db.commit()
     db.refresh(team)
 
@@ -259,10 +311,11 @@ async def update_team(
 async def patch_team(
     team_id: str,
     team_data: TeamUpdate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return await update_team(team_id, team_data, current_user, db)
+    return await update_team(team_id, team_data, request, current_user, db)
 
 
 @teams_router.get("/{team_id}/members")
@@ -355,6 +408,7 @@ class AddMembersRequest(BaseModel):
 async def add_team_members(
     team_id: str,
     data: AddMembersRequest,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -372,6 +426,7 @@ async def add_team_members(
         )
 
     _ensure_team_write_access(current_user, team.dma_id)
+    before_data = _team_audit_snapshot(team, db)
 
     engineers = db.query(Engineer).filter(Engineer.id.in_(data.engineer_ids)).all()
     if len(engineers) != len(data.engineer_ids):
@@ -395,6 +450,25 @@ async def add_team_members(
         engineer.team_id = team.id
         engineer.dma_id = team.dma_id
 
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="team.members.add",
+        event_type="team",
+        status="success",
+        entity="team",
+        entity_id=team.id,
+        target_name=team.name,
+        before_data=before_data,
+        after_data=_team_audit_snapshot(team, db),
+        utility_id=_get_team_utility_id(team, db),
+        dma_id=team.dma_id,
+        metadata={
+            "engineer_ids": [engineer.id for engineer in engineers],
+            "engineer_names": [engineer.name for engineer in engineers],
+        },
+    )
     db.commit()
     return _build_team_with_details(team, db)
 
@@ -402,6 +476,7 @@ async def add_team_members(
 @teams_router.delete("/{team_id}/members", response_model=TeamWithDetails)
 async def remove_team_members(
     team_id: str,
+    request: Request,
     engineerIds: str = Query(..., alias="engineerIds", description="Comma-separated engineer IDs"),
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -421,6 +496,8 @@ async def remove_team_members(
         )
 
     _ensure_team_write_access(current_user, team.dma_id)
+    before_data = _team_audit_snapshot(team, db)
+    removed_engineers = db.query(Engineer).filter(Engineer.id.in_(ids)).all()
 
     for engineer_id in ids:
         if team.leader_id == engineer_id:
@@ -431,6 +508,25 @@ async def remove_team_members(
         else:
             db.query(Engineer).filter(Engineer.id == engineer_id).update({"team_id": None})
 
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="team.members.remove",
+        event_type="team",
+        status="success",
+        entity="team",
+        entity_id=team.id,
+        target_name=team.name,
+        before_data=before_data,
+        after_data=_team_audit_snapshot(team, db),
+        utility_id=_get_team_utility_id(team, db),
+        dma_id=team.dma_id,
+        metadata={
+            "engineer_ids": ids,
+            "engineer_names": [engineer.name for engineer in removed_engineers],
+        },
+    )
     db.commit()
     return _build_team_with_details(team, db)
 
@@ -503,6 +599,7 @@ class AssignLeaderRequest(BaseModel):
 async def assign_team_leader(
     team_id: str,
     data: AssignLeaderRequest,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -520,6 +617,7 @@ async def assign_team_leader(
         )
 
     _ensure_team_write_access(current_user, team.dma_id)
+    before_data = _team_audit_snapshot(team, db)
 
     engineer = db.query(Engineer).filter(Engineer.id == data.engineer_id).first()
     if not engineer:
@@ -555,6 +653,22 @@ async def assign_team_leader(
     engineer.dma_id = team.dma_id
     team.leader_id = data.engineer_id
 
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="team.leader.assign",
+        event_type="team",
+        status="success",
+        entity="team",
+        entity_id=team.id,
+        target_name=team.name,
+        before_data=before_data,
+        after_data=_team_audit_snapshot(team, db),
+        utility_id=_get_team_utility_id(team, db),
+        dma_id=team.dma_id,
+        metadata={"engineer_id": engineer.id, "engineer_name": engineer.name},
+    )
     db.commit()
     return _build_team_with_details(team, db)
 
@@ -562,6 +676,7 @@ async def assign_team_leader(
 @teams_router.delete("/{team_id}/leader", response_model=TeamWithDetails)
 async def remove_team_leader(
     team_id: str,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -573,6 +688,7 @@ async def remove_team_leader(
         )
 
     _ensure_team_write_access(current_user, team.dma_id)
+    before_data = _team_audit_snapshot(team, db)
 
     if not team.leader_id:
         raise HTTPException(
@@ -580,8 +696,22 @@ async def remove_team_leader(
             detail="No team leader assigned",
         )
 
-    db.query(Engineer).filter(Engineer.id == team.leader_id).update({"role": "engineer"})
-    team.leader_id = None
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="team.leader.remove",
+        event_type="team",
+        status="success",
+        entity="team",
+        entity_id=team.id,
+        target_name=team.name,
+        before_data=before_data,
+        after_data=_team_audit_snapshot(team, db),
+        utility_id=_get_team_utility_id(team, db),
+        dma_id=team.dma_id,
+        metadata={"previous_leader_id": previous_leader_id},
+    )
     db.commit()
 
     return _build_team_with_details(team, db)
@@ -590,6 +720,7 @@ async def remove_team_leader(
 @teams_router.delete("/{team_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_team(
     team_id: str,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -601,7 +732,22 @@ async def delete_team(
         )
 
     _ensure_team_write_access(current_user, team.dma_id)
+    before_data = _team_audit_snapshot(team, db)
 
     db.query(Engineer).filter(Engineer.team_id == team.id).update({"team_id": None})
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="team.delete",
+        event_type="team",
+        status="success",
+        entity="team",
+        entity_id=team.id,
+        target_name=team.name,
+        before_data=before_data,
+        utility_id=before_data.get("utility_id"),
+        dma_id=team.dma_id,
+    )
     db.delete(team)
     db.commit()

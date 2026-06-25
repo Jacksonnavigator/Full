@@ -97,6 +97,17 @@ class ActivityLogBase(BaseModel):
     entity: str = Field(..., min_length=1, max_length=100)
     entity_id: str
     details: Optional[str] = Field(None, max_length=2000)
+    event_type: Optional[str] = Field(None, max_length=100)
+    status: Optional[str] = Field(None, max_length=32)
+    target_name: Optional[str] = Field(None, max_length=255)
+    ip_address: Optional[str] = Field(None, max_length=64)
+    user_agent: Optional[str] = None
+    request_method: Optional[str] = Field(None, max_length=16)
+    request_path: Optional[str] = Field(None, max_length=500)
+    before_data: Optional[Dict[str, Any]] = None
+    after_data: Optional[Dict[str, Any]] = None
+    metadata_json: Optional[Dict[str, Any]] = None
+    error_message: Optional[str] = None
     utility_id: Optional[str] = None
     dma_id: Optional[str] = None
 
@@ -124,7 +135,10 @@ class ActivityLogListResponse(BaseModel):
 class ActivityLogFilterRequest(BaseModel):
     """Schema for filtering activity logs"""
     user_id: Optional[str] = None
+    user_role: Optional[str] = None
     action: Optional[str] = None
+    event_type: Optional[str] = None
+    status: Optional[str] = None
     entity: Optional[str] = None
     entity_id: Optional[str] = None
     utility_id: Optional[str] = None

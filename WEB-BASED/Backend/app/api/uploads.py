@@ -6,13 +6,14 @@ API endpoints for image and video upload and retrieval.
 import logging
 from typing import Optional, Tuple
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.models import ImageUpload, Report
 from app.models.uploads import ImageTypeEnum
 from app.security.dependencies import CurrentUser, get_current_user
+from app.services.activity_logs import audit_log
 from app.services.image_service import compress_image_if_needed, validate_image
 
 logger = logging.getLogger(__name__)
@@ -33,6 +34,22 @@ def _build_upload_response(image_upload: ImageUpload):
         "imageType": image_upload.image_type,
         "createdAt": image_upload.created_at,
         "downloadUrl": f"/api/uploads/{image_upload.id}",
+    }
+
+
+def _upload_audit_snapshot(image_upload: ImageUpload):
+    return {
+        "id": image_upload.id,
+        "file_name": image_upload.file_name,
+        "file_size": image_upload.file_size,
+        "mime_type": image_upload.mime_type,
+        "image_type": image_upload.image_type,
+        "report_id": image_upload.report_id,
+        "user_id": image_upload.user_id,
+        "engineer_id": image_upload.engineer_id,
+        "width": image_upload.width,
+        "height": image_upload.height,
+        "created_at": image_upload.created_at,
     }
 
 
@@ -76,6 +93,7 @@ def _validate_media_upload(file: UploadFile, file_data: bytes) -> Tuple[bytes, s
 
 @uploads_router.post("", status_code=status.HTTP_201_CREATED)
 async def upload_image(
+    request: Request,
     file: UploadFile = File(...),
     report_id: str = Form(None),
     image_type: str = Form("report"),
@@ -112,6 +130,22 @@ async def upload_image(
         )
 
         db.add(image_upload)
+        db.flush()
+        audit_log(
+            db,
+            request=request,
+            actor=current_user,
+            action="media.upload",
+            event_type="media",
+            status="success",
+            entity="image_upload",
+            entity_id=image_upload.id,
+            target_name=image_upload.file_name,
+            after_data=_upload_audit_snapshot(image_upload),
+            utility_id=getattr(report, "utility_id", None) if report_id else None,
+            dma_id=getattr(report, "dma_id", None) if report_id else None,
+            metadata={"image_type": image_type, "content_type": file.content_type},
+        )
         db.commit()
         db.refresh(image_upload)
 
@@ -130,6 +164,7 @@ async def upload_image(
 
 @uploads_router.post("/public", status_code=status.HTTP_201_CREATED)
 async def upload_public_image(
+    request: Request,
     file: UploadFile = File(...),
     image_type: str = Form("report"),
     db: Session = Depends(get_db),
@@ -154,6 +189,22 @@ async def upload_public_image(
         )
 
         db.add(image_upload)
+        db.flush()
+        audit_log(
+            db,
+            request=request,
+            actor=None,
+            action="media.public_upload",
+            event_type="media",
+            status="success",
+            entity="image_upload",
+            entity_id=image_upload.id,
+            target_name=image_upload.file_name,
+            after_data=_upload_audit_snapshot(image_upload),
+            user_name="Anonymous reporter",
+            user_role="anonymous_reporter",
+            metadata={"image_type": image_type, "content_type": file.content_type},
+        )
         db.commit()
         db.refresh(image_upload)
 
@@ -206,6 +257,7 @@ async def download_image(image_id: str, db: Session = Depends(get_db)):
 @uploads_router.delete("/{image_id}")
 async def delete_image(
     image_id: str,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -227,6 +279,23 @@ async def delete_image(
                 detail="Not authorized to delete this image",
             )
 
+        before_data = _upload_audit_snapshot(image)
+        report = db.query(Report).filter(Report.id == image.report_id).first() if image.report_id else None
+        audit_log(
+            db,
+            request=request,
+            actor=current_user,
+            action="media.delete",
+            event_type="media",
+            status="success",
+            entity="image_upload",
+            entity_id=image.id,
+            target_name=image.file_name,
+            before_data=before_data,
+            utility_id=getattr(report, "utility_id", None),
+            dma_id=getattr(report, "dma_id", None),
+            metadata={"image_type": image.image_type},
+        )
         db.delete(image)
         db.commit()
 

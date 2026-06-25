@@ -6,7 +6,7 @@ Login, logout, token refresh, and token verification endpoints
 from datetime import timedelta
 import logging
 from typing import Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.models import User
@@ -27,6 +27,7 @@ from app.services.engineer_invites import (
     hash_invite_token,
     send_password_reset_email,
 )
+from app.services.activity_logs import audit_log
 
 
 # ============================================================================
@@ -125,6 +126,105 @@ ACCOUNT_MODELS = (
 )
 
 
+def _audit_login_attempt(
+    db: Session,
+    *,
+    http_request: Request,
+    email: str,
+    success: bool,
+    reason: str,
+    account=None,
+    account_type: Optional[str] = None,
+) -> None:
+    identity_kwargs: Dict[str, Optional[str]] = {
+        "user_id": None,
+        "utility_mgr_id": None,
+        "dma_mgr_id": None,
+        "engineer_id": None,
+    }
+    account_id = getattr(account, "id", None)
+    if account_type == "user":
+        identity_kwargs["user_id"] = account_id
+    elif account_type == "utility_manager":
+        identity_kwargs["utility_mgr_id"] = account_id
+    elif account_type == "dma_manager":
+        identity_kwargs["dma_mgr_id"] = account_id
+    elif account_type == "engineer":
+        identity_kwargs["engineer_id"] = account_id
+
+    audit_log(
+        db,
+        request=http_request,
+        action="auth.login",
+        event_type="auth",
+        status="success" if success else "failed",
+        entity="auth",
+        entity_id=account_id or "anonymous",
+        target_name=email,
+        details="Login successful" if success else f"Login failed: {reason}",
+        metadata={"email": email, "account_type": account_type or "unknown", "reason": reason},
+        error_message=None if success else reason,
+        user_name=getattr(account, "name", None) or email,
+        user_role="admin" if account_type == "user" else (account_type or "unknown"),
+        utility_id=getattr(account, "utility_id", None),
+        dma_id=getattr(account, "dma_id", None),
+        **identity_kwargs,
+    )
+    db.commit()
+
+
+def _account_identity_kwargs(account=None, account_type: Optional[str] = None) -> Dict[str, Optional[str]]:
+    identity_kwargs: Dict[str, Optional[str]] = {
+        "user_id": None,
+        "utility_mgr_id": None,
+        "dma_mgr_id": None,
+        "engineer_id": None,
+    }
+    account_id = getattr(account, "id", None)
+    if account_type == "user":
+        identity_kwargs["user_id"] = account_id
+    elif account_type == "utility_manager":
+        identity_kwargs["utility_mgr_id"] = account_id
+    elif account_type == "dma_manager":
+        identity_kwargs["dma_mgr_id"] = account_id
+    elif account_type == "engineer":
+        identity_kwargs["engineer_id"] = account_id
+    return identity_kwargs
+
+
+def _audit_auth_event(
+    db: Session,
+    *,
+    http_request: Request,
+    action: str,
+    status_value: str,
+    account=None,
+    account_type: Optional[str] = None,
+    target_name: Optional[str] = None,
+    details: Optional[str] = None,
+    metadata: Optional[Dict[str, Any]] = None,
+    error_message: Optional[str] = None,
+) -> None:
+    audit_log(
+        db,
+        request=http_request,
+        action=action,
+        event_type="auth",
+        status=status_value,
+        entity="auth",
+        entity_id=getattr(account, "id", None) or "anonymous",
+        target_name=target_name or getattr(account, "email", None),
+        details=details,
+        metadata=metadata,
+        error_message=error_message,
+        user_name=getattr(account, "name", None) or getattr(account, "email", None) or target_name or "Anonymous",
+        user_role="admin" if account_type == "user" else (account_type or "unknown"),
+        utility_id=getattr(account, "utility_id", None),
+        dma_id=getattr(account, "dma_id", None),
+        **_account_identity_kwargs(account, account_type),
+    )
+
+
 # ============================================================================
 # Authentication Endpoints
 # ============================================================================
@@ -132,6 +232,7 @@ ACCOUNT_MODELS = (
 @auth_router.post("/login", response_model=LoginResponse)
 async def login(
     request: LoginRequest,
+    http_request: Request,
     db: Session = Depends(get_db)
 ):
     """
@@ -151,11 +252,24 @@ async def login(
     user_data = None
     user_type = None
     user_obj = None
+    attempted_account = None
+    attempted_account_type = None
     
     # 1. Check User table (Admin users)
     user_obj = db.query(User).filter(User.email == request.email).first()
     if user_obj:
+        attempted_account = user_obj
+        attempted_account_type = "user"
         if not user_obj.setup_completed_at:
+            _audit_login_attempt(
+                db,
+                http_request=http_request,
+                email=str(request.email),
+                success=False,
+                reason="account setup incomplete",
+                account=user_obj,
+                account_type="user",
+            )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Complete your account setup from the invitation email before signing in.",
@@ -188,7 +302,18 @@ async def login(
     if not user_data:
         util_mgr = db.query(UtilityManager).filter(UtilityManager.email == request.email).first()
         if util_mgr:
+            attempted_account = util_mgr
+            attempted_account_type = "utility_manager"
             if not util_mgr.setup_completed_at:
+                _audit_login_attempt(
+                    db,
+                    http_request=http_request,
+                    email=str(request.email),
+                    success=False,
+                    reason="account setup incomplete",
+                    account=util_mgr,
+                    account_type="utility_manager",
+                )
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Complete your account setup from the invitation email before signing in.",
@@ -216,7 +341,18 @@ async def login(
     if not user_data:
         dma_mgr = db.query(DMAManager).filter(DMAManager.email == request.email).first()
         if dma_mgr:
+            attempted_account = dma_mgr
+            attempted_account_type = "dma_manager"
             if not dma_mgr.setup_completed_at:
+                _audit_login_attempt(
+                    db,
+                    http_request=http_request,
+                    email=str(request.email),
+                    success=False,
+                    reason="account setup incomplete",
+                    account=dma_mgr,
+                    account_type="dma_manager",
+                )
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Complete your account setup from the invitation email before signing in.",
@@ -244,7 +380,18 @@ async def login(
     if not user_data:
         engineer = db.query(Engineer).filter(Engineer.email == request.email).first()
         if engineer:
+            attempted_account = engineer
+            attempted_account_type = "engineer"
             if not engineer.setup_completed_at:
+                _audit_login_attempt(
+                    db,
+                    http_request=http_request,
+                    email=str(request.email),
+                    success=False,
+                    reason="account setup incomplete",
+                    account=engineer,
+                    account_type="engineer",
+                )
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Complete your account setup from the invitation email before signing in.",
@@ -277,6 +424,15 @@ async def login(
     
     # If no user found or password incorrect
     if not user_data:
+        _audit_login_attempt(
+            db,
+            http_request=http_request,
+            email=str(request.email),
+            success=False,
+            reason="invalid email or password",
+            account=attempted_account,
+            account_type=attempted_account_type,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
@@ -288,6 +444,16 @@ async def login(
     
     # Create UserResponse from dict
     user_response = UserResponse(**user_data)
+
+    _audit_login_attempt(
+        db,
+        http_request=http_request,
+        email=str(request.email),
+        success=True,
+        reason="authenticated",
+        account=attempted_account,
+        account_type=user_type,
+    )
     
     return LoginResponse(
         access_token=tokens['access_token'],
@@ -385,7 +551,11 @@ async def validate_invitation(token: str, db: Session = Depends(get_db)):
 
 
 @auth_router.post("/invitations/complete")
-async def complete_invitation(payload: CompleteInvitationRequest, db: Session = Depends(get_db)):
+async def complete_invitation(
+    payload: CompleteInvitationRequest,
+    http_request: Request,
+    db: Session = Depends(get_db),
+):
     if payload.password != payload.confirm_password:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Passwords do not match")
 
@@ -403,6 +573,17 @@ async def complete_invitation(payload: CompleteInvitationRequest, db: Session = 
     account.setup_completed_at = _utcnow()
     account.invite_token_hash = None
     account.invite_expires_at = None
+    _audit_auth_event(
+        db,
+        http_request=http_request,
+        action="auth.invitation_complete",
+        status_value="success",
+        account=account,
+        account_type=account_type,
+        target_name=account.email,
+        details="Account invitation completed.",
+        metadata={"account_type": account_type},
+    )
     db.commit()
     db.refresh(account)
 
@@ -414,7 +595,11 @@ async def complete_invitation(payload: CompleteInvitationRequest, db: Session = 
 
 
 @auth_router.post("/password-reset/request")
-async def request_password_reset(payload: PasswordResetRequest, db: Session = Depends(get_db)):
+async def request_password_reset(
+    payload: PasswordResetRequest,
+    http_request: Request,
+    db: Session = Depends(get_db),
+):
     success_message = (
         "If an account exists for this email, a password reset link has been sent. "
         "If the account has not finished setup yet, use the invitation email instead."
@@ -423,10 +608,34 @@ async def request_password_reset(payload: PasswordResetRequest, db: Session = De
     account, account_type = _find_account_by_email(payload.email, db)
     if not account:
         logger.info("Password reset requested for non-existent email; returning generic success response.")
+        _audit_auth_event(
+            db,
+            http_request=http_request,
+            action="auth.password_reset_request",
+            status_value="failed",
+            target_name=payload.email,
+            details="Password reset requested for unknown email.",
+            metadata={"email": payload.email, "reason": "account_not_found"},
+            error_message="account_not_found",
+        )
+        db.commit()
         return {"message": success_message}
 
     if not getattr(account, "setup_completed_at", None):
         logger.info("Password reset requested for account pending setup; returning generic success response.")
+        _audit_auth_event(
+            db,
+            http_request=http_request,
+            action="auth.password_reset_request",
+            status_value="failed",
+            account=account,
+            account_type=account_type,
+            target_name=account.email,
+            details="Password reset requested before account setup was completed.",
+            metadata={"account_type": account_type, "reason": "setup_incomplete"},
+            error_message="setup_incomplete",
+        )
+        db.commit()
         return {"message": success_message}
 
     now = _utcnow()
@@ -439,6 +648,17 @@ async def request_password_reset(payload: PasswordResetRequest, db: Session = De
         recipient_email=account.email,
         role_label=_role_label_for_account(account, account_type),
         reset_url=build_password_reset_url(raw_token),
+    )
+    _audit_auth_event(
+        db,
+        http_request=http_request,
+        action="auth.password_reset_request",
+        status_value="success",
+        account=account,
+        account_type=account_type,
+        target_name=account.email,
+        details="Password reset requested.",
+        metadata={"account_type": account_type, "delivery_method": delivery.method},
     )
     db.commit()
     logger.info(
@@ -473,7 +693,11 @@ async def validate_password_reset(token: str, db: Session = Depends(get_db)):
 
 
 @auth_router.post("/password-reset/complete")
-async def complete_password_reset(payload: CompletePasswordResetRequest, db: Session = Depends(get_db)):
+async def complete_password_reset(
+    payload: CompletePasswordResetRequest,
+    http_request: Request,
+    db: Session = Depends(get_db),
+):
     if payload.password != payload.confirm_password:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Passwords do not match")
 
@@ -487,6 +711,17 @@ async def complete_password_reset(payload: CompletePasswordResetRequest, db: Ses
     account.password_reset_token_hash = None
     account.password_reset_sent_at = None
     account.password_reset_expires_at = None
+    _audit_auth_event(
+        db,
+        http_request=http_request,
+        action="auth.password_reset_complete",
+        status_value="success",
+        account=account,
+        account_type=account_type,
+        target_name=account.email,
+        details="Password reset completed.",
+        metadata={"account_type": account_type},
+    )
     db.commit()
 
     return {
@@ -564,7 +799,10 @@ async def verify_access_token(request: TokenVerifyRequest):
 
 
 @auth_router.post("/logout")
-async def logout():
+async def logout(
+    http_request: Request,
+    db: Session = Depends(get_db),
+):
     """
     Logout endpoint (token invalidation should be handled on frontend)
     
@@ -574,6 +812,16 @@ async def logout():
     # Note: Token invalidation is typically handled on the frontend
     # by removing the token from localStorage.
     # For production, consider implementing a token blacklist.
+    _audit_auth_event(
+        db,
+        http_request=http_request,
+        action="auth.logout",
+        status_value="success",
+        target_name="logout",
+        details="Logout requested.",
+        metadata={"token_invalidation": "frontend"},
+    )
+    db.commit()
     return {
         "message": "Successfully logged out",
     }

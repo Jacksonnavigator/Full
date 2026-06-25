@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import xml.etree.ElementTree as ET
 import zipfile
-from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Query, File, UploadFile, Response
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from shapely import wkb
@@ -39,6 +39,7 @@ from app.services.hierarchy import (
     find_utility_by_region_name,
     resolve_region_name_hint,
 )
+from app.services.activity_logs import audit_log
 from app.services.slugs import slugify
 
 utilities_router = APIRouter(prefix="/api/utilities", tags=["utilities"])
@@ -158,6 +159,21 @@ def _build_infrastructure_asset_response(layer: UtilityInfrastructureLayer) -> U
     )
 
 
+def _infrastructure_layer_audit_snapshot(layer: UtilityInfrastructureLayer) -> dict[str, Any]:
+    return {
+        "id": layer.id,
+        "utility_id": layer.utility_id,
+        "asset_type": layer.asset_type,
+        "label": _asset_label(layer.asset_type),
+        "file_name": layer.file_name,
+        "file_size": layer.file_size,
+        "feature_count": layer.feature_count,
+        "mime_type": layer.mime_type,
+        "uploaded_by_manager_id": layer.uploaded_by_manager_id,
+        "updated_at": layer.updated_at,
+    }
+
+
 def _build_service_area_response(service_area: UtilityServiceArea) -> UtilityServiceAreaResponse:
     return UtilityServiceAreaResponse(
         id=service_area.id,
@@ -169,6 +185,37 @@ def _build_service_area_response(service_area: UtilityServiceArea) -> UtilitySer
         created_at=service_area.created_at,
         updated_at=service_area.updated_at,
     )
+
+
+def _utility_audit_snapshot(utility: Utility) -> dict[str, Any]:
+    return {
+        "id": utility.id,
+        "slug": utility.slug,
+        "name": utility.name,
+        "region_name": utility.region_name,
+        "description": utility.description,
+        "contact_phone": utility.contact_phone,
+        "contact_email": utility.contact_email,
+        "contact_address": utility.contact_address,
+        "center_latitude": utility.center_latitude,
+        "center_longitude": utility.center_longitude,
+        "boundary_source_type": utility.boundary_source_type,
+        "boundary_status": utility.boundary_status,
+        "has_boundary_geojson": bool(utility.boundary_geojson),
+        "status": utility.status.value if hasattr(utility.status, "value") else utility.status,
+        "service_areas": [
+            {
+                "category": area.category.value if hasattr(area.category, "value") else area.category,
+                "name": area.name,
+                "region_name": area.region_name,
+                "admin_area_id": area.admin_area_id,
+            }
+            for area in sorted(
+                list(utility.service_areas or []),
+                key=lambda item: (str(item.category), item.region_name or "", item.name),
+            )
+        ],
+    }
 
 
 def _replace_utility_service_areas(
@@ -1439,6 +1486,7 @@ async def get_utility(
 @utilities_router.post("", response_model=UtilityResponse, status_code=status.HTTP_201_CREATED)
 async def create_utility(
     utility_data: UtilityCreate,
+    request: Request,
     current_user: CurrentUser = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -1473,6 +1521,20 @@ async def create_utility(
     _replace_utility_service_areas(new_utility, utility_data.service_areas)
     
     db.add(new_utility)
+    db.flush()
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="utility.create",
+        event_type="utility",
+        status="success",
+        entity="utility",
+        entity_id=new_utility.id,
+        target_name=new_utility.name,
+        after_data=_utility_audit_snapshot(new_utility),
+        utility_id=new_utility.id,
+    )
     db.commit()
     db.refresh(new_utility)
     
@@ -1483,6 +1545,7 @@ async def create_utility(
 async def update_utility(
     utility_id: str,
     utility_data: UtilityUpdate,
+    request: Request,
     current_user: CurrentUser = Depends(require_utility_manager),
     db: Session = Depends(get_db),
 ):
@@ -1499,6 +1562,7 @@ async def update_utility(
         )
 
     _ensure_utility_access(utility, current_user, db)
+    before_data = _utility_audit_snapshot(utility)
     boundary_was_sent = "boundary_geojson" in utility_data.model_fields_set
     update_data = utility_data.model_dump(exclude_unset=True)
     service_areas = update_data.pop("service_areas", None)
@@ -1526,6 +1590,20 @@ async def update_utility(
             detail="Utility center latitude and longitude are required.",
         )
     
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="utility.update",
+        event_type="utility",
+        status="success",
+        entity="utility",
+        entity_id=utility.id,
+        target_name=utility.name,
+        before_data=before_data,
+        after_data=_utility_audit_snapshot(utility),
+        utility_id=utility.id,
+    )
     db.commit()
     db.refresh(utility)
     
@@ -1536,6 +1614,7 @@ async def update_utility(
 async def patch_utility(
     utility_id: str,
     utility_data: UtilityUpdate,
+    request: Request,
     current_user: CurrentUser = Depends(require_utility_manager),
     db: Session = Depends(get_db),
 ):
@@ -1552,6 +1631,7 @@ async def patch_utility(
         )
 
     _ensure_utility_access(utility, current_user, db)
+    before_data = _utility_audit_snapshot(utility)
     boundary_was_sent = "boundary_geojson" in utility_data.model_fields_set
     update_data = utility_data.model_dump(exclude_unset=True)
     service_areas = update_data.pop("service_areas", None)
@@ -1579,6 +1659,20 @@ async def patch_utility(
             detail="Utility center latitude and longitude are required.",
         )
     
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="utility.update",
+        event_type="utility",
+        status="success",
+        entity="utility",
+        entity_id=utility.id,
+        target_name=utility.name,
+        before_data=before_data,
+        after_data=_utility_audit_snapshot(utility),
+        utility_id=utility.id,
+    )
     db.commit()
     db.refresh(utility)
     
@@ -1588,6 +1682,7 @@ async def patch_utility(
 @utilities_router.delete("/{utility_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_utility(
     utility_id: str,
+    request: Request,
     current_user: CurrentUser = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -1603,6 +1698,20 @@ async def delete_utility(
             detail="Utility not found",
         )
     
+    before_data = _utility_audit_snapshot(utility)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="utility.delete",
+        event_type="utility",
+        status="success",
+        entity="utility",
+        entity_id=utility.id,
+        target_name=utility.name,
+        before_data=before_data,
+        utility_id=utility.id,
+    )
     db.delete(utility)
     db.commit()
 
@@ -1611,6 +1720,7 @@ async def delete_utility(
 async def upload_infrastructure_layer(
     utility_id: str,
     asset_type: str,
+    request: Request,
     file: UploadFile = File(...),
     current_user: CurrentUser = Depends(require_utility_manager),
     db: Session = Depends(get_db),
@@ -1665,6 +1775,7 @@ async def upload_infrastructure_layer(
         )
         .first()
     )
+    before_data = _infrastructure_layer_audit_snapshot(layer) if layer else None
     if not layer:
         layer = UtilityInfrastructureLayer(
             utility_id=utility.id,
@@ -1680,6 +1791,26 @@ async def upload_infrastructure_layer(
     layer.uploaded_by_manager_id = current_user.id if current_user.user_type == "utility_manager" else None
 
     _infrastructure_geojson_cache.clear()
+    db.flush()
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="utility_infrastructure.upload" if before_data is None else "utility_infrastructure.replace",
+        event_type="infrastructure",
+        status="success",
+        entity="utility_infrastructure",
+        entity_id=layer.id,
+        target_name=f"{utility.name} {_asset_label(normalized_asset_type)}",
+        before_data=before_data,
+        after_data=_infrastructure_layer_audit_snapshot(layer),
+        utility_id=utility.id,
+        metadata={
+            "asset_type": normalized_asset_type,
+            "asset_label": _asset_label(normalized_asset_type),
+            "feature_count": layer.feature_count,
+        },
+    )
     db.commit()
     db.refresh(utility)
     db.refresh(layer)
@@ -1751,6 +1882,7 @@ async def preview_infrastructure_layer_geojson(
 async def delete_infrastructure_layer(
     utility_id: str,
     asset_type: str,
+    request: Request,
     current_user: CurrentUser = Depends(require_utility_manager),
     db: Session = Depends(get_db),
 ):
@@ -1772,6 +1904,24 @@ async def delete_infrastructure_layer(
     if not layer:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Infrastructure asset file not found")
 
+    before_data = _infrastructure_layer_audit_snapshot(layer)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="utility_infrastructure.delete",
+        event_type="infrastructure",
+        status="success",
+        entity="utility_infrastructure",
+        entity_id=layer.id,
+        target_name=f"{utility.name} {_asset_label(normalized_asset_type)}",
+        before_data=before_data,
+        utility_id=utility.id,
+        metadata={
+            "asset_type": normalized_asset_type,
+            "asset_label": _asset_label(normalized_asset_type),
+        },
+    )
     db.delete(layer)
     _infrastructure_geojson_cache.clear()
     db.commit()

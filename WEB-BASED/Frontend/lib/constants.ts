@@ -111,7 +111,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Activity Logs",
     href: "/dashboard/logs",
     icon: ScrollText,
-    roles: ["admin", "utility_manager"],
+    roles: ["admin"],
   },
 ]
 

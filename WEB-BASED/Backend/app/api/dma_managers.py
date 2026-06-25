@@ -6,7 +6,7 @@ CRUD plus invite-based onboarding for DMA managers.
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -15,7 +15,9 @@ from app.models import DMA, Engineer, User, Utility
 from app.models.user import DMAManager, EntityStatusEnum, UtilityManager
 from app.schemas.user import DMAManagerCreate, DMAManagerInvitationCreate, DMAManagerListResponse, DMAManagerResponse, DMAManagerUpdate
 from app.security.auth import hash_password
+from app.security.dependencies import CurrentUser, get_current_user
 from app.services.engineer_invites import build_invite_url, generate_invite_token, hash_invite_token, send_account_invitation_email
+from app.services.activity_logs import audit_log
 
 dma_managers_router = APIRouter(prefix="/api/dma-managers", tags=["dma-managers"])
 
@@ -71,6 +73,20 @@ def transform_manager(manager: DMAManager) -> dict:
     }
 
 
+def _manager_audit_snapshot(manager: DMAManager) -> dict:
+    return {
+        "id": manager.id,
+        "name": manager.name,
+        "email": manager.email,
+        "phone": manager.phone,
+        "status": manager.status.value if hasattr(manager.status, "value") else manager.status,
+        "utility_id": manager.utility_id,
+        "dma_id": manager.dma_id,
+        "onboarding_status": _build_onboarding_status(manager),
+        "setup_completed_at": manager.setup_completed_at,
+    }
+
+
 def _get_utility_or_400(utility_id: str, db: Session) -> Utility:
     utility = db.query(Utility).filter(Utility.id == utility_id).first()
     if not utility:
@@ -121,7 +137,12 @@ async def get_dma_manager(manager_id: str, db: Session = Depends(get_db)):
 
 
 @dma_managers_router.post("/invitations", status_code=status.HTTP_201_CREATED)
-async def invite_dma_manager(payload: DMAManagerInvitationCreate, db: Session = Depends(get_db)):
+async def invite_dma_manager(
+    payload: DMAManagerInvitationCreate,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     _check_email_uniqueness(payload.email, None, db)
     utility = _get_utility_or_400(payload.utility_id, db)
     dma = _get_dma_or_400(payload.dma_id, db)
@@ -150,6 +171,22 @@ async def invite_dma_manager(payload: DMAManagerInvitationCreate, db: Session = 
     )
 
     db.add(manager)
+    db.flush()
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="dma_manager.invite",
+        event_type="manager",
+        status="success",
+        entity="dma_manager",
+        entity_id=manager.id,
+        target_name=manager.email,
+        after_data=_manager_audit_snapshot(manager),
+        utility_id=utility.id,
+        dma_id=dma.id if dma else None,
+        metadata={"delivery": "pending"},
+    )
     db.commit()
     db.refresh(manager)
 
@@ -174,7 +211,12 @@ async def invite_dma_manager(payload: DMAManagerInvitationCreate, db: Session = 
 
 
 @dma_managers_router.post("/{manager_id}/resend-invite")
-async def resend_dma_manager_invite(manager_id: str, db: Session = Depends(get_db)):
+async def resend_dma_manager_invite(
+    manager_id: str,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     manager = db.query(DMAManager).filter(DMAManager.id == manager_id).first()
     if not manager:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="DMA manager not found")
@@ -188,6 +230,20 @@ async def resend_dma_manager_invite(manager_id: str, db: Session = Depends(get_d
     manager.invite_token_hash = hash_invite_token(raw_token)
     manager.invite_sent_at = now
     manager.invite_expires_at = now + timedelta(hours=settings.invite_token_expiry_hours)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="dma_manager.invite_resend",
+        event_type="manager",
+        status="success",
+        entity="dma_manager",
+        entity_id=manager.id,
+        target_name=manager.email,
+        after_data=_manager_audit_snapshot(manager),
+        utility_id=manager.utility_id,
+        dma_id=manager.dma_id,
+    )
     db.commit()
     db.refresh(manager)
 
@@ -212,7 +268,12 @@ async def resend_dma_manager_invite(manager_id: str, db: Session = Depends(get_d
 
 
 @dma_managers_router.post("", response_model=DMAManagerResponse, status_code=status.HTTP_201_CREATED)
-async def create_dma_manager(manager_data: DMAManagerCreate, db: Session = Depends(get_db)):
+async def create_dma_manager(
+    manager_data: DMAManagerCreate,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     _check_email_uniqueness(manager_data.email, None, db)
     utility = _get_utility_or_400(manager_data.utility_id, db)
     dma = _get_dma_or_400(manager_data.dma_id, db)
@@ -232,16 +293,38 @@ async def create_dma_manager(manager_data: DMAManagerCreate, db: Session = Depen
         setup_completed_at=_utcnow(),
     )
     db.add(new_manager)
+    db.flush()
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="dma_manager.create",
+        event_type="manager",
+        status="success",
+        entity="dma_manager",
+        entity_id=new_manager.id,
+        target_name=new_manager.name,
+        after_data=_manager_audit_snapshot(new_manager),
+        utility_id=new_manager.utility_id,
+        dma_id=new_manager.dma_id,
+    )
     db.commit()
     db.refresh(new_manager)
     return DMAManagerResponse(**transform_manager(new_manager))
 
 
 @dma_managers_router.put("/{manager_id}", response_model=DMAManagerResponse)
-async def update_dma_manager(manager_id: str, manager_data: DMAManagerUpdate, db: Session = Depends(get_db)):
+async def update_dma_manager(
+    manager_id: str,
+    manager_data: DMAManagerUpdate,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     manager = db.query(DMAManager).filter(DMAManager.id == manager_id).first()
     if not manager:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="DMA manager not found")
+    before_data = _manager_audit_snapshot(manager)
 
     update_data = manager_data.dict(exclude_unset=True)
     if "email" in update_data and update_data["email"]:
@@ -272,16 +355,51 @@ async def update_dma_manager(manager_id: str, manager_data: DMAManagerUpdate, db
     if "dma_id" in update_data:
         manager.dma_id = update_data["dma_id"]
 
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="dma_manager.update",
+        event_type="manager",
+        status="success",
+        entity="dma_manager",
+        entity_id=manager.id,
+        target_name=manager.name,
+        before_data=before_data,
+        after_data=_manager_audit_snapshot(manager),
+        utility_id=manager.utility_id,
+        dma_id=manager.dma_id,
+    )
     db.commit()
     db.refresh(manager)
     return DMAManagerResponse(**transform_manager(manager))
 
 
 @dma_managers_router.delete("/{manager_id}", status_code=status.HTTP_200_OK)
-async def delete_dma_manager(manager_id: str, db: Session = Depends(get_db)):
+async def delete_dma_manager(
+    manager_id: str,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     manager = db.query(DMAManager).filter(DMAManager.id == manager_id).first()
     if not manager:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="DMA manager not found")
+    before_data = _manager_audit_snapshot(manager)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="dma_manager.delete",
+        event_type="manager",
+        status="success",
+        entity="dma_manager",
+        entity_id=manager.id,
+        target_name=manager.name,
+        before_data=before_data,
+        utility_id=manager.utility_id,
+        dma_id=manager.dma_id,
+    )
     db.delete(manager)
     db.commit()
     return {"success": True, "message": "DMA manager deleted successfully"}

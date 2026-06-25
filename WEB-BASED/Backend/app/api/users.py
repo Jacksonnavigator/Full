@@ -6,7 +6,7 @@ CRUD plus invite-based onboarding for public-report user accounts.
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -21,6 +21,8 @@ from app.schemas.user import (
     UserUpdate,
 )
 from app.security.auth import extract_user_from_token, hash_password
+from app.security.dependencies import CurrentUser
+from app.services.activity_logs import audit_log
 from app.services.engineer_invites import (
     build_invite_url,
     generate_invite_token,
@@ -83,6 +85,52 @@ def transform_user(user: User) -> dict:
         "invite_expires_at": user.invite_expires_at,
         "setup_completed_at": user.setup_completed_at,
     }
+
+
+def _user_audit_snapshot(user: User) -> dict:
+    return {
+        "id": user.id,
+        "email": user.email,
+        "name": user.name,
+        "phone": user.phone,
+        "avatar": user.avatar,
+        "status": user.status.value if hasattr(user.status, "value") else user.status,
+        "onboarding_status": _build_onboarding_status(user),
+        "setup_completed_at": user.setup_completed_at,
+    }
+
+
+def _resolve_optional_actor(authorization: Optional[str], db: Session) -> Optional[CurrentUser]:
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    user_info = extract_user_from_token(authorization.split(" ", 1)[1])
+    if not user_info:
+        return None
+
+    user_id = user_info.get("user_id")
+    user = db.query(User).filter(User.id == user_id).first()
+    if user:
+        return CurrentUser(id=user.id, email=user.email, user_type="user", role=None)
+
+    util_mgr = db.query(UtilityManager).filter(UtilityManager.id == user_id).first()
+    if util_mgr:
+        return CurrentUser(id=util_mgr.id, email=util_mgr.email, user_type="utility_manager", utility_id=util_mgr.utility_id)
+
+    dma_mgr = db.query(DMAManager).filter(DMAManager.id == user_id).first()
+    if dma_mgr:
+        return CurrentUser(id=dma_mgr.id, email=dma_mgr.email, user_type="dma_manager", dma_id=dma_mgr.dma_id)
+
+    engineer = db.query(Engineer).filter(Engineer.id == user_id).first()
+    if engineer:
+        return CurrentUser(
+            id=engineer.id,
+            email=engineer.email,
+            user_type="engineer",
+            role=engineer.role,
+            dma_id=engineer.dma_id,
+            team_id=engineer.team_id,
+        )
+    return None
 
 
 @users_router.get("", response_model=UserListResponse)
@@ -158,7 +206,13 @@ async def get_user(user_id: str, db: Session = Depends(get_db)):
 
 
 @users_router.post("/invitations", status_code=status.HTTP_201_CREATED)
-async def invite_user(payload: UserInvitationCreate, db: Session = Depends(get_db)):
+async def invite_user(
+    payload: UserInvitationCreate,
+    request: Request,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
+    current_user = _resolve_optional_actor(authorization, db)
     _check_email_uniqueness(payload.email, None, db)
 
     now = _utcnow()
@@ -179,6 +233,20 @@ async def invite_user(payload: UserInvitationCreate, db: Session = Depends(get_d
     )
 
     db.add(user)
+    db.flush()
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="user.invite",
+        event_type="user",
+        status="success",
+        entity="user",
+        entity_id=user.id,
+        target_name=user.email,
+        after_data=_user_audit_snapshot(user),
+        metadata={"delivery": "pending"},
+    )
     db.commit()
     db.refresh(user)
 
@@ -199,7 +267,13 @@ async def invite_user(payload: UserInvitationCreate, db: Session = Depends(get_d
 
 
 @users_router.post("/{user_id}/resend-invite")
-async def resend_user_invite(user_id: str, db: Session = Depends(get_db)):
+async def resend_user_invite(
+    user_id: str,
+    request: Request,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
+    current_user = _resolve_optional_actor(authorization, db)
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -214,6 +288,18 @@ async def resend_user_invite(user_id: str, db: Session = Depends(get_db)):
     user.invite_token_hash = hash_invite_token(raw_token)
     user.invite_sent_at = now
     user.invite_expires_at = now + timedelta(hours=settings.invite_token_expiry_hours)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="user.invite_resend",
+        event_type="user",
+        status="success",
+        entity="user",
+        entity_id=user.id,
+        target_name=user.email,
+        after_data=_user_audit_snapshot(user),
+    )
     db.commit()
     db.refresh(user)
 
@@ -234,7 +320,13 @@ async def resend_user_invite(user_id: str, db: Session = Depends(get_db)):
 
 
 @users_router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
+async def create_user(
+    user_data: UserCreate,
+    request: Request,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
+    current_user = _resolve_optional_actor(authorization, db)
     _check_email_uniqueness(user_data.email, None, db)
 
     new_user = User(
@@ -248,6 +340,19 @@ async def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
     )
 
     db.add(new_user)
+    db.flush()
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="user.create",
+        event_type="user",
+        status="success",
+        entity="user",
+        entity_id=new_user.id,
+        target_name=new_user.name,
+        after_data=_user_audit_snapshot(new_user),
+    )
     db.commit()
     db.refresh(new_user)
 
@@ -255,13 +360,21 @@ async def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
 
 
 @users_router.put("/{user_id}", response_model=UserResponse)
-async def update_user(user_id: str, user_data: UserUpdate, db: Session = Depends(get_db)):
+async def update_user(
+    user_id: str,
+    user_data: UserUpdate,
+    request: Request,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
+    current_user = _resolve_optional_actor(authorization, db)
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
+    before_data = _user_audit_snapshot(user)
 
     update_data = user_data.dict(exclude_unset=True)
     if "email" in update_data and update_data["email"]:
@@ -282,6 +395,19 @@ async def update_user(user_id: str, user_data: UserUpdate, db: Session = Depends
     if "status" in update_data and update_data["status"] is not None:
         user.status = update_data["status"]
 
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="user.update",
+        event_type="user",
+        status="success",
+        entity="user",
+        entity_id=user.id,
+        target_name=user.name,
+        before_data=before_data,
+        after_data=_user_audit_snapshot(user),
+    )
     db.commit()
     db.refresh(user)
 
@@ -289,18 +415,43 @@ async def update_user(user_id: str, user_data: UserUpdate, db: Session = Depends
 
 
 @users_router.patch("/{user_id}", response_model=UserResponse)
-async def patch_user(user_id: str, user_data: UserUpdate, db: Session = Depends(get_db)):
-    return await update_user(user_id, user_data, db)
+async def patch_user(
+    user_id: str,
+    user_data: UserUpdate,
+    request: Request,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
+    return await update_user(user_id, user_data, request, authorization, db)
 
 
 @users_router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: str, db: Session = Depends(get_db)):
+async def delete_user(
+    user_id: str,
+    request: Request,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
+    current_user = _resolve_optional_actor(authorization, db)
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
+    before_data = _user_audit_snapshot(user)
 
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="user.delete",
+        event_type="user",
+        status="success",
+        entity="user",
+        entity_id=user.id,
+        target_name=user.name,
+        before_data=before_data,
+    )
     db.delete(user)
     db.commit()

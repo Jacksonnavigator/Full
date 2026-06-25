@@ -6,7 +6,7 @@ CRUD plus invite-based onboarding for engineers in the DMA -> Team -> Engineer f
 from datetime import datetime, timedelta
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
@@ -28,6 +28,7 @@ from app.services.engineer_invites import (
     hash_invite_token,
     send_engineer_invitation_email,
 )
+from app.services.activity_logs import audit_log
 
 engineers_router = APIRouter(prefix="/api/engineers", tags=["engineers"])
 
@@ -66,6 +67,22 @@ def build_engineer_response(engineer: Engineer, assigned_reports: int | None = N
         "setup_completed_at": engineer.setup_completed_at,
         "created_at": engineer.created_at,
         "updated_at": engineer.updated_at,
+    }
+
+
+def _engineer_audit_snapshot(engineer: Engineer, db: Session) -> dict[str, Any]:
+    return {
+        "id": engineer.id,
+        "name": engineer.name,
+        "email": engineer.email,
+        "phone": engineer.phone,
+        "dma_id": engineer.dma_id,
+        "team_id": engineer.team_id,
+        "role": engineer.role,
+        "status": engineer.status.value if hasattr(engineer.status, "value") else engineer.status,
+        "utility_id": _engineer_utility_id(engineer, db) if engineer.id else None,
+        "onboarding_status": _build_onboarding_status(engineer),
+        "setup_completed_at": engineer.setup_completed_at,
     }
 
 
@@ -198,12 +215,29 @@ def _ensure_engineer_write_access(current_user: CurrentUser, dma_id: str) -> Non
 @engineers_router.post("/invitations", status_code=status.HTTP_201_CREATED)
 async def invite_engineer(
     invitation_data: EngineerInvitationCreate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     team = _get_team_or_400(invitation_data.team_id, db)
     _ensure_engineer_write_access(current_user, team.dma_id)
     engineer, invitation_result = _create_invitation(invitation_data, db)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="engineer.invite",
+        event_type="engineer",
+        status="success",
+        entity="engineer",
+        entity_id=engineer.id,
+        target_name=engineer.email,
+        after_data=_engineer_audit_snapshot(engineer, db),
+        utility_id=_engineer_utility_id(engineer, db),
+        dma_id=engineer.dma_id,
+        metadata={"team_id": engineer.team_id, "delivery": invitation_result.get("delivery_method")},
+    )
+    db.commit()
     return {
         "engineer": build_engineer_response(engineer),
         **invitation_result,
@@ -213,6 +247,7 @@ async def invite_engineer(
 @engineers_router.post("/invitations/bulk", status_code=status.HTTP_201_CREATED)
 async def invite_engineers_bulk(
     payload: EngineerInvitationBulkCreate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -223,6 +258,22 @@ async def invite_engineers_bulk(
             team = _get_team_or_400(invitation.team_id, db)
             _ensure_engineer_write_access(current_user, team.dma_id)
             engineer, invitation_result = _create_invitation(invitation, db)
+            audit_log(
+                db,
+                request=request,
+                actor=current_user,
+                action="engineer.bulk_invite",
+                event_type="engineer",
+                status="success",
+                entity="engineer",
+                entity_id=engineer.id,
+                target_name=engineer.email,
+                after_data=_engineer_audit_snapshot(engineer, db),
+                utility_id=_engineer_utility_id(engineer, db),
+                dma_id=engineer.dma_id,
+                metadata={"team_id": engineer.team_id, "delivery": invitation_result.get("delivery_method")},
+            )
+            db.commit()
             items.append(
                 {
                     "ok": True,
@@ -286,6 +337,7 @@ async def validate_engineer_invitation(
 @engineers_router.post("/invitations/complete")
 async def complete_engineer_invitation(
     payload: EngineerInvitationComplete,
+    request: Request,
     db: Session = Depends(get_db),
 ):
     if payload.password != payload.confirm_password:
@@ -323,6 +375,24 @@ async def complete_engineer_invitation(
     if engineer.team:
         _sync_team_leadership(engineer, engineer.team, engineer.role)
 
+    audit_log(
+        db,
+        request=request,
+        actor=None,
+        action="engineer.invitation_complete",
+        event_type="engineer",
+        status="success",
+        entity="engineer",
+        entity_id=engineer.id,
+        target_name=engineer.name,
+        after_data=_engineer_audit_snapshot(engineer, db),
+        utility_id=_engineer_utility_id(engineer, db),
+        dma_id=engineer.dma_id,
+        engineer_id=engineer.id,
+        user_name=engineer.name,
+        user_role=engineer.role or "engineer",
+        metadata={"team_id": engineer.team_id},
+    )
     db.commit()
     db.refresh(engineer)
 
@@ -335,6 +405,7 @@ async def complete_engineer_invitation(
 @engineers_router.post("/{engineer_id}/resend-invite")
 async def resend_engineer_invitation(
     engineer_id: str,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -365,6 +436,21 @@ async def resend_engineer_invitation(
     engineer.invite_token_hash = hash_invite_token(raw_token)
     engineer.invite_sent_at = now
     engineer.invite_expires_at = now + timedelta(hours=settings.invite_token_expiry_hours)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="engineer.invite_resend",
+        event_type="engineer",
+        status="success",
+        entity="engineer",
+        entity_id=engineer.id,
+        target_name=engineer.email,
+        after_data=_engineer_audit_snapshot(engineer, db),
+        utility_id=_engineer_utility_id(engineer, db),
+        dma_id=engineer.dma_id,
+        metadata={"team_id": engineer.team_id},
+    )
 
     delivery = send_engineer_invitation_email(
         recipient_email=engineer.email,
@@ -461,6 +547,7 @@ async def get_engineer(
 @engineers_router.post("", status_code=status.HTTP_201_CREATED)
 async def create_engineer(
     engineer_data: EngineerCreate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -490,6 +577,21 @@ async def create_engineer(
     db.add(new_engineer)
     db.flush()
     _sync_team_leadership(new_engineer, team, new_engineer.role)
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="engineer.create",
+        event_type="engineer",
+        status="success",
+        entity="engineer",
+        entity_id=new_engineer.id,
+        target_name=new_engineer.name,
+        after_data=_engineer_audit_snapshot(new_engineer, db),
+        utility_id=_engineer_utility_id(new_engineer, db),
+        dma_id=new_engineer.dma_id,
+        metadata={"team_id": new_engineer.team_id},
+    )
     db.commit()
     db.refresh(new_engineer)
 
@@ -499,6 +601,7 @@ async def create_engineer(
 @engineers_router.put("")
 async def update_engineer(
     engineer_data: EngineerUpdate,
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -518,6 +621,7 @@ async def update_engineer(
         )
 
     _ensure_engineer_write_access(current_user, engineer.dma_id)
+    before_data = _engineer_audit_snapshot(engineer, db)
 
     target_team = engineer.team
     next_role = engineer.role
@@ -563,6 +667,22 @@ async def update_engineer(
 
     _sync_team_leadership(engineer, target_team, next_role)
 
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="engineer.update",
+        event_type="engineer",
+        status="success",
+        entity="engineer",
+        entity_id=engineer.id,
+        target_name=engineer.name,
+        before_data=before_data,
+        after_data=_engineer_audit_snapshot(engineer, db),
+        utility_id=_engineer_utility_id(engineer, db),
+        dma_id=engineer.dma_id,
+        metadata={"team_id": engineer.team_id},
+    )
     db.commit()
     db.refresh(engineer)
 
@@ -571,6 +691,7 @@ async def update_engineer(
 
 @engineers_router.delete("")
 async def delete_engineer(
+    request: Request,
     id: str = Query(..., description="Engineer ID to delete"),
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -583,10 +704,26 @@ async def delete_engineer(
         )
 
     _ensure_engineer_write_access(current_user, engineer.dma_id)
+    before_data = _engineer_audit_snapshot(engineer, db)
 
     if engineer.team and engineer.team.leader_id == engineer.id:
         engineer.team.leader_id = None
 
+    audit_log(
+        db,
+        request=request,
+        actor=current_user,
+        action="engineer.delete",
+        event_type="engineer",
+        status="success",
+        entity="engineer",
+        entity_id=engineer.id,
+        target_name=engineer.name,
+        before_data=before_data,
+        utility_id=before_data.get("utility_id"),
+        dma_id=engineer.dma_id,
+        metadata={"team_id": engineer.team_id},
+    )
     db.delete(engineer)
     db.commit()
 
