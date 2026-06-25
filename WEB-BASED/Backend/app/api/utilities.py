@@ -174,11 +174,20 @@ def _build_service_area_response(service_area: UtilityServiceArea) -> UtilitySer
 def _replace_utility_service_areas(
     utility: Utility,
     service_areas: Optional[List[UtilityServiceAreaCreate]],
+    db: Optional[Session] = None,
 ) -> None:
     if service_areas is None:
         return
 
-    utility.service_areas.clear()
+    if db is not None and utility.id:
+        db.query(UtilityServiceArea).filter(
+            UtilityServiceArea.utility_id == utility.id
+        ).delete(synchronize_session=False)
+        db.flush()
+        utility.service_areas = []
+    else:
+        utility.service_areas.clear()
+
     seen: set[tuple[str, str, str]] = set()
     for area in service_areas:
         category = area.category
@@ -1503,9 +1512,11 @@ async def update_utility(
         utility.boundary_source_type = "uploaded" if boundary_geojson_raw else "none"
         utility.boundary_status = "verified" if boundary_geojson_raw else "none"
     if service_areas is not None:
-        _replace_utility_service_areas(utility, [UtilityServiceAreaCreate(**area) if isinstance(area, dict) else area for area in service_areas])
-    if not utility.slug:
-        utility.slug = _make_unique_utility_slug(db, update_data.get("name") or utility.name, exclude_utility_id=utility.id)
+        _replace_utility_service_areas(utility, [UtilityServiceAreaCreate(**area) if isinstance(area, dict) else area for area in service_areas], db)
+    if "name" in update_data:
+        utility.slug = _make_unique_utility_slug(db, update_data["name"], exclude_utility_id=utility.id)
+    elif not utility.slug:
+        utility.slug = _make_unique_utility_slug(db, utility.name, exclude_utility_id=utility.id)
     for field, value in update_data.items():
         setattr(utility, field, value)
 
@@ -1554,9 +1565,11 @@ async def patch_utility(
         utility.boundary_source_type = "uploaded" if boundary_geojson_raw else "none"
         utility.boundary_status = "verified" if boundary_geojson_raw else "none"
     if service_areas is not None:
-        _replace_utility_service_areas(utility, [UtilityServiceAreaCreate(**area) if isinstance(area, dict) else area for area in service_areas])
-    if not utility.slug:
-        utility.slug = _make_unique_utility_slug(db, update_data.get("name") or utility.name, exclude_utility_id=utility.id)
+        _replace_utility_service_areas(utility, [UtilityServiceAreaCreate(**area) if isinstance(area, dict) else area for area in service_areas], db)
+    if "name" in update_data:
+        utility.slug = _make_unique_utility_slug(db, update_data["name"], exclude_utility_id=utility.id)
+    elif not utility.slug:
+        utility.slug = _make_unique_utility_slug(db, utility.name, exclude_utility_id=utility.id)
     for field, value in update_data.items():
         setattr(utility, field, value)
 

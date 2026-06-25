@@ -188,6 +188,9 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
   useEffect(() => {
     if (mode === "edit") {
       if (!editingUtility) return
+      if (editingUtility.slug && utilityId !== editingUtility.slug) {
+        router.replace(`/dashboard/utilities/${editingUtility.slug}/edit`)
+      }
       const formKey = `edit:${editingUtility.id}`
       if (hydratedFormKeyRef.current === formKey) return
       hydratedFormKeyRef.current = formKey
@@ -226,7 +229,7 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
     setFormBoundaryGeojson(null)
     setFormServiceAreas([])
     setFormStatus("active")
-  }, [editingUtility, mode])
+  }, [editingUtility, mode, router, utilityId])
 
   async function handleSubmit() {
     if (!formName.trim()) {
@@ -325,11 +328,11 @@ export default function UtilityFormPage({ mode, utilityId }: UtilityFormPageProp
 
       if (mode === "edit" && editingUtility) {
         toast.success("Utility updated successfully")
+        router.replace(`/dashboard/utilities/${savedUtility.slug || savedUtility.id}/edit`)
       } else {
         toast.success("Utility created successfully")
+        router.push(`/dashboard/utilities/${savedUtility.slug || savedUtility.id}/edit`)
       }
-
-      router.push("/dashboard/utilities")
     } catch (error) {
       toast.error(
         error instanceof Error

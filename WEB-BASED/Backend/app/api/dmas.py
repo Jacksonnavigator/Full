@@ -292,8 +292,10 @@ async def update_dma(
     update_data = dma_data.model_dump(exclude_unset=True)
     if "boundary_geojson" in update_data:
         dma.boundary_geojson = _serialize_boundary_geojson(update_data.pop("boundary_geojson"))
-    if not dma.slug:
-        dma.slug = _make_unique_dma_slug(db, dma.utility_id, update_data.get("name") or dma.name, exclude_dma_id=dma.id)
+    if "name" in update_data:
+        dma.slug = _make_unique_dma_slug(db, dma.utility_id, update_data["name"], exclude_dma_id=dma.id)
+    elif not dma.slug:
+        dma.slug = _make_unique_dma_slug(db, dma.utility_id, dma.name, exclude_dma_id=dma.id)
     for field, value in update_data.items():
         setattr(dma, field, value)
     
@@ -337,8 +339,10 @@ async def patch_dma(
     update_data = dma_data.model_dump(exclude_unset=True)
     if "boundary_geojson" in update_data:
         dma.boundary_geojson = _serialize_boundary_geojson(update_data.pop("boundary_geojson"))
-    if not dma.slug:
-        dma.slug = _make_unique_dma_slug(db, dma.utility_id, update_data.get("name") or dma.name, exclude_dma_id=dma.id)
+    if "name" in update_data:
+        dma.slug = _make_unique_dma_slug(db, dma.utility_id, update_data["name"], exclude_dma_id=dma.id)
+    elif not dma.slug:
+        dma.slug = _make_unique_dma_slug(db, dma.utility_id, dma.name, exclude_dma_id=dma.id)
     for field, value in update_data.items():
         setattr(dma, field, value)
     

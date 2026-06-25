@@ -147,6 +147,9 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
   useEffect(() => {
     if (mode === "edit") {
       if (!editingDMA) return
+      if (editingDMA.slug && dmaId !== editingDMA.slug) {
+        router.replace(`/dashboard/dmas/${editingDMA.slug}/edit`)
+      }
       setFormName(editingDMA.name)
       setFormDescription(editingDMA.description || "")
       setFormStatus(editingDMA.status)
@@ -162,7 +165,7 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
     setFormCenterLatitude("")
     setFormCenterLongitude("")
     setFormBoundaryPoints([])
-  }, [editingDMA, mode])
+  }, [dmaId, editingDMA, mode, router])
 
   const boundaryPointsForMap = useMemo(
     () => parseBoundaryPointsForMap(formBoundaryPoints),
@@ -265,14 +268,14 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
       }
 
       if (mode === "edit" && editingDMA) {
-        await updateDMA(editingDMA.id, payload)
+        const savedDMA = await updateDMA(editingDMA.id, payload)
         toast.success("DMA updated successfully")
+        router.replace(`/dashboard/dmas/${savedDMA.slug || savedDMA.id}/edit`)
       } else {
-        await addDMA(payload)
+        const savedDMA = await addDMA(payload)
         toast.success("DMA created successfully")
+        router.push(`/dashboard/dmas/${savedDMA.slug || savedDMA.id}/edit`)
       }
-
-      router.push("/dashboard/dmas")
     } catch {
       toast.error(mode === "edit" ? "Failed to update DMA" : "Failed to create DMA")
     } finally {

@@ -241,7 +241,8 @@ async def update_team(
 
     if "name" in update_data:
         team.name = update_data["name"]
-    if not team.slug:
+        team.slug = _make_unique_team_slug(db, team.name, exclude_team_id=team.id)
+    elif not team.slug:
         team.slug = _make_unique_team_slug(db, team.name, exclude_team_id=team.id)
     if "description" in update_data:
         team.description = update_data["description"]

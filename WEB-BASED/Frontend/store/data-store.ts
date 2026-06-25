@@ -312,8 +312,8 @@ interface DataState {
   deleteUtility: (id: string) => Promise<void>
   
   // CRUD: DMAs
-  addDMA: (data: Partial<DMA>) => Promise<void>
-  updateDMA: (id: string, data: Partial<DMA>) => Promise<void>
+  addDMA: (data: Partial<DMA>) => Promise<DMA>
+  updateDMA: (id: string, data: Partial<DMA>) => Promise<DMA>
   deleteDMA: (id: string) => Promise<void>
   
   // CRUD: DMA Managers
@@ -673,7 +673,9 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.post("/dmas", data)
       if (!response.success) throw new Error(response.error || "Failed to create DMA")
+      const createdDMA = transformKeys(response.data || {}) as DMA
       await get().fetchDMAs()
+      return createdDMA
     } catch (error) {
       console.error("Error creating DMA:", error)
       throw error
@@ -684,7 +686,9 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.put(`/dmas/${id}`, data)
       if (!response.success) throw new Error(response.error || "Failed to update DMA")
+      const updatedDMA = transformKeys(response.data || {}) as DMA
       await get().fetchDMAs()
+      return updatedDMA
     } catch (error) {
       console.error("Error updating DMA:", error)
       throw error
