@@ -619,7 +619,7 @@ function DMAsPage() {
         router.push("/dashboard/dmas/new");
     }
     function openEditPage(dma) {
-        router.push(`/dashboard/dmas/${dma.id}/edit`);
+        router.push(`/dashboard/dmas/${dma.slug || dma.id}/edit`);
     }
     async function handleDelete() {
         if (deleteId) {

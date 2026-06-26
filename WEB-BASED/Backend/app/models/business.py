@@ -49,6 +49,17 @@ class NotificationTypeEnum(str, enum.Enum):
     ERROR = "error"
 
 
+class HydraulicLaunchStatusEnum(str, enum.Enum):
+    """Hydraulic model launch session status."""
+    READY = "ready"
+    PREPARING = "preparing"
+    PREPARED = "prepared"
+    LAUNCHED = "launched"
+    COMPLETED = "completed"
+    CLEANED = "cleaned"
+    FAILED = "failed"
+
+
 # ============================================================
 # Report Model
 # ============================================================
@@ -136,6 +147,65 @@ class ActivityLog(Base):
     engineer = relationship("Engineer", back_populates="activity_logs", foreign_keys=[engineer_id])
     utility = relationship("Utility", back_populates="activity_logs", foreign_keys=[utility_id])
     dma = relationship("DMA", back_populates="activity_logs", foreign_keys=[dma_id])
+
+
+# ============================================================
+# Hydraulic Model Integration Models
+# ============================================================
+
+class HydraulicModelLaunchSession(Base):
+    """Temporary launch context for opening the hydraulic model with scoped DMA data."""
+
+    __tablename__ = "hydraulic_model_launch_session"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("user.id", ondelete="SET NULL"), nullable=True, index=True)
+    utility_mgr_id = Column(String(36), ForeignKey("utility_manager.id", ondelete="SET NULL"), nullable=True, index=True)
+    dma_mgr_id = Column(String(36), ForeignKey("dma_manager.id", ondelete="SET NULL"), nullable=True, index=True)
+    engineer_id = Column(String(36), ForeignKey("engineer.id", ondelete="SET NULL"), nullable=True, index=True)
+    user_name = Column(String(255), nullable=False)
+    user_role = Column(String(50), nullable=False, index=True)
+    utility_id = Column(String(36), ForeignKey("utility.id", ondelete="CASCADE"), nullable=False, index=True)
+    dma_id = Column(String(36), ForeignKey("dma.id", ondelete="CASCADE"), nullable=False, index=True)
+    hydraulic_filename = Column(String(255), nullable=True)
+    hydraulic_file_ref = Column(String(500), nullable=True)
+    launch_token_hash = Column(String(128), nullable=True, unique=True, index=True)
+    status = Column(String(32), default=HydraulicLaunchStatusEnum.PREPARING.value, nullable=False, index=True)
+    readiness_json = Column(JSON, nullable=True)
+    missing_required_json = Column(JSON, nullable=True)
+    optional_status_json = Column(JSON, nullable=True)
+    error_message = Column(Text, nullable=True)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    launched_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
+    cleaned_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+class HydraulicSimulationSnapshot(Base):
+    """Saved output from a completed hydraulic model simulation run."""
+
+    __tablename__ = "hydraulic_simulation_snapshot"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    launch_session_id = Column(String(36), ForeignKey("hydraulic_model_launch_session.id", ondelete="SET NULL"), nullable=True, index=True)
+    utility_id = Column(String(36), ForeignKey("utility.id", ondelete="CASCADE"), nullable=False, index=True)
+    dma_id = Column(String(36), ForeignKey("dma.id", ondelete="CASCADE"), nullable=False, index=True)
+    hydraulic_scenario_id = Column(String(100), nullable=True, index=True)
+    scenario_name = Column(String(255), nullable=True)
+    scenario_status = Column(String(32), nullable=True, index=True)
+    input_parameters_json = Column(JSON, nullable=True)
+    summary_json = Column(JSON, nullable=True)
+    nrw_json = Column(JSON, nullable=True)
+    leakage_json = Column(JSON, nullable=True)
+    alerts_json = Column(JSON, nullable=True)
+    nodes_geojson = Column(JSON, nullable=True)
+    pipes_geojson = Column(JSON, nullable=True)
+    hotspots_geojson = Column(JSON, nullable=True)
+    created_by_user_id = Column(String(36), nullable=True, index=True)
+    created_by_role = Column(String(50), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
 
 # ============================================================

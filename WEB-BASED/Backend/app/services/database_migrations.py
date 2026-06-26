@@ -80,6 +80,7 @@ def run_safe_startup_migrations(engine: Engine) -> None:
     _migrate_utility_service_area_table(engine)
     _migrate_dma_boundary_columns(engine)
     _migrate_utility_infrastructure_layer_table(engine)
+    _migrate_hydraulic_model_tables(engine)
     _drop_legacy_utility_pipe_network_table(engine)
 
 
@@ -936,6 +937,148 @@ def _migrate_geographic_assignment_columns(engine: Engine) -> None:
                 )
                 return
             raise
+
+
+def _migrate_hydraulic_model_tables(engine: Engine) -> None:
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    is_postgres = engine.dialect.name.startswith("postgresql")
+
+    if "utility" not in existing_tables or "dma" not in existing_tables:
+        return
+
+    if "hydraulic_model_launch_session" not in existing_tables:
+        if is_postgres:
+            create_launch_session = """
+            CREATE TABLE IF NOT EXISTS hydraulic_model_launch_session (
+                id VARCHAR(36) PRIMARY KEY,
+                user_id VARCHAR(36) REFERENCES "user"(id) ON DELETE SET NULL,
+                utility_mgr_id VARCHAR(36) REFERENCES utility_manager(id) ON DELETE SET NULL,
+                dma_mgr_id VARCHAR(36) REFERENCES dma_manager(id) ON DELETE SET NULL,
+                engineer_id VARCHAR(36) REFERENCES engineer(id) ON DELETE SET NULL,
+                user_name VARCHAR(255) NOT NULL,
+                user_role VARCHAR(50) NOT NULL,
+                utility_id VARCHAR(36) NOT NULL REFERENCES utility(id) ON DELETE CASCADE,
+                dma_id VARCHAR(36) NOT NULL REFERENCES dma(id) ON DELETE CASCADE,
+                hydraulic_filename VARCHAR(255),
+                hydraulic_file_ref VARCHAR(500),
+                launch_token_hash VARCHAR(128) UNIQUE,
+                status VARCHAR(32) NOT NULL DEFAULT 'preparing',
+                readiness_json JSON,
+                missing_required_json JSON,
+                optional_status_json JSON,
+                error_message TEXT,
+                expires_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                launched_at TIMESTAMP WITHOUT TIME ZONE,
+                completed_at TIMESTAMP WITHOUT TIME ZONE,
+                cleaned_at TIMESTAMP WITHOUT TIME ZONE,
+                created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        else:
+            create_launch_session = """
+            CREATE TABLE IF NOT EXISTS hydraulic_model_launch_session (
+                id VARCHAR(36) PRIMARY KEY,
+                user_id VARCHAR(36),
+                utility_mgr_id VARCHAR(36),
+                dma_mgr_id VARCHAR(36),
+                engineer_id VARCHAR(36),
+                user_name VARCHAR(255) NOT NULL,
+                user_role VARCHAR(50) NOT NULL,
+                utility_id VARCHAR(36) NOT NULL,
+                dma_id VARCHAR(36) NOT NULL,
+                hydraulic_filename VARCHAR(255),
+                hydraulic_file_ref VARCHAR(500),
+                launch_token_hash VARCHAR(128) UNIQUE,
+                status VARCHAR(32) NOT NULL DEFAULT 'preparing',
+                readiness_json JSON,
+                missing_required_json JSON,
+                optional_status_json JSON,
+                error_message TEXT,
+                expires_at DATETIME NOT NULL,
+                launched_at DATETIME,
+                completed_at DATETIME,
+                cleaned_at DATETIME,
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        with engine.begin() as connection:
+            if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, create_launch_session, required=False)
+            else:
+                connection.exec_driver_sql(create_launch_session)
+
+    if "hydraulic_simulation_snapshot" not in existing_tables:
+        if is_postgres:
+            create_snapshot = """
+            CREATE TABLE IF NOT EXISTS hydraulic_simulation_snapshot (
+                id VARCHAR(36) PRIMARY KEY,
+                launch_session_id VARCHAR(36) REFERENCES hydraulic_model_launch_session(id) ON DELETE SET NULL,
+                utility_id VARCHAR(36) NOT NULL REFERENCES utility(id) ON DELETE CASCADE,
+                dma_id VARCHAR(36) NOT NULL REFERENCES dma(id) ON DELETE CASCADE,
+                hydraulic_scenario_id VARCHAR(100),
+                scenario_name VARCHAR(255),
+                scenario_status VARCHAR(32),
+                input_parameters_json JSON,
+                summary_json JSON,
+                nrw_json JSON,
+                leakage_json JSON,
+                alerts_json JSON,
+                nodes_geojson JSON,
+                pipes_geojson JSON,
+                hotspots_geojson JSON,
+                created_by_user_id VARCHAR(36),
+                created_by_role VARCHAR(50),
+                created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        else:
+            create_snapshot = """
+            CREATE TABLE IF NOT EXISTS hydraulic_simulation_snapshot (
+                id VARCHAR(36) PRIMARY KEY,
+                launch_session_id VARCHAR(36),
+                utility_id VARCHAR(36) NOT NULL,
+                dma_id VARCHAR(36) NOT NULL,
+                hydraulic_scenario_id VARCHAR(100),
+                scenario_name VARCHAR(255),
+                scenario_status VARCHAR(32),
+                input_parameters_json JSON,
+                summary_json JSON,
+                nrw_json JSON,
+                leakage_json JSON,
+                alerts_json JSON,
+                nodes_geojson JSON,
+                pipes_geojson JSON,
+                hotspots_geojson JSON,
+                created_by_user_id VARCHAR(36),
+                created_by_role VARCHAR(50),
+                created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        with engine.begin() as connection:
+            if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, create_snapshot, required=False)
+            else:
+                connection.exec_driver_sql(create_snapshot)
+
+    index_statements = [
+        "CREATE INDEX IF NOT EXISTS ix_hydraulic_launch_user_role ON hydraulic_model_launch_session (user_role)",
+        "CREATE INDEX IF NOT EXISTS ix_hydraulic_launch_utility_id ON hydraulic_model_launch_session (utility_id)",
+        "CREATE INDEX IF NOT EXISTS ix_hydraulic_launch_dma_id ON hydraulic_model_launch_session (dma_id)",
+        "CREATE INDEX IF NOT EXISTS ix_hydraulic_launch_status ON hydraulic_model_launch_session (status)",
+        "CREATE INDEX IF NOT EXISTS ix_hydraulic_launch_expires_at ON hydraulic_model_launch_session (expires_at)",
+        "CREATE INDEX IF NOT EXISTS ix_hydraulic_snapshot_utility_id ON hydraulic_simulation_snapshot (utility_id)",
+        "CREATE INDEX IF NOT EXISTS ix_hydraulic_snapshot_dma_id ON hydraulic_simulation_snapshot (dma_id)",
+        "CREATE INDEX IF NOT EXISTS ix_hydraulic_snapshot_created_at ON hydraulic_simulation_snapshot (created_at)",
+    ]
+    with engine.begin() as connection:
+        for statement in index_statements:
+            if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, statement, required=False)
+            else:
+                connection.exec_driver_sql(statement)
 
 
 def _migrate_sqlite_nullable_report_assignment(engine: Engine) -> None:

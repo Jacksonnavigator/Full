@@ -41,6 +41,11 @@ const PAGE_ACCESS_MAP = {
         'admin',
         'utility_manager'
     ],
+    '/hydraulic-model': [
+        'admin',
+        'utility_manager',
+        'dma_manager'
+    ],
     // Utility Managers - admin only (admin can create/edit)
     '/managers': [
         'admin',
@@ -83,11 +88,9 @@ const PAGE_ACCESS_MAP = {
         'utility_manager',
         'user'
     ],
-    // Activity Logs - admin and utility managers
+    // Activity Logs - admin only
     '/logs': [
-        'admin',
-        'utility_manager',
-        'user'
+        'admin'
     ],
     // Profile - all authenticated users
     '/profile': [

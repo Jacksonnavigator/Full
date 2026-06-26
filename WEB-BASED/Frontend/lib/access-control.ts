@@ -17,6 +17,7 @@ export const PAGE_ACCESS_MAP: Record<string, UserRole[]> = {
   // Utilities - admin and utility managers
   '/utilities': ['admin', 'utility_manager', 'user'],
   '/utility-infrastructure': ['admin', 'utility_manager'],
+  '/hydraulic-model': ['admin', 'utility_manager', 'dma_manager'],
 
   // Utility Managers - admin only (admin can create/edit)
   '/managers': ['admin', 'user'],

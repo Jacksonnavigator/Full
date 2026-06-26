@@ -29,6 +29,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { BrandWordmark } from "@/components/shared/brand-wordmark"
 
+const HYDRAULIC_MODEL_TEST_ADMIN_EMAIL = "admin2@hydranet.com"
+
 export function AppSidebar() {
   const pathname = usePathname()
   const { currentUser, logout } = useAuthStore()
@@ -37,9 +39,12 @@ export function AppSidebar() {
 
   if (!currentUser) return null
 
-  const visibleItems = NAV_ITEMS.filter((item) =>
-    item.roles.includes(currentUser.role)
-  )
+  const visibleItems = NAV_ITEMS.filter((item) => {
+    if (!item.roles.includes(currentUser.role)) return false
+    if (item.href !== "/dashboard/hydraulic-model") return true
+
+    return currentUser.email.toLowerCase() === HYDRAULIC_MODEL_TEST_ADMIN_EMAIL
+  })
 
   const initials = currentUser.name
     .split(" ")
@@ -129,7 +134,7 @@ export function AppSidebar() {
                       tooltip={isMobile ? undefined : item.title}
                       className={cn(
                         "relative transition-all duration-300 ease-out",
-                        isCollapsed ? "h-11 w-11 justify-center rounded-xl mx-auto" : "h-12 w-full rounded-xl justify-start px-4",
+                        isCollapsed ? "h-11 w-11 justify-center rounded-xl mx-auto" : "min-h-12 h-auto w-full rounded-xl justify-start px-4 py-2.5",
                         isActive 
                           ? "bg-gradient-to-r from-sky-700 to-blue-700 text-white shadow-md shadow-slate-900/15 hover:from-sky-800 hover:to-blue-800 hover:shadow-lg hover:shadow-slate-900/20" 
                           : "text-slate-600 hover:text-slate-950 hover:bg-slate-300/55",
@@ -143,7 +148,7 @@ export function AppSidebar() {
                           if (isMobile) setOpenMobile(false)
                         }}
                         className={cn(
-                          "flex items-center h-full w-full",
+                          "flex min-h-full w-full items-center",
                           isCollapsed ? "justify-center" : "gap-4"
                         )}
                       >
@@ -158,7 +163,7 @@ export function AppSidebar() {
                         
                         {!isCollapsed && (
                           <span className={cn(
-                            "font-semibold text-sm tracking-wide",
+                            "max-w-[9.25rem] whitespace-normal break-words text-sm font-semibold leading-snug tracking-wide",
                             isActive ? "text-white" : ""
                           )}>
                             {item.title}

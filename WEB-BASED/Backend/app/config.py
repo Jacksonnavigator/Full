@@ -86,6 +86,13 @@ class Settings(BaseSettings):
 
     # ===== API Settings =====
     api_prefix: str = "/api"
+
+    # ===== Hydraulic Model Integration =====
+    hydraulic_model_base_url: str = Field(default="", alias="HYDRAULIC_MODEL_BASE_URL")
+    hydraulic_model_api_key: str = Field(default="", alias="HYDRAULIC_MODEL_API_KEY")
+    hydraulic_model_launch_secret: str = Field(default="", alias="HYDRAULIC_MODEL_LAUNCH_SECRET")
+    hydraulic_model_callback_secret: str = Field(default="", alias="HYDRAULIC_MODEL_CALLBACK_SECRET")
+    hydraulic_model_temp_ttl_hours: int = Field(default=24, alias="HYDRAULIC_MODEL_TEMP_TTL_HOURS")
     
     # ===== Server Settings =====
     host: str = Field(default="0.0.0.0", alias="HOST")
@@ -134,6 +141,7 @@ class Settings(BaseSettings):
     def normalize_runtime_fields(self) -> "Settings":
         self.environment = self.environment.strip().lower()
         self.public_backend_url = self.public_backend_url.rstrip("/")
+        self.hydraulic_model_base_url = self.hydraulic_model_base_url.rstrip("/")
         if self.environment == "production" and "frontend_url" not in self.__pydantic_fields_set__:
             self.frontend_url = ""
         if self.environment == "production":

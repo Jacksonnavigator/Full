@@ -46,6 +46,14 @@
       "namedRegex": "^/dashboard/reports/(?<nxtPreportId>[^/]+?)(?:/)?$"
     },
     {
+      "page": "/dashboard/teams/[teamId]",
+      "regex": "^/dashboard/teams/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPteamId": "nxtPteamId"
+      },
+      "namedRegex": "^/dashboard/teams/(?<nxtPteamId>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/dashboard/utilities/[utilityId]/edit",
       "regex": "^/dashboard/utilities/([^/]+?)/edit(?:/)?$",
       "routeKeys": {
@@ -156,10 +164,22 @@
       "namedRegex": "^/dashboard/engineers(?:/)?$"
     },
     {
+      "page": "/dashboard/hydraulic-model",
+      "regex": "^/dashboard/hydraulic\\-model(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/hydraulic\\-model(?:/)?$"
+    },
+    {
       "page": "/dashboard/location-routing",
       "regex": "^/dashboard/location\\-routing(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dashboard/location\\-routing(?:/)?$"
+    },
+    {
+      "page": "/dashboard/logs",
+      "regex": "^/dashboard/logs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/logs(?:/)?$"
     },
     {
       "page": "/dashboard/managers",

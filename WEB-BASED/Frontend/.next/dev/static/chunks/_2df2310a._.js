@@ -22,7 +22,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 // ============================================================
 // Environment variables loaded from .env.local
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
-const rawBackendUrl = ("TURBOPACK compile-time value", "https://majiscope.onrender.com") || "";
+const rawBackendUrl = ("TURBOPACK compile-time value", "http://localhost:8000") || "";
 const usingFallbackBackendUrl = !rawBackendUrl;
 const BACKEND_URL = (rawBackendUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 const BACKEND_API_PREFIX = '/api';
@@ -300,10 +300,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$
             }
         }
         // All retries failed
+        const wasAborted = lastError?.name === 'AbortError' || /operation was aborted|aborterror|aborted/i.test(lastError?.message || '');
         return {
             success: false,
             error: lastError?.message || 'Network request failed',
-            code: 'NETWORK_ERROR'
+            code: wasAborted ? 'ABORTED' : 'NETWORK_ERROR'
         };
     }
     /**
@@ -489,6 +490,10 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$
 ;
 ;
 ;
+function isAbortLikeError(error, code) {
+    const message = typeof error === "string" ? error : error instanceof Error ? error.message : error && typeof error === "object" && "message" in error ? String(error.message || "") : "";
+    return code === "ABORTED" || error instanceof DOMException && error.name === "AbortError" || /operation was aborted|aborterror|aborted/i.test(message);
+}
 function getUtilityInfrastructureAsset(utility, assetType) {
     return utility?.infrastructureLayers?.find((layer)=>layer.assetType === assetType) || null;
 }
@@ -626,11 +631,11 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                     set({
                         utilities: transformed
                     });
-                } else {
+                } else if (!isAbortLikeError(response.error, response.code)) {
                     console.error("Error fetching utilities:", response.error);
                 }
             } catch (error) {
-                console.error("Error fetching utilities:", error);
+                if (!isAbortLikeError(error)) console.error("Error fetching utilities:", error);
             }
         },
         // Fetch DMAs
@@ -643,11 +648,11 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                     set({
                         dmas: transformed
                     });
-                } else {
+                } else if (!isAbortLikeError(response.error, response.code)) {
                     console.error("Error fetching DMAs:", response.error);
                 }
             } catch (error) {
-                console.error("Error fetching DMAs:", error);
+                if (!isAbortLikeError(error)) console.error("Error fetching DMAs:", error);
             }
         },
         // Fetch engineers
@@ -729,7 +734,9 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                     const endpoint = `/reports?${params}`;
                     const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].get(endpoint);
                     if (!response.success || !response.data) {
-                        console.error("Error fetching reports for map:", response.error);
+                        if (!isAbortLikeError(response.error, response.code)) {
+                            console.error("Error fetching reports for map:", response.error);
+                        }
                         break;
                     }
                     if (page === 0 && typeof response.data.total === "number") {
@@ -806,11 +813,11 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                     set({
                         notifications: transformed
                     });
-                } else {
+                } else if (!isAbortLikeError(response.error, response.code)) {
                     console.error("Error fetching notifications:", response.error);
                 }
             } catch (error) {
-                console.error("Error fetching notifications:", error);
+                if (!isAbortLikeError(error)) console.error("Error fetching notifications:", error);
             }
         },
         // Get unread notification count
@@ -887,7 +894,9 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
             try {
                 const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].post("/dmas", data);
                 if (!response.success) throw new Error(response.error || "Failed to create DMA");
+                const createdDMA = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["transformKeys"])(response.data || {});
                 await get().fetchDMAs();
+                return createdDMA;
             } catch (error) {
                 console.error("Error creating DMA:", error);
                 throw error;
@@ -897,7 +906,9 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
             try {
                 const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["apiClient"].put(`/dmas/${id}`, data);
                 if (!response.success) throw new Error(response.error || "Failed to update DMA");
+                const updatedDMA = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["transformKeys"])(response.data || {});
                 await get().fetchDMAs();
+                return updatedDMA;
             } catch (error) {
                 console.error("Error updating DMA:", error);
                 throw error;
@@ -2456,6 +2467,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$scroll$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ScrollText$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/scroll-text.js [app-client] (ecmascript) <export default as ScrollText>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$route$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Route$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/route.js [app-client] (ecmascript) <export default as Route>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$network$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Network$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/network.js [app-client] (ecmascript) <export default as Network>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$gauge$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Gauge$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/gauge.js [app-client] (ecmascript) <export default as Gauge>");
 ;
 const NAV_ITEMS = [
     {
@@ -2483,6 +2495,16 @@ const NAV_ITEMS = [
         roles: [
             "admin",
             "utility_manager"
+        ]
+    },
+    {
+        title: "Run Hydraulic Model",
+        href: "/dashboard/hydraulic-model",
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$gauge$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Gauge$3e$__["Gauge"],
+        roles: [
+            "admin",
+            "utility_manager",
+            "dma_manager"
         ]
     },
     {
@@ -2578,8 +2600,7 @@ const NAV_ITEMS = [
         href: "/dashboard/logs",
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$scroll$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ScrollText$3e$__["ScrollText"],
         roles: [
-            "admin",
-            "utility_manager"
+            "admin"
         ]
     }
 ];
@@ -3234,7 +3255,7 @@ function AppSidebar() {
                                             asChild: true,
                                             isActive: isActive,
                                             tooltip: isMobile ? undefined : item.title,
-                                            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("relative transition-all duration-300 ease-out", isCollapsed ? "h-11 w-11 justify-center rounded-xl mx-auto" : "h-12 w-full rounded-xl justify-start px-4", isActive ? "bg-gradient-to-r from-sky-700 to-blue-700 text-white shadow-md shadow-slate-900/15 hover:from-sky-800 hover:to-blue-800 hover:shadow-lg hover:shadow-slate-900/20" : "text-slate-600 hover:text-slate-950 hover:bg-slate-300/55", "group overflow-hidden"),
+                                            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("relative transition-all duration-300 ease-out", isCollapsed ? "h-11 w-11 justify-center rounded-xl mx-auto" : "min-h-12 h-auto w-full rounded-xl justify-start px-4 py-2.5", isActive ? "bg-gradient-to-r from-sky-700 to-blue-700 text-white shadow-md shadow-slate-900/15 hover:from-sky-800 hover:to-blue-800 hover:shadow-lg hover:shadow-slate-900/20" : "text-slate-600 hover:text-slate-950 hover:bg-slate-300/55", "group overflow-hidden"),
                                             style: {
                                                 animationDelay: `${index * 50}ms`
                                             },
@@ -3243,7 +3264,7 @@ function AppSidebar() {
                                                 onClick: ()=>{
                                                     if (isMobile) setOpenMobile(false);
                                                 },
-                                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex items-center h-full w-full", isCollapsed ? "justify-center" : "gap-4"),
+                                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex min-h-full w-full items-center", isCollapsed ? "justify-center" : "gap-4"),
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "relative flex h-6 w-6 items-center justify-center",
@@ -3260,7 +3281,7 @@ function AppSidebar() {
                                                         columnNumber: 25
                                                     }, this),
                                                     !isCollapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("font-semibold text-sm tracking-wide", isActive ? "text-white" : ""),
+                                                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("max-w-[9.25rem] whitespace-normal break-words text-sm font-semibold leading-snug tracking-wide", isActive ? "text-white" : ""),
                                                         children: item.title
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/app-sidebar.tsx",

@@ -628,7 +628,7 @@ function UtilityFormPage({ mode, utilityId }) {
     const isUtilityManager = currentUser?.role === "utility_manager";
     const editingUtility = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "UtilityFormPage.useMemo[editingUtility]": ()=>mode === "edit" && utilityId ? utilities.find({
-                "UtilityFormPage.useMemo[editingUtility]": (utility)=>utility.id === utilityId
+                "UtilityFormPage.useMemo[editingUtility]": (utility)=>utility.id === utilityId || utility.slug === utilityId
             }["UtilityFormPage.useMemo[editingUtility]"]) ?? null : null
     }["UtilityFormPage.useMemo[editingUtility]"], [
         mode,
@@ -651,6 +651,9 @@ function UtilityFormPage({ mode, utilityId }) {
         "UtilityFormPage.useEffect": ()=>{
             if (mode === "edit") {
                 if (!editingUtility) return;
+                if (editingUtility.slug && utilityId !== editingUtility.slug) {
+                    router.replace(`/dashboard/utilities/${editingUtility.slug}/edit`);
+                }
                 const formKey = `edit:${editingUtility.id}`;
                 if (hydratedFormKeyRef.current === formKey) return;
                 hydratedFormKeyRef.current = formKey;
@@ -685,7 +688,9 @@ function UtilityFormPage({ mode, utilityId }) {
         }
     }["UtilityFormPage.useEffect"], [
         editingUtility,
-        mode
+        mode,
+        router,
+        utilityId
     ]);
     async function handleSubmit() {
         if (!formName.trim()) {
@@ -759,10 +764,11 @@ function UtilityFormPage({ mode, utilityId }) {
             }
             if (mode === "edit" && editingUtility) {
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Utility updated successfully");
+                router.replace(`/dashboard/utilities/${savedUtility.slug || savedUtility.id}/edit`);
             } else {
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Utility created successfully");
+                router.push(`/dashboard/utilities/${savedUtility.slug || savedUtility.id}/edit`);
             }
-            router.push("/dashboard/utilities");
         } catch (error) {
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error(error instanceof Error ? error.message : mode === "edit" ? "Failed to update utility" : "Failed to create utility");
         } finally{
@@ -813,19 +819,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                 className: "mr-2 h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 387,
+                                lineNumber: 394,
                                 columnNumber: 13
                             }, this),
                             "Back to Utilities"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 386,
+                        lineNumber: 393,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                    lineNumber: 385,
+                    lineNumber: 392,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -838,7 +844,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                 children: "Access Restricted"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 393,
+                                lineNumber: 400,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -846,24 +852,24 @@ function UtilityFormPage({ mode, utilityId }) {
                                 children: "Only admins and utility managers can edit utility details."
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 394,
+                                lineNumber: 401,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 392,
+                        lineNumber: 399,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                    lineNumber: 391,
+                    lineNumber: 398,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-            lineNumber: 384,
+            lineNumber: 391,
             columnNumber: 7
         }, this);
     }
@@ -882,19 +888,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                 className: "mr-2 h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 406,
+                                lineNumber: 413,
                                 columnNumber: 13
                             }, this),
                             "Back to Utilities"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 405,
+                        lineNumber: 412,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                    lineNumber: 404,
+                    lineNumber: 411,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -907,7 +913,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                 children: "Admin Action Required"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 412,
+                                lineNumber: 419,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -915,24 +921,24 @@ function UtilityFormPage({ mode, utilityId }) {
                                 children: "Only admins can create a new utility."
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 413,
+                                lineNumber: 420,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 411,
+                        lineNumber: 418,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                    lineNumber: 410,
+                    lineNumber: 417,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-            lineNumber: 403,
+            lineNumber: 410,
             columnNumber: 7
         }, this);
     }
@@ -951,19 +957,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                 className: "mr-2 h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 425,
+                                lineNumber: 432,
                                 columnNumber: 13
                             }, this),
                             "Back to Utilities"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 424,
+                        lineNumber: 431,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                    lineNumber: 423,
+                    lineNumber: 430,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -973,18 +979,18 @@ function UtilityFormPage({ mode, utilityId }) {
                         children: "Loading utility form..."
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 430,
+                        lineNumber: 437,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                    lineNumber: 429,
+                    lineNumber: 436,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-            lineNumber: 422,
+            lineNumber: 429,
             columnNumber: 7
         }, this);
     }
@@ -1003,19 +1009,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                 className: "mr-2 h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 441,
+                                lineNumber: 448,
                                 columnNumber: 13
                             }, this),
                             "Back to Utilities"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 440,
+                        lineNumber: 447,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                    lineNumber: 439,
+                    lineNumber: 446,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1028,7 +1034,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                 children: "Utility not found"
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 447,
+                                lineNumber: 454,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1036,24 +1042,24 @@ function UtilityFormPage({ mode, utilityId }) {
                                 children: "The utility you are trying to edit could not be loaded."
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 448,
+                                lineNumber: 455,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 446,
+                        lineNumber: 453,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                    lineNumber: 445,
+                    lineNumber: 452,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-            lineNumber: 438,
+            lineNumber: 445,
             columnNumber: 7
         }, this);
     }
@@ -1077,19 +1083,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                             className: "mr-2 h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 461,
+                                            lineNumber: 468,
                                             columnNumber: 15
                                         }, this),
                                         "Back to Utilities"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 460,
+                                    lineNumber: 467,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 459,
+                                lineNumber: 466,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1101,20 +1107,20 @@ function UtilityFormPage({ mode, utilityId }) {
                                                 className: "h-7 w-7 text-sky-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                lineNumber: 467,
+                                                lineNumber: 474,
                                                 columnNumber: 34
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$plus$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Plus$3e$__["Plus"], {
                                                 className: "h-7 w-7 text-sky-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                lineNumber: 467,
+                                                lineNumber: 474,
                                                 columnNumber: 80
                                             }, this),
                                             mode === "edit" ? "Edit Utility" : "Create Utility"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                        lineNumber: 466,
+                                        lineNumber: 473,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1122,19 +1128,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                         children: mode === "edit" ? "Update utility details, public contacts, service center, and boundary geometry." : "Create a utility with public contacts, a service center, and a reusable boundary geometry."
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                        lineNumber: 470,
+                                        lineNumber: 477,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 465,
+                                lineNumber: 472,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 458,
+                        lineNumber: 465,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1149,12 +1155,12 @@ function UtilityFormPage({ mode, utilityId }) {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 480,
+                                    lineNumber: 487,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 479,
+                                lineNumber: 486,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1166,32 +1172,32 @@ function UtilityFormPage({ mode, utilityId }) {
                                         className: "mr-2 h-4 w-4 animate-spin"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                        lineNumber: 488,
+                                        lineNumber: 495,
                                         columnNumber: 15
                                     }, this) : mode === "edit" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__["Save"], {
                                         className: "mr-2 h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                        lineNumber: 490,
+                                        lineNumber: 497,
                                         columnNumber: 15
                                     }, this) : null,
                                     mode === "edit" ? "Save Changes" : "Create Utility"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 482,
+                                lineNumber: 489,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 478,
+                        lineNumber: 485,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                lineNumber: 457,
+                lineNumber: 464,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1211,7 +1217,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                             children: "Utility Name"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 501,
+                                            lineNumber: 508,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1222,13 +1228,13 @@ function UtilityFormPage({ mode, utilityId }) {
                                             className: "h-12 rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 502,
+                                            lineNumber: 509,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 500,
+                                    lineNumber: 507,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1239,7 +1245,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                             children: "Region Authority"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 512,
+                                            lineNumber: 519,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1252,12 +1258,12 @@ function UtilityFormPage({ mode, utilityId }) {
                                                         placeholder: "Select utility region"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                        lineNumber: 515,
+                                                        lineNumber: 522,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 514,
+                                                    lineNumber: 521,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1269,7 +1275,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             children: "No region selected yet"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 518,
+                                                            lineNumber: 525,
                                                             columnNumber: 19
                                                         }, this),
                                                         TANZANIA_REGIONS.map((region)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1278,25 +1284,25 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                 children: region
                                                             }, region, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                lineNumber: 520,
+                                                                lineNumber: 527,
                                                                 columnNumber: 21
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 517,
+                                                    lineNumber: 524,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 513,
+                                            lineNumber: 520,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 511,
+                                    lineNumber: 518,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1308,7 +1314,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                             children: "Description"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 529,
+                                            lineNumber: 536,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -1320,13 +1326,13 @@ function UtilityFormPage({ mode, utilityId }) {
                                             className: "resize-none rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 530,
+                                            lineNumber: 537,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 528,
+                                    lineNumber: 535,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1341,7 +1347,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                     children: "Public Contact Phone"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 542,
+                                                    lineNumber: 549,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1351,7 +1357,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             className: "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 544,
+                                                            lineNumber: 551,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1362,19 +1368,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             className: "h-12 rounded-xl border-slate-200/80 bg-slate-50/80 pl-10 focus:border-cyan-400 focus:ring-cyan-400/20"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 545,
+                                                            lineNumber: 552,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 543,
+                                                    lineNumber: 550,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 541,
+                                            lineNumber: 548,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1386,7 +1392,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                     children: "Public Contact Email"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 555,
+                                                    lineNumber: 562,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1396,7 +1402,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             className: "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 557,
+                                                            lineNumber: 564,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1408,25 +1414,25 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             className: "h-12 rounded-xl border-slate-200/80 bg-slate-50/80 pl-10 focus:border-cyan-400 focus:ring-cyan-400/20"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 558,
+                                                            lineNumber: 565,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 556,
+                                                    lineNumber: 563,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 554,
+                                            lineNumber: 561,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 540,
+                                    lineNumber: 547,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1438,7 +1444,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                             children: "Public Contact Address"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 571,
+                                            lineNumber: 578,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -1450,13 +1456,13 @@ function UtilityFormPage({ mode, utilityId }) {
                                             className: "resize-none rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 572,
+                                            lineNumber: 579,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 570,
+                                    lineNumber: 577,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1475,13 +1481,13 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             children: "*"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 584,
+                                                            lineNumber: 591,
                                                             columnNumber: 121
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 584,
+                                                    lineNumber: 591,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1494,13 +1500,13 @@ function UtilityFormPage({ mode, utilityId }) {
                                                     className: "h-12 rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 585,
+                                                    lineNumber: 592,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 583,
+                                            lineNumber: 590,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1516,13 +1522,13 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             children: "*"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 596,
+                                                            lineNumber: 603,
                                                             columnNumber: 123
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 596,
+                                                    lineNumber: 603,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1535,19 +1541,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                                     className: "h-12 rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 597,
+                                                    lineNumber: 604,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 595,
+                                            lineNumber: 602,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 582,
+                                    lineNumber: 589,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1555,7 +1561,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                     children: "The center point represents the utility's primary operational city and is shown as the utility dot on the admin dashboard map."
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 608,
+                                    lineNumber: 615,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1572,7 +1578,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             children: "Official Areas of Service"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 615,
+                                                            lineNumber: 622,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1580,7 +1586,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             children: "Add the named areas officially served by this utility. They are kept under the selected utility region only."
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 616,
+                                                            lineNumber: 623,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1592,19 +1598,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                     children: formRegionName || "Select a region above first"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 620,
+                                                                    lineNumber: 627,
                                                                     columnNumber: 38
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 619,
+                                                            lineNumber: 626,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 614,
+                                                    lineNumber: 621,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1620,20 +1626,20 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 629,
+                                                            lineNumber: 636,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Add Area"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 623,
+                                                    lineNumber: 630,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 613,
+                                            lineNumber: 620,
                                             columnNumber: 15
                                         }, this),
                                         formServiceAreas.length ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1649,7 +1655,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                     children: "Category"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 642,
+                                                                    lineNumber: 649,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1663,12 +1669,12 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                             className: "h-11 rounded-xl border-slate-200/80 bg-slate-50/80",
                                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                                lineNumber: 656,
+                                                                                lineNumber: 663,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                            lineNumber: 655,
+                                                                            lineNumber: 662,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1679,24 +1685,24 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                                     children: category.label
                                                                                 }, category.value, false, {
                                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                                    lineNumber: 660,
+                                                                                    lineNumber: 667,
                                                                                     columnNumber: 31
                                                                                 }, this))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                            lineNumber: 658,
+                                                                            lineNumber: 665,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 643,
+                                                                    lineNumber: 650,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 641,
+                                                            lineNumber: 648,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1707,7 +1713,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                     children: "Area Name"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 669,
+                                                                    lineNumber: 676,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1720,13 +1726,13 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                     className: "h-11 rounded-xl border-slate-200/80 bg-slate-50/80 focus:border-cyan-400 focus:ring-cyan-400/20"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 670,
+                                                                    lineNumber: 677,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 668,
+                                                            lineNumber: 675,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1737,7 +1743,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                     children: "Region"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 685,
+                                                                    lineNumber: 692,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1745,13 +1751,13 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                     children: formRegionName || "Select region above"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 686,
+                                                                    lineNumber: 693,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 684,
+                                                            lineNumber: 691,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1765,177 +1771,52 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 698,
+                                                                    lineNumber: 705,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                lineNumber: 692,
+                                                                lineNumber: 699,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 691,
+                                                            lineNumber: 698,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, area.id, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 637,
+                                                    lineNumber: 644,
                                                     columnNumber: 21
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 635,
+                                            lineNumber: 642,
                                             columnNumber: 17
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500",
                                             children: "No official service areas added yet. Add at least the main served area when this information is available."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 705,
-                                            columnNumber: 17
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 612,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "space-y-4 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "space-y-3",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "space-y-1.5",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
-                                                            className: "text-sm font-medium text-slate-700",
-                                                            children: "Utility Boundary Geometry"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 714,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                            className: "text-xs text-slate-500",
-                                                            children: "Upload an optional GIS boundary file when the utility has official service polygons."
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 715,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                            className: "text-xs text-slate-500",
-                                                            children: "Supported upload formats: GeoPackage (.gpkg), GeoJSON (.geojson), or JSON (.json). Files may contain one or many polygons."
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 718,
-                                                            columnNumber: 19
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 713,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
-                                                    id: "utility-boundary-file",
-                                                    type: "file",
-                                                    accept: ".gpkg,.geojson,.json",
-                                                    className: "hidden",
-                                                    onChange: handleBoundaryFileUpload,
-                                                    disabled: isExtractingBoundary
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 722,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                    type: "button",
-                                                    variant: "outline",
-                                                    className: "rounded-xl",
-                                                    disabled: isExtractingBoundary,
-                                                    onClick: ()=>document.getElementById("utility-boundary-file")?.click(),
-                                                    children: [
-                                                        isExtractingBoundary ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
-                                                            className: "mr-2 h-4 w-4 animate-spin"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 738,
-                                                            columnNumber: 21
-                                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
-                                                            className: "mr-2 h-4 w-4"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 740,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        isExtractingBoundary ? "Extracting..." : "Upload Boundary File"
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 730,
-                                                    columnNumber: 17
-                                                }, this),
-                                                formBoundaryGeojson ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                    type: "button",
-                                                    variant: "outline",
-                                                    className: "ml-2 rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700",
-                                                    onClick: ()=>setFormBoundaryGeojson(null),
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
-                                                            className: "mr-2 h-4 w-4"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 751,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        "Clear Boundary"
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 745,
-                                                    columnNumber: 19
-                                                }, this) : null
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
                                             lineNumber: 712,
-                                            columnNumber: 15
-                                        }, this),
-                                        formBoundaryGeojson ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "rounded-2xl border border-cyan-200 bg-cyan-50/70 px-4 py-5 text-sm text-cyan-900",
-                                            children: "Uploaded utility boundary is ready for preview. Save the utility to use it for dashboard hierarchy and report routing."
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 758,
-                                            columnNumber: 17
-                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500",
-                                            children: "No utility boundary uploaded. The system will use the center point as a fallback marker, and admins can still route reports manually when needed."
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 762,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 711,
+                                    lineNumber: 619,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                            lineNumber: 499,
+                            lineNumber: 506,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 498,
+                        lineNumber: 505,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1953,7 +1834,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                 children: "Utility Status"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                lineNumber: 774,
+                                                lineNumber: 725,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1964,12 +1845,12 @@ function UtilityFormPage({ mode, utilityId }) {
                                                         className: "h-12 rounded-xl border-slate-200/80 bg-slate-50/80",
                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 777,
+                                                            lineNumber: 728,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                        lineNumber: 776,
+                                                        lineNumber: 727,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1985,19 +1866,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                             className: "h-4 w-4 text-emerald-500"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                            lineNumber: 782,
+                                                                            lineNumber: 733,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         "Active"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 781,
+                                                                    lineNumber: 732,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                lineNumber: 780,
+                                                                lineNumber: 731,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2010,47 +1891,47 @@ function UtilityFormPage({ mode, utilityId }) {
                                                                             className: "h-4 w-4 text-slate-400"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                            lineNumber: 788,
+                                                                            lineNumber: 739,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         "Inactive"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                    lineNumber: 787,
+                                                                    lineNumber: 738,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                                lineNumber: 786,
+                                                                lineNumber: 737,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                        lineNumber: 779,
+                                                        lineNumber: 730,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                lineNumber: 775,
+                                                lineNumber: 726,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                        lineNumber: 773,
+                                        lineNumber: 724,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 772,
+                                    lineNumber: 723,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 771,
+                                lineNumber: 722,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2065,7 +1946,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                     className: "h-4 w-4 text-cyan-600"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 801,
+                                                    lineNumber: 752,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2075,7 +1956,7 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             children: "Utility Spatial Preview"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 803,
+                                                            lineNumber: 754,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2083,19 +1964,19 @@ function UtilityFormPage({ mode, utilityId }) {
                                                             children: "Click the map to set the utility center and preview uploaded service boundaries."
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                            lineNumber: 804,
+                                                            lineNumber: 755,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                    lineNumber: 802,
+                                                    lineNumber: 753,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 800,
+                                            lineNumber: 751,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2112,41 +1993,182 @@ function UtilityFormPage({ mode, utilityId }) {
                                                 }
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                                lineNumber: 808,
+                                                lineNumber: 759,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                            lineNumber: 807,
+                                            lineNumber: 758,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                    lineNumber: 799,
+                                    lineNumber: 750,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                                lineNumber: 798,
+                                lineNumber: 749,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                                className: "border-slate-200/60 shadow-lg shadow-slate-200/20",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
+                                    className: "space-y-4 p-5",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "space-y-3",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "space-y-1.5",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
+                                                            className: "text-sm font-medium text-slate-700",
+                                                            children: "Utility Boundary Geometry"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                            lineNumber: 778,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-xs text-slate-500",
+                                                            children: "Upload an optional GIS boundary file when the utility has official service polygons."
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                            lineNumber: 779,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-xs text-slate-500",
+                                                            children: "Supported upload formats: GeoPackage (.gpkg), GeoJSON (.geojson), or JSON (.json). Files may contain one or many polygons."
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                            lineNumber: 782,
+                                                            columnNumber: 19
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                    lineNumber: 777,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                    id: "utility-boundary-file",
+                                                    type: "file",
+                                                    accept: ".gpkg,.geojson,.json",
+                                                    className: "hidden",
+                                                    onChange: handleBoundaryFileUpload,
+                                                    disabled: isExtractingBoundary
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                    lineNumber: 786,
+                                                    columnNumber: 17
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex flex-wrap gap-2",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                            type: "button",
+                                                            variant: "outline",
+                                                            className: "rounded-xl",
+                                                            disabled: isExtractingBoundary,
+                                                            onClick: ()=>document.getElementById("utility-boundary-file")?.click(),
+                                                            children: [
+                                                                isExtractingBoundary ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                                                    className: "mr-2 h-4 w-4 animate-spin"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                                    lineNumber: 803,
+                                                                    columnNumber: 23
+                                                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
+                                                                    className: "mr-2 h-4 w-4"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                                    lineNumber: 805,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                isExtractingBoundary ? "Extracting..." : "Upload Boundary File"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                            lineNumber: 795,
+                                                            columnNumber: 19
+                                                        }, this),
+                                                        formBoundaryGeojson ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                            type: "button",
+                                                            variant: "outline",
+                                                            className: "rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700",
+                                                            onClick: ()=>setFormBoundaryGeojson(null),
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                                                    className: "mr-2 h-4 w-4"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                                    lineNumber: 816,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                "Clear Boundary"
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                            lineNumber: 810,
+                                                            columnNumber: 21
+                                                        }, this) : null
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                                    lineNumber: 794,
+                                                    columnNumber: 17
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                            lineNumber: 776,
+                                            columnNumber: 15
+                                        }, this),
+                                        formBoundaryGeojson ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "rounded-2xl border border-cyan-200 bg-cyan-50/70 px-4 py-5 text-sm text-cyan-900",
+                                            children: "Uploaded utility boundary is ready for preview. Save the utility to use it for dashboard hierarchy and report routing."
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                            lineNumber: 824,
+                                            columnNumber: 17
+                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "rounded-2xl border border-dashed border-slate-200 bg-white/70 px-4 py-5 text-sm text-slate-500",
+                                            children: "No utility boundary uploaded. The system will use the center point as a fallback marker, and admins can still route reports manually when needed."
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                            lineNumber: 828,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                    lineNumber: 775,
+                                    columnNumber: 13
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
+                                lineNumber: 774,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                        lineNumber: 770,
+                        lineNumber: 721,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-                lineNumber: 497,
+                lineNumber: 504,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/_views/utility-form-page.tsx",
-        lineNumber: 456,
+        lineNumber: 463,
         columnNumber: 5
     }, this);
 }

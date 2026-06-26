@@ -16,6 +16,8 @@ import {
   Route,
   Network,
 } from "lucide-react"
+import type { ComponentType } from "react"
+import { HydraulicPumpIcon } from "@/components/icons/hydraulic-pump-icon"
 import type { UserRole, ReportStatus, ReportPriority, EntityStatus, LeakageType } from "./types"
 
 // ---------- Navigation ----------
@@ -23,7 +25,7 @@ import type { UserRole, ReportStatus, ReportPriority, EntityStatus, LeakageType 
 export interface NavItem {
   title: string
   href: string
-  icon: typeof LayoutDashboard
+  icon: ComponentType<{ className?: string }>
   roles: UserRole[] // which roles can see this item
   badge?: number
 }
@@ -46,6 +48,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/dashboard/utility-infrastructure",
     icon: Network,
     roles: ["admin", "utility_manager"],
+  },
+  {
+    title: "Run Hydraulic Model",
+    href: "/dashboard/hydraulic-model",
+    icon: HydraulicPumpIcon,
+    roles: ["admin", "utility_manager", "dma_manager"],
   },
   {
     title: "Utility Managers",

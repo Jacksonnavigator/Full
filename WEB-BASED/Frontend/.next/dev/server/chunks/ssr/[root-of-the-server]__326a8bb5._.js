@@ -39,7 +39,7 @@ __turbopack_context__.s([
 // ============================================================
 // Environment variables loaded from .env.local
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
-const rawBackendUrl = ("TURBOPACK compile-time value", "https://majiscope.onrender.com") || "";
+const rawBackendUrl = ("TURBOPACK compile-time value", "https://full-nfjr.onrender.com") || "";
 const usingFallbackBackendUrl = !rawBackendUrl;
 const BACKEND_URL = (rawBackendUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 const BACKEND_API_PREFIX = '/api';
@@ -310,10 +310,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$transform$2d$data$2e$
             }
         }
         // All retries failed
+        const wasAborted = lastError?.name === 'AbortError' || /operation was aborted|aborterror|aborted/i.test(lastError?.message || '');
         return {
             success: false,
             error: lastError?.message || 'Network request failed',
-            code: 'NETWORK_ERROR'
+            code: wasAborted ? 'ABORTED' : 'NETWORK_ERROR'
         };
     }
     /**

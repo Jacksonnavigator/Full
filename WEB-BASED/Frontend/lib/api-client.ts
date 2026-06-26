@@ -210,10 +210,14 @@ class ApiClient {
     }
 
     // All retries failed
+    const wasAborted =
+      lastError?.name === 'AbortError' ||
+      /operation was aborted|aborterror|aborted/i.test(lastError?.message || '');
+
     return {
       success: false,
       error: lastError?.message || 'Network request failed',
-      code: 'NETWORK_ERROR',
+      code: wasAborted ? 'ABORTED' : 'NETWORK_ERROR',
     };
   }
 

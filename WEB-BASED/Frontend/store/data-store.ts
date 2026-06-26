@@ -19,6 +19,23 @@ import type {
   UtilityServiceArea,
 } from "@/lib/types"
 
+function isAbortLikeError(error: unknown, code?: string) {
+  const message =
+    typeof error === "string"
+      ? error
+      : error instanceof Error
+        ? error.message
+        : error && typeof error === "object" && "message" in error
+          ? String((error as { message?: unknown }).message || "")
+          : ""
+
+  return (
+    code === "ABORTED" ||
+    error instanceof DOMException && error.name === "AbortError" ||
+    /operation was aborted|aborterror|aborted/i.test(message)
+  )
+}
+
 export interface GeoJsonPolygon {
   type: "Polygon"
   coordinates: number[][][]
@@ -389,11 +406,11 @@ export const useDataStore = create<DataState>((set, get) => ({
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
         set({ utilities: transformed })
-      } else {
+      } else if (!isAbortLikeError(response.error, response.code)) {
         console.error("Error fetching utilities:", response.error)
       }
     } catch (error) {
-      console.error("Error fetching utilities:", error)
+      if (!isAbortLikeError(error)) console.error("Error fetching utilities:", error)
     }
   },
 
@@ -405,11 +422,11 @@ export const useDataStore = create<DataState>((set, get) => ({
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
         set({ dmas: transformed })
-      } else {
+      } else if (!isAbortLikeError(response.error, response.code)) {
         console.error("Error fetching DMAs:", response.error)
       }
     } catch (error) {
-      console.error("Error fetching DMAs:", error)
+      if (!isAbortLikeError(error)) console.error("Error fetching DMAs:", error)
     }
   },
 
@@ -496,7 +513,9 @@ export const useDataStore = create<DataState>((set, get) => ({
         const endpoint = `/reports?${params}`
         const response = await apiClient.get<{ total?: number; items?: unknown[] }>(endpoint)
         if (!response.success || !response.data) {
-          console.error("Error fetching reports for map:", response.error)
+          if (!isAbortLikeError(response.error, response.code)) {
+            console.error("Error fetching reports for map:", response.error)
+          }
           break
         }
 
@@ -580,11 +599,11 @@ export const useDataStore = create<DataState>((set, get) => ({
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map((item: Record<string, any>) => normalizeNotification(item))
         set({ notifications: transformed })
-      } else {
+      } else if (!isAbortLikeError(response.error, response.code)) {
         console.error("Error fetching notifications:", response.error)
       }
     } catch (error) {
-      console.error("Error fetching notifications:", error)
+      if (!isAbortLikeError(error)) console.error("Error fetching notifications:", error)
     }
   },
 

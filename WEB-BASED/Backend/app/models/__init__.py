@@ -20,6 +20,9 @@ from app.models.user import (
 from app.models.business import (
     Report,
     ActivityLog,
+    HydraulicLaunchStatusEnum,
+    HydraulicModelLaunchSession,
+    HydraulicSimulationSnapshot,
     Notification,
     PushDeviceToken,
     ReportStatusEnum,
@@ -47,6 +50,9 @@ __all__ = [
     # Business models
     "Report",
     "ActivityLog",
+    "HydraulicLaunchStatusEnum",
+    "HydraulicModelLaunchSession",
+    "HydraulicSimulationSnapshot",
     "Notification",
     "PushDeviceToken",
     # Upload models
