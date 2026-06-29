@@ -69,19 +69,60 @@ class HydraulicSimulationSnapshotCreate(BaseModel):
     nodes_geojson: Optional[dict[str, Any]] = None
     pipes_geojson: Optional[dict[str, Any]] = None
     hotspots_geojson: Optional[dict[str, Any]] = None
+    completed_at: Optional[datetime] = None
+    execution_duration_seconds: Optional[float] = Field(None, ge=0)
+    snapshot_version: int = Field(1, ge=1)
+    result_quality: Optional[str] = None
+    error_message: Optional[str] = None
 
 
 class HydraulicSimulationSnapshotResponse(BaseModel):
     id: str
+    report_reference: Optional[str]
     launch_session_id: Optional[str]
-    utility_id: str
-    dma_id: str
+    utility_id: Optional[str]
+    dma_id: Optional[str]
     hydraulic_scenario_id: Optional[str]
     scenario_name: Optional[str]
     scenario_status: Optional[str]
     created_by_user_id: Optional[str]
     created_by_role: Optional[str]
+    created_by_name: Optional[str]
+    created_by_email: Optional[str]
+    utility_name: Optional[str]
+    dma_name: Optional[str]
+    completed_at: Optional[datetime]
+    execution_duration_seconds: Optional[float]
+    snapshot_version: int
+    result_quality: Optional[str]
+    error_message: Optional[str]
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class HydraulicSimulationSnapshotListItem(HydraulicSimulationSnapshotResponse):
+    pressure_min_m: Optional[float] = None
+    pressure_avg_m: Optional[float] = None
+    nrw_pct: Optional[float] = None
+    alert_count: int = 0
+
+
+class HydraulicSimulationSnapshotListResponse(BaseModel):
+    total: int
+    page: int
+    page_size: int
+    pages: int
+    items: list[HydraulicSimulationSnapshotListItem] = Field(default_factory=list)
+
+
+class HydraulicSimulationSnapshotDetail(HydraulicSimulationSnapshotResponse):
+    input_parameters_json: Optional[dict[str, Any]] = None
+    summary_json: Optional[dict[str, Any]] = None
+    nrw_json: Optional[dict[str, Any]] = None
+    leakage_json: Optional[dict[str, Any]] = None
+    alerts_json: Optional[dict[str, Any]] = None
+    nodes_geojson: Optional[dict[str, Any]] = None
+    pipes_geojson: Optional[dict[str, Any]] = None
+    hotspots_geojson: Optional[dict[str, Any]] = None

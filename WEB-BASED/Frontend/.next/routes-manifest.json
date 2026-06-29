@@ -38,6 +38,14 @@
       "namedRegex": "^/dashboard/dmas/(?<nxtPdmaId>[^/]+?)/edit(?:/)?$"
     },
     {
+      "page": "/dashboard/hydraulic-reports/[snapshotId]",
+      "regex": "^/dashboard/hydraulic\\-reports/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPsnapshotId": "nxtPsnapshotId"
+      },
+      "namedRegex": "^/dashboard/hydraulic\\-reports/(?<nxtPsnapshotId>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/dashboard/reports/[reportId]",
       "regex": "^/dashboard/reports/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -168,6 +176,12 @@
       "regex": "^/dashboard/hydraulic\\-model(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dashboard/hydraulic\\-model(?:/)?$"
+    },
+    {
+      "page": "/dashboard/hydraulic-reports",
+      "regex": "^/dashboard/hydraulic\\-reports(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/hydraulic\\-reports(?:/)?$"
     },
     {
       "page": "/dashboard/location-routing",

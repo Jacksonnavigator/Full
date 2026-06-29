@@ -81,6 +81,7 @@ def run_safe_startup_migrations(engine: Engine) -> None:
     _migrate_dma_boundary_columns(engine)
     _migrate_utility_infrastructure_layer_table(engine)
     _migrate_hydraulic_model_tables(engine)
+    _migrate_hydraulic_snapshot_report_columns(engine)
     _drop_legacy_utility_pipe_network_table(engine)
 
 
@@ -1076,6 +1077,95 @@ def _migrate_hydraulic_model_tables(engine: Engine) -> None:
     with engine.begin() as connection:
         for statement in index_statements:
             if is_postgres:
+                _run_postgres_ddl_without_timeout(connection, statement, required=False)
+            else:
+                connection.exec_driver_sql(statement)
+
+
+def _migrate_hydraulic_snapshot_report_columns(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "hydraulic_simulation_snapshot" not in inspector.get_table_names():
+        return
+
+    column_metadata = {column["name"]: column for column in inspector.get_columns("hydraulic_simulation_snapshot")}
+    existing = set(column_metadata)
+    foreign_keys = inspector.get_foreign_keys("hydraulic_simulation_snapshot")
+    definitions = {
+        "report_reference": "VARCHAR(40)",
+        "utility_name": "VARCHAR(255)",
+        "dma_name": "VARCHAR(255)",
+        "created_by_name": "VARCHAR(255)",
+        "created_by_email": "VARCHAR(255)",
+        "completed_at": "TIMESTAMP",
+        "execution_duration_seconds": "FLOAT",
+        "snapshot_version": "INTEGER DEFAULT 1 NOT NULL",
+        "result_quality": "VARCHAR(32)",
+        "error_message": "TEXT",
+    }
+    with engine.begin() as connection:
+        for column, definition in definitions.items():
+            if column in existing:
+                continue
+            statement = f'ALTER TABLE hydraulic_simulation_snapshot ADD COLUMN {column} {definition}'
+            if engine.dialect.name.startswith("postgresql"):
+                _run_postgres_ddl_without_timeout(connection, statement, required=False)
+            else:
+                connection.exec_driver_sql(statement)
+
+        if engine.dialect.name.startswith("postgresql"):
+            for column in ("utility_id", "dma_id"):
+                if column_metadata.get(column, {}).get("nullable") is False:
+                    _run_postgres_ddl_without_timeout(
+                        connection,
+                        f"ALTER TABLE hydraulic_simulation_snapshot ALTER COLUMN {column} DROP NOT NULL",
+                        required=False,
+                    )
+            for column, target in (("utility_id", "utility"), ("dma_id", "dma")):
+                foreign_key = next((item for item in foreign_keys if item.get("constrained_columns") == [column]), None)
+                ondelete = str((foreign_key or {}).get("options", {}).get("ondelete", "")).upper()
+                if foreign_key and ondelete != "SET NULL" and foreign_key.get("name"):
+                    constraint_name = str(foreign_key["name"]).replace('"', '""')
+                    _run_postgres_ddl_without_timeout(
+                        connection,
+                        f'ALTER TABLE hydraulic_simulation_snapshot DROP CONSTRAINT "{constraint_name}", '
+                        f'ADD CONSTRAINT "{constraint_name}" FOREIGN KEY ({column}) REFERENCES {target}(id) ON DELETE SET NULL',
+                        required=False,
+                    )
+
+        connection.exec_driver_sql(
+            "UPDATE hydraulic_simulation_snapshot SET snapshot_version = 1 WHERE snapshot_version IS NULL"
+        )
+        if engine.dialect.name.startswith("postgresql"):
+            connection.exec_driver_sql(
+                """
+                UPDATE hydraulic_simulation_snapshot snapshot
+                SET utility_name = COALESCE(snapshot.utility_name, utility.name),
+                    dma_name = COALESCE(snapshot.dma_name, dma.name),
+                    completed_at = COALESCE(snapshot.completed_at, snapshot.created_at),
+                    report_reference = COALESCE(snapshot.report_reference, 'HYD-' || UPPER(LEFT(REPLACE(snapshot.id, '-', ''), 12)))
+                FROM utility, dma
+                WHERE snapshot.utility_id = utility.id AND snapshot.dma_id = dma.id
+                """
+            )
+        else:
+            connection.exec_driver_sql(
+                """
+                UPDATE hydraulic_simulation_snapshot
+                SET utility_name = COALESCE(utility_name, (SELECT name FROM utility WHERE id = utility_id)),
+                    dma_name = COALESCE(dma_name, (SELECT name FROM dma WHERE id = dma_id)),
+                    completed_at = COALESCE(completed_at, created_at),
+                    report_reference = COALESCE(report_reference, 'HYD-' || UPPER(SUBSTR(REPLACE(id, '-', ''), 1, 12)))
+                """
+            )
+
+        indexes = [
+            "CREATE UNIQUE INDEX IF NOT EXISTS ux_hydraulic_snapshot_reference ON hydraulic_simulation_snapshot (report_reference)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS ux_hydraulic_snapshot_run ON hydraulic_simulation_snapshot (launch_session_id, hydraulic_scenario_id)",
+            "CREATE INDEX IF NOT EXISTS ix_hydraulic_snapshot_status ON hydraulic_simulation_snapshot (scenario_status)",
+            "CREATE INDEX IF NOT EXISTS ix_hydraulic_snapshot_completed_at ON hydraulic_simulation_snapshot (completed_at)",
+        ]
+        for statement in indexes:
+            if engine.dialect.name.startswith("postgresql"):
                 _run_postgres_ddl_without_timeout(connection, statement, required=False)
             else:
                 connection.exec_driver_sql(statement)

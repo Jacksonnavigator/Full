@@ -13,7 +13,8 @@ from urllib.parse import urlencode
 from typing import Optional
 
 import httpx
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from app.config import settings
@@ -33,9 +34,13 @@ from app.schemas.hydraulic_model import (
     HydraulicModelReadinessResponse,
     HydraulicModelRequirementStatus,
     HydraulicSimulationSnapshotCreate,
+    HydraulicSimulationSnapshotDetail,
+    HydraulicSimulationSnapshotListItem,
+    HydraulicSimulationSnapshotListResponse,
     HydraulicSimulationSnapshotResponse,
 )
-from app.security.dependencies import CurrentUser, get_current_user, require_admin
+from app.security.dependencies import CurrentUser, get_current_user
+from app.models.user import DMAManager, UtilityManager, User
 from app.services.activity_logs import audit_log
 
 
@@ -600,6 +605,95 @@ def prepare_hydraulic_model(
     )
 
 
+def _snapshot_reference() -> str:
+    return f"HYD-{datetime.utcnow():%Y%m%d}-{secrets.token_hex(4).upper()}"
+
+
+def _snapshot_actor(launch_session: Optional[HydraulicModelLaunchSession], db: Session) -> tuple[Optional[str], Optional[str]]:
+    if not launch_session:
+        return None, None
+    actor = None
+    if launch_session.user_id:
+        actor = db.query(User).filter(User.id == launch_session.user_id).first()
+    elif launch_session.utility_mgr_id:
+        actor = db.query(UtilityManager).filter(UtilityManager.id == launch_session.utility_mgr_id).first()
+    elif launch_session.dma_mgr_id:
+        actor = db.query(DMAManager).filter(DMAManager.id == launch_session.dma_mgr_id).first()
+    return (
+        getattr(actor, "name", None) or launch_session.user_name,
+        getattr(actor, "email", None) or (launch_session.user_name if "@" in launch_session.user_name else None),
+    )
+
+
+def _snapshot_actor_id(launch_session: Optional[HydraulicModelLaunchSession]) -> Optional[str]:
+    if not launch_session:
+        return None
+    return launch_session.user_id or launch_session.utility_mgr_id or launch_session.dma_mgr_id or launch_session.engineer_id
+
+
+def _elapsed_seconds(started_at: datetime, completed_at: datetime) -> float:
+    if (started_at.tzinfo is None) != (completed_at.tzinfo is None):
+        started_at = started_at.replace(tzinfo=None)
+        completed_at = completed_at.replace(tzinfo=None)
+    return max(0.0, (completed_at - started_at).total_seconds())
+
+
+def _scope_snapshot_query(query, current_user: CurrentUser):
+    if current_user.user_type == "user":
+        return query
+    if current_user.user_type == "utility_manager" and current_user.utility_id:
+        return query.filter(HydraulicSimulationSnapshot.utility_id == current_user.utility_id)
+    if current_user.user_type == "dma_manager" and current_user.dma_id:
+        return query.filter(HydraulicSimulationSnapshot.dma_id == current_user.dma_id)
+    return query.filter(HydraulicSimulationSnapshot.id == "__no_access__")
+
+
+def _snapshot_common(snapshot: HydraulicSimulationSnapshot, db: Session) -> dict:
+    utility_name = snapshot.utility_name
+    dma_name = snapshot.dma_name
+    if not utility_name and snapshot.utility_id:
+        utility = db.query(Utility).filter(Utility.id == snapshot.utility_id).first()
+        utility_name = utility.name if utility else None
+    if not dma_name and snapshot.dma_id:
+        dma = db.query(DMA).filter(DMA.id == snapshot.dma_id).first()
+        dma_name = dma.name if dma else None
+    return {
+        "id": snapshot.id,
+        "report_reference": snapshot.report_reference,
+        "launch_session_id": snapshot.launch_session_id,
+        "utility_id": snapshot.utility_id,
+        "dma_id": snapshot.dma_id,
+        "utility_name": utility_name,
+        "dma_name": dma_name,
+        "hydraulic_scenario_id": snapshot.hydraulic_scenario_id,
+        "scenario_name": snapshot.scenario_name,
+        "scenario_status": snapshot.scenario_status,
+        "created_by_user_id": snapshot.created_by_user_id,
+        "created_by_role": snapshot.created_by_role,
+        "created_by_name": snapshot.created_by_name,
+        "created_by_email": snapshot.created_by_email,
+        "completed_at": snapshot.completed_at,
+        "execution_duration_seconds": snapshot.execution_duration_seconds,
+        "snapshot_version": snapshot.snapshot_version or 1,
+        "result_quality": snapshot.result_quality,
+        "error_message": snapshot.error_message,
+        "created_at": snapshot.created_at,
+    }
+
+
+def _snapshot_list_item(snapshot: HydraulicSimulationSnapshot, db: Session) -> HydraulicSimulationSnapshotListItem:
+    summary = snapshot.summary_json or {}
+    nrw = snapshot.nrw_json or ((snapshot.leakage_json or {}).get("nrw") or {})
+    warnings = (snapshot.alerts_json or {}).get("warnings") or []
+    return HydraulicSimulationSnapshotListItem(
+        **_snapshot_common(snapshot, db),
+        pressure_min_m=summary.get("pressure_min_m"),
+        pressure_avg_m=summary.get("pressure_avg_m"),
+        nrw_pct=nrw.get("nrw_pct"),
+        alert_count=len(warnings),
+    )
+
+
 @hydraulic_model_router.post("/snapshots", response_model=HydraulicSimulationSnapshotResponse)
 def create_hydraulic_simulation_snapshot(
     payload: HydraulicSimulationSnapshotCreate,
@@ -619,29 +713,69 @@ def create_hydraulic_simulation_snapshot(
             .first()
         )
 
-    snapshot = HydraulicSimulationSnapshot(
-        launch_session_id=payload.launch_session_id,
-        utility_id=payload.utility_id,
-        dma_id=payload.dma_id,
-        hydraulic_scenario_id=payload.hydraulic_scenario_id,
-        scenario_name=payload.scenario_name,
-        scenario_status=payload.scenario_status,
-        input_parameters_json=payload.input_parameters_json,
-        summary_json=payload.summary_json,
-        nrw_json=payload.nrw_json,
-        leakage_json=payload.leakage_json,
-        alerts_json=payload.alerts_json,
-        nodes_geojson=payload.nodes_geojson,
-        pipes_geojson=payload.pipes_geojson,
-        hotspots_geojson=payload.hotspots_geojson,
-        created_by_user_id=launch_session.user_id if launch_session else None,
-        created_by_role=launch_session.user_role if launch_session else None,
+        if not launch_session:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hydraulic launch session was not found")
+        if launch_session.utility_id != payload.utility_id or launch_session.dma_id != payload.dma_id:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Snapshot scope does not match its launch session")
+
+    utility = db.query(Utility).filter(Utility.id == payload.utility_id).first()
+    dma = db.query(DMA).filter(DMA.id == payload.dma_id).first()
+    if not utility or not dma or dma.utility_id != utility.id:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Snapshot utility or DMA scope is invalid")
+
+    snapshot = None
+    if payload.launch_session_id and payload.hydraulic_scenario_id:
+        snapshot = db.query(HydraulicSimulationSnapshot).filter(
+            HydraulicSimulationSnapshot.launch_session_id == payload.launch_session_id,
+            HydraulicSimulationSnapshot.hydraulic_scenario_id == payload.hydraulic_scenario_id,
+        ).first()
+
+    actor_name, actor_email = _snapshot_actor(launch_session, db)
+    completed_at = payload.completed_at or datetime.utcnow()
+    execution_duration = payload.execution_duration_seconds
+    if execution_duration is None and launch_session and launch_session.created_at:
+        execution_duration = _elapsed_seconds(launch_session.created_at, completed_at)
+    result_quality = payload.result_quality or (
+        "failed" if (payload.scenario_status or "").upper() == "FAILED"
+        else "complete" if payload.summary_json else "partial"
     )
-    db.add(snapshot)
+
+    if snapshot is None:
+        snapshot = HydraulicSimulationSnapshot(
+            report_reference=_snapshot_reference(),
+            launch_session_id=payload.launch_session_id,
+            hydraulic_scenario_id=payload.hydraulic_scenario_id,
+        )
+        db.add(snapshot)
+
+    snapshot.utility_id = payload.utility_id
+    snapshot.dma_id = payload.dma_id
+    snapshot.utility_name = utility.name
+    snapshot.dma_name = dma.name
+    snapshot.scenario_name = payload.scenario_name
+    snapshot.scenario_status = payload.scenario_status
+    snapshot.input_parameters_json = payload.input_parameters_json
+    snapshot.summary_json = payload.summary_json
+    snapshot.nrw_json = payload.nrw_json
+    snapshot.leakage_json = payload.leakage_json
+    snapshot.alerts_json = payload.alerts_json
+    snapshot.nodes_geojson = payload.nodes_geojson
+    snapshot.pipes_geojson = payload.pipes_geojson
+    snapshot.hotspots_geojson = payload.hotspots_geojson
+    snapshot.created_by_user_id = _snapshot_actor_id(launch_session)
+    snapshot.created_by_role = launch_session.user_role if launch_session else None
+    snapshot.created_by_name = actor_name
+    snapshot.created_by_email = actor_email
+    snapshot.completed_at = completed_at
+    snapshot.execution_duration_seconds = execution_duration
+    snapshot.snapshot_version = payload.snapshot_version
+    snapshot.result_quality = result_quality
+    snapshot.error_message = payload.error_message
 
     if launch_session:
-        launch_session.status = "completed"
+        launch_session.status = "failed" if (payload.scenario_status or "").upper() == "FAILED" else "completed"
         launch_session.completed_at = datetime.utcnow()
+        launch_session.error_message = payload.error_message
 
     db.commit()
     db.refresh(snapshot)
@@ -673,19 +807,81 @@ def create_hydraulic_simulation_snapshot(
     return snapshot
 
 
-@hydraulic_model_router.get("/snapshots", response_model=list[HydraulicSimulationSnapshotResponse])
+@hydraulic_model_router.get("/snapshots", response_model=HydraulicSimulationSnapshotListResponse)
 def list_hydraulic_simulation_snapshots(
-    utility_id: Optional[str] = None,
-    dma_id: Optional[str] = None,
-    current_user: CurrentUser = Depends(require_admin),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(25, ge=10, le=100),
+    utility_id: Optional[str] = Query(None),
+    dma_id: Optional[str] = Query(None),
+    scenario_status: Optional[str] = Query(None),
+    runner_id: Optional[str] = Query(None),
+    search: Optional[str] = Query(None, max_length=120),
+    date_from: Optional[datetime] = Query(None),
+    date_to: Optional[datetime] = Query(None),
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(HydraulicSimulationSnapshot)
+    query = _scope_snapshot_query(db.query(HydraulicSimulationSnapshot), current_user)
     if utility_id:
         query = query.filter(HydraulicSimulationSnapshot.utility_id == utility_id)
     if dma_id:
         query = query.filter(HydraulicSimulationSnapshot.dma_id == dma_id)
-    return query.order_by(HydraulicSimulationSnapshot.created_at.desc()).limit(200).all()
+    if scenario_status:
+        query = query.filter(func.lower(HydraulicSimulationSnapshot.scenario_status) == scenario_status.lower())
+    if runner_id:
+        query = query.filter(HydraulicSimulationSnapshot.created_by_user_id == runner_id)
+    if date_from:
+        query = query.filter(HydraulicSimulationSnapshot.completed_at >= date_from)
+    if date_to:
+        query = query.filter(HydraulicSimulationSnapshot.completed_at <= date_to)
+    if search and search.strip():
+        pattern = f"%{search.strip()}%"
+        query = query.filter(or_(
+            HydraulicSimulationSnapshot.report_reference.ilike(pattern),
+            HydraulicSimulationSnapshot.scenario_name.ilike(pattern),
+            HydraulicSimulationSnapshot.utility_name.ilike(pattern),
+            HydraulicSimulationSnapshot.dma_name.ilike(pattern),
+            HydraulicSimulationSnapshot.created_by_name.ilike(pattern),
+        ))
+    total = query.count()
+    rows = query.order_by(
+        HydraulicSimulationSnapshot.completed_at.desc().nullslast(),
+        HydraulicSimulationSnapshot.created_at.desc(),
+    ).offset((page - 1) * page_size).limit(page_size).all()
+    return HydraulicSimulationSnapshotListResponse(
+        total=total,
+        page=page,
+        page_size=page_size,
+        pages=max(1, (total + page_size - 1) // page_size),
+        items=[_snapshot_list_item(row, db) for row in rows],
+    )
+
+
+@hydraulic_model_router.get("/snapshots/{snapshot_id}", response_model=HydraulicSimulationSnapshotDetail)
+def get_hydraulic_simulation_snapshot(
+    snapshot_id: str,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    snapshot = _scope_snapshot_query(db.query(HydraulicSimulationSnapshot), current_user).filter(
+        or_(
+            HydraulicSimulationSnapshot.id == snapshot_id,
+            HydraulicSimulationSnapshot.report_reference == snapshot_id,
+        )
+    ).first()
+    if not snapshot:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hydraulic model report was not found")
+    return HydraulicSimulationSnapshotDetail(
+        **_snapshot_common(snapshot, db),
+        input_parameters_json=snapshot.input_parameters_json,
+        summary_json=snapshot.summary_json,
+        nrw_json=snapshot.nrw_json,
+        leakage_json=snapshot.leakage_json,
+        alerts_json=snapshot.alerts_json,
+        nodes_geojson=snapshot.nodes_geojson,
+        pipes_geojson=snapshot.pipes_geojson,
+        hotspots_geojson=snapshot.hotspots_geojson,
+    )
 
 
 @hydraulic_model_router.post("/sessions/{session_id}/cleanup")

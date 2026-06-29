@@ -9,16 +9,33 @@
 // ============================================================
 // API Base URL Configuration
 // ============================================================
-// Environment variables loaded from .env.local
+// Environment variables are embedded by Next.js during the frontend build.
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
+const DEFAULT_PRODUCTION_BACKEND_URL = "https://full-nfjr.onrender.com";
 const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
-const usingFallbackBackendUrl = !rawBackendUrl;
-const BACKEND_URL = (rawBackendUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 const BACKEND_API_PREFIX = '/api';
+
+const normalizedConfiguredBackendUrl = rawBackendUrl.replace(/\/+$/, "");
+const configuredBackendIsLoopback = /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?$/i.test(
+  normalizedConfiguredBackendUrl
+);
+const configuredBackendIsFrontend = /https:\/\/(majiscope|majiscope-2wzv)\.onrender\.com$/i.test(
+  normalizedConfiguredBackendUrl
+);
+const productionConfigurationIsUnsafe =
+  process.env.NODE_ENV === "production" &&
+  (!normalizedConfiguredBackendUrl || configuredBackendIsLoopback || configuredBackendIsFrontend);
+
+const usingFallbackBackendUrl = !normalizedConfiguredBackendUrl || productionConfigurationIsUnsafe;
+const BACKEND_URL = (
+  productionConfigurationIsUnsafe
+    ? DEFAULT_PRODUCTION_BACKEND_URL
+    : normalizedConfiguredBackendUrl || DEFAULT_BACKEND_URL
+).replace(/\/+$/, "");
 
 const isLoopbackBackendUrl = /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?$/i.test(BACKEND_URL);
 
-if (usingFallbackBackendUrl) {
+if (!rawBackendUrl) {
   console.warn(
     `[FrontendConfig] NEXT_PUBLIC_BACKEND_URL is not set. Falling back to ${BACKEND_URL}.`
   );
@@ -27,8 +44,13 @@ if (usingFallbackBackendUrl) {
   );
 }
 
-if (usingFallbackBackendUrl && process.env.NODE_ENV === "production") {
-  throw new Error("[FrontendConfig] NEXT_PUBLIC_BACKEND_URL must be set in production.");
+if (productionConfigurationIsUnsafe) {
+  console.warn(
+    `[FrontendConfig] Ignoring an unsafe production backend URL and using ${DEFAULT_PRODUCTION_BACKEND_URL}.`
+  );
+  console.warn(
+    "[FrontendConfig] Set NEXT_PUBLIC_BACKEND_URL in the Render frontend service to the deployed backend origin."
+  );
 }
 
 function normalizeBackendOrigin(candidate: string): string | null {

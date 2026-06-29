@@ -46,6 +46,11 @@ const PAGE_ACCESS_MAP = {
         'utility_manager',
         'dma_manager'
     ],
+    '/hydraulic-reports': [
+        'admin',
+        'utility_manager',
+        'dma_manager'
+    ],
     // Utility Managers - admin only (admin can create/edit)
     '/managers': [
         'admin',
@@ -101,7 +106,8 @@ const PAGE_ACCESS_MAP = {
     ]
 };
 function canAccessPage(pagePath, userRole) {
-    const allowedRoles = PAGE_ACCESS_MAP[pagePath] || PAGE_ACCESS_MAP[''];
+    const matchedPath = Object.keys(PAGE_ACCESS_MAP).filter((path)=>path && path !== '/' && (pagePath === path || pagePath.startsWith(`${path}/`))).sort((a, b)=>b.length - a.length)[0];
+    const allowedRoles = PAGE_ACCESS_MAP[pagePath] || (matchedPath ? PAGE_ACCESS_MAP[matchedPath] : PAGE_ACCESS_MAP['']);
     return allowedRoles.includes(userRole);
 }
 function getDefaultDashboardPage(userRole) {

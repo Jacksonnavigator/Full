@@ -29,7 +29,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { BrandWordmark } from "@/components/shared/brand-wordmark"
 
-const HYDRAULIC_MODEL_TEST_ADMIN_EMAIL = "admin2@hydranet.com"
+const HYDRAULIC_TESTER_EMAIL = "admin2@hydranet.com"
+const HYDRAULIC_NAV_ROUTES = new Set([
+  "/dashboard/hydraulic-model",
+  "/dashboard/hydraulic-reports",
+])
 
 export function AppSidebar() {
   const pathname = usePathname()
@@ -39,11 +43,11 @@ export function AppSidebar() {
 
   if (!currentUser) return null
 
+  const isHydraulicTester = currentUser.email?.trim().toLowerCase() === HYDRAULIC_TESTER_EMAIL
   const visibleItems = NAV_ITEMS.filter((item) => {
     if (!item.roles.includes(currentUser.role)) return false
-    if (item.href !== "/dashboard/hydraulic-model") return true
-
-    return currentUser.email.toLowerCase() === HYDRAULIC_MODEL_TEST_ADMIN_EMAIL
+    if (HYDRAULIC_NAV_ROUTES.has(item.href)) return isHydraulicTester
+    return true
   })
 
   const initials = currentUser.name

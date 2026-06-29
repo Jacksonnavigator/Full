@@ -188,10 +188,17 @@ class HydraulicSimulationSnapshot(Base):
 
     __tablename__ = "hydraulic_simulation_snapshot"
 
+    __table_args__ = (
+        UniqueConstraint("launch_session_id", "hydraulic_scenario_id", name="uq_hydraulic_snapshot_run"),
+    )
+
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     launch_session_id = Column(String(36), ForeignKey("hydraulic_model_launch_session.id", ondelete="SET NULL"), nullable=True, index=True)
-    utility_id = Column(String(36), ForeignKey("utility.id", ondelete="CASCADE"), nullable=False, index=True)
-    dma_id = Column(String(36), ForeignKey("dma.id", ondelete="CASCADE"), nullable=False, index=True)
+    report_reference = Column(String(40), nullable=True, unique=True, index=True)
+    utility_id = Column(String(36), ForeignKey("utility.id", ondelete="SET NULL"), nullable=True, index=True)
+    dma_id = Column(String(36), ForeignKey("dma.id", ondelete="SET NULL"), nullable=True, index=True)
+    utility_name = Column(String(255), nullable=True)
+    dma_name = Column(String(255), nullable=True)
     hydraulic_scenario_id = Column(String(100), nullable=True, index=True)
     scenario_name = Column(String(255), nullable=True)
     scenario_status = Column(String(32), nullable=True, index=True)
@@ -205,6 +212,13 @@ class HydraulicSimulationSnapshot(Base):
     hotspots_geojson = Column(JSON, nullable=True)
     created_by_user_id = Column(String(36), nullable=True, index=True)
     created_by_role = Column(String(50), nullable=True)
+    created_by_name = Column(String(255), nullable=True)
+    created_by_email = Column(String(255), nullable=True)
+    completed_at = Column(DateTime, nullable=True, index=True)
+    execution_duration_seconds = Column(Float, nullable=True)
+    snapshot_version = Column(Integer, default=1, nullable=False)
+    result_quality = Column(String(32), nullable=True)
+    error_message = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
 

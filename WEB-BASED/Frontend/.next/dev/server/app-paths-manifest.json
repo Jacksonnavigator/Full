@@ -1,12 +1,10 @@
 {
-  "/(dashboard)/dashboard/dmas/[dmaId]/edit/page": "app/(dashboard)/dashboard/dmas/[dmaId]/edit/page.js",
-  "/(dashboard)/dashboard/dmas/new/page": "app/(dashboard)/dashboard/dmas/new/page.js",
-  "/(dashboard)/dashboard/dmas/page": "app/(dashboard)/dashboard/dmas/page.js",
   "/(dashboard)/dashboard/hydraulic-model/page": "app/(dashboard)/dashboard/hydraulic-model/page.js",
+  "/(dashboard)/dashboard/hydraulic-reports/[snapshotId]/page": "app/(dashboard)/dashboard/hydraulic-reports/[snapshotId]/page.js",
+  "/(dashboard)/dashboard/hydraulic-reports/page": "app/(dashboard)/dashboard/hydraulic-reports/page.js",
+  "/(dashboard)/dashboard/managers/page": "app/(dashboard)/dashboard/managers/page.js",
   "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(dashboard)/dashboard/utilities/[utilityId]/edit/page": "app/(dashboard)/dashboard/utilities/[utilityId]/edit/page.js",
   "/(dashboard)/dashboard/utilities/page": "app/(dashboard)/dashboard/utilities/page.js",
   "/(dashboard)/dashboard/utility-infrastructure/page": "app/(dashboard)/dashboard/utility-infrastructure/page.js",
-  "/api/dma-boundary/extract/route": "app/api/dma-boundary/extract/route.js",
   "/login/page": "app/login/page.js"
 }

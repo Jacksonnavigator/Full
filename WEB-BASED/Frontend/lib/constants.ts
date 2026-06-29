@@ -15,6 +15,7 @@ import {
   ScrollText,
   Route,
   Network,
+  FileChartColumn,
 } from "lucide-react"
 import type { ComponentType } from "react"
 import { HydraulicPumpIcon } from "@/components/icons/hydraulic-pump-icon"
@@ -53,6 +54,12 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Run Hydraulic Model",
     href: "/dashboard/hydraulic-model",
     icon: HydraulicPumpIcon,
+    roles: ["admin", "utility_manager", "dma_manager"],
+  },
+  {
+    title: "Hydraulic Model Reports",
+    href: "/dashboard/hydraulic-reports",
+    icon: FileChartColumn,
     roles: ["admin", "utility_manager", "dma_manager"],
   },
   {

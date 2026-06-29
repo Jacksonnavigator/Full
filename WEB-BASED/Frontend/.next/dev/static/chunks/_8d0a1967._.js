@@ -20,12 +20,17 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
  */ // ============================================================
 // API Base URL Configuration
 // ============================================================
-// Environment variables loaded from .env.local
+// Environment variables are embedded by Next.js during the frontend build.
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
+const DEFAULT_PRODUCTION_BACKEND_URL = "https://full-nfjr.onrender.com";
 const rawBackendUrl = ("TURBOPACK compile-time value", "https://full-nfjr.onrender.com") || "";
-const usingFallbackBackendUrl = !rawBackendUrl;
-const BACKEND_URL = (rawBackendUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 const BACKEND_API_PREFIX = '/api';
+const normalizedConfiguredBackendUrl = rawBackendUrl.replace(/\/+$/, "");
+const configuredBackendIsLoopback = /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?$/i.test(normalizedConfiguredBackendUrl);
+const configuredBackendIsFrontend = /https:\/\/(majiscope|majiscope-2wzv)\.onrender\.com$/i.test(normalizedConfiguredBackendUrl);
+const productionConfigurationIsUnsafe = ("TURBOPACK compile-time value", "development") === "production" && (!normalizedConfiguredBackendUrl || configuredBackendIsLoopback || configuredBackendIsFrontend);
+const usingFallbackBackendUrl = !normalizedConfiguredBackendUrl || productionConfigurationIsUnsafe;
+const BACKEND_URL = (("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : normalizedConfiguredBackendUrl || DEFAULT_BACKEND_URL).replace(/\/+$/, "");
 const isLoopbackBackendUrl = /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?$/i.test(BACKEND_URL);
 if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
 ;

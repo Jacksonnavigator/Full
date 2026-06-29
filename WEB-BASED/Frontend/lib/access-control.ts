@@ -18,6 +18,7 @@ export const PAGE_ACCESS_MAP: Record<string, UserRole[]> = {
   '/utilities': ['admin', 'utility_manager', 'user'],
   '/utility-infrastructure': ['admin', 'utility_manager'],
   '/hydraulic-model': ['admin', 'utility_manager', 'dma_manager'],
+  '/hydraulic-reports': ['admin', 'utility_manager', 'dma_manager'],
 
   // Utility Managers - admin only (admin can create/edit)
   '/managers': ['admin', 'user'],
@@ -57,7 +58,10 @@ export const PAGE_ACCESS_MAP: Record<string, UserRole[]> = {
  * @returns true if user can access the page
  */
 export function canAccessPage(pagePath: string, userRole: UserRole): boolean {
-  const allowedRoles = PAGE_ACCESS_MAP[pagePath] || PAGE_ACCESS_MAP['']
+  const matchedPath = Object.keys(PAGE_ACCESS_MAP)
+    .filter((path) => path && path !== '/' && (pagePath === path || pagePath.startsWith(`${path}/`)))
+    .sort((a, b) => b.length - a.length)[0]
+  const allowedRoles = PAGE_ACCESS_MAP[pagePath] || (matchedPath ? PAGE_ACCESS_MAP[matchedPath] : PAGE_ACCESS_MAP[''])
   return allowedRoles.includes(userRole)
 }
 
