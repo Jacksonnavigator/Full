@@ -3,7 +3,7 @@ Business Models
 SQLAlchemy ORM models for reports, logs, notifications, and push device tokens.
 """
 
-from sqlalchemy import Column, String, Float, DateTime, Enum as SQLEnum, ForeignKey, Text, JSON, Integer, Boolean, UniqueConstraint
+from sqlalchemy import Column, String, Float, DateTime, Enum as SQLEnum, ForeignKey, Text, JSON, Integer, Boolean, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -41,6 +41,12 @@ class LeakageTypeEnum(str, enum.Enum):
     UNKNOWN = "unknown"
 
 
+class ReportTypeEnum(str, enum.Enum):
+    """Top-level classification for a submitted utility report."""
+    LEAKAGE = "leakage"
+    NON_LEAKAGE = "non_leakage"
+
+
 class NotificationTypeEnum(str, enum.Enum):
     """Notification type enumeration"""
     INFO = "info"
@@ -68,6 +74,14 @@ class Report(Base):
     """Water Leakage Report - Main business entity"""
     
     __tablename__ = "report"
+    __table_args__ = (
+        CheckConstraint(
+            "report_type IN ('leakage', 'non_leakage') AND "
+            "((report_type = 'leakage' AND leakage_type IS NOT NULL) OR "
+            "(report_type = 'non_leakage' AND leakage_type IS NULL))",
+            name="ck_report_type_leakage_type",
+        ),
+    )
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     tracking_id = Column(String(50), unique=True, nullable=False, index=True)
@@ -79,7 +93,8 @@ class Report(Base):
     district_name = Column(String(100), nullable=True, index=True)
     photos = Column(JSON, default=list)  # Array of image URLs
     priority = Column(SQLEnum(ReportPriorityEnum), default=ReportPriorityEnum.MEDIUM)
-    leakage_type = Column(String(50), default=LeakageTypeEnum.UNKNOWN.value, nullable=False, index=True)
+    report_type = Column(String(32), default=ReportTypeEnum.LEAKAGE.value, nullable=False, index=True)
+    leakage_type = Column(String(50), default=LeakageTypeEnum.UNKNOWN.value, nullable=True, index=True)
     status = Column(SQLEnum(ReportStatusEnum), default=ReportStatusEnum.NEW, index=True)
     utility_id = Column(String(36), ForeignKey("utility.id"), nullable=True, index=True)
     dma_id = Column(String(36), ForeignKey("dma.id", ondelete="CASCADE"), nullable=True, index=True)

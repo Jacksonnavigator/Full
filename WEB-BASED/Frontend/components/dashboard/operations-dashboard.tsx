@@ -934,7 +934,7 @@ export function OperationsDashboard() {
       <div className="flex min-h-[70vh] items-center justify-center">
           <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-card px-5 py-3 text-sm font-medium text-slate-600 shadow-sm">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Loading leakage dashboard...
+          Loading operations dashboard...
         </div>
       </div>
     )
@@ -944,10 +944,10 @@ export function OperationsDashboard() {
     <div className="h-[calc(100dvh-5.5rem)] min-h-[560px] overflow-hidden">
       <div className="grid h-full grid-cols-1 gap-3 xl:grid-cols-[168px_minmax(0,1fr)_280px]">
         <aside className="grid h-full min-h-0 gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1 xl:grid-rows-[repeat(4,minmax(0,1fr))_auto]">
-          <KpiCard label="Total Leak Reports" value={kpis.total} tone="slate" />
-          <KpiCard label="Leaks Repaired" value={kpis.repaired} tone="green" />
-          <KpiCard label="Urgent Leaks" value={kpis.urgent} tone="amber" />
-          <KpiCard label="Unattended Leaks" value={kpis.unattended} tone="red" />
+          <KpiCard label="Total Reports" value={kpis.total} tone="slate" />
+          <KpiCard label="Resolved Reports" value={kpis.repaired} tone="green" />
+          <KpiCard label="Urgent Reports" value={kpis.urgent} tone="amber" />
+          <KpiCard label="Unattended Reports" value={kpis.unattended} tone="red" />
 
           <div className="min-h-0 rounded-[18px] border border-slate-300/80 bg-slate-100/85 px-3 py-2.5 shadow-sm shadow-slate-900/[0.025] sm:col-span-2 xl:col-span-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Map legend</p>
@@ -962,7 +962,7 @@ export function OperationsDashboard() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-600" />
-                Repaired (approved / closed)
+                Resolved (approved / closed)
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-blue-700" />

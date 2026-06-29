@@ -16,7 +16,10 @@ import {
 } from "@/components/ui/select"
 import { Download, Loader2 } from "lucide-react"
 import { PRIORITY_CONFIG, REPORT_STATUS_CONFIG } from "@/lib/constants"
-import { computeLeakageTypeDistribution } from "@/lib/report-metrics"
+import {
+  computeLeakageTypeDistribution,
+  computeReportTypeDistribution,
+} from "@/lib/report-metrics"
 import type { ReportPriority, ReportStatus } from "@/lib/types"
 import {
   BarChart,
@@ -162,6 +165,7 @@ export default function AnalyticsPage() {
   }, [filteredReports])
 
   const leakageTypeChartData = useMemo(() => computeLeakageTypeDistribution(filteredReports), [filteredReports])
+  const reportTypeChartData = useMemo(() => computeReportTypeDistribution(filteredReports), [filteredReports])
 
   const utilityChartData = useMemo(() => {
     if (!isAdmin) return []
@@ -211,14 +215,15 @@ export default function AnalyticsPage() {
 
   const exportOperationalCsv = () => {
     const rows = [
-      ["tracking_id", "description", "utility", "dma", "priority", "leakage_type", "status", "created_at"],
+      ["tracking_id", "description", "utility", "dma", "priority", "report_type", "leakage_type", "status", "created_at"],
       ...filteredReports.map((report) => [
         report.trackingId,
         report.description,
         report.utilityName,
         report.dmaName,
         report.priority,
-        report.leakageType || "unknown",
+        report.reportType || "leakage",
+        (report.reportType || "leakage") === "leakage" ? report.leakageType || "unknown" : "",
         report.status,
         report.createdAt,
       ]),
@@ -253,7 +258,7 @@ export default function AnalyticsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Analytics"
-        description="Workflow analytics for leakage reports by status, priority, utility, DMA, and time."
+        description="Workflow analytics for utility reports by status, priority, utility, DMA, and time."
       />
 
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -308,7 +313,7 @@ export default function AnalyticsPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Reports by Status</CardTitle>
@@ -388,6 +393,56 @@ export default function AnalyticsPage() {
             ) : (
               <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">
                 No leakage type data available yet.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Report Type</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {reportTypeChartData.length ? (
+              <div className="grid gap-4">
+                <ResponsiveContainer width="100%" height={260}>
+                  <PieChart>
+                    <Pie
+                      data={reportTypeChartData}
+                      dataKey="count"
+                      nameKey="name"
+                      innerRadius={58}
+                      outerRadius={92}
+                      paddingAngle={2}
+                      stroke="transparent"
+                    >
+                      {reportTypeChartData.map((row) => (
+                        <Cell key={row.type} fill={row.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number, _name, props) => [
+                        `${value.toLocaleString()} (${props.payload.percentage}%)`,
+                        props.payload.name,
+                      ]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="grid gap-2 text-sm">
+                  {reportTypeChartData.map((row) => (
+                    <div key={row.type} className="flex items-center justify-between gap-3 text-slate-600 dark:text-slate-300">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: row.fill }} />
+                        <span className="truncate text-slate-700 dark:text-white">{row.name}</span>
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">{row.percentage}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-10 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">
+                No report type data available yet.
               </div>
             )}
           </CardContent>

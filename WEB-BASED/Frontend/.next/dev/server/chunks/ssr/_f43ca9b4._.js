@@ -386,6 +386,8 @@ __turbopack_context__.s([
     ()=>computeLeakKpis,
     "computeLeakageTypeDistribution",
     ()=>computeLeakageTypeDistribution,
+    "computeReportTypeDistribution",
+    ()=>computeReportTypeDistribution,
     "getSimpleMapStatusMeta",
     ()=>getSimpleMapStatusMeta,
     "hasUsableCoordinates",
@@ -453,11 +455,12 @@ function computeLeakageTypeDistribution(reports) {
             type,
             0
         ]));
-    reports.forEach((report)=>{
+    const leakageReports = reports.filter((report)=>(report.reportType || "leakage") === "leakage");
+    leakageReports.forEach((report)=>{
         const type = normalizeLeakageType(report.leakageType);
         counts.set(type, (counts.get(type) || 0) + 1);
     });
-    const total = Math.max(reports.length, 1);
+    const total = Math.max(leakageReports.length, 1);
     return LEAKAGE_TYPE_KEYS.map((type)=>{
         const count = counts.get(type) || 0;
         const config = __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$constants$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["LEAKAGE_TYPE_CONFIG"][type];
@@ -467,6 +470,39 @@ function computeLeakageTypeDistribution(reports) {
             count,
             percentage: Math.round(count / total * 1000) / 10,
             fill: config.color
+        };
+    }).filter((row)=>row.count > 0);
+}
+function computeReportTypeDistribution(reports) {
+    const reportTypes = [
+        {
+            type: "leakage",
+            name: "Leakage",
+            fill: "#0891b2"
+        },
+        {
+            type: "non_leakage",
+            name: "Non-leakage",
+            fill: "#4f46e5"
+        }
+    ];
+    const counts = new Map(reportTypes.map(({ type })=>[
+            type,
+            0
+        ]));
+    reports.forEach((report)=>{
+        const type = report.reportType === "non_leakage" ? "non_leakage" : "leakage";
+        counts.set(type, (counts.get(type) || 0) + 1);
+    });
+    const total = Math.max(reports.length, 1);
+    return reportTypes.map(({ type, name, fill })=>{
+        const count = counts.get(type) || 0;
+        return {
+            type,
+            name,
+            count,
+            percentage: Math.round(count / total * 1000) / 10,
+            fill
         };
     }).filter((row)=>row.count > 0);
 }
@@ -1665,7 +1701,7 @@ function OperationsDashboard() {
                         lineNumber: 936,
                         columnNumber: 11
                     }, this),
-                    "Loading leakage dashboard..."
+                    "Loading operations dashboard..."
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/dashboard/operations-dashboard.tsx",
@@ -1687,7 +1723,7 @@ function OperationsDashboard() {
                     className: "grid h-full min-h-0 gap-3 sm:grid-cols-2 xl:w-[168px] xl:grid-cols-1 xl:grid-rows-[repeat(4,minmax(0,1fr))_auto]",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
-                            label: "Total Leak Reports",
+                            label: "Total Reports",
                             value: kpis.total,
                             tone: "slate"
                         }, void 0, false, {
@@ -1696,7 +1732,7 @@ function OperationsDashboard() {
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
-                            label: "Leaks Repaired",
+                            label: "Resolved Reports",
                             value: kpis.repaired,
                             tone: "green"
                         }, void 0, false, {
@@ -1705,7 +1741,7 @@ function OperationsDashboard() {
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
-                            label: "Urgent Leaks",
+                            label: "Urgent Reports",
                             value: kpis.urgent,
                             tone: "amber"
                         }, void 0, false, {
@@ -1714,7 +1750,7 @@ function OperationsDashboard() {
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
-                            label: "Unattended Leaks",
+                            label: "Unattended Reports",
                             value: kpis.unattended,
                             tone: "red"
                         }, void 0, false, {
@@ -1780,7 +1816,7 @@ function OperationsDashboard() {
                                                     lineNumber: 964,
                                                     columnNumber: 17
                                                 }, this),
-                                                "Repaired (approved / closed)"
+                                                "Resolved (approved / closed)"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/dashboard/operations-dashboard.tsx",

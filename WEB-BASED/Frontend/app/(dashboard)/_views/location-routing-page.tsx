@@ -83,7 +83,7 @@ function QueueCard({
               ) : null}
             </div>
             <h3 className="text-base font-semibold leading-6 text-slate-900">
-              {report.description || "Reported leakage without description"}
+              {report.description || "Report without description"}
             </h3>
             <p className="flex items-start gap-2 text-sm leading-6 text-slate-500">
               <MapPin className="mt-1 h-4 w-4 shrink-0 text-emerald-600" />
@@ -299,7 +299,7 @@ export default function LocationRoutingPage() {
               Location Routing
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-              Review reported leakage items with missing regional utility or district DMA placement and assign them from one admin queue.
+              Review report items with missing regional utility or district DMA placement and assign them from one admin queue.
             </p>
           </div>
           <div className="rounded-2xl border border-cyan-200/70 bg-cyan-50/60 px-4 py-3 text-sm text-cyan-800">
@@ -429,7 +429,7 @@ export default function LocationRoutingPage() {
               Resolve Report Routing
             </DialogTitle>
             <DialogDescription>
-              Assign the correct utility and district DMA for this reported leakage.
+              Assign the correct utility and district DMA for this report.
             </DialogDescription>
           </DialogHeader>
 

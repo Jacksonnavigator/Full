@@ -30,6 +30,7 @@ import { PriorityBadge, ReportStatusBadge } from "@/components/shared/status-bad
 import { ResolvedImage } from "@/components/shared/resolved-image"
 import { ConfirmDialog } from "@/components/shared/confirm-dialog"
 import { LeakageTypeBadge } from "@/components/shared/leakage-type-badge"
+import { ReportTypeBadge } from "@/components/shared/report-type-badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -48,8 +49,8 @@ const getOriginalReportPhotos = (report: Report) =>
   report.reportPhotos !== undefined ? report.reportPhotos : report.photos
 
 const getRepairPhotos = (report: Report) => [
-  ...(report.submissionBeforePhotos ?? []).map((uri) => ({ uri, label: "Before Repair" })),
-  ...(report.submissionAfterPhotos ?? []).map((uri) => ({ uri, label: "After Repair" })),
+  ...(report.submissionBeforePhotos ?? []).map((uri) => ({ uri, label: "Before Resolution" })),
+  ...(report.submissionAfterPhotos ?? []).map((uri) => ({ uri, label: "After Resolution" })),
 ]
 
 const getReportLocationLabel = (report: Pick<Report, "address" | "latitude" | "longitude" | "regionName" | "districtName">) => {
@@ -201,7 +202,7 @@ const getResolvedTimingMeta = (report: Report) => {
     case "in_progress":
       return {
         icon: <Clock className="h-5 w-5 text-blue-600" />,
-        value: "Repair in progress",
+        value: "Resolution in progress",
         tone: "bg-blue-100",
       }
     case "assigned":
@@ -226,7 +227,7 @@ function getWorkflowSteps(report: Report): WorkflowStep[] {
   return [
     {
       title: "Reported",
-      detail: "Citizen or operator submitted the reported leakage.",
+      detail: "Citizen or operator submitted the report.",
       active: true,
       current: status === "new",
     },
@@ -241,13 +242,13 @@ function getWorkflowSteps(report: Report): WorkflowStep[] {
       current: status === "assigned",
     },
     {
-      title: "Field Repair",
+      title: "Field Resolution",
       detail:
         status === "in_progress"
           ? "Field work is actively happening on site."
           : report.engineerSubmissionNotes
-          ? "Engineer submitted repair evidence from the field."
-          : "Awaiting field repair activity.",
+          ? "Engineer submitted resolution evidence from the field."
+          : "Awaiting field resolution activity.",
       active: ["in_progress", "pending_approval", "approved", "closed"].includes(status) || Boolean(report.engineerSubmissionNotes),
       current: status === "in_progress",
     },
@@ -256,7 +257,7 @@ function getWorkflowSteps(report: Report): WorkflowStep[] {
       detail: report.teamLeaderReviewNotes
         ? report.teamLeaderReviewNotes
         : status === "pending_approval"
-        ? "Repair evidence passed through team leader review and reached DMA."
+        ? "Resolution evidence passed through team leader review and reached DMA."
         : "Waiting for team leader review notes.",
       active: ["pending_approval", "approved", "closed"].includes(status) || Boolean(report.teamLeaderReviewNotes),
       current: false,
@@ -272,9 +273,9 @@ function getWorkflowSteps(report: Report): WorkflowStep[] {
           : "DMA Decision",
       detail:
         status === "approved" || status === "closed"
-          ? report.dmaReviewNotes || "DMA approved the reported leakage resolution and closed the item."
+          ? report.dmaReviewNotes || "DMA approved the report resolution and closed the item."
           : wasSentForRework
-          ? report.dmaReviewNotes || "DMA returned the repair for more field work."
+          ? report.dmaReviewNotes || "DMA returned the resolution for more field work."
           : "Waiting for the final DMA decision.",
       active: status === "pending_approval" || Boolean(report.dmaReviewNotes) || status === "approved" || status === "closed",
       current: status === "pending_approval" || status === "approved" || status === "closed" || wasSentForRework,
@@ -434,22 +435,22 @@ export default function ReportDetailPage() {
 
         if (normalizedError.includes("access denied")) {
           setMissingInsight({
-            title: "Reported leakage is outside your access scope",
-            description: "This link is valid, but your current role is not allowed to open this reported leakage item.",
+            title: "Report is outside your access scope",
+            description: "This link is valid, but your current role is not allowed to open this report item.",
           })
           return
         }
 
         if (normalizedError.includes("not found")) {
           setMissingInsight({
-            title: "Reported leakage no longer exists",
+            title: "Report no longer exists",
             description: "This item may have been deleted or the link may be outdated.",
           })
           return
         }
 
         setMissingInsight({
-          title: "We could not load this reported leakage",
+          title: "We could not load this report",
           description: response.error || "Try refreshing the reports list and opening the item again.",
         })
       } catch (error) {
@@ -457,7 +458,7 @@ export default function ReportDetailPage() {
         console.error("Error checking missing report:", error)
         setDirectReport(null)
         setMissingInsight({
-          title: "We could not load this reported leakage",
+          title: "We could not load this report",
           description: "The report details could not be checked right now. Try refreshing and opening it again.",
         })
       } finally {
@@ -510,7 +511,7 @@ export default function ReportDetailPage() {
         return
       }
 
-      toast.success("Reported leakage assigned successfully")
+      toast.success("Report assigned successfully")
       setAssignOpen(false)
       await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
       await loadActivityLogs()
@@ -547,7 +548,7 @@ export default function ReportDetailPage() {
         utilityId: nextUtilityId,
         dmaId: nextDMAId,
       })
-      toast.success("Reported leakage location routing updated successfully")
+      toast.success("Report location routing updated successfully")
       setResolveLocationOpen(false)
       await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
       await loadActivityLogs()
@@ -574,7 +575,7 @@ export default function ReportDetailPage() {
         return
       }
 
-      toast.success("Reported leakage approved and marked as resolved")
+      toast.success("Report approved and marked as resolved")
       setApproveDialogOpen(false)
       setApproveComment("")
       await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
@@ -602,7 +603,7 @@ export default function ReportDetailPage() {
         return
       }
 
-      toast.success("Reported leakage returned to the assigned team for rework")
+      toast.success("Report returned to the assigned team for rework")
       setRejectDialogOpen(false)
       setRejectReason("")
       await fetchReports({ dmaId: currentUser?.dmaId ?? undefined, utilityId: currentUser?.utilityId ?? undefined })
@@ -620,7 +621,7 @@ export default function ReportDetailPage() {
     setIsSubmitting(true)
     try {
       await deleteReport(report.id)
-      toast.success("Reported leakage deleted successfully")
+      toast.success("Report deleted successfully")
       setDeleteDialogOpen(false)
       router.push("/dashboard/reports")
     } catch (error) {
@@ -646,12 +647,12 @@ export default function ReportDetailPage() {
       <div className="flex flex-col gap-6">
         <Button variant="outline" onClick={() => router.push("/dashboard/reports")} className="w-fit rounded-xl">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Reported Leakage
+          Back to Reports
         </Button>
         <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
           <CardContent className="flex items-center justify-center gap-3 py-16 text-slate-500">
             <Loader2 className="h-5 w-5 animate-spin" />
-            Checking reported leakage access...
+            Checking report access...
           </CardContent>
         </Card>
       </div>
@@ -663,13 +664,13 @@ export default function ReportDetailPage() {
       <div className="flex flex-col gap-6">
         <Button variant="outline" onClick={() => router.push("/dashboard/reports")} className="w-fit rounded-xl">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Reported Leakage
+          Back to Reports
         </Button>
         <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
           <CardContent className="py-16 text-center">
-            <p className="text-lg font-semibold text-slate-800">{missingInsight?.title || "Reported leakage not found"}</p>
+            <p className="text-lg font-semibold text-slate-800">{missingInsight?.title || "Report not found"}</p>
             <p className="mt-1 text-sm text-slate-500">
-              {missingInsight?.description || "This reported leakage item may be outside your current access scope."}
+              {missingInsight?.description || "This report item may be outside your current access scope."}
             </p>
           </CardContent>
         </Card>
@@ -696,6 +697,8 @@ export default function ReportDetailPage() {
   const resolvedTimingMeta = getResolvedTimingMeta(report)
   const utilityLabel = report.utilityName?.trim() || report.regionName?.trim() || "Unassigned utility"
   const dmaLabel = report.dmaName?.trim() || report.districtName?.trim() || "Unassigned DMA"
+  const reportType = report.reportType || "leakage"
+  const isLeakageReport = reportType === "leakage"
   const leakageType = report.leakageType || "unknown"
   const leakageTypeMeta = LEAKAGE_TYPE_CONFIG[leakageType] || LEAKAGE_TYPE_CONFIG.unknown
   const fieldOwnerLabel =
@@ -711,16 +714,17 @@ export default function ReportDetailPage() {
           <div className="max-w-4xl">
             <Button variant="outline" onClick={() => router.push("/dashboard/reports")} className="mb-4 w-fit rounded-xl">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Reported Leakage
+              Back to Reports
             </Button>
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-rose-600">Reported leakage review</p>
+            <p className="text-xs font-bold uppercase tracking-[0.08em] text-rose-600">Report review</p>
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <h1 className="font-sans text-2xl font-extrabold leading-none tracking-[0.025em] text-slate-900 sm:text-3xl">
                 {report.trackingId}
               </h1>
               <PriorityBadge priority={report.priority} />
               <ReportStatusBadge status={report.status} />
-              <LeakageTypeBadge type={leakageType} />
+              <ReportTypeBadge type={reportType} />
+              {isLeakageReport ? <LeakageTypeBadge type={leakageType} /> : null}
               {slaMeta ? (
                 <div className={cn("flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold", slaMeta.tone)}>
                   {slaMeta.icon}
@@ -729,7 +733,7 @@ export default function ReportDetailPage() {
               ) : null}
             </div>
             <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-              {report.description || "No description was provided for this reported leakage item."}
+              {report.description || "No description was provided for this report item."}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
@@ -770,16 +774,17 @@ export default function ReportDetailPage() {
               <div className="flex items-start gap-4">
                 <FileText className="mt-1 h-7 w-7 shrink-0 text-rose-600" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Leak Summary</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Report Summary</p>
                   <p className="mt-2 text-base leading-7 text-slate-700">
-                    {report.description || "No detailed description was submitted with this reported leakage item."}
+                    {report.description || "No detailed description was submitted with this report item."}
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <DetailCard icon={<MapPin className="h-5 w-5 text-emerald-600" />} label="Location" value={getReportLocationLabel(report)} tone="bg-emerald-100" />
-                <DetailCard icon={<Droplets className="h-5 w-5 text-cyan-600" />} label="Leakage Type" value={leakageTypeMeta.label} tone="bg-cyan-100" />
+                <DetailCard icon={<FileText className="h-5 w-5 text-indigo-600" />} label="Report Type" value={isLeakageReport ? "Leakage" : "Non-leakage"} tone="bg-indigo-100" />
+                {isLeakageReport ? <DetailCard icon={<Droplets className="h-5 w-5 text-cyan-600" />} label="Leakage Type" value={leakageTypeMeta.label} tone="bg-cyan-100" /> : null}
                 <DetailCard icon={<Users className="h-5 w-5 text-indigo-600" />} label="Utility / Region" value={utilityLabel} tone="bg-indigo-100" />
                 <DetailCard icon={<Users className="h-5 w-5 text-violet-600" />} label="DMA / District" value={dmaLabel} tone="bg-violet-100" />
                 <DetailCard icon={<UserCog className="h-5 w-5 text-amber-600" />} label="Assigned Team" value={report.teamName || "Not assigned"} tone="bg-amber-100" />
@@ -833,13 +838,13 @@ export default function ReportDetailPage() {
 
           <div className="grid grid-cols-1 gap-4">
             <MediaSection
-              title="Original Reported Leakage Photos"
+              title="Original Reports Photos"
               description="Reporter evidence from the first submission. Click any tile to open it."
               icon={<ImageIcon className="h-4 w-4 text-blue-600" />}
               emptyMessage={
                 repairMediaItems.length > 0
-                  ? "No original reporter media is currently stored for this reported leakage item. Only repair evidence is available on this record."
-                  : "No original reported leakage photos are currently stored for this item."
+                  ? "No original reporter media is currently stored for this report item. Only resolution evidence is available on this record."
+                  : "No original report photos are currently stored for this item."
               }
               items={originalMediaItems}
               onOpen={openMediaViewer}
@@ -847,7 +852,7 @@ export default function ReportDetailPage() {
 
             <MediaSection
               title="Resolved Images"
-              description="Field evidence submitted during repair resolution. Click any tile to inspect it."
+              description="Field evidence submitted during resolution. Click any tile to inspect it."
               icon={<CheckCircle2 className="h-4 w-4 text-emerald-600" />}
               emptyMessage="No resolved images have been attached yet."
               items={repairMediaItems}
@@ -894,7 +899,7 @@ export default function ReportDetailPage() {
                   ))
                 ) : (
                   <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
-                    No activity history has been recorded for this reported leakage item yet.
+                    No activity history has been recorded for this report item yet.
                   </div>
                 )}
               </div>
@@ -930,7 +935,7 @@ export default function ReportDetailPage() {
                     className="w-full justify-start rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25 hover:from-amber-600 hover:to-orange-700"
                   >
                     <ClipboardCheck className="mr-2 h-4 w-4" />
-                    Assign Reported Leakage
+                    Assign Reports
                   </Button>
                 )}
                 {isDMA && report.status === "pending_approval" && (
@@ -940,7 +945,7 @@ export default function ReportDetailPage() {
                       className="w-full justify-start rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-600 hover:to-green-700"
                     >
                       <CheckCheck className="mr-2 h-4 w-4" />
-                      Approve Repair
+                      Approve Resolution
                     </Button>
                     <Button variant="destructive" onClick={() => setRejectDialogOpen(true)} className="w-full justify-start rounded-xl">
                       <X className="mr-2 h-4 w-4" />
@@ -955,7 +960,7 @@ export default function ReportDetailPage() {
                     className="w-full justify-start rounded-xl border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Reported Leakage
+                    Delete Reports
                   </Button>
                 )}
               </div>
@@ -1023,9 +1028,9 @@ export default function ReportDetailPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
               <ClipboardCheck className="h-5 w-5 text-amber-600" />
-              Assign Reported Leakage to Team
+              Assign Reports to Team
             </DialogTitle>
-            <DialogDescription>Select the team that should handle this reported leakage item.</DialogDescription>
+            <DialogDescription>Select the team that should handle this report item.</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-5 overflow-y-auto py-4 pr-1">
             <div className="rounded-xl border border-rose-200/80 bg-rose-50/60 p-4">
@@ -1067,7 +1072,7 @@ export default function ReportDetailPage() {
               ) : (
                 <>
                   <UserCog className="mr-2 h-4 w-4" />
-                  Assign Reported Leakage
+                  Assign Reports
                 </>
               )}
             </Button>
@@ -1083,7 +1088,7 @@ export default function ReportDetailPage() {
               Resolve Report Location
             </DialogTitle>
             <DialogDescription>
-              Link this reported leakage to the correct regional utility and district DMA when the automatic match was uncertain.
+              Link this report to the correct regional utility and district DMA when the automatic match was uncertain.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-5 overflow-y-auto py-4 pr-1">
@@ -1175,9 +1180,9 @@ export default function ReportDetailPage() {
       >
         <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
           <DialogHeader>
-            <DialogTitle className="text-xl">Approve Repair</DialogTitle>
+            <DialogTitle className="text-xl">Approve Resolution</DialogTitle>
             <DialogDescription>
-              Add the DMA approval comment that should stay with this reported leakage resolution.
+              Add the DMA approval comment that should stay with this report resolution.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 overflow-y-auto pr-1">
@@ -1186,7 +1191,7 @@ export default function ReportDetailPage() {
               id="approve-comment"
               value={approveComment}
               onChange={(event) => setApproveComment(event.target.value)}
-              placeholder="Example: Repair evidence verified, site condition matches the submitted resolution, approved for closure."
+              placeholder="Example: Resolution evidence verified, site condition matches the submitted outcome, approved for closure."
               className="min-h-[130px]"
             />
           </div>
@@ -1208,7 +1213,7 @@ export default function ReportDetailPage() {
               disabled={isSubmitting || !approveComment.trim()}
               className="rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-600 hover:to-green-700"
             >
-              {isSubmitting ? "Approving..." : "Approve Reported Leakage"}
+              {isSubmitting ? "Approving..." : "Approve Reports"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1223,7 +1228,7 @@ export default function ReportDetailPage() {
       >
         <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden rounded-2xl border-slate-200/50 bg-white/95 shadow-2xl shadow-slate-200/50 backdrop-blur-xl">
           <DialogHeader>
-            <DialogTitle className="text-xl">Reject Repair</DialogTitle>
+            <DialogTitle className="text-xl">Reject Resolution</DialogTitle>
             <DialogDescription>
               Add the DMA rejection reason. This report will return to the assigned team for rework instead of staying rejected.
             </DialogDescription>
@@ -1234,7 +1239,7 @@ export default function ReportDetailPage() {
               id="reject-reason"
               value={rejectReason}
               onChange={(event) => setRejectReason(event.target.value)}
-              placeholder="Example: Final images do not clearly prove the leakage was fully fixed. Please revisit the site and resubmit clearer evidence."
+              placeholder="Example: Final images do not clearly prove the reported issue was resolved. Please revisit the site and resubmit clearer evidence."
               className="min-h-[130px]"
             />
           </div>
@@ -1266,9 +1271,9 @@ export default function ReportDetailPage() {
       <ConfirmDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        title="Delete Reported Leakage"
-        description={`Delete reported leakage ${report.trackingId}? This action cannot be undone.`}
-        confirmLabel={isSubmitting ? "Deleting..." : "Delete Reported Leakage"}
+        title="Delete Reports"
+        description={`Delete report ${report.trackingId}? This action cannot be undone.`}
+        confirmLabel={isSubmitting ? "Deleting..." : "Delete Reports"}
         onConfirm={handleDelete}
         variant="destructive"
       />
@@ -1282,7 +1287,7 @@ export default function ReportDetailPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3">
                 <div>
-                  <p className="text-sm font-semibold text-white">{activeMedia.label || "Reported Leakage Media"}</p>
+                  <p className="text-sm font-semibold text-white">{activeMedia.label || "Reports Media"}</p>
                   <p className="text-xs text-slate-300">{activeMedia.alt}</p>
                 </div>
                 <Button variant="ghost" onClick={() => setViewerOpen(false)} className="rounded-xl text-slate-200 hover:bg-white/10 hover:text-white">

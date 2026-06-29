@@ -40,9 +40,11 @@ import {
 import { cn } from "@/lib/utils"
 import { formatTanzaniaDateTime } from "@/lib/date-time"
 import { LeakageTypeBadge } from "@/components/shared/leakage-type-badge"
+import { ReportTypeBadge } from "@/components/shared/report-type-badge"
 
 type ReportStatus = "new" | "assigned" | "in_progress" | "pending_approval" | "approved" | "rejected" | "closed"
 type ReportPriority = "low" | "medium" | "high" | "critical"
+type ReportType = "leakage" | "non_leakage"
 
 const STATUS_FILTERS: { value: "all" | ReportStatus; label: string }[] = [
   { value: "all", label: "All Status" },
@@ -61,6 +63,12 @@ const PRIORITY_FILTERS: { value: "all" | ReportPriority; label: string }[] = [
   { value: "medium", label: "Moderate" },
   { value: "high", label: "High" },
   { value: "critical", label: "Critical" },
+]
+
+const REPORT_TYPE_FILTERS: { value: "all" | ReportType; label: string }[] = [
+  { value: "all", label: "All Report Types" },
+  { value: "leakage", label: "Leakage" },
+  { value: "non_leakage", label: "Non-leakage" },
 ]
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 150, 200, 250, 300] as const
@@ -152,6 +160,7 @@ export default function ReportsPage() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | ReportStatus>("all")
   const [priorityFilter, setPriorityFilter] = useState<"all" | ReportPriority>("all")
+  const [reportTypeFilter, setReportTypeFilter] = useState<"all" | ReportType>("all")
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(25)
   const [currentPage, setCurrentPage] = useState(1)
   const [debouncedSearch, setDebouncedSearch] = useState("")
@@ -186,6 +195,7 @@ export default function ReportsPage() {
         ...(isDMA ? { dmaId } : isUtility ? { utilityId } : {}),
         ...(statusFilter !== "all" ? { status: statusFilter } : {}),
         ...(priorityFilter !== "all" ? { priority: priorityFilter } : {}),
+        ...(reportTypeFilter !== "all" ? { reportType: reportTypeFilter } : {}),
         ...(debouncedSearch ? { search: debouncedSearch } : {}),
         limit: pageSize,
         skip: (currentPage - 1) * pageSize,
@@ -195,7 +205,7 @@ export default function ReportsPage() {
       setLoading(false)
     }
     void loadReportsPage()
-  }, [currentPage, currentUser, debouncedSearch, fetchReports, isDMA, isUtility, pageSize, priorityFilter, statusFilter])
+  }, [currentPage, currentUser, debouncedSearch, fetchReports, isDMA, isUtility, pageSize, priorityFilter, reportTypeFilter, statusFilter])
 
   // Scope reports based on role
   const scopedReports = useMemo(() => {
@@ -230,7 +240,10 @@ export default function ReportsPage() {
         const matchesPriority =
           priorityFilter === "all" ? true : r.priority === priorityFilter
 
-        return matchesSearch && matchesStatus && matchesPriority
+        const matchesReportType =
+          reportTypeFilter === "all" ? true : (r.reportType || "leakage") === reportTypeFilter
+
+        return matchesSearch && matchesStatus && matchesPriority && matchesReportType
       })
 
       // Sort by createdAt (most recent first)
@@ -240,7 +253,7 @@ export default function ReportsPage() {
         return dateB - dateA
       })
     },
-    [debouncedSearch, scopedReports, statusFilter, priorityFilter]
+    [debouncedSearch, scopedReports, statusFilter, priorityFilter, reportTypeFilter]
   )
 
   const totalFilteredReports = reportsListTotal ?? filteredReports.length
@@ -254,7 +267,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [pageSize, priorityFilter, search, statusFilter])
+  }, [pageSize, priorityFilter, reportTypeFilter, search, statusFilter])
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages)
@@ -290,14 +303,14 @@ export default function ReportsPage() {
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
               <FileText className="h-7 w-7 text-rose-600" />
-              Reported Leakage
+              Reports
             </h1>
             <p className="text-slate-500 mt-1">
               {isDMA
-                ? "Assign and manage reported leakage items in your DMA"
+                ? "Assign and manage report items in your DMA"
                 : isUtility
-                  ? "Monitor reported leakage items across your utility"
-                  : "National view of all reported leakage items"}
+                  ? "Monitor report items across your utility"
+                  : "National view of all report items"}
             </p>
           </div>
         </div>
@@ -309,7 +322,7 @@ export default function ReportsPage() {
               <div className="flex items-center gap-4">
                 <FileText className="h-8 w-8 shrink-0 text-rose-600" />
                 <div>
-                  <p className="text-sm font-medium text-slate-500">Total Reported Leakage</p>
+                  <p className="text-sm font-medium text-slate-500">Total Reports</p>
                   <p className="text-2xl font-bold text-slate-800">{totalReports}</p>
                 </div>
               </div>
@@ -321,7 +334,7 @@ export default function ReportsPage() {
               <div className="flex items-center gap-4">
                 <Siren className="h-8 w-8 shrink-0 text-sky-600" />
                 <div>
-                  <p className="text-sm font-medium text-slate-500">New Reported Leakage</p>
+                  <p className="text-sm font-medium text-slate-500">New Reports</p>
                   <p className="text-2xl font-bold text-slate-800">{newReports}</p>
                 </div>
               </div>
@@ -397,11 +410,24 @@ export default function ReportsPage() {
               ))}
             </SelectContent>
           </Select>
+
+          <Select value={reportTypeFilter} onValueChange={(v) => setReportTypeFilter(v as typeof reportTypeFilter)}>
+            <SelectTrigger className="h-11 w-full rounded-xl border-slate-200/80 bg-slate-50/80 sm:w-44">
+              <SelectValue placeholder="Report type" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl shadow-lg shadow-slate-200/50">
+              {REPORT_TYPE_FILTERS.map((type) => (
+                <SelectItem key={type.value} value={type.value} className="rounded-lg">
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <FileText className="h-4 w-4" />
-          <span>{totalFilteredReports} reported leakage item{totalFilteredReports !== 1 ? 's' : ''}</span>
+          <span>{totalFilteredReports} report item{totalFilteredReports !== 1 ? 's' : ''}</span>
         </div>
       </div>
 
@@ -413,7 +439,7 @@ export default function ReportsPage() {
               <div>
                 <p className="text-sm font-semibold text-slate-800">Live Report Queue</p>
                 <p className="text-xs text-slate-500">
-                  Newest reported leakage items appear first. Select any report row to open the full report page.
+                  Newest report items appear first. Select any report row to open the full report page.
                 </p>
               </div>
               <div className="flex flex-col gap-2 sm:items-end">
@@ -462,7 +488,8 @@ export default function ReportsPage() {
                       Location
                     </div>
                   </TableHead>
-                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Leak Type</TableHead>
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Report Type</TableHead>
+                  <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Leakage Type</TableHead>
                   <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">Status</TableHead>
                   <TableHead className="px-4 py-4 font-semibold text-slate-600 whitespace-nowrap">
                     <div className="flex items-center gap-2">
@@ -476,17 +503,17 @@ export default function ReportsPage() {
               <TableBody>
                 {paginatedReports.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="py-16 text-center">
+                    <TableCell colSpan={8} className="py-16 text-center">
                       <div className="flex flex-col items-center gap-4">
                         <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
                           <FileText className="h-8 w-8 text-slate-400" />
                         </div>
                         <div>
-                          <p className="text-lg font-semibold text-slate-800">No reported leakage found</p>
+                          <p className="text-lg font-semibold text-slate-800">No report found</p>
                           <p className="text-sm text-slate-500 mt-1">
-                            {search || statusFilter !== "all" || priorityFilter !== "all" 
+                            {search || statusFilter !== "all" || priorityFilter !== "all" || reportTypeFilter !== "all"
                               ? "Try adjusting your filters" 
-                              : "Reported leakage items will appear here when available"}
+                              : "Reports will appear here when available"}
                           </p>
                         </div>
                       </div>
@@ -564,9 +591,18 @@ export default function ReportsPage() {
                           </div>
                         </TableCell>
 
-                        {/* Leak Type */}
+                        {/* Report Type */}
                         <TableCell className="px-4 py-4 align-top">
-                          <LeakageTypeBadge type={report.leakageType} />
+                          <ReportTypeBadge type={report.reportType} />
+                        </TableCell>
+
+                        {/* Leakage Type */}
+                        <TableCell className="px-4 py-4 align-top">
+                          {(report.reportType || "leakage") === "leakage" ? (
+                            <LeakageTypeBadge type={report.leakageType} />
+                          ) : (
+                            <span className="text-sm font-medium text-slate-400">Not applicable</span>
+                          )}
                         </TableCell>
 
                         {/* Status */}

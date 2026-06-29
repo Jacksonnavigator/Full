@@ -6,7 +6,7 @@ Request and response models for API validation
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
-from app.constants.enums import LeakageType, ReportStatus, ReportPriority, NotificationType
+from app.constants.enums import LeakageType, ReportStatus, ReportPriority, ReportType, NotificationType
 
 
 # ============================================================================
@@ -17,10 +17,19 @@ class ReportBase(BaseModel):
     """Base schema for Report"""
     tracking_id: str = Field(..., min_length=1, max_length=50)
     dma_id: Optional[str] = None
+    utility_id: Optional[str] = None
     description: Optional[str] = Field(None, max_length=2000)
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    address: Optional[str] = Field(None, max_length=500)
+    region_name: Optional[str] = Field(None, max_length=100)
+    district_name: Optional[str] = Field(None, max_length=100)
     priority: ReportPriority = ReportPriority.MEDIUM
-    leakage_type: LeakageType = LeakageType.UNKNOWN
+    report_type: ReportType = ReportType.LEAKAGE
+    leakage_type: Optional[LeakageType] = LeakageType.UNKNOWN
     photos: Optional[List[str]] = []
+    reporter_name: Optional[str] = Field(None, max_length=255)
+    reporter_phone: Optional[str] = Field(None, max_length=20)
 
 
 class ReportCreate(ReportBase):
@@ -34,20 +43,29 @@ class AnonymousReportCreate(BaseModel):
     latitude: float
     longitude: float
     address: Optional[str] = Field(None, max_length=500)
+    region_name: Optional[str] = Field(None, max_length=100)
+    district_name: Optional[str] = Field(None, max_length=100)
     priority: str = "Medium"  # Accept string priority from mobile app
-    leakage_type: LeakageType = LeakageType.UNKNOWN
+    report_type: ReportType = ReportType.LEAKAGE
+    leakage_type: Optional[LeakageType] = LeakageType.UNKNOWN
     images: Optional[List[str]] = []
     reported_by: Optional[str] = "Anonymous"
+    history_key: Optional[str] = Field(None, max_length=64)
 
 
 class ReportUpdate(BaseModel):
     """Schema for updating report"""
     description: Optional[str] = Field(None, max_length=2000)
     priority: Optional[ReportPriority] = None
-    leakage_type: Optional[LeakageType] = None
+    address: Optional[str] = Field(None, max_length=500)
+    region_name: Optional[str] = Field(None, max_length=100)
+    district_name: Optional[str] = Field(None, max_length=100)
+    utility_id: Optional[str] = None
+    dma_id: Optional[str] = None
     assigned_engineer_id: Optional[str] = None
     status: Optional[ReportStatus] = None
     photos: Optional[List[str]] = None
+    notes: Optional[str] = Field(None, max_length=2000)
     sla_deadline: Optional[datetime] = None
 
 

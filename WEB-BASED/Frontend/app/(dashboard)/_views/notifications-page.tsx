@@ -69,7 +69,7 @@ export default function NotificationsPage() {
     }
 
     if (resolution.source === "kind") {
-      toast.info("Opened the reported leakage queue because this alert did not include a direct report link.")
+      toast.info("Opened the report queue because this alert did not include a direct report link.")
     }
 
     router.push(resolution.destination)

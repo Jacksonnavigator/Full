@@ -99,7 +99,7 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ["dma_manager"],
   },
   {
-    title: "Reported Leakage",
+    title: "Reports",
     href: "/dashboard/reports",
     icon: FileText,
     roles: ["admin", "utility_manager", "dma_manager"],

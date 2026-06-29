@@ -1,10 +1,9 @@
 {
-  "/(dashboard)/dashboard/hydraulic-model/page": "app/(dashboard)/dashboard/hydraulic-model/page.js",
-  "/(dashboard)/dashboard/hydraulic-reports/[snapshotId]/page": "app/(dashboard)/dashboard/hydraulic-reports/[snapshotId]/page.js",
+  "/(dashboard)/dashboard/analytics/page": "app/(dashboard)/dashboard/analytics/page.js",
   "/(dashboard)/dashboard/hydraulic-reports/page": "app/(dashboard)/dashboard/hydraulic-reports/page.js",
-  "/(dashboard)/dashboard/managers/page": "app/(dashboard)/dashboard/managers/page.js",
+  "/(dashboard)/dashboard/logs/page": "app/(dashboard)/dashboard/logs/page.js",
   "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/(dashboard)/dashboard/reports/page": "app/(dashboard)/dashboard/reports/page.js",
   "/(dashboard)/dashboard/utilities/page": "app/(dashboard)/dashboard/utilities/page.js",
-  "/(dashboard)/dashboard/utility-infrastructure/page": "app/(dashboard)/dashboard/utility-infrastructure/page.js",
   "/login/page": "app/login/page.js"
 }

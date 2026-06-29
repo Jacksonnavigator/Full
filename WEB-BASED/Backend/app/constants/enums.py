@@ -31,6 +31,12 @@ class ReportPriority(str, Enum):
     CRITICAL = "critical"
 
 
+class ReportType(str, Enum):
+    """Top-level utility report classification."""
+    LEAKAGE = "leakage"
+    NON_LEAKAGE = "non_leakage"
+
+
 class LeakageType(str, Enum):
     """Reported leakage type enumeration"""
     GROUND_LEAKAGE = "ground_leakage"

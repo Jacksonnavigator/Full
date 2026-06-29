@@ -1,11 +1,19 @@
 import type { Report } from "@/store/data-store"
 import { LEAKAGE_TYPE_CONFIG } from "@/lib/constants"
-import type { LeakageType } from "@/lib/types"
+import type { LeakageType, ReportType } from "@/lib/types"
 
 const LEAKAGE_TYPE_KEYS = Object.keys(LEAKAGE_TYPE_CONFIG) as LeakageType[]
 
 export type LeakageTypeDistributionRow = {
   type: LeakageType
+  name: string
+  count: number
+  percentage: number
+  fill: string
+}
+
+export type ReportTypeDistributionRow = {
+  type: ReportType
   name: string
   count: number
   percentage: number
@@ -73,13 +81,14 @@ export function normalizeLeakageType(value: string | null | undefined): LeakageT
 
 export function computeLeakageTypeDistribution(reports: Report[]): LeakageTypeDistributionRow[] {
   const counts = new Map<LeakageType, number>(LEAKAGE_TYPE_KEYS.map((type) => [type, 0]))
+  const leakageReports = reports.filter((report) => (report.reportType || "leakage") === "leakage")
 
-  reports.forEach((report) => {
+  leakageReports.forEach((report) => {
     const type = normalizeLeakageType(report.leakageType)
     counts.set(type, (counts.get(type) || 0) + 1)
   })
 
-  const total = Math.max(reports.length, 1)
+  const total = Math.max(leakageReports.length, 1)
 
   return LEAKAGE_TYPE_KEYS
     .map((type) => {
@@ -91,6 +100,38 @@ export function computeLeakageTypeDistribution(reports: Report[]): LeakageTypeDi
         count,
         percentage: Math.round((count / total) * 1000) / 10,
         fill: config.color,
+      }
+    })
+    .filter((row) => row.count > 0)
+}
+
+export function computeReportTypeDistribution(reports: Report[]): ReportTypeDistributionRow[] {
+  const reportTypes: Array<{
+    type: ReportType
+    name: string
+    fill: string
+  }> = [
+    { type: "leakage", name: "Leakage", fill: "#0891b2" },
+    { type: "non_leakage", name: "Non-leakage", fill: "#4f46e5" },
+  ]
+  const counts = new Map<ReportType, number>(reportTypes.map(({ type }) => [type, 0]))
+
+  reports.forEach((report) => {
+    const type: ReportType = report.reportType === "non_leakage" ? "non_leakage" : "leakage"
+    counts.set(type, (counts.get(type) || 0) + 1)
+  })
+
+  const total = Math.max(reports.length, 1)
+
+  return reportTypes
+    .map(({ type, name, fill }) => {
+      const count = counts.get(type) || 0
+      return {
+        type,
+        name,
+        count,
+        percentage: Math.round((count / total) * 1000) / 10,
+        fill,
       }
     })
     .filter((row) => row.count > 0)

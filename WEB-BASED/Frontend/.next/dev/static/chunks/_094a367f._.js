@@ -702,6 +702,7 @@ const useDataStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                 if (filters?.dmaId) params.set("dma_id", filters.dmaId);
                 if (filters?.status) params.set("status", filters.status);
                 if (filters?.priority) params.set("priority", filters.priority);
+                if (filters?.reportType) params.set("report_type", filters.reportType);
                 if (filters?.search) params.set("search", filters.search);
                 params.set("limit", String(filters?.limit ?? 500));
                 params.set("skip", String(filters?.skip ?? 0));
@@ -2695,7 +2696,7 @@ const NAV_ITEMS = [
         ]
     },
     {
-        title: "Reported Leakage",
+        title: "Reports",
         href: "/dashboard/reports",
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"],
         roles: [

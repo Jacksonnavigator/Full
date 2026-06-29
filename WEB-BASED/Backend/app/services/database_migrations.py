@@ -74,7 +74,7 @@ def run_safe_startup_migrations(engine: Engine) -> None:
     _migrate_notification_columns(engine)
     _migrate_activity_log_constraints(engine)
     _migrate_report_workflow_columns(engine)
-    _migrate_report_leakage_type_column(engine)
+    _migrate_report_classification_columns(engine)
     _migrate_utility_contact_columns(engine)
     _migrate_human_readable_slugs(engine)
     _migrate_utility_service_area_table(engine)
@@ -213,31 +213,69 @@ def _drop_legacy_utility_pipe_network_table(engine: Engine) -> None:
             connection.exec_driver_sql("DROP TABLE IF EXISTS utility_pipe_network")
 
 
-def _migrate_report_leakage_type_column(engine: Engine) -> None:
+def _migrate_report_classification_columns(engine: Engine) -> None:
     inspector = inspect(engine)
     if "report" not in inspector.get_table_names():
         return
 
-    columns = {column["name"] for column in inspector.get_columns("report")}
+    column_details = {column["name"]: column for column in inspector.get_columns("report")}
+    columns = set(column_details)
+    is_postgres = engine.dialect.name.startswith("postgresql")
+    quoted_table_name = '"report"' if is_postgres else "report"
+
+    if "report_type" not in columns:
+        with engine.begin() as connection:
+            statement = (
+                f"ALTER TABLE {quoted_table_name} ADD COLUMN IF NOT EXISTS report_type VARCHAR(32) NOT NULL DEFAULT 'leakage'"
+                if is_postgres
+                else f"ALTER TABLE {quoted_table_name} ADD COLUMN report_type VARCHAR(32) NOT NULL DEFAULT 'leakage'"
+            )
+            if is_postgres:
+                if not _run_postgres_ddl_without_timeout(connection, statement):
+                    return
+            else:
+                connection.exec_driver_sql(statement)
+
     if "leakage_type" not in columns:
         with engine.begin() as connection:
-            if engine.dialect.name.startswith("postgresql"):
+            if is_postgres:
                 if not _run_postgres_ddl_without_timeout(
                     connection,
-                    "ALTER TABLE report ADD COLUMN IF NOT EXISTS leakage_type VARCHAR(50) NOT NULL DEFAULT 'unknown'",
+                    f"ALTER TABLE {quoted_table_name} ADD COLUMN IF NOT EXISTS leakage_type VARCHAR(50) DEFAULT 'unknown'",
                 ):
                     return
             else:
-                connection.exec_driver_sql("ALTER TABLE report ADD COLUMN leakage_type VARCHAR(50) NOT NULL DEFAULT 'unknown'")
+                connection.exec_driver_sql(f"ALTER TABLE {quoted_table_name} ADD COLUMN leakage_type VARCHAR(50) DEFAULT 'unknown'")
 
     with engine.begin() as connection:
-        if engine.dialect.name.startswith("postgresql"):
-            if not _run_postgres_ddl_without_timeout(
-                connection,
-                "CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)",
-            ):
-                return
+        connection.exec_driver_sql(
+            f"UPDATE {quoted_table_name} SET report_type = 'leakage' WHERE report_type IS NULL OR report_type NOT IN ('leakage', 'non_leakage')"
+        )
+        connection.exec_driver_sql(
+            f"UPDATE {quoted_table_name} SET leakage_type = NULL WHERE report_type = 'non_leakage'"
+        )
+        connection.exec_driver_sql(
+            f"UPDATE {quoted_table_name} SET leakage_type = 'unknown' WHERE report_type = 'leakage' AND leakage_type IS NULL"
+        )
+
+        if is_postgres:
+            statements = [
+                f"ALTER TABLE {quoted_table_name} ALTER COLUMN leakage_type DROP NOT NULL",
+                f"CREATE INDEX IF NOT EXISTS ix_report_type ON {quoted_table_name} (report_type)",
+                f"CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON {quoted_table_name} (leakage_type)",
+                f"ALTER TABLE {quoted_table_name} DROP CONSTRAINT IF EXISTS ck_report_type_leakage_type",
+                (
+                    f"ALTER TABLE {quoted_table_name} ADD CONSTRAINT ck_report_type_leakage_type CHECK ("
+                    "report_type IN ('leakage', 'non_leakage') AND "
+                    "((report_type = 'leakage' AND leakage_type IS NOT NULL) OR "
+                    "(report_type = 'non_leakage' AND leakage_type IS NULL)))"
+                ),
+            ]
+            for statement in statements:
+                if not _run_postgres_ddl_without_timeout(connection, statement):
+                    return
         else:
+            connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_report_type ON report (report_type)")
             connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)")
 
 
@@ -337,7 +375,8 @@ def _migrate_sqlite_branchless_schema(engine: Engine) -> None:
             district_name VARCHAR(100),
             photos JSON,
             priority VARCHAR(8),
-            leakage_type VARCHAR(50) NOT NULL DEFAULT 'unknown',
+            report_type VARCHAR(32) NOT NULL DEFAULT 'leakage',
+            leakage_type VARCHAR(50) DEFAULT 'unknown',
             status VARCHAR(16),
             utility_id VARCHAR(36),
             dma_id VARCHAR(36),
@@ -358,12 +397,12 @@ def _migrate_sqlite_branchless_schema(engine: Engine) -> None:
         """,
         """
         INSERT INTO report_new (
-            id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, leakage_type, status,
+            id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, report_type, leakage_type, status,
             utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
             notes, sla_deadline, resolved_at, created_at, updated_at
         )
         SELECT
-            id, tracking_id, description, latitude, longitude, address, NULL as region_name, NULL as district_name, photos, priority, 'unknown' as leakage_type, status,
+            id, tracking_id, description, latitude, longitude, address, NULL as region_name, NULL as district_name, photos, priority, 'leakage' as report_type, 'unknown' as leakage_type, status,
             utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
             notes, sla_deadline, resolved_at, created_at, updated_at
         FROM report
@@ -372,6 +411,7 @@ def _migrate_sqlite_branchless_schema(engine: Engine) -> None:
         "ALTER TABLE report_new RENAME TO report",
         "CREATE UNIQUE INDEX IF NOT EXISTS ix_report_tracking_id ON report (tracking_id)",
         "CREATE INDEX IF NOT EXISTS ix_report_status ON report (status)",
+        "CREATE INDEX IF NOT EXISTS ix_report_type ON report (report_type)",
         "CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)",
         "CREATE INDEX IF NOT EXISTS ix_report_utility_id ON report (utility_id)",
         "CREATE INDEX IF NOT EXISTS ix_report_dma_id ON report (dma_id)",
@@ -1194,6 +1234,8 @@ def _migrate_sqlite_nullable_report_assignment(engine: Engine) -> None:
                 district_name VARCHAR(100),
                 photos JSON,
                 priority VARCHAR(8),
+                report_type VARCHAR(32) NOT NULL DEFAULT 'leakage',
+                leakage_type VARCHAR(50) DEFAULT 'unknown',
                 status VARCHAR(16),
                 utility_id VARCHAR(36),
                 dma_id VARCHAR(36),
@@ -1218,13 +1260,13 @@ def _migrate_sqlite_nullable_report_assignment(engine: Engine) -> None:
             """,
             """
             INSERT INTO report_new (
-                id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, status,
+                id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, report_type, leakage_type, status,
                 utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
                 notes, engineer_submission_notes, team_leader_review_notes, dma_review_notes, public_history_key,
                 sla_deadline, resolved_at, created_at, updated_at
             )
             SELECT
-                id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, status,
+                id, tracking_id, description, latitude, longitude, address, region_name, district_name, photos, priority, report_type, leakage_type, status,
                 utility_id, dma_id, team_id, assigned_engineer_id, reporter_name, reporter_phone,
                 notes,
                 engineer_submission_notes,
@@ -1238,6 +1280,8 @@ def _migrate_sqlite_nullable_report_assignment(engine: Engine) -> None:
             "ALTER TABLE report_new RENAME TO report",
             "CREATE UNIQUE INDEX IF NOT EXISTS ix_report_tracking_id ON report (tracking_id)",
             "CREATE INDEX IF NOT EXISTS ix_report_status ON report (status)",
+            "CREATE INDEX IF NOT EXISTS ix_report_type ON report (report_type)",
+            "CREATE INDEX IF NOT EXISTS ix_report_leakage_type ON report (leakage_type)",
             "CREATE INDEX IF NOT EXISTS ix_report_utility_id ON report (utility_id)",
             "CREATE INDEX IF NOT EXISTS ix_report_dma_id ON report (dma_id)",
             "CREATE INDEX IF NOT EXISTS ix_report_created_at ON report (created_at)",

@@ -27,6 +27,7 @@ from app.models.business import (
     PushDeviceToken,
     ReportStatusEnum,
     ReportPriorityEnum,
+    ReportTypeEnum,
     LeakageTypeEnum,
     NotificationTypeEnum,
 )
@@ -62,6 +63,7 @@ __all__ = [
     "UtilityServiceAreaCategoryEnum",
     "ReportStatusEnum",
     "ReportPriorityEnum",
+    "ReportTypeEnum",
     "LeakageTypeEnum",
     "NotificationTypeEnum",
     "ImageTypeEnum",

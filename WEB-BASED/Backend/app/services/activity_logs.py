@@ -282,6 +282,7 @@ def log_report_activity(
         "latitude": getattr(report, "latitude", None),
         "longitude": getattr(report, "longitude", None),
         "priority": getattr(getattr(report, "priority", None), "value", getattr(report, "priority", None)),
+        "report_type": getattr(getattr(report, "report_type", None), "value", getattr(report, "report_type", None)),
         "leakage_type": getattr(getattr(report, "leakage_type", None), "value", getattr(report, "leakage_type", None)),
         "status": getattr(getattr(report, "status", None), "value", getattr(report, "status", None)),
         "utility_id": getattr(report, "utility_id", None),

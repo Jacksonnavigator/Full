@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session, joinedload, selectinload
 from app.database.session import get_db
 from app.models import Report, Team, Engineer, DMA, Utility, ImageUpload, ImageTypeEnum, ActivityLog
-from app.models.business import LeakageTypeEnum, ReportStatusEnum, ReportPriorityEnum, NotificationTypeEnum
+from app.models.business import LeakageTypeEnum, ReportStatusEnum, ReportPriorityEnum, ReportTypeEnum, NotificationTypeEnum
 from app.models.user import DMAManager
 from app.schemas.business import (
     ReportCreate,
@@ -64,7 +64,8 @@ class ReportWithDetails(BaseModel):
     submission_before_photos: List[str] = []
     submission_after_photos: List[str] = []
     priority: str
-    leakage_type: str = LeakageTypeEnum.UNKNOWN.value
+    report_type: str = ReportTypeEnum.LEAKAGE.value
+    leakage_type: Optional[str] = None
     status: str
     utility_id: Optional[str] = None
     utility_name: Optional[str] = None
@@ -111,6 +112,7 @@ def _report_audit_snapshot(report: Report) -> dict[str, Any]:
         "region_name": report.region_name,
         "district_name": report.district_name,
         "priority": report.priority.value if hasattr(report.priority, "value") else report.priority,
+        "report_type": getattr(getattr(report, "report_type", None), "value", getattr(report, "report_type", ReportTypeEnum.LEAKAGE.value)),
         "leakage_type": report.leakage_type.value if hasattr(report.leakage_type, "value") else report.leakage_type,
         "status": report.status.value if hasattr(report.status, "value") else report.status,
         "utility_id": report.utility_id,
@@ -295,11 +297,31 @@ def _priority_label(priority: str | ReportPriorityEnum | None) -> str:
     return normalized.capitalize()
 
 
-def _leakage_type_value(leakage_type: str | LeakageTypeEnum | None) -> str:
+def _report_type_value(report_type: str | ReportTypeEnum | None) -> str:
+    raw = report_type.value if hasattr(report_type, "value") else report_type
+    normalized = str(raw or "").strip().lower().replace("-", "_")
+    allowed = {item.value for item in ReportTypeEnum}
+    return normalized if normalized in allowed else ReportTypeEnum.LEAKAGE.value
+
+
+def _leakage_type_value(
+    leakage_type: str | LeakageTypeEnum | None,
+    report_type: str | ReportTypeEnum | None = ReportTypeEnum.LEAKAGE.value,
+) -> Optional[str]:
+    if _report_type_value(report_type) == ReportTypeEnum.NON_LEAKAGE.value:
+        return None
     raw = leakage_type.value if hasattr(leakage_type, "value") else leakage_type
     normalized = str(raw or "").strip().lower()
     allowed = {item.value for item in LeakageTypeEnum}
     return normalized if normalized in allowed else LeakageTypeEnum.UNKNOWN.value
+
+
+def _report_classification(
+    report_type: str | ReportTypeEnum | None,
+    leakage_type: str | LeakageTypeEnum | None,
+) -> tuple[str, Optional[str]]:
+    normalized_report_type = _report_type_value(report_type)
+    return normalized_report_type, _leakage_type_value(leakage_type, normalized_report_type)
 
 
 def _build_public_history_claim_details(history_key: str) -> str:
@@ -629,7 +651,11 @@ def _build_report_list_item(report: Report) -> ReportWithDetails:
         submission_before_photos=submission_before_photos,
         submission_after_photos=submission_after_photos,
         priority=report.priority.value if hasattr(report.priority, "value") else report.priority,
-        leakage_type=_leakage_type_value(getattr(report, "leakage_type", None)),
+        report_type=_report_type_value(getattr(report, "report_type", None)),
+        leakage_type=_leakage_type_value(
+            getattr(report, "leakage_type", None),
+            getattr(report, "report_type", None),
+        ),
         status=report.status.value if hasattr(report.status, "value") else report.status,
         utility_id=report.utility_id,
         utility_name=_report_utility_label(utility),
@@ -663,6 +689,7 @@ async def list_reports(
     utility_id: str = Query(None),
     status_filter: str = Query(None, alias="status"),
     priority_filter: str = Query(None, alias="priority"),
+    report_type_filter: str = Query(None, alias="report_type"),
     search: str = Query(None),
     user_id: str = Query(None, alias="user_id"),  # Add user_id filter for engineers
     skip: int = Query(0, ge=0),
@@ -714,6 +741,10 @@ async def list_reports(
 
     if priority_filter:
         query = query.filter(Report.priority == priority_filter)
+
+    if report_type_filter:
+        normalized_report_type = _report_type_value(report_type_filter)
+        query = query.filter(Report.report_type == normalized_report_type)
 
     cleaned_search = (search or "").strip()
     if cleaned_search:
@@ -845,17 +876,22 @@ async def create_report(
     )
     resolved_region_name = resolved_region_name or getattr(utility, "region_name", None)
     resolved_district_name = report_data.district_name or (dma.name if dma else None)
+    report_type, leakage_type = _report_classification(
+        getattr(report_data, "report_type", None),
+        getattr(report_data, "leakage_type", None),
+    )
 
     new_report = Report(
         tracking_id=tracking_id,
         dma_id=dma.id if dma else None,
         utility_id=utility.id if utility else None,
-        description=report_data.description or "Authenticated reported leakage",
+        description=report_data.description or "Authenticated utility report",
         address=report_data.address,
         region_name=resolved_region_name,
         district_name=resolved_district_name,
         priority=report_data.priority,
-        leakage_type=_leakage_type_value(getattr(report_data, "leakage_type", None)),
+        report_type=report_type,
+        leakage_type=leakage_type,
         photos=report_data.photos or [],
         assigned_engineer_id=report_data.assigned_engineer_id,
         status=ReportStatusEnum.NEW,
@@ -876,8 +912,8 @@ async def create_report(
         queued_notification = _queue_dma_manager_notification(
             db,
             new_report,
-            title="New reported leakage needs assignment",
-            message=f"{_priority_label(new_report.priority)} priority reported leakage {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
+            title="New report needs assignment",
+            message=f"{_priority_label(new_report.priority)} priority report {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
             notification_type=NotificationTypeEnum.WARNING,
         )
     
@@ -937,15 +973,18 @@ async def create_anonymous_report(
 
     # Map priority string to enum
     priority_map = {
-        "Low": ReportPriorityEnum.LOW,
-        "Medium": ReportPriorityEnum.MEDIUM,
-        "High": ReportPriorityEnum.HIGH,
-        "Critical": ReportPriorityEnum.CRITICAL,
-        "urgent": ReportPriorityEnum.HIGH,  # Handle mobile app format
-        "moderate": ReportPriorityEnum.MEDIUM,
         "low": ReportPriorityEnum.LOW,
+        "medium": ReportPriorityEnum.MEDIUM,
+        "moderate": ReportPriorityEnum.MEDIUM,
+        "high": ReportPriorityEnum.HIGH,
+        "critical": ReportPriorityEnum.CRITICAL,
+        "urgent": ReportPriorityEnum.HIGH,  # Handle mobile app format
     }
-    priority = priority_map.get(report_data.priority.lower(), ReportPriorityEnum.MEDIUM)
+    priority = priority_map.get(str(report_data.priority or "medium").strip().lower(), ReportPriorityEnum.MEDIUM)
+    report_type, leakage_type = _report_classification(
+        getattr(report_data, "report_type", None),
+        getattr(report_data, "leakage_type", None),
+    )
     
     new_report = Report(
         tracking_id=tracking_id,
@@ -956,7 +995,8 @@ async def create_anonymous_report(
         region_name=resolved_region_name,
         district_name=resolved_district_name,
         priority=priority,
-        leakage_type=_leakage_type_value(getattr(report_data, "leakage_type", None)),
+        report_type=report_type,
+        leakage_type=leakage_type,
         photos=report_data.images or [],
         status=ReportStatusEnum.NEW,
         reporter_name=report_data.reported_by or "Anonymous",
@@ -975,8 +1015,8 @@ async def create_anonymous_report(
         queued_notification = _queue_dma_manager_notification(
             db,
             new_report,
-            title="New reported leakage needs assignment",
-            message=f"{_priority_label(new_report.priority)} priority reported leakage {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
+            title="New report needs assignment",
+            message=f"{_priority_label(new_report.priority)} priority report {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
             notification_type=NotificationTypeEnum.WARNING,
         )
     log_report_activity(
@@ -1168,9 +1208,34 @@ async def update_report(
 
         changed_fields.extend(["utility_id", "dma_id"])
 
+    classification_changed = bool({"report_type", "leakage_type"} & report_data.model_fields_set)
+    incoming_report_type = update_data.pop("report_type", None)
+    incoming_leakage_type = update_data.pop("leakage_type", None)
+    if classification_changed:
+        target_report_type = (
+            incoming_report_type
+            if "report_type" in report_data.model_fields_set
+            else getattr(report, "report_type", ReportTypeEnum.LEAKAGE.value)
+        )
+        target_leakage_type = (
+            incoming_leakage_type
+            if "leakage_type" in report_data.model_fields_set
+            else getattr(report, "leakage_type", None)
+        )
+        if (
+            _report_type_value(target_report_type) == ReportTypeEnum.LEAKAGE.value
+            and "report_type" in report_data.model_fields_set
+            and "leakage_type" not in report_data.model_fields_set
+            and getattr(report, "report_type", ReportTypeEnum.LEAKAGE.value) == ReportTypeEnum.NON_LEAKAGE.value
+        ):
+            target_leakage_type = LeakageTypeEnum.UNKNOWN.value
+        report.report_type, report.leakage_type = _report_classification(
+            target_report_type,
+            target_leakage_type,
+        )
+        changed_fields.extend(["report_type", "leakage_type"])
+
     for field, value in update_data.items():
-        if field == "leakage_type":
-            value = _leakage_type_value(value)
         setattr(report, field, value)
         changed_fields.append(field)
 
@@ -1260,8 +1325,8 @@ async def update_report_status(
             notification = _queue_dma_manager_notification(
                 db,
                 report,
-                title="Reported leakage ready for DMA approval",
-                message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was approved by the team leader and is ready for DMA review.",
+                title="Report ready for DMA approval",
+                message=f"{_priority_label(report.priority)} priority report {report.tracking_id} was approved by the team leader and is ready for DMA review.",
                 notification_type=NotificationTypeEnum.INFO,
             )
             if notification:
@@ -1270,8 +1335,8 @@ async def update_report_status(
             notification = _queue_team_leader_notification(
                 db,
                 report,
-                title="Engineer submitted reported leakage repair for review",
-                message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} has new repair evidence waiting for your review.",
+                title="Engineer submitted report resolution for review",
+                message=f"{_priority_label(report.priority)} priority report {report.tracking_id} has new repair evidence waiting for your review.",
                 notification_type=NotificationTypeEnum.INFO,
             )
             if notification:
@@ -1280,8 +1345,8 @@ async def update_report_status(
         notification = _queue_engineer_notification(
             db,
             report,
-            title="Reported leakage returned for rework",
-            message=status_update.notes or f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} was returned by the team leader for follow-up work.",
+            title="Report returned for rework",
+            message=status_update.notes or f"{_priority_label(report.priority)} priority report {report.tracking_id} was returned by the team leader for follow-up work.",
             notification_type=NotificationTypeEnum.WARNING,
         )
         if notification:
@@ -1370,8 +1435,8 @@ async def assign_report(
     team_notifications = _queue_team_member_notifications(
         db,
         report,
-        title="New reported leakage assigned to your team",
-        message=f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} is now assigned to your team for field action.",
+        title="New report assigned to your team",
+        message=f"{_priority_label(report.priority)} priority report {report.tracking_id} is now assigned to your team for field action.",
         notification_type=NotificationTypeEnum.INFO,
     )
     if team_notifications:
@@ -1441,9 +1506,9 @@ async def approve_report(
     engineer_notification = _queue_engineer_notification(
         db,
         report,
-        title="Reported leakage approved and closed",
+        title="Report approved and closed",
         message=(
-            f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} "
+            f"{_priority_label(report.priority)} priority report {report.tracking_id} "
             f"was approved by DMA and marked as closed."
             + (f" DMA comment: {decision.notes}" if decision.notes else "")
         ),
@@ -1454,9 +1519,9 @@ async def approve_report(
     leader_notification = _queue_team_leader_notification(
         db,
         report,
-        title="DMA approved your reported leakage repair",
+        title="DMA approved your report resolution",
         message=(
-            f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} "
+            f"{_priority_label(report.priority)} priority report {report.tracking_id} "
             f"was approved by DMA and marked as closed."
             + (f" DMA comment: {decision.notes}" if decision.notes else "")
         ),
@@ -1529,9 +1594,9 @@ async def reject_report(
     engineer_notification = _queue_engineer_notification(
         db,
         report,
-        title="Reported leakage needs follow-up work",
+        title="Report needs follow-up work",
         message=(
-            f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} "
+            f"{_priority_label(report.priority)} priority report {report.tracking_id} "
             f"was returned for rework by DMA."
             + (f" Reason: {decision.notes}" if decision.notes else "")
         ),
@@ -1542,9 +1607,9 @@ async def reject_report(
     leader_notification = _queue_team_leader_notification(
         db,
         report,
-        title="DMA requested reported leakage follow-up work",
+        title="DMA requested report follow-up work",
         message=(
-            f"{_priority_label(report.priority)} priority reported leakage {report.tracking_id} "
+            f"{_priority_label(report.priority)} priority report {report.tracking_id} "
             f"needs follow-up work before you resubmit it to DMA."
             + (f" Reason: {decision.notes}" if decision.notes else "")
         ),
@@ -1663,7 +1728,11 @@ def _build_report_with_details(report: Report, db: Session) -> ReportWithDetails
         submission_before_photos=submission_before_photos,
         submission_after_photos=submission_after_photos,
         priority=report.priority.value if hasattr(report.priority, 'value') else report.priority,
-        leakage_type=_leakage_type_value(getattr(report, "leakage_type", None)),
+        report_type=_report_type_value(getattr(report, "report_type", None)),
+        leakage_type=_leakage_type_value(
+            getattr(report, "leakage_type", None),
+            getattr(report, "report_type", None),
+        ),
         status=report.status.value if hasattr(report.status, 'value') else report.status,
         utility_id=report.utility_id,
         utility_name=_report_utility_label(utility if report.utility_id else None),

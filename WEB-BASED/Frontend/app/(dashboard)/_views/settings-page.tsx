@@ -421,7 +421,7 @@ export default function SettingsPage() {
                 <div className="rounded-2xl border border-border/70 p-4">
                   <p className="text-sm font-semibold text-foreground">Need to check assignments or approvals?</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Open the live notification stream or jump straight to the reported leakage queue.
+                    Open the live notification stream or jump straight to the report queue.
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
                     <Button variant="outline" className="rounded-full" onClick={() => router.push("/dashboard/notifications")}>
@@ -473,7 +473,7 @@ export default function SettingsPage() {
                 <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
                   <p className="font-semibold text-foreground">When a report seems stuck</p>
                   <p className="mt-2">
-                    Check the notification center first, then open the reported leakage queue to confirm whether it is waiting for assignment, field repair, team leader review, or DMA approval.
+                    Check the notification center first, then open the report queue to confirm whether it is waiting for assignment, field resolution, team leader review, or DMA approval.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
@@ -501,7 +501,7 @@ export default function SettingsPage() {
                 <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
                   <p className="font-semibold text-foreground">Before you escalate</p>
                   <p className="mt-2">
-                    Check the notification center, confirm the user role and assignment scope, and review the reported leakage status before raising it as a platform issue.
+                    Check the notification center, confirm the user role and assignment scope, and review the report status before raising it as a platform issue.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-3">

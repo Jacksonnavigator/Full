@@ -19,6 +19,7 @@ export type ReportStatus =
   | "closed"
 
 export type ReportPriority = "low" | "medium" | "high" | "critical"
+export type ReportType = "leakage" | "non_leakage"
 export type LeakageType =
   | "ground_leakage"
   | "pipe_burst"
@@ -154,7 +155,8 @@ export interface Report {
   submissionBeforePhotos?: string[]
   submissionAfterPhotos?: string[]
   priority: ReportPriority
-  leakageType?: LeakageType
+  reportType: ReportType
+  leakageType?: LeakageType | null
   status: ReportStatus
   utilityId: string | null
   utilityName: string
