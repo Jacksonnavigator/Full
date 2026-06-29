@@ -4,6 +4,7 @@ Application health and status endpoints
 """
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -31,7 +32,7 @@ async def database_health(db: Session = Depends(get_db)):
     """Check database connection health"""
     try:
         # Simple query to check database connection
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         return {
             "status": "healthy",
             "database": "connected",
@@ -51,7 +52,7 @@ async def readiness_check(db: Session = Depends(get_db)):
     """Check if application is ready to handle requests"""
     try:
         # Check database
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         
         return {
             "ready": True,

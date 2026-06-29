@@ -5,7 +5,7 @@ Request and response models for API validation
 
 from datetime import datetime
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from app.constants.enums import LeakageType, ReportStatus, ReportPriority, ReportType, NotificationType
 
 
@@ -47,10 +47,18 @@ class AnonymousReportCreate(BaseModel):
     district_name: Optional[str] = Field(None, max_length=100)
     priority: str = "Medium"  # Accept string priority from mobile app
     report_type: ReportType = ReportType.LEAKAGE
-    leakage_type: Optional[LeakageType] = LeakageType.UNKNOWN
+    leakage_type: Optional[LeakageType] = None
     images: Optional[List[str]] = []
     reported_by: Optional[str] = "Anonymous"
     history_key: Optional[str] = Field(None, max_length=64)
+
+    @model_validator(mode="after")
+    def normalize_classification(self) -> "AnonymousReportCreate":
+        if self.report_type == ReportType.NON_LEAKAGE:
+            self.leakage_type = None
+        elif self.leakage_type is None:
+            self.leakage_type = LeakageType.UNKNOWN
+        return self
 
 
 class ReportUpdate(BaseModel):

@@ -27,6 +27,7 @@ from app.security.dependencies import get_current_user, CurrentUser
 from typing import Any, Optional, List, Tuple
 from pydantic import BaseModel, Field
 from datetime import datetime
+import logging
 import re
 from datetime import timedelta
 from app.services.hierarchy import (
@@ -45,6 +46,7 @@ from app.services.activity_logs import audit_log, log_report_activity
 
 
 reports_router = APIRouter(prefix="/api/reports", tags=["reports"])
+logger = logging.getLogger(__name__)
 
 UPLOAD_URL_PATTERN = re.compile(r"/api/uploads/([0-9a-fA-F-]{36})$")
 
@@ -1012,31 +1014,48 @@ async def create_anonymous_report(
     _attach_upload_refs_to_report(new_report, report_data.images or [], db)
     queued_notification = None
     if dma:
-        queued_notification = _queue_dma_manager_notification(
+        try:
+            queued_notification = _queue_dma_manager_notification(
+                db,
+                new_report,
+                title="New report needs assignment",
+                message=f"{_priority_label(new_report.priority)} priority report {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
+                notification_type=NotificationTypeEnum.WARNING,
+            )
+        except Exception as exc:
+            logger.warning("Failed to queue DMA notification for anonymous report %s: %s", tracking_id, exc)
+    try:
+        log_report_activity(
             db,
-            new_report,
-            title="New report needs assignment",
-            message=f"{_priority_label(new_report.priority)} priority report {new_report.tracking_id} was logged in {dma.name}. Review it and assign a team.",
-            notification_type=NotificationTypeEnum.WARNING,
+            report=new_report,
+            action="report_created",
+            details=(
+                f"Anonymous report {tracking_id} was created. "
+                f"Utility: {_report_utility_label(utility)}. DMA: {_report_dma_label(dma, utility)}."
+            ),
+            request=request,
+            actor_name=report_data.reported_by or "Anonymous",
+            actor_role="anonymous_reporter",
         )
-    log_report_activity(
-        db,
-        report=new_report,
-        action="report_created",
-        details=(
-            f"Anonymous report {tracking_id} was created. "
-            f"Utility: {_report_utility_label(utility)}. DMA: {_report_dma_label(dma, utility)}."
-        ),
-        request=request,
-        actor_name=report_data.reported_by or "Anonymous",
-        actor_role="anonymous_reporter",
-    )
+    except Exception as exc:
+        logger.warning("Failed to write activity log for anonymous report %s: %s", tracking_id, exc)
     db.commit()
     db.refresh(new_report)
     if queued_notification:
-        deliver_notifications_push([queued_notification], db)
-    
-    return _build_report_with_details(new_report, db)
+        try:
+            deliver_notifications_push([queued_notification], db)
+        except Exception as exc:
+            logger.warning("Failed to deliver push notification for anonymous report %s: %s", tracking_id, exc)
+
+    try:
+        return _build_report_with_details(new_report, db)
+    except Exception as exc:
+        logger.warning(
+            "Falling back to lightweight anonymous report response for %s after detail build failed: %s",
+            tracking_id,
+            exc,
+        )
+        return _build_report_list_item(new_report)
 
 
 @reports_router.get("/public/tracking/{tracking_id}", response_model=ReportWithDetails)
