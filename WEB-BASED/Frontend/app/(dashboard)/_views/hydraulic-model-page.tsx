@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import { AlertTriangle, CheckCircle2, Loader2, MapPin, ShieldCheck, XCircle } from "lucide-react"
 import { toast } from "sonner"
 
@@ -13,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { HydraulicPumpIcon } from "@/components/icons/hydraulic-pump-icon"
+import { HYDRAULIC_LAUNCH_STORAGE_KEY } from "@/lib/hydraulic-workspace"
 
 type Choice = {
   id: string
@@ -77,6 +79,7 @@ function RequirementRow({ item }: { item: Requirement }) {
 
 export default function HydraulicModelPage() {
   usePageAccess()
+  const router = useRouter()
 
   const { currentUser } = useAuthStore()
   const { utilities, dmas, initialized, isLoading: storeLoading } = useDataStore()
@@ -200,7 +203,8 @@ export default function HydraulicModelPage() {
 
     toast.success(response.data.message || "Hydraulic model is ready.")
     if (response.data.launch_url) {
-      window.location.href = response.data.launch_url
+      window.sessionStorage.setItem(HYDRAULIC_LAUNCH_STORAGE_KEY, response.data.launch_url)
+      router.push("/dashboard/hydraulic-model/workspace")
     } else {
       toast.info("Hydraulic model URL is not configured yet on the backend.")
     }

@@ -1,0 +1,37 @@
+[00:00:01.581] Server  LOG     ✓ Ready in 1256ms
+[01:08:04.687] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:08:05.445] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:08:05.680] Browser WARN    Image with src "/logo1.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[01:11:21.661] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:12:04.904] Browser WARN    Image with src "/logo1.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[01:34:45.624] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:36:39.814] Server  LOG     ✓ Compiled in 459ms
+[01:37:05.559] Server  LOG     ✓ Compiled in 281ms
+[01:37:38.172] Server  LOG     ✓ Compiled in 316ms
+[01:38:51.696] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:40:14.512] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:43:50.453] Server  LOG     ✓ Compiled in 269ms
+[01:54:10.732] Server  LOG     ✓ Compiled in 410ms
+[01:54:11.816] Browser ERROR   uncaughtError: ReferenceError: cn is not defined
+[01:57:59.865] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:58:00.037] Browser ERROR   uncaughtError: ReferenceError: cn is not defined
+[01:58:02.350] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:58:02.350] Browser ERROR   uncaughtError: ReferenceError: cn is not defined
+[01:58:19.701] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:58:19.871] Browser ERROR   uncaughtError: ReferenceError: cn is not defined
+[01:58:54.787] Server  WARN    ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[01:58:54.807] Server  LOG     ✓ Compiled in 335ms
+[01:58:55.443] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[02:05:54.828] Server  LOG     ✓ Compiled in 380ms
+[02:10:28.191] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[02:22:07.893] Server  LOG     ✓ Compiled in 325ms
+[02:22:44.060] Server  LOG     ✓ Compiled in 330ms
+[02:23:19.049] Server  LOG     ✓ Compiled in 448ms
+[02:23:19.640] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[02:26:50.857] Browser WARN    Image with src "/logo1.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[02:37:07.748] Server  LOG       Reload env: .env
+[02:37:08.158] Server  LOG     ✓ Compiled in 0ms
+[02:38:16.460] Server  LOG       Reload env: .env.development.local
+[02:38:16.461] Server  LOG       Reload env: .env.local
+[02:39:11.303] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[02:39:12.177] Browser WARN    Image with src "/logo1.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.

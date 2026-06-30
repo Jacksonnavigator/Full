@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   Bell,
   CheckCheck,
@@ -22,7 +22,7 @@ import {
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
 import { useTheme } from "next-themes"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useTopbarTitle } from "@/components/layout/topbar-title-context"
@@ -37,11 +37,14 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { getNotificationTag, resolveNotificationDestinationWithData } from "@/lib/notifications"
 import { formatTanzaniaShortDate } from "@/lib/date-time"
+import { cn } from "@/lib/utils"
 import { DEFAULT_WEB_UI_PREFERENCES, loadWebUiPreferences, subscribeToWebUiPreferences } from "@/lib/user-preferences"
 import { BrandWordmark } from "@/components/shared/brand-wordmark"
 
 export function TopNavbar() {
   const router = useRouter()
+  const pathname = usePathname()
+  const { state, isMobile } = useSidebar()
   const { currentUser, logout } = useAuthStore()
   const {
     notifications,
@@ -61,6 +64,9 @@ export function TopNavbar() {
   const unreadCount = getUnreadNotificationCount()
   const recentNotifications = useMemo(() => notifications.slice(0, 5), [notifications])
   const isDarkMode = mounted && resolvedTheme === "dark"
+  const isHydraulicWorkspace = pathname === "/dashboard/hydraulic-model/workspace"
+  const shouldOffsetForHydraulicSidebar = isHydraulicWorkspace && !isMobile && state === "expanded"
+  const hydraulicSidebarOffset = "calc(var(--sidebar-width) - var(--sidebar-width-icon))"
   const headerTitle = topbarTitle?.title || "Water Leakage Monitoring"
   const titleHasMonitoringSuffix = headerTitle.endsWith(" Monitoring")
   const titlePrimary = titleHasMonitoringSuffix ? headerTitle.replace(/ Monitoring$/, "") : headerTitle
@@ -198,7 +204,20 @@ export function TopNavbar() {
   }
 
   return (
-    <header className="sticky top-0 z-30 w-full overflow-hidden">
+    <header
+      className={cn(
+        "sticky top-0 z-30 overflow-hidden transition-[margin,width] duration-200 ease-linear",
+        shouldOffsetForHydraulicSidebar ? "ml-0" : "w-full"
+      )}
+      style={
+        shouldOffsetForHydraulicSidebar
+          ? {
+              marginLeft: hydraulicSidebarOffset,
+              width: `calc(100% - ${hydraulicSidebarOffset})`,
+            }
+          : undefined
+      }
+    >
       {/* Calm command bar */}
       <div className="relative flex h-16 w-full items-center justify-between gap-4 border-b border-slate-300/80 bg-slate-200/85 px-4 text-slate-800 shadow-sm shadow-slate-900/[0.025] backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/88 dark:text-slate-100 dark:shadow-black/30 sm:px-6">
         {/* Subtle background texture */}

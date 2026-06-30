@@ -170,6 +170,7 @@ const Sidebar = React.forwardRef<
     side?: 'left' | 'right'
     variant?: 'sidebar' | 'floating' | 'inset'
     collapsible?: 'offcanvas' | 'icon' | 'none'
+    overlayExpandedDesktop?: boolean
   }
 >(
   (
@@ -177,13 +178,14 @@ const Sidebar = React.forwardRef<
       side = 'left',
       variant = 'sidebar',
       collapsible = 'offcanvas',
+      overlayExpandedDesktop = false,
       className,
       children,
       ...props
     },
     ref,
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+    const { isMobile, state, openMobile, setOpenMobile, toggleSidebar } = useSidebar()
 
     if (collapsible === 'none') {
       return (
@@ -227,15 +229,29 @@ const Sidebar = React.forwardRef<
         className="group peer hidden md:block text-sidebar-foreground"
         data-state={state}
         data-collapsible={state === 'collapsed' ? collapsible : ''}
+        data-overlay-expanded-desktop={overlayExpandedDesktop ? 'true' : 'false'}
         data-variant={variant}
         data-side={side}
       >
+        {overlayExpandedDesktop && state === 'expanded' ? (
+          <button
+            type="button"
+            aria-label="Close sidebar overlay"
+            className="fixed inset-0 z-[9] hidden bg-slate-950/18 backdrop-blur-[1px] md:block"
+            onClick={toggleSidebar}
+          />
+        ) : null}
         {/* This is what handles the sidebar gap on desktop */}
         <div
           className={cn(
             'duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear',
             'group-data-[collapsible=offcanvas]:w-0',
             'group-data-[side=right]:rotate-180',
+            overlayExpandedDesktop && collapsible === 'icon'
+              ? variant === 'floating' || variant === 'inset'
+                ? 'w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]'
+                : 'w-[--sidebar-width-icon]'
+              : null,
             variant === 'floating' || variant === 'inset'
               ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]'
               : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon]',
@@ -243,10 +259,11 @@ const Sidebar = React.forwardRef<
         />
         <div
           className={cn(
-            'duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex',
+            'duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width,box-shadow] ease-linear md:flex',
             side === 'left'
               ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
               : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
+            overlayExpandedDesktop ? 'z-[10] shadow-[12px_0_36px_-24px_rgba(15,23,42,0.35)] dark:shadow-[12px_0_36px_-24px_rgba(2,6,23,0.6)]' : null,
             // Adjust the padding for floating and inset variants.
             variant === 'floating' || variant === 'inset'
               ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]'

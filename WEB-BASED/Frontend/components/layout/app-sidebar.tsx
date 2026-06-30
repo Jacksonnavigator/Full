@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import type { MouseEvent } from "react"
 import { LogOut, ChevronUp } from "lucide-react"
 import { useAuthStore } from "@/store/auth-store"
 import { NAV_ITEMS, ROLE_SHORT_LABELS } from "@/lib/constants"
@@ -28,6 +29,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { BrandWordmark } from "@/components/shared/brand-wordmark"
+import { cleanupHydraulicWorkspaceSession } from "@/lib/hydraulic-workspace"
 
 const HYDRAULIC_TESTER_EMAIL = "admin2@hydranet.com"
 const HYDRAULIC_NAV_ROUTES = new Set([
@@ -37,9 +39,11 @@ const HYDRAULIC_NAV_ROUTES = new Set([
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { currentUser, logout } = useAuthStore()
   const { state, isMobile, setOpenMobile } = useSidebar()
   const isCollapsed = !isMobile && state === "collapsed"
+  const isHydraulicWorkspace = pathname === "/dashboard/hydraulic-model/workspace"
 
   if (!currentUser) return null
 
@@ -56,9 +60,19 @@ export function AppSidebar() {
     .join("")
     .toUpperCase()
 
+  async function handleWorkspaceNavigation(event: MouseEvent<HTMLElement>, href: string) {
+    if (isMobile) setOpenMobile(false)
+    if (!isHydraulicWorkspace || href === pathname) return
+
+    event.preventDefault()
+    await cleanupHydraulicWorkspaceSession()
+    router.push(href)
+  }
+
   return (
     <Sidebar 
       collapsible="icon" 
+      overlayExpandedDesktop={isHydraulicWorkspace}
       className="border-r border-slate-300/80 bg-sidebar shadow-[8px_0_24px_-26px_rgba(15,23,42,0.38)]"
     >
       <div className="absolute inset-0 bg-slate-200/45 pointer-events-none" />
@@ -68,7 +82,7 @@ export function AppSidebar() {
         "border-b border-slate-300/80 relative bg-slate-200/55 backdrop-blur-sm",
         isCollapsed ? "px-2 py-4" : "px-5 py-6"
       )}>
-        <Link href="/dashboard" className={cn(
+        <Link href="/dashboard" onClick={(event) => void handleWorkspaceNavigation(event, "/dashboard")} className={cn(
           "flex items-center",
           isCollapsed ? "justify-center" : "gap-4"
         )}>
@@ -148,9 +162,7 @@ export function AppSidebar() {
                     >
                       <Link 
                         href={item.href} 
-                        onClick={() => {
-                          if (isMobile) setOpenMobile(false)
-                        }}
+                        onClick={(event) => void handleWorkspaceNavigation(event, item.href)}
                         className={cn(
                           "flex min-h-full w-full items-center",
                           isCollapsed ? "justify-center" : "gap-4"

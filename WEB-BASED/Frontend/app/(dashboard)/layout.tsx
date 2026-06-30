@@ -1,13 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { TopNavbar } from "@/components/layout/top-navbar"
 import { TopbarTitleProvider } from "@/components/layout/topbar-title-context"
+import { cn } from "@/lib/utils"
 
 export default function DashboardLayout({
   children,
@@ -15,9 +16,11 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const { isAuthenticated, currentUser } = useAuthStore()
   const { initialize, initialized } = useDataStore()
   const [hydrated, setHydrated] = useState(false)
+  const isHydraulicWorkspace = pathname === "/dashboard/hydraulic-model/workspace"
 
   // Wait for Zustand to hydrate from localStorage
   useEffect(() => {
@@ -58,7 +61,14 @@ export default function DashboardLayout({
           <div className="flex flex-col flex-1">
             <TopNavbar />
             <SidebarInset className="relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none bg-background">
-              <main className="flex-1 overflow-y-auto overflow-x-hidden bg-background p-6 text-slate-900 dark:text-slate-100">
+              <main
+                className={cn(
+                  "flex-1 bg-background text-slate-900 dark:text-slate-100",
+                  isHydraulicWorkspace
+                    ? "overflow-hidden p-0"
+                    : "overflow-y-auto overflow-x-hidden p-6"
+                )}
+              >
                 {children}
               </main>
             </SidebarInset>
