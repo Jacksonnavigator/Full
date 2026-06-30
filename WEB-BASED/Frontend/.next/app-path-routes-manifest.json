@@ -9,7 +9,10 @@
   "/(dashboard)/dashboard/dmas/page": "/dashboard/dmas",
   "/(dashboard)/dashboard/engineers/page": "/dashboard/engineers",
   "/(dashboard)/dashboard/hydraulic-model/page": "/dashboard/hydraulic-model",
+<<<<<<< HEAD
   "/(dashboard)/dashboard/hydraulic-model/workspace/page": "/dashboard/hydraulic-model/workspace",
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
   "/(dashboard)/dashboard/hydraulic-reports/[snapshotId]/page": "/dashboard/hydraulic-reports/[snapshotId]",
   "/(dashboard)/dashboard/hydraulic-reports/page": "/dashboard/hydraulic-reports",
   "/(dashboard)/dashboard/location-routing/page": "/dashboard/location-routing",

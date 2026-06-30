@@ -178,12 +178,15 @@
       "namedRegex": "^/dashboard/hydraulic\\-model(?:/)?$"
     },
     {
+<<<<<<< HEAD
       "page": "/dashboard/hydraulic-model/workspace",
       "regex": "^/dashboard/hydraulic\\-model/workspace(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dashboard/hydraulic\\-model/workspace(?:/)?$"
     },
     {
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
       "page": "/dashboard/hydraulic-reports",
       "regex": "^/dashboard/hydraulic\\-reports(?:/)?$",
       "routeKeys": {},

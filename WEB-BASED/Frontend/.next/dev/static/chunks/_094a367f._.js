@@ -23,7 +23,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 // Environment variables are embedded by Next.js during the frontend build.
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
 const DEFAULT_PRODUCTION_BACKEND_URL = "https://full-nfjr.onrender.com";
+<<<<<<< HEAD
 const rawBackendUrl = ("TURBOPACK compile-time value", "http://localhost:8000") || "";
+=======
+const rawBackendUrl = ("TURBOPACK compile-time value", "https://full-nfjr.onrender.com") || "";
+>>>>>>> parent of 17dcfe59 (Updates)
 const BACKEND_API_PREFIX = '/api';
 const normalizedConfiguredBackendUrl = rawBackendUrl.replace(/\/+$/, "");
 const configuredBackendIsLoopback = /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?$/i.test(normalizedConfiguredBackendUrl);
@@ -1795,9 +1799,15 @@ const SidebarProvider = /*#__PURE__*/ _s1(__TURBOPACK__imported__module__$5b$pro
 });
 _c1 = SidebarProvider;
 SidebarProvider.displayName = 'SidebarProvider';
+<<<<<<< HEAD
 const Sidebar = /*#__PURE__*/ _s2(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c2 = _s2(({ side = 'left', variant = 'sidebar', collapsible = 'offcanvas', overlayExpandedDesktop = false, className, children, ...props }, ref)=>{
     _s2();
     const { isMobile, state, openMobile, setOpenMobile, toggleSidebar } = useSidebar();
+=======
+const Sidebar = /*#__PURE__*/ _s2(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](_c2 = _s2(({ side = 'left', variant = 'sidebar', collapsible = 'offcanvas', className, children, ...props }, ref)=>{
+    _s2();
+    const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+>>>>>>> parent of 17dcfe59 (Updates)
     if (collapsible === 'none') {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])('flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground', className),
@@ -1806,7 +1816,11 @@ const Sidebar = /*#__PURE__*/ _s2(__TURBOPACK__imported__module__$5b$project$5d2
             children: children
         }, void 0, false, {
             fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
             lineNumber: 192,
+=======
+            lineNumber: 190,
+>>>>>>> parent of 17dcfe59 (Updates)
             columnNumber: 9
         }, ("TURBOPACK compile-time value", void 0));
     }
@@ -1829,7 +1843,11 @@ const Sidebar = /*#__PURE__*/ _s2(__TURBOPACK__imported__module__$5b$project$5d2
                         children: "Navigation Menu"
                     }, void 0, false, {
                         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                         lineNumber: 219,
+=======
+                        lineNumber: 217,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 13
                     }, ("TURBOPACK compile-time value", void 0)),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1837,18 +1855,30 @@ const Sidebar = /*#__PURE__*/ _s2(__TURBOPACK__imported__module__$5b$project$5d2
                         children: children
                     }, void 0, false, {
                         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                         lineNumber: 220,
+=======
+                        lineNumber: 218,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 13
                     }, ("TURBOPACK compile-time value", void 0))
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 208,
+=======
+                lineNumber: 206,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 11
             }, ("TURBOPACK compile-time value", void 0))
         }, void 0, false, {
             fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
             lineNumber: 207,
+=======
+            lineNumber: 205,
+>>>>>>> parent of 17dcfe59 (Updates)
             columnNumber: 9
         }, ("TURBOPACK compile-time value", void 0));
     }
@@ -1857,6 +1887,7 @@ const Sidebar = /*#__PURE__*/ _s2(__TURBOPACK__imported__module__$5b$project$5d2
         className: "group peer hidden md:block text-sidebar-foreground",
         "data-state": state,
         "data-collapsible": state === 'collapsed' ? collapsible : '',
+<<<<<<< HEAD
         "data-overlay-expanded-desktop": overlayExpandedDesktop ? 'true' : 'false',
         "data-variant": variant,
         "data-side": side,
@@ -1880,6 +1911,20 @@ const Sidebar = /*#__PURE__*/ _s2(__TURBOPACK__imported__module__$5b$project$5d2
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])('duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width,box-shadow] ease-linear md:flex', side === 'left' ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]' : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]', overlayExpandedDesktop ? 'z-[10] shadow-[12px_0_36px_-24px_rgba(15,23,42,0.35)] dark:shadow-[12px_0_36px_-24px_rgba(2,6,23,0.6)]' : null, // Adjust the padding for floating and inset variants.
+=======
+        "data-variant": variant,
+        "data-side": side,
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])('duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear', 'group-data-[collapsible=offcanvas]:w-0', 'group-data-[side=right]:rotate-180', variant === 'floating' || variant === 'inset' ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]' : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon]')
+            }, void 0, false, {
+                fileName: "[project]/components/ui/sidebar.tsx",
+                lineNumber: 234,
+                columnNumber: 9
+            }, ("TURBOPACK compile-time value", void 0)),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])('duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex', side === 'left' ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]' : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]', // Adjust the padding for floating and inset variants.
+>>>>>>> parent of 17dcfe59 (Updates)
                 variant === 'floating' || variant === 'inset' ? 'p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]' : 'group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l', className),
                 ...props,
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1888,17 +1933,26 @@ const Sidebar = /*#__PURE__*/ _s2(__TURBOPACK__imported__module__$5b$project$5d2
                     children: children
                 }, void 0, false, {
                     fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                     lineNumber: 275,
+=======
+                    lineNumber: 258,
+>>>>>>> parent of 17dcfe59 (Updates)
                     columnNumber: 11
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 260,
+=======
+                lineNumber: 244,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 227,
         columnNumber: 7
     }, ("TURBOPACK compile-time value", void 0));
@@ -1907,6 +1961,16 @@ const Sidebar = /*#__PURE__*/ _s2(__TURBOPACK__imported__module__$5b$project$5d2
         useSidebar
     ];
 })), "gF6NJaXk18iWmuShzM6dE6bIE14=", false, function() {
+=======
+        lineNumber: 225,
+        columnNumber: 7
+    }, ("TURBOPACK compile-time value", void 0));
+}, "hAL3+uRFwO9tnbDK50BUE5wZ71s=", false, function() {
+    return [
+        useSidebar
+    ];
+})), "hAL3+uRFwO9tnbDK50BUE5wZ71s=", false, function() {
+>>>>>>> parent of 17dcfe59 (Updates)
     return [
         useSidebar
     ];
@@ -1941,7 +2005,11 @@ const SidebarTrigger = /*#__PURE__*/ _s3(__TURBOPACK__imported__module__$5b$proj
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                             lineNumber: 317,
+=======
+                            lineNumber: 300,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0)),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1949,18 +2017,30 @@ const SidebarTrigger = /*#__PURE__*/ _s3(__TURBOPACK__imported__module__$5b$proj
                             children: label
                         }, void 0, false, {
                             fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                             lineNumber: 318,
+=======
+                            lineNumber: 301,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, ("TURBOPACK compile-time value", void 0))
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                     lineNumber: 300,
+=======
+                    lineNumber: 283,
+>>>>>>> parent of 17dcfe59 (Updates)
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 299,
+=======
+                lineNumber: 282,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipContent"], {
@@ -1969,13 +2049,21 @@ const SidebarTrigger = /*#__PURE__*/ _s3(__TURBOPACK__imported__module__$5b$proj
                 children: label
             }, void 0, false, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 321,
+=======
+                lineNumber: 304,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 298,
+=======
+        lineNumber: 281,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 }, "GPi5T8WTrOP7Xy1IngrcFEoqKjU=", false, function() {
@@ -2011,12 +2099,20 @@ const SidebarRail = /*#__PURE__*/ _s4(__TURBOPACK__imported__module__$5b$project
                     className: "h-3.5 w-3.5"
                 }, void 0, false, {
                     fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                     lineNumber: 358,
+=======
+                    lineNumber: 341,
+>>>>>>> parent of 17dcfe59 (Updates)
                     columnNumber: 9
                 }, ("TURBOPACK compile-time value", void 0))
             }, void 0, false, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 357,
+=======
+                lineNumber: 340,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2024,13 +2120,21 @@ const SidebarRail = /*#__PURE__*/ _s4(__TURBOPACK__imported__module__$5b$project
                 children: label
             }, void 0, false, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 360,
+=======
+                lineNumber: 343,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 339,
+=======
+        lineNumber: 322,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 }, "GPi5T8WTrOP7Xy1IngrcFEoqKjU=", false, function() {
@@ -2051,7 +2155,11 @@ const SidebarInset = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 371,
+=======
+        lineNumber: 354,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2065,7 +2173,11 @@ const SidebarInput = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 389,
+=======
+        lineNumber: 372,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2079,7 +2191,11 @@ const SidebarHeader = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 407,
+=======
+        lineNumber: 390,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2093,7 +2209,11 @@ const SidebarFooter = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 422,
+=======
+        lineNumber: 405,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2107,7 +2227,11 @@ const SidebarSeparator = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$projec
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 437,
+=======
+        lineNumber: 420,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2121,7 +2245,11 @@ const SidebarContent = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 452,
+=======
+        lineNumber: 435,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2135,7 +2263,11 @@ const SidebarGroup = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 470,
+=======
+        lineNumber: 453,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2150,7 +2282,11 @@ const SidebarGroupLabel = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$proje
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 487,
+=======
+        lineNumber: 470,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2166,7 +2302,11 @@ const SidebarGroupAction = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$proj
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 508,
+=======
+        lineNumber: 491,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2179,7 +2319,11 @@ const SidebarGroupContent = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$pro
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 528,
+=======
+        lineNumber: 511,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 3
     }, ("TURBOPACK compile-time value", void 0)));
 _c27 = SidebarGroupContent;
@@ -2191,7 +2335,11 @@ const SidebarMenu = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 541,
+=======
+        lineNumber: 524,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 3
     }, ("TURBOPACK compile-time value", void 0)));
 _c29 = SidebarMenu;
@@ -2203,7 +2351,11 @@ const SidebarMenuItem = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 554,
+=======
+        lineNumber: 537,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 3
     }, ("TURBOPACK compile-time value", void 0)));
 _c31 = SidebarMenuItem;
@@ -2241,7 +2393,11 @@ const SidebarMenuButton = /*#__PURE__*/ _s5(__TURBOPACK__imported__module__$5b$p
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 609,
+=======
+        lineNumber: 592,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 7
     }, ("TURBOPACK compile-time value", void 0));
     if (!tooltip) {
@@ -2259,7 +2415,11 @@ const SidebarMenuButton = /*#__PURE__*/ _s5(__TURBOPACK__imported__module__$5b$p
                 children: button
             }, void 0, false, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 631,
+=======
+                lineNumber: 614,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipContent"], {
@@ -2269,13 +2429,21 @@ const SidebarMenuButton = /*#__PURE__*/ _s5(__TURBOPACK__imported__module__$5b$p
                 ...tooltip
             }, void 0, false, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 632,
+=======
+                lineNumber: 615,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 630,
+=======
+        lineNumber: 613,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 7
     }, ("TURBOPACK compile-time value", void 0));
 }, "DSCdbs8JtpmKVxCYgM7sPAZNgB0=", false, function() {
@@ -2299,7 +2467,11 @@ const SidebarMenuAction = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$proje
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 654,
+=======
+        lineNumber: 637,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -2312,7 +2484,11 @@ const SidebarMenuBadge = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$projec
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 679,
+=======
+        lineNumber: 662,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 3
     }, ("TURBOPACK compile-time value", void 0)));
 _c37 = SidebarMenuBadge;
@@ -2336,7 +2512,11 @@ const SidebarMenuSkeleton = /*#__PURE__*/ _s6(__TURBOPACK__imported__module__$5b
                 "data-sidebar": "menu-skeleton-icon"
             }, void 0, false, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 715,
+=======
+                lineNumber: 698,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
@@ -2347,13 +2527,21 @@ const SidebarMenuSkeleton = /*#__PURE__*/ _s6(__TURBOPACK__imported__module__$5b
                 }
             }, void 0, false, {
                 fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 720,
+=======
+                lineNumber: 703,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 708,
+=======
+        lineNumber: 691,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 }, "nKFjX4dxbYo91VAj5VdWQ1XUe3I=")), "nKFjX4dxbYo91VAj5VdWQ1XUe3I=");
@@ -2366,7 +2554,11 @@ const SidebarMenuSub = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 738,
+=======
+        lineNumber: 721,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 3
     }, ("TURBOPACK compile-time value", void 0)));
 _c41 = SidebarMenuSub;
@@ -2376,7 +2568,11 @@ const SidebarMenuSubItem = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$proj
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 754,
+=======
+        lineNumber: 737,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 26
     }, ("TURBOPACK compile-time value", void 0)));
 _c43 = SidebarMenuSubItem;
@@ -2392,7 +2588,11 @@ const SidebarMenuSubButton = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$pr
         ...props
     }, void 0, false, {
         fileName: "[project]/components/ui/sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 768,
+=======
+        lineNumber: 751,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 });
@@ -3288,7 +3488,10 @@ function AppSidebar() {
     const { currentUser, logout } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"])();
     const { state, isMobile, setOpenMobile } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSidebar"])();
     const isCollapsed = !isMobile && state === "collapsed";
+<<<<<<< HEAD
     const isHydraulicWorkspace = pathname === "/dashboard/hydraulic-model/workspace";
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
     if (!currentUser) return null;
     const isHydraulicTester = currentUser.email?.trim().toLowerCase() === HYDRAULIC_TESTER_EMAIL;
     const visibleItems = __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["NAV_ITEMS"].filter((item)=>{
@@ -3299,21 +3502,32 @@ function AppSidebar() {
     const initials = currentUser.name.split(" ").map((n)=>n[0]).join("").toUpperCase();
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Sidebar"], {
         collapsible: "icon",
+<<<<<<< HEAD
         overlayExpandedDesktop: isHydraulicWorkspace,
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
         className: "border-r border-slate-300/80 bg-sidebar shadow-[8px_0_24px_-26px_rgba(15,23,42,0.38)]",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute inset-0 bg-slate-200/45 pointer-events-none"
             }, void 0, false, {
                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 66,
+=======
+                lineNumber: 64,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute top-0 left-0 right-0 h-px bg-slate-400/70"
             }, void 0, false, {
                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 67,
+=======
+                lineNumber: 65,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SidebarHeader"], {
@@ -3332,17 +3546,29 @@ function AppSidebar() {
                                     className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("object-contain rounded-lg", isCollapsed ? "h-6 w-6" : "h-9 w-9")
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 85,
+=======
+                                    lineNumber: 83,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                 lineNumber: 81,
+=======
+                                lineNumber: 79,
+>>>>>>> parent of 17dcfe59 (Updates)
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                             lineNumber: 77,
+=======
+                            lineNumber: 75,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this),
                         !isCollapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3357,12 +3583,20 @@ function AppSidebar() {
                                         underlineClassName: "mt-1 h-0.5"
                                     }, void 0, false, {
                                         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 99,
+=======
+                                        lineNumber: 97,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 98,
+=======
+                                    lineNumber: 96,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3370,24 +3604,40 @@ function AppSidebar() {
                                     children: "Water Intelligence"
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 106,
+=======
+                                    lineNumber: 104,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                             lineNumber: 97,
+=======
+                            lineNumber: 95,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                     lineNumber: 73,
+=======
+                    lineNumber: 71,
+>>>>>>> parent of 17dcfe59 (Updates)
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 69,
+=======
+                lineNumber: 67,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SidebarContent"], {
@@ -3400,7 +3650,11 @@ function AppSidebar() {
                             children: !isCollapsed && "Navigation"
                         }, void 0, false, {
                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                             lineNumber: 119,
+=======
+                            lineNumber: 117,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SidebarGroupContent"], {
@@ -3432,12 +3686,20 @@ function AppSidebar() {
                                                             className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("transition-colors duration-200", isActive ? "h-5 w-5 text-white" : "h-5 w-5 text-slate-700")
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 162,
+=======
+                                                            lineNumber: 160,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 27
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 161,
+=======
+                                                        lineNumber: 159,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 25
                                                     }, this),
                                                     !isCollapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3445,45 +3707,77 @@ function AppSidebar() {
                                                         children: item.title
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 171,
+=======
+                                                        lineNumber: 169,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 27
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 151,
+=======
+                                                lineNumber: 149,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 23
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 137,
+=======
+                                            lineNumber: 135,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 21
                                         }, this)
                                     }, item.href, false, {
                                         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 136,
+=======
+                                        lineNumber: 134,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 19
                                     }, this);
                                 })
                             }, void 0, false, {
                                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                 lineNumber: 126,
+=======
+                                lineNumber: 124,
+>>>>>>> parent of 17dcfe59 (Updates)
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                             lineNumber: 125,
+=======
+                            lineNumber: 123,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                     lineNumber: 118,
+=======
+                    lineNumber: 116,
+>>>>>>> parent of 17dcfe59 (Updates)
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 114,
+=======
+                lineNumber: 112,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SidebarFooter"], {
@@ -3493,7 +3787,11 @@ function AppSidebar() {
                         className: "absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent"
                     }, void 0, false, {
                         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                         lineNumber: 193,
+=======
+                        lineNumber: 191,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SidebarMenu"], {
@@ -3516,25 +3814,41 @@ function AppSidebar() {
                                                                 children: initials
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                                 lineNumber: 211,
+=======
+                                                                lineNumber: 209,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 207,
+=======
+                                                            lineNumber: 205,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("absolute rounded-full bg-emerald-500 border-2 border-white shadow-sm", isCollapsed ? "-bottom-0.5 -right-0.5 h-3 w-3" : "-bottom-0.5 -right-0.5 h-3.5 w-3.5")
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 215,
+=======
+                                                            lineNumber: 213,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 206,
+=======
+                                                    lineNumber: 204,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 19
                                                 }, this),
                                                 !isCollapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3545,7 +3859,11 @@ function AppSidebar() {
                                                             children: currentUser.name
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 222,
+=======
+                                                            lineNumber: 220,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3553,31 +3871,51 @@ function AppSidebar() {
                                                             children: __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$constants$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ROLE_SHORT_LABELS"][currentUser.role]
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 225,
+=======
+                                                            lineNumber: 223,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 221,
+=======
+                                                    lineNumber: 219,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 21
                                                 }, this),
                                                 !isCollapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$up$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronUp$3e$__["ChevronUp"], {
                                                     className: "ml-auto h-4 w-4 text-slate-400"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 230,
+=======
+                                                    lineNumber: 228,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 36
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 199,
+=======
+                                            lineNumber: 197,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 198,
+=======
+                                        lineNumber: 196,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -3597,12 +3935,20 @@ function AppSidebar() {
                                                                 children: initials
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                                 lineNumber: 241,
+=======
+                                                                lineNumber: 239,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 240,
+=======
+                                                            lineNumber: 238,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3612,7 +3958,11 @@ function AppSidebar() {
                                                                     children: currentUser.name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 246,
+=======
+                                                                    lineNumber: 244,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3620,31 +3970,51 @@ function AppSidebar() {
                                                                     children: currentUser.email
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 247,
+=======
+                                                                    lineNumber: 245,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 245,
+=======
+                                                            lineNumber: 243,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 239,
+=======
+                                                    lineNumber: 237,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 238,
+=======
+                                                lineNumber: 236,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuSeparator"], {
                                                 className: "bg-slate-100"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 251,
+=======
+                                                lineNumber: 249,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -3658,48 +4028,80 @@ function AppSidebar() {
                                                         className: "mr-2 h-4 w-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 259,
+=======
+                                                        lineNumber: 257,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 19
                                                     }, this),
                                                     "Sign Out"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 252,
+=======
+                                                lineNumber: 250,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 233,
+=======
+                                        lineNumber: 231,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                                 lineNumber: 197,
+=======
+                                lineNumber: 195,
+>>>>>>> parent of 17dcfe59 (Updates)
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                             lineNumber: 196,
+=======
+                            lineNumber: 194,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                         lineNumber: 195,
+=======
+                        lineNumber: 193,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
                 lineNumber: 189,
+=======
+                lineNumber: 187,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/layout/app-sidebar.tsx",
+<<<<<<< HEAD
         lineNumber: 61,
+=======
+        lineNumber: 60,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, this);
 }
@@ -4040,7 +4442,10 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/tooltip.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$notifications$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/notifications.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$date$2d$time$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/date-time.ts [app-client] (ecmascript)");
+<<<<<<< HEAD
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/utils.ts [app-client] (ecmascript)");
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$user$2d$preferences$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/user-preferences.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$brand$2d$wordmark$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/shared/brand-wordmark.tsx [app-client] (ecmascript)");
 ;
@@ -4063,12 +4468,18 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+<<<<<<< HEAD
 ;
 function TopNavbar() {
     _s();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])();
     const { state, isMobile } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSidebar"])();
+=======
+function TopNavbar() {
+    _s();
+    const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
+>>>>>>> parent of 17dcfe59 (Updates)
     const { currentUser, logout } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"])();
     const { notifications, fetchNotifications, getUnreadNotificationCount, markNotificationRead, markAllNotificationsRead } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$data$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useDataStore"])();
     const { resolvedTheme, setTheme } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$themes$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTheme"])();
@@ -4085,9 +4496,12 @@ function TopNavbar() {
         notifications
     ]);
     const isDarkMode = mounted && resolvedTheme === "dark";
+<<<<<<< HEAD
     const isHydraulicWorkspace = pathname === "/dashboard/hydraulic-model/workspace";
     const shouldOffsetForHydraulicSidebar = isHydraulicWorkspace && !isMobile && state === "expanded";
     const hydraulicSidebarOffset = "calc(var(--sidebar-width) - var(--sidebar-width-icon))";
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
     const headerTitle = topbarTitle?.title || "Water Leakage Monitoring";
     const titleHasMonitoringSuffix = headerTitle.endsWith(" Monitoring");
     const titlePrimary = titleHasMonitoringSuffix ? headerTitle.replace(/ Monitoring$/, "") : headerTitle;
@@ -4218,11 +4632,15 @@ function TopNavbar() {
         }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
+<<<<<<< HEAD
         className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("sticky top-0 z-30 overflow-hidden transition-[margin,width] duration-200 ease-linear", shouldOffsetForHydraulicSidebar ? "ml-0" : "w-full"),
         style: shouldOffsetForHydraulicSidebar ? {
             marginLeft: hydraulicSidebarOffset,
             width: `calc(100% - ${hydraulicSidebarOffset})`
         } : undefined,
+=======
+        className: "sticky top-0 z-30 w-full overflow-hidden",
+>>>>>>> parent of 17dcfe59 (Updates)
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "relative flex h-16 w-full items-center justify-between gap-4 border-b border-slate-300/80 bg-slate-200/85 px-4 text-slate-800 shadow-sm shadow-slate-900/[0.025] backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-950/88 dark:text-slate-100 dark:shadow-black/30 sm:px-6",
             children: [
@@ -4233,7 +4651,11 @@ function TopNavbar() {
                             className: "absolute left-1/2 top-0 h-px w-1/2 bg-gradient-to-r from-transparent via-slate-500/35 to-transparent"
                         }, void 0, false, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 225,
+=======
+                            lineNumber: 206,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4245,13 +4667,21 @@ function TopNavbar() {
                             }
                         }, void 0, false, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 228,
+=======
+                            lineNumber: 209,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                     lineNumber: 224,
+=======
+                    lineNumber: 205,
+>>>>>>> parent of 17dcfe59 (Updates)
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4263,12 +4693,20 @@ function TopNavbar() {
                                 className: "-ml-1 text-slate-600 transition-all duration-300 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
                             }, void 0, false, {
                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                 lineNumber: 241,
+=======
+                                lineNumber: 222,
+>>>>>>> parent of 17dcfe59 (Updates)
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 240,
+=======
+                            lineNumber: 221,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4284,7 +4722,11 @@ function TopNavbar() {
                                                 children: titlePrimary
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 247,
+=======
+                                                lineNumber: 228,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 17
                                             }, this),
                                             titleHasMonitoringSuffix ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4292,31 +4734,51 @@ function TopNavbar() {
                                                 children: " Monitoring"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 251,
+=======
+                                                lineNumber: 232,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 19
                                             }, this) : null
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 246,
+=======
+                                        lineNumber: 227,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         className: "mt-1 h-0.5 w-24 rounded-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent dark:via-cyan-400"
                                     }, void 0, false, {
                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 256,
+=======
+                                        lineNumber: 237,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                 lineNumber: 245,
+=======
+                                lineNumber: 226,
+>>>>>>> parent of 17dcfe59 (Updates)
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 244,
+=======
+                            lineNumber: 225,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4334,17 +4796,29 @@ function TopNavbar() {
                                             className: "object-contain"
                                         }, void 0, false, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 264,
+=======
+                                            lineNumber: 245,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 263,
+=======
+                                        lineNumber: 244,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 262,
+=======
+                                    lineNumber: 243,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shared$2f$brand$2d$wordmark$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BrandWordmark"], {
@@ -4355,19 +4829,31 @@ function TopNavbar() {
                                     className: "shrink min-w-0"
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 273,
+=======
+                                    lineNumber: 254,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 261,
+=======
+                            lineNumber: 242,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                     lineNumber: 238,
+=======
+                    lineNumber: 219,
+>>>>>>> parent of 17dcfe59 (Updates)
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4387,36 +4873,60 @@ function TopNavbar() {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 295,
+=======
+                                            lineNumber: 276,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 31
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$moon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Moon$3e$__["Moon"], {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 295,
+=======
+                                            lineNumber: 276,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 61
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 288,
+=======
+                                        lineNumber: 269,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 287,
+=======
+                                    lineNumber: 268,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipContent"], {
                                     children: isDarkMode ? "Switch to light mode" : "Switch to dark mode"
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 298,
+=======
+                                    lineNumber: 279,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 286,
+=======
+                            lineNumber: 267,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -4433,30 +4943,50 @@ function TopNavbar() {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 313,
+=======
+                                            lineNumber: 294,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 306,
+=======
+                                        lineNumber: 287,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 305,
+=======
+                                    lineNumber: 286,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipContent"], {
                                     children: "Open help and support"
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 316,
+=======
+                                    lineNumber: 297,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 304,
+=======
+                            lineNumber: 285,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
@@ -4479,7 +5009,11 @@ function TopNavbar() {
                                                             className: "h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 332,
+=======
+                                                            lineNumber: 313,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 23
                                                         }, this),
                                                         unreadCount > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4489,41 +5023,69 @@ function TopNavbar() {
                                                                 children: unreadCount > 9 ? "9+" : unreadCount
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                 lineNumber: 335,
+=======
+                                                                lineNumber: 316,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 334,
+=======
+                                                            lineNumber: 315,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 25
                                                         }, this) : null
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 326,
+=======
+                                                    lineNumber: 307,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 325,
+=======
+                                                lineNumber: 306,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 324,
+=======
+                                            lineNumber: 305,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tooltip$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TooltipContent"], {
                                             children: "Open notifications"
                                         }, void 0, false, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 343,
+=======
+                                            lineNumber: 324,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 323,
+=======
+                                    lineNumber: 304,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -4540,7 +5102,11 @@ function TopNavbar() {
                                                             className: "h-4 w-4 text-sky-300"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 353,
+=======
+                                                            lineNumber: 334,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4548,13 +5114,21 @@ function TopNavbar() {
                                                             children: "Notifications"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 354,
+=======
+                                                            lineNumber: 335,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 352,
+=======
+                                                    lineNumber: 333,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4568,7 +5142,11 @@ function TopNavbar() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 357,
+=======
+                                                            lineNumber: 338,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this),
                                                         unreadCount > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4581,30 +5159,50 @@ function TopNavbar() {
                                                                 className: "h-3.5 w-3.5 animate-spin"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                 lineNumber: 368,
+=======
+                                                                lineNumber: 349,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                 columnNumber: 41
                                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCheck$3e$__["CheckCheck"], {
                                                                 className: "h-3.5 w-3.5"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                 lineNumber: 368,
+=======
+                                                                lineNumber: 349,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                 columnNumber: 92
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 361,
+=======
+                                                            lineNumber: 342,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 21
                                                         }, this) : null
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 356,
+=======
+                                                    lineNumber: 337,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 351,
+=======
+                                            lineNumber: 332,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4616,14 +5214,22 @@ function TopNavbar() {
                                                         className: "h-4 w-4 animate-spin"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 376,
+=======
+                                                        lineNumber: 357,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 21
                                                     }, this),
                                                     "Loading notifications..."
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 375,
+=======
+                                                lineNumber: 356,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 19
                                             }, this) : recentNotifications.length > 0 ? recentNotifications.map((notification)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                     type: "button",
@@ -4636,18 +5242,30 @@ function TopNavbar() {
                                                                 className: "h-4 w-4 text-slate-300"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                 lineNumber: 395,
+=======
+                                                                lineNumber: 376,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                 columnNumber: 27
                                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$bell$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Bell$3e$__["Bell"], {
                                                                 className: "h-4 w-4 text-sky-300"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                 lineNumber: 397,
+=======
+                                                                lineNumber: 378,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 389,
+=======
+                                                            lineNumber: 370,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4661,7 +5279,11 @@ function TopNavbar() {
                                                                             children: notification.title
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 402,
+=======
+                                                                            lineNumber: 383,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         !notification.read ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4669,13 +5291,21 @@ function TopNavbar() {
                                                                             children: "New"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 404,
+=======
+                                                                            lineNumber: 385,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 29
                                                                         }, this) : null
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 401,
+=======
+                                                                    lineNumber: 382,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4683,7 +5313,11 @@ function TopNavbar() {
                                                                     children: notification.message
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 409,
+=======
+                                                                    lineNumber: 390,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4694,7 +5328,11 @@ function TopNavbar() {
                                                                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$notifications$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getNotificationTag"])(notification)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 411,
+=======
+                                                                            lineNumber: 392,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4702,25 +5340,41 @@ function TopNavbar() {
                                                                             children: formatNotificationTime(notification.createdAt)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 414,
+=======
+                                                                            lineNumber: 395,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 410,
+=======
+                                                                    lineNumber: 391,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 400,
+=======
+                                                            lineNumber: 381,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, notification.id, true, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 381,
+=======
+                                                    lineNumber: 362,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 21
                                                 }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "rounded-lg px-3 py-8 text-center",
@@ -4729,7 +5383,11 @@ function TopNavbar() {
                                                         className: "mx-auto h-8 w-8 text-slate-500"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 421,
+=======
+                                                        lineNumber: 402,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4737,7 +5395,11 @@ function TopNavbar() {
                                                         children: "No notifications yet"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 422,
+=======
+                                                        lineNumber: 403,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4745,18 +5407,30 @@ function TopNavbar() {
                                                         children: "Assignments, approvals, and alerts will appear here."
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 423,
+=======
+                                                        lineNumber: 404,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 420,
+=======
+                                                lineNumber: 401,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 373,
+=======
+                                            lineNumber: 354,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4768,30 +5442,50 @@ function TopNavbar() {
                                                 children: "View all notifications"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 428,
+=======
+                                                lineNumber: 409,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 427,
+=======
+                                            lineNumber: 408,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 347,
+=======
+                                    lineNumber: 328,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 322,
+=======
+                            lineNumber: 303,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                     lineNumber: 284,
+=======
+                    lineNumber: 265,
+>>>>>>> parent of 17dcfe59 (Updates)
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4801,7 +5495,11 @@ function TopNavbar() {
                             className: "hidden h-8 w-px bg-slate-200 dark:bg-slate-800 sm:block"
                         }, void 0, false, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 442,
+=======
+                            lineNumber: 423,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 17
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
@@ -4822,12 +5520,20 @@ function TopNavbar() {
                                                             children: currentUser?.name?.split(" ").map((n)=>n[0]).join("").toUpperCase() || "U"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 453,
+=======
+                                                            lineNumber: 434,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 452,
+=======
+                                                        lineNumber: 433,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4836,18 +5542,30 @@ function TopNavbar() {
                                                             className: "h-1.5 w-1.5 rounded-full bg-white"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 464,
+=======
+                                                            lineNumber: 445,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 463,
+=======
+                                                        lineNumber: 444,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 451,
+=======
+                                                lineNumber: 432,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4858,7 +5576,11 @@ function TopNavbar() {
                                                         children: currentUser?.name || "User"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 470,
+=======
+                                                        lineNumber: 451,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4868,38 +5590,62 @@ function TopNavbar() {
                                                                 className: "h-2 w-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                 lineNumber: 474,
+=======
+                                                                lineNumber: 455,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                 columnNumber: 21
                                                             }, this),
                                                             getRoleLabel(currentUser?.role || "")
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 473,
+=======
+                                                        lineNumber: 454,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 469,
+=======
+                                                lineNumber: 450,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
                                                 className: "hidden h-4 w-4 text-slate-500 transition-transform duration-200 group-data-[state=open]:rotate-180 dark:text-slate-400 sm:block"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 479,
+=======
+                                                lineNumber: 460,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                         lineNumber: 447,
+=======
+                                        lineNumber: 428,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 446,
+=======
+                                    lineNumber: 427,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -4913,7 +5659,11 @@ function TopNavbar() {
                                                     className: "pointer-events-none absolute inset-0 bg-gradient-to-br from-sky-700/10 via-transparent to-blue-700/10"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 490,
+=======
+                                                    lineNumber: 471,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4926,7 +5676,11 @@ function TopNavbar() {
                                                                     className: "absolute -inset-1 rounded-full bg-gradient-to-r from-sky-700 to-blue-700 opacity-35 blur"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 494,
+=======
+                                                                    lineNumber: 475,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Avatar"], {
@@ -4936,18 +5690,30 @@ function TopNavbar() {
                                                                         children: currentUser?.name?.split(" ").map((n)=>n[0]).join("").toUpperCase() || "U"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                         lineNumber: 498,
+=======
+                                                                        lineNumber: 479,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 497,
+=======
+                                                                    lineNumber: 478,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 493,
+=======
+                                                            lineNumber: 474,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4958,7 +5724,11 @@ function TopNavbar() {
                                                                     children: currentUser?.name || "User"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 508,
+=======
+                                                                    lineNumber: 489,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4966,7 +5736,11 @@ function TopNavbar() {
                                                                     children: currentUser?.email || "Email unavailable"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 511,
+=======
+                                                                    lineNumber: 492,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4976,32 +5750,52 @@ function TopNavbar() {
                                                                             className: "h-2.5 w-2.5"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 515,
+=======
+                                                                            lineNumber: 496,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         getRoleLabel(currentUser?.role || "")
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 514,
+=======
+                                                                    lineNumber: 495,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 507,
+=======
+                                                            lineNumber: 488,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 492,
+=======
+                                                    lineNumber: 473,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 488,
+=======
+                                            lineNumber: 469,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5019,12 +5813,20 @@ function TopNavbar() {
                                                                         className: "h-4 w-4 text-sky-300"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                         lineNumber: 530,
+=======
+                                                                        lineNumber: 511,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 529,
+=======
+                                                                    lineNumber: 510,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5035,7 +5837,11 @@ function TopNavbar() {
                                                                             children: "View Profile"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 533,
+=======
+                                                                            lineNumber: 514,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5043,19 +5849,31 @@ function TopNavbar() {
                                                                             children: "Manage your account details"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 534,
+=======
+                                                                            lineNumber: 515,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 532,
+=======
+                                                                    lineNumber: 513,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 525,
+=======
+                                                            lineNumber: 506,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -5068,12 +5886,20 @@ function TopNavbar() {
                                                                         className: "h-4 w-4 text-sky-300"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                         lineNumber: 543,
+=======
+                                                                        lineNumber: 524,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 542,
+=======
+                                                                    lineNumber: 523,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5084,7 +5910,11 @@ function TopNavbar() {
                                                                             children: "Settings"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 546,
+=======
+                                                                            lineNumber: 527,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5092,19 +5922,31 @@ function TopNavbar() {
                                                                             children: "Update preferences and support options"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 547,
+=======
+                                                                            lineNumber: 528,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 545,
+=======
+                                                                    lineNumber: 526,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 538,
+=======
+                                                            lineNumber: 519,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -5117,12 +5959,20 @@ function TopNavbar() {
                                                                         className: "h-4 w-4 text-emerald-400"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                         lineNumber: 556,
+=======
+                                                                        lineNumber: 537,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 555,
+=======
+                                                                    lineNumber: 536,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5133,7 +5983,11 @@ function TopNavbar() {
                                                                             children: "Notifications"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 559,
+=======
+                                                                            lineNumber: 540,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5141,32 +5995,52 @@ function TopNavbar() {
                                                                             children: "Review your latest assignments and alerts"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                             lineNumber: 560,
+=======
+                                                                            lineNumber: 541,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 558,
+=======
+                                                                    lineNumber: 539,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 551,
+=======
+                                                            lineNumber: 532,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 524,
+=======
+                                                    lineNumber: 505,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuSeparator"], {
                                                     className: "my-2 bg-white/10"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 565,
+=======
+                                                    lineNumber: 546,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -5179,12 +6053,20 @@ function TopNavbar() {
                                                                 className: "h-4 w-4 text-red-400"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                 lineNumber: 572,
+=======
+                                                                lineNumber: 553,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 571,
+=======
+                                                            lineNumber: 552,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5195,7 +6077,11 @@ function TopNavbar() {
                                                                     children: "Sign Out"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 575,
+=======
+                                                                    lineNumber: 556,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -5203,53 +6089,86 @@ function TopNavbar() {
                                                                     children: "End your current session"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                                     lineNumber: 576,
+=======
+                                                                    lineNumber: 557,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 574,
+=======
+                                                            lineNumber: 555,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 567,
+=======
+                                                    lineNumber: 548,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                             lineNumber: 523,
+=======
+                                            lineNumber: 504,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                                     lineNumber: 483,
+=======
+                                    lineNumber: 464,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                             lineNumber: 445,
+=======
+                            lineNumber: 426,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
                     lineNumber: 440,
+=======
+                    lineNumber: 421,
+>>>>>>> parent of 17dcfe59 (Updates)
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
             lineNumber: 222,
+=======
+            lineNumber: 203,
+>>>>>>> parent of 17dcfe59 (Updates)
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/layout/top-navbar.tsx",
+<<<<<<< HEAD
         lineNumber: 207,
         columnNumber: 5
     }, this);
@@ -5259,6 +6178,15 @@ _s(TopNavbar, "8xGBRzrrTEnZDeVF4smo1RFTsS4=", false, function() {
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"],
         __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSidebar"],
+=======
+        lineNumber: 201,
+        columnNumber: 5
+    }, this);
+}
+_s(TopNavbar, "/swJl/c5E+Ch1gJWrlBvoxbP49k=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
+>>>>>>> parent of 17dcfe59 (Updates)
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"],
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$data$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useDataStore"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2d$themes$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useTheme"],
@@ -5288,7 +6216,10 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$layout$2f$app$2d$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/layout/app-sidebar.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$layout$2f$top$2d$navbar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/layout/top-navbar.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$layout$2f$topbar$2d$title$2d$context$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/layout/topbar-title-context.tsx [app-client] (ecmascript)");
+<<<<<<< HEAD
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/utils.ts [app-client] (ecmascript)");
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
@@ -5300,6 +6231,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+<<<<<<< HEAD
 ;
 function DashboardLayout({ children }) {
     _s();
@@ -5309,6 +6241,14 @@ function DashboardLayout({ children }) {
     const { initialize, initialized } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$data$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useDataStore"])();
     const [hydrated, setHydrated] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const isHydraulicWorkspace = pathname === "/dashboard/hydraulic-model/workspace";
+=======
+function DashboardLayout({ children }) {
+    _s();
+    const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
+    const { isAuthenticated, currentUser } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"])();
+    const { initialize, initialized } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$data$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useDataStore"])();
+    const [hydrated, setHydrated] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+>>>>>>> parent of 17dcfe59 (Updates)
     // Wait for Zustand to hydrate from localStorage
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "DashboardLayout.useEffect": ()=>{
@@ -5350,7 +6290,11 @@ function DashboardLayout({ children }) {
                         className: "h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
                         lineNumber: 49,
+=======
+                        lineNumber: 46,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5358,18 +6302,30 @@ function DashboardLayout({ children }) {
                         children: "Loading MajiScope..."
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
                         lineNumber: 50,
+=======
+                        lineNumber: 47,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
                 lineNumber: 48,
+=======
+                lineNumber: 45,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
             lineNumber: 47,
+=======
+            lineNumber: 44,
+>>>>>>> parent of 17dcfe59 (Updates)
             columnNumber: 7
         }, this);
     }
@@ -5381,7 +6337,11 @@ function DashboardLayout({ children }) {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$layout$2f$app$2d$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AppSidebar"], {}, void 0, false, {
                         fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
                         lineNumber: 60,
+=======
+                        lineNumber: 57,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5389,43 +6349,72 @@ function DashboardLayout({ children }) {
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$layout$2f$top$2d$navbar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TopNavbar"], {}, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
                                 lineNumber: 62,
+=======
+                                lineNumber: 59,
+>>>>>>> parent of 17dcfe59 (Updates)
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$sidebar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SidebarInset"], {
                                 className: "relative m-0 min-h-[calc(100svh-3.5rem)] rounded-none bg-background",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
+<<<<<<< HEAD
                                     className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex-1 bg-background text-slate-900 dark:text-slate-100", isHydraulicWorkspace ? "overflow-hidden p-0" : "overflow-y-auto overflow-x-hidden p-6"),
                                     children: children
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/layout.tsx",
                                     lineNumber: 64,
+=======
+                                    className: "flex-1 overflow-y-auto overflow-x-hidden bg-background p-6 text-slate-900 dark:text-slate-100",
+                                    children: children
+                                }, void 0, false, {
+                                    fileName: "[project]/app/(dashboard)/layout.tsx",
+                                    lineNumber: 61,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
                                 lineNumber: 63,
+=======
+                                lineNumber: 60,
+>>>>>>> parent of 17dcfe59 (Updates)
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
                         lineNumber: 61,
+=======
+                        lineNumber: 58,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
                 lineNumber: 59,
+=======
+                lineNumber: 56,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
             lineNumber: 58,
+=======
+            lineNumber: 55,
+>>>>>>> parent of 17dcfe59 (Updates)
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/(dashboard)/layout.tsx",
+<<<<<<< HEAD
         lineNumber: 57,
         columnNumber: 5
     }, this);
@@ -5434,6 +6423,15 @@ _s(DashboardLayout, "Z4ZF9RHBIyBKYSNaLWK4B6OlnL8=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"],
+=======
+        lineNumber: 54,
+        columnNumber: 5
+    }, this);
+}
+_s(DashboardLayout, "tM2NSoFmdDzmQhvyv6YZI09pQxM=", false, function() {
+    return [
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
+>>>>>>> parent of 17dcfe59 (Updates)
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"],
         __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$data$2d$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useDataStore"]
     ];

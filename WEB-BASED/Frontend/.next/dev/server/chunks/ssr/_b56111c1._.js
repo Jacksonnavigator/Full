@@ -576,7 +576,10 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+<<<<<<< HEAD
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-ssr] (ecmascript)");
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$triangle$2d$alert$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertTriangle$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/triangle-alert.js [app-ssr] (ecmascript) <export default as AlertTriangle>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/circle-check.js [app-ssr] (ecmascript) <export default as CheckCircle2>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/loader-circle.js [app-ssr] (ecmascript) <export default as Loader2>");
@@ -593,7 +596,10 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/select.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/utils.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$icons$2f$hydraulic$2d$pump$2d$icon$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/icons/hydraulic-pump-icon.tsx [app-ssr] (ecmascript)");
+<<<<<<< HEAD
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$hydraulic$2d$workspace$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/hydraulic-workspace.ts [app-ssr] (ecmascript)");
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
 "use client";
 ;
 ;
@@ -608,8 +614,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$hydraulic$2d$workspac
 ;
 ;
 ;
+<<<<<<< HEAD
 ;
 ;
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
 function RequirementRow({ item }) {
     const Icon = item.present ? __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__["CheckCircle2"] : item.required ? __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$x$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__XCircle$3e$__["XCircle"] : __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$triangle$2d$alert$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertTriangle$3e$__["AlertTriangle"];
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -619,7 +628,11 @@ function RequirementRow({ item }) {
                 className: "mt-0.5 h-5 w-5 shrink-0"
             }, void 0, false, {
                 fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                 lineNumber: 69,
+=======
+                lineNumber: 67,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -630,7 +643,11 @@ function RequirementRow({ item }) {
                         children: item.label
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                         lineNumber: 71,
+=======
+                        lineNumber: 69,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -638,25 +655,40 @@ function RequirementRow({ item }) {
                         children: item.message || (item.present ? "Available inside or on this DMA boundary." : item.required ? "Required before model preparation." : "Optional.")
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                         lineNumber: 72,
+=======
+                        lineNumber: 70,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                 lineNumber: 70,
+=======
+                lineNumber: 68,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
         lineNumber: 59,
+=======
+        lineNumber: 57,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, this);
 }
 function HydraulicModelPage() {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$page$2d$access$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["usePageAccess"])();
+<<<<<<< HEAD
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
+=======
+>>>>>>> parent of 17dcfe59 (Updates)
     const { currentUser } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$auth$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAuthStore"])();
     const { utilities, dmas, initialized, isLoading: storeLoading } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$store$2f$data$2d$store$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useDataStore"])();
     const [selectedUtilityId, setSelectedUtilityId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
@@ -783,8 +815,12 @@ function HydraulicModelPage() {
         }
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].success(response.data.message || "Hydraulic model is ready.");
         if (response.data.launch_url) {
+<<<<<<< HEAD
             window.sessionStorage.setItem(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$hydraulic$2d$workspace$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["HYDRAULIC_LAUNCH_STORAGE_KEY"], response.data.launch_url);
             router.push("/dashboard/hydraulic-model/workspace");
+=======
+            window.location.href = response.data.launch_url;
+>>>>>>> parent of 17dcfe59 (Updates)
         } else {
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].info("Hydraulic model URL is not configured yet on the backend.");
         }
@@ -803,7 +839,11 @@ function HydraulicModelPage() {
                                     className: "h-9 w-9 text-sky-600 dark:text-sky-300"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 218,
+=======
+                                    lineNumber: 214,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -813,7 +853,11 @@ function HydraulicModelPage() {
                                             children: "Run Hydraulic Model"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 220,
+=======
+                                            lineNumber: 216,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -821,24 +865,40 @@ function HydraulicModelPage() {
                                             children: "Prepare a DMA-scoped hydraulic model using saved boundaries and uploaded utility infrastructure."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 223,
+=======
+                                            lineNumber: 219,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 219,
+=======
+                                    lineNumber: 215,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                             lineNumber: 217,
+=======
+                            lineNumber: 213,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                         lineNumber: 216,
+=======
+                        lineNumber: 212,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -852,7 +912,11 @@ function HydraulicModelPage() {
                                     className: "h-4 w-4 animate-spin"
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 238,
+=======
+                                    lineNumber: 234,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 15
                                 }, this),
                                 "Preparing Hydraulic Model..."
@@ -860,13 +924,21 @@ function HydraulicModelPage() {
                         }, void 0, true) : "Prepare Hydraulic Model"
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                         lineNumber: 230,
+=======
+                        lineNumber: 226,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                 lineNumber: 215,
+=======
+                lineNumber: 211,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -886,7 +958,11 @@ function HydraulicModelPage() {
                                                     className: "h-5 w-5 text-sky-600 dark:text-sky-300"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 252,
+=======
+                                                    lineNumber: 248,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -894,13 +970,21 @@ function HydraulicModelPage() {
                                                     children: "Access Scope"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 253,
+=======
+                                                    lineNumber: 249,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 251,
+=======
+                                            lineNumber: 247,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -908,13 +992,21 @@ function HydraulicModelPage() {
                                             children: "Choose the utility and DMA for this hydraulic model run."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 255,
+=======
+                                            lineNumber: 251,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 250,
+=======
+                                    lineNumber: 246,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -925,7 +1017,11 @@ function HydraulicModelPage() {
                                             children: "Utility"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 261,
+=======
+                                            lineNumber: 257,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -942,12 +1038,20 @@ function HydraulicModelPage() {
                                                         placeholder: scopeLoading && !utilityOptions.length ? "Loading utilities..." : !scopeLoading && !utilityOptions.length ? "No utilities available" : "Select utility"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 271,
+=======
+                                                        lineNumber: 267,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 270,
+=======
+                                                    lineNumber: 266,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -956,31 +1060,51 @@ function HydraulicModelPage() {
                                                             children: utility.name
                                                         }, utility.id, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 284,
+=======
+                                                            lineNumber: 280,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 23
                                                         }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "px-3 py-2 text-sm text-slate-500",
                                                         children: "No utilities available"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 289,
+=======
+                                                        lineNumber: 285,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 281,
+=======
+                                                    lineNumber: 277,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 262,
+=======
+                                            lineNumber: 258,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 260,
+=======
+                                    lineNumber: 256,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -991,7 +1115,11 @@ function HydraulicModelPage() {
                                             children: "DMA"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 296,
+=======
+                                            lineNumber: 292,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -1005,12 +1133,20 @@ function HydraulicModelPage() {
                                                         placeholder: !selectedUtilityId ? "Select utility first" : scopeLoading && !dmaOptions.length ? "Loading DMAs..." : !scopeLoading && !dmaOptions.length ? "No DMAs available" : "Select DMA"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 303,
+=======
+                                                        lineNumber: 299,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 302,
+=======
+                                                    lineNumber: 298,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1019,31 +1155,51 @@ function HydraulicModelPage() {
                                                             children: dma.name
                                                         }, dma.id, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 318,
+=======
+                                                            lineNumber: 314,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 23
                                                         }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "px-3 py-2 text-sm text-slate-500",
                                                         children: "No DMAs available"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                         lineNumber: 323,
+=======
+                                                        lineNumber: 319,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 315,
+=======
+                                                    lineNumber: 311,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 297,
+=======
+                                            lineNumber: 293,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 295,
+=======
+                                    lineNumber: 291,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1054,7 +1210,11 @@ function HydraulicModelPage() {
                                             children: checkingReadiness && hasSelectedDma ? "Checking readiness..." : scopeLoading ? "Loading available choices..." : !utilityOptions.length ? "No utilities are available for your account." : selectedUtilityId && !dmaOptions.length ? "No DMAs are available for the selected utility." : readiness?.message || "Select a utility and DMA to continue."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 330,
+=======
+                                            lineNumber: 326,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         readiness?.action_hint ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1062,24 +1222,40 @@ function HydraulicModelPage() {
                                             children: readiness.action_hint
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 342,
+=======
+                                            lineNumber: 338,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 17
                                         }, this) : null
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 329,
+=======
+                                    lineNumber: 325,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                             lineNumber: 249,
+=======
+                            lineNumber: 245,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                         lineNumber: 248,
+=======
+                        lineNumber: 244,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1099,7 +1275,11 @@ function HydraulicModelPage() {
                                                             className: "h-5 w-5 text-sky-600 dark:text-sky-300"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 353,
+=======
+                                                            lineNumber: 349,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1107,13 +1287,21 @@ function HydraulicModelPage() {
                                                             children: "Model Requirements"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                             lineNumber: 354,
+=======
+                                                            lineNumber: 350,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 352,
+=======
+                                                    lineNumber: 348,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1121,26 +1309,42 @@ function HydraulicModelPage() {
                                                     children: "Required data must be present before the hydraulic model can open."
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 356,
+=======
+                                                    lineNumber: 352,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 351,
+=======
+                                            lineNumber: 347,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         checkingReadiness && hasSelectedDma ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
                                             className: "h-5 w-5 animate-spin text-slate-400"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 360,
+=======
+                                            lineNumber: 356,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 54
                                         }, this) : null
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 350,
+=======
+                                    lineNumber: 346,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1149,19 +1353,31 @@ function HydraulicModelPage() {
                                             item: item
                                         }, item.key, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 365,
+=======
+                                            lineNumber: 361,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 45
                                         }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-400",
                                         children: "Select a DMA to check model requirements."
                                     }, void 0, false, {
                                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                         lineNumber: 367,
+=======
+                                        lineNumber: 363,
+>>>>>>> parent of 17dcfe59 (Updates)
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 363,
+=======
+                                    lineNumber: 359,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1171,7 +1387,11 @@ function HydraulicModelPage() {
                                             children: "Optional Data"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 374,
+=======
+                                            lineNumber: 370,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1180,25 +1400,41 @@ function HydraulicModelPage() {
                                                     item: item
                                                 }, item.key, false, {
                                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                     lineNumber: 379,
+=======
+                                                    lineNumber: 375,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                     columnNumber: 47
                                                 }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950/70 dark:text-slate-400",
                                                 children: "Optional infrastructure checks appear after selecting a DMA."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                                 lineNumber: 381,
+=======
+                                                lineNumber: 377,
+>>>>>>> parent of 17dcfe59 (Updates)
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 377,
+=======
+                                            lineNumber: 373,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 373,
+=======
+                                    lineNumber: 369,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 13
                                 }, this),
                                 missingRequired.length ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1209,7 +1445,11 @@ function HydraulicModelPage() {
                                             children: "Missing required data"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 390,
+=======
+                                            lineNumber: 386,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1220,13 +1460,21 @@ function HydraulicModelPage() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 391,
+=======
+                                            lineNumber: 387,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 389,
+=======
+                                    lineNumber: 385,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 15
                                 }, this) : readiness?.ready ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-100",
@@ -1236,7 +1484,11 @@ function HydraulicModelPage() {
                                             children: "Ready to run"
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 397,
+=======
+                                            lineNumber: 393,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1244,36 +1496,60 @@ function HydraulicModelPage() {
                                             children: "The selected DMA has the minimum data needed to prepare the hydraulic model."
                                         }, void 0, false, {
                                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                             lineNumber: 398,
+=======
+                                            lineNumber: 394,
+>>>>>>> parent of 17dcfe59 (Updates)
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                                     lineNumber: 396,
+=======
+                                    lineNumber: 392,
+>>>>>>> parent of 17dcfe59 (Updates)
                                     columnNumber: 15
                                 }, this) : null
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                             lineNumber: 349,
+=======
+                            lineNumber: 345,
+>>>>>>> parent of 17dcfe59 (Updates)
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                         lineNumber: 348,
+=======
+                        lineNumber: 344,
+>>>>>>> parent of 17dcfe59 (Updates)
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
                 lineNumber: 247,
+=======
+                lineNumber: 243,
+>>>>>>> parent of 17dcfe59 (Updates)
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/(dashboard)/_views/hydraulic-model-page.tsx",
+<<<<<<< HEAD
         lineNumber: 214,
+=======
+        lineNumber: 210,
+>>>>>>> parent of 17dcfe59 (Updates)
         columnNumber: 5
     }, this);
 }
