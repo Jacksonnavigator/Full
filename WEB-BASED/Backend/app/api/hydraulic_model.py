@@ -16,6 +16,7 @@ import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
+from shapely.geometry import Point, shape
 
 from app.config import settings
 from app.database.session import get_db
@@ -23,6 +24,8 @@ from app.models import (
     DMA,
     HydraulicModelLaunchSession,
     HydraulicSimulationSnapshot,
+    Report,
+    ReportStatusEnum,
     Utility,
     UtilityInfrastructureLayer,
 )
@@ -34,6 +37,9 @@ from app.schemas.hydraulic_model import (
     HydraulicModelReadinessResponse,
     HydraulicModelRequirementStatus,
     HydraulicSimulationSnapshotCreate,
+    HydraulicScenarioComparisonItem,
+    HydraulicScenarioComparisonRequest,
+    HydraulicScenarioComparisonResponse,
     HydraulicSimulationSnapshotDetail,
     HydraulicSimulationSnapshotListItem,
     HydraulicSimulationSnapshotListResponse,
@@ -55,6 +61,12 @@ HYDRAULIC_ASSET_ORDER = (
     "storage_facilities",
     "valves",
     "bulk_meters",
+)
+ACTIVE_HYDRAULIC_REPORT_STATUSES = (
+    ReportStatusEnum.NEW,
+    ReportStatusEnum.ASSIGNED,
+    ReportStatusEnum.IN_PROGRESS,
+    ReportStatusEnum.PENDING_APPROVAL,
 )
 
 
@@ -435,12 +447,84 @@ def _call_hydraulic_gpkg_validator(
     return counts, None
 
 
+def _build_reported_leaks_geojson(
+    *,
+    db: Session,
+    utility_id: str,
+    dma: DMA,
+) -> tuple[dict, int]:
+    feature_collection = {"type": "FeatureCollection", "features": []}
+    if not dma.boundary_geojson:
+        return feature_collection, 0
+
+    try:
+        dma_boundary = shape(json.loads(dma.boundary_geojson))
+    except (TypeError, ValueError, KeyError):
+        return feature_collection, 0
+
+    if dma_boundary.is_empty:
+        return feature_collection, 0
+
+    reports = (
+        db.query(Report)
+        .filter(
+            Report.utility_id == utility_id,
+            Report.report_type == "leakage",
+            Report.status.in_(ACTIVE_HYDRAULIC_REPORT_STATUSES),
+        )
+        .order_by(Report.created_at.asc())
+        .all()
+    )
+
+    features: list[dict] = []
+    for report in reports:
+        if report.latitude is None or report.longitude is None:
+            continue
+        try:
+            report_point = Point(float(report.longitude), float(report.latitude))
+        except (TypeError, ValueError):
+            continue
+
+        if not (dma_boundary.covers(report_point) or report.dma_id == dma.id):
+            continue
+
+        features.append(
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [float(report.longitude), float(report.latitude)],
+                },
+                "properties": {
+                    "report_id": report.id,
+                    "tracking_id": report.tracking_id,
+                    "description": report.description,
+                    "report_type": report.report_type,
+                    "leakage_type": report.leakage_type,
+                    "status": report.status.value if hasattr(report.status, "value") else str(report.status),
+                    "priority": report.priority.value if hasattr(report.priority, "value") else str(report.priority),
+                    "address": report.address,
+                    "created_at": report.created_at.isoformat() if report.created_at else None,
+                    "utility_id": report.utility_id,
+                    "dma_id": report.dma_id,
+                    "diameter_m": 0.01,
+                    "start_time_s": 0,
+                    "end_time_s": 86400,
+                },
+            }
+        )
+
+    feature_collection["features"] = features
+    return feature_collection, len(features)
+
+
 def _call_hydraulic_gpkg_builder(
     *,
     session: HydraulicModelLaunchSession,
     launch_token: str,
     dma: DMA,
     layers: dict[str, UtilityInfrastructureLayer],
+    reported_leaks_geojson: dict,
 ) -> dict:
     if not settings.hydraulic_model_base_url:
         raise HTTPException(
@@ -468,6 +552,7 @@ def _call_hydraulic_gpkg_builder(
         "dma_id": dma.id,
         "dma_name": dma.name,
         "dma_geojson": dma.boundary_geojson,
+        "reported_leaks_geojson": json.dumps(reported_leaks_geojson or {"type": "FeatureCollection", "features": []}),
     }
 
     try:
@@ -520,6 +605,11 @@ def prepare_hydraulic_model(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Selected DMA was not found")
     utility = db.query(Utility).filter(Utility.id == readiness.selected_utility_id).first()
     layers = _layer_map(db, readiness.selected_utility_id)
+    reported_leaks_geojson, reported_leak_count = _build_reported_leaks_geojson(
+        db=db,
+        utility_id=readiness.selected_utility_id,
+        dma=dma,
+    )
 
     token = secrets.token_urlsafe(32)
     expires_at = datetime.utcnow() + timedelta(hours=max(1, settings.hydraulic_model_temp_ttl_hours))
@@ -540,7 +630,13 @@ def prepare_hydraulic_model(
     db.flush()
 
     try:
-        prepared = _call_hydraulic_gpkg_builder(session=session, launch_token=token, dma=dma, layers=layers)
+        prepared = _call_hydraulic_gpkg_builder(
+            session=session,
+            launch_token=token,
+            dma=dma,
+            layers=layers,
+            reported_leaks_geojson=reported_leaks_geojson,
+        )
     except HTTPException as exc:
         session.status = "failed"
         session.error_message = str(exc.detail)
@@ -553,6 +649,7 @@ def prepare_hydraulic_model(
     session.readiness_json = {
         **readiness.model_dump(),
         "prepared_file": prepared,
+        "reported_leak_count": reported_leak_count,
     }
     db.commit()
     db.refresh(session)
@@ -589,6 +686,7 @@ def prepare_hydraulic_model(
             "dma_id": session.dma_id,
             "hydraulic_filename": session.hydraulic_filename,
             "expires_at": session.expires_at.isoformat(),
+            "reported_leak_count": reported_leak_count,
         },
         utility_id=session.utility_id,
         dma_id=session.dma_id,
@@ -691,6 +789,63 @@ def _snapshot_list_item(snapshot: HydraulicSimulationSnapshot, db: Session) -> H
         pressure_avg_m=summary.get("pressure_avg_m"),
         nrw_pct=nrw.get("nrw_pct"),
         alert_count=len(warnings),
+    )
+
+
+def _snapshot_risk_distribution(snapshot: HydraulicSimulationSnapshot) -> dict[str, int]:
+    distribution = {"elevated": 0, "high": 0, "critical": 0}
+    features = ((snapshot.hotspots_geojson or {}).get("features") or [])
+    if not features:
+        features = [
+            {"properties": risk}
+            for risk in ((snapshot.leakage_json or {}).get("pipe_risks_top20") or [])
+        ]
+
+    for feature in features:
+        properties = feature.get("properties") or {}
+        level = str(properties.get("risk_level") or "").strip().lower()
+        score = properties.get("risk_score")
+        if level in {"critical", "high", "elevated"}:
+            distribution[level] += 1
+        elif isinstance(score, (int, float)):
+            if score >= 0.8:
+                distribution["critical"] += 1
+            elif score >= 0.55:
+                distribution["high"] += 1
+            elif score > 0:
+                distribution["elevated"] += 1
+    return distribution
+
+
+def _snapshot_comparison_item(snapshot: HydraulicSimulationSnapshot, db: Session) -> HydraulicScenarioComparisonItem:
+    common = _snapshot_common(snapshot, db)
+    summary = snapshot.summary_json or {}
+    leakage = snapshot.leakage_json or {}
+    leakage_nrw = leakage.get("nrw") or {}
+    water_balance = {**leakage_nrw, **(snapshot.nrw_json or {})}
+    return HydraulicScenarioComparisonItem(
+        id=snapshot.id,
+        report_reference=snapshot.report_reference,
+        scenario_name=snapshot.scenario_name,
+        utility_id=snapshot.utility_id,
+        utility_name=common.get("utility_name"),
+        dma_id=snapshot.dma_id,
+        dma_name=common.get("dma_name"),
+        created_by_name=snapshot.created_by_name,
+        completed_at=snapshot.completed_at,
+        snapshot_version=snapshot.snapshot_version or 1,
+        inputs=snapshot.input_parameters_json or {},
+        pressure={
+            "minimum_m": summary.get("pressure_min_m"),
+            "average_m": summary.get("pressure_avg_m"),
+            "maximum_m": summary.get("pressure_max_m"),
+            "low_pressure_nodes": summary.get("low_pressure_nodes"),
+            "total_nodes": summary.get("total_nodes"),
+        },
+        pressure_zones=leakage.get("pressure_zones") or [],
+        pressure_time_series=summary.get("pressure_time_series") or [],
+        water_balance=water_balance,
+        risk_distribution=_snapshot_risk_distribution(snapshot),
     )
 
 
@@ -854,6 +1009,54 @@ def list_hydraulic_simulation_snapshots(
         page_size=page_size,
         pages=max(1, (total + page_size - 1) // page_size),
         items=[_snapshot_list_item(row, db) for row in rows],
+    )
+
+
+@hydraulic_model_router.post("/snapshots/compare", response_model=HydraulicScenarioComparisonResponse)
+def compare_hydraulic_simulation_snapshots(
+    payload: HydraulicScenarioComparisonRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    requested_ids = list(dict.fromkeys(payload.snapshot_ids))
+    if len(requested_ids) != len(payload.snapshot_ids):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Select each hydraulic scenario only once")
+    if payload.baseline_snapshot_id not in requested_ids:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="The baseline must be one of the selected scenarios")
+
+    rows = _scope_snapshot_query(db.query(HydraulicSimulationSnapshot), current_user).filter(or_(
+        HydraulicSimulationSnapshot.id.in_(requested_ids),
+        HydraulicSimulationSnapshot.report_reference.in_(requested_ids),
+    )).all()
+    by_identifier = {}
+    for row in rows:
+        by_identifier[row.id] = row
+        if row.report_reference:
+            by_identifier[row.report_reference] = row
+
+    selected = [by_identifier.get(identifier) for identifier in requested_ids]
+    if any(snapshot is None for snapshot in selected):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="One or more selected scenarios are unavailable in your access scope")
+
+    snapshots = [snapshot for snapshot in selected if snapshot is not None]
+    if any((snapshot.scenario_status or "").upper() not in {"DONE", "COMPLETED"} for snapshot in snapshots):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Only completed hydraulic scenarios can be compared")
+
+    dma_ids = {snapshot.dma_id for snapshot in snapshots}
+    utility_ids = {snapshot.utility_id for snapshot in snapshots}
+    if None in dma_ids or len(dma_ids) != 1 or None in utility_ids or len(utility_ids) != 1:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Hydraulic scenarios must belong to the same utility and DMA")
+
+    baseline = by_identifier[payload.baseline_snapshot_id]
+    first = snapshots[0]
+    common = _snapshot_common(first, db)
+    return HydraulicScenarioComparisonResponse(
+        baseline_snapshot_id=baseline.id,
+        utility_id=first.utility_id,
+        utility_name=common.get("utility_name"),
+        dma_id=first.dma_id,
+        dma_name=common.get("dma_name"),
+        scenarios=[_snapshot_comparison_item(snapshot, db) for snapshot in snapshots],
     )
 
 

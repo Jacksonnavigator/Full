@@ -126,3 +126,36 @@ class HydraulicSimulationSnapshotDetail(HydraulicSimulationSnapshotResponse):
     nodes_geojson: Optional[dict[str, Any]] = None
     pipes_geojson: Optional[dict[str, Any]] = None
     hotspots_geojson: Optional[dict[str, Any]] = None
+
+
+class HydraulicScenarioComparisonRequest(BaseModel):
+    snapshot_ids: list[str] = Field(min_length=2, max_length=5)
+    baseline_snapshot_id: str
+
+
+class HydraulicScenarioComparisonItem(BaseModel):
+    id: str
+    report_reference: Optional[str] = None
+    scenario_name: Optional[str] = None
+    utility_id: Optional[str] = None
+    utility_name: Optional[str] = None
+    dma_id: Optional[str] = None
+    dma_name: Optional[str] = None
+    created_by_name: Optional[str] = None
+    completed_at: Optional[datetime] = None
+    snapshot_version: int = 1
+    inputs: dict[str, Any] = Field(default_factory=dict)
+    pressure: dict[str, Any] = Field(default_factory=dict)
+    pressure_zones: list[dict[str, Any]] = Field(default_factory=list)
+    pressure_time_series: list[dict[str, Any]] = Field(default_factory=list)
+    water_balance: dict[str, Any] = Field(default_factory=dict)
+    risk_distribution: dict[str, int] = Field(default_factory=dict)
+
+
+class HydraulicScenarioComparisonResponse(BaseModel):
+    baseline_snapshot_id: str
+    utility_id: str
+    utility_name: Optional[str] = None
+    dma_id: str
+    dma_name: Optional[str] = None
+    scenarios: list[HydraulicScenarioComparisonItem] = Field(default_factory=list)

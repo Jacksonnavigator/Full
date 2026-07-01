@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
-import { ChevronLeft, ChevronRight, FileChartColumn, Search, SlidersHorizontal } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ChevronLeft, ChevronRight, FileChartColumn, GitCompareArrows, Search, SlidersHorizontal } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
 import { useDataStore } from "@/store/data-store"
 import { useAuthStore } from "@/store/auth-store"
@@ -45,6 +46,7 @@ const formatDate = (value?: string | null) => value ? new Date(value).toLocaleSt
 
 export default function HydraulicReportsPage() {
   usePageAccess()
+  const router = useRouter()
   const { currentUser } = useAuthStore()
   const { utilities, dmas } = useDataStore()
   const [data, setData] = useState<SnapshotPage>({ total: 0, page: 1, page_size: 25, pages: 1, items: [] })
@@ -74,7 +76,7 @@ export default function HydraulicReportsPage() {
     if (dmaId) params.set("dma_id", dmaId)
     const response = await apiClient.get<SnapshotPage>(`/hydraulic-model/snapshots?${params}`, { timeout: 20_000, retries: 0 })
     if (response.success && response.data) setData(response.data)
-    else setError(response.error || "Hydraulic reports could not be loaded.")
+    else setError(response.error || "Hydraulic scenarios could not be loaded.")
     hasLoaded.current = true
     setLoading(false)
   }, [dmaId, page, pageSize, search, status, utilityId])
@@ -85,8 +87,11 @@ export default function HydraulicReportsPage() {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        title="Hydraulic Model Reports"
-        description="Completed and failed DMA hydraulic simulations available within your operational scope."
+        title="Hydraulic Model Scenarios"
+        description="Completed and failed DMA hydraulic scenarios available within your operational scope."
+        actionLabel="Compare Scenarios"
+        actionIcon={GitCompareArrows}
+        onAction={() => router.push("/dashboard/hydraulic-reports/compare")}
       />
 
       <section className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 lg:grid-cols-[minmax(15rem,1fr)_repeat(3,minmax(10rem,0.45fr))]">
@@ -103,11 +108,11 @@ export default function HydraulicReportsPage() {
 
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-          <div><h2 className="font-semibold">Simulation archive</h2><p className="text-sm text-slate-500 dark:text-slate-400">{data.total.toLocaleString()} reports{hasLoaded.current && loading ? " · Refreshing" : ""}</p></div>
+          <div><h2 className="font-semibold">Scenario archive</h2><p className="text-sm text-slate-500 dark:text-slate-400">{data.total.toLocaleString()} scenarios{hasLoaded.current && loading ? " · Refreshing" : ""}</p></div>
           <div className="flex items-center gap-2 text-sm"><SlidersHorizontal className="h-4 w-4" /><span>Rows</span><select value={pageSize} onChange={(event) => setPageSize(Number(event.target.value))} className="rounded-md border border-input bg-background px-2 py-1"><option>25</option><option>50</option><option>100</option></select></div>
         </div>
-        {error ? <div className="p-10 text-center"><p className="font-semibold text-red-700 dark:text-red-300">{error}</p><Button className="mt-4" onClick={load}>Try again</Button></div> : loading ? <div className="p-14 text-center text-slate-500">Loading hydraulic reports...</div> : data.items.length === 0 ? <div className="p-14 text-center"><FileChartColumn className="mx-auto h-8 w-8 text-slate-400" /><p className="mt-3 font-semibold">No hydraulic reports found</p><p className="text-sm text-slate-500">Completed model runs will appear here automatically.</p></div> : (
-          <div className="overflow-x-auto"><table className="w-full min-w-[1050px] text-left text-sm"><thead className="bg-slate-800 text-white dark:bg-black"><tr>{["Report", "Scope", "Run by", "Status", "Min / Avg pressure", "NRW", "Alerts", "Completed", ""].map((label) => <th key={label} className="px-4 py-3 font-semibold">{label}</th>)}</tr></thead><tbody className="divide-y divide-slate-200 dark:divide-slate-700">{data.items.map((item) => <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/70"><td className="px-4 py-3"><p className="font-semibold text-slate-950 dark:text-white">{item.report_reference || item.id.slice(0, 12)}</p><p className="text-xs text-slate-500">{item.scenario_name || "Hydraulic simulation"}</p></td><td className="px-4 py-3"><p className="font-medium">{item.utility_name || "Historical utility"}</p><p className="text-xs text-slate-500">{item.dma_name || "Historical DMA"}</p></td><td className="px-4 py-3"><p>{item.created_by_name || "System"}</p><p className="text-xs capitalize text-slate-500">{(item.created_by_role || "automated").replaceAll("_", " ")}</p></td><td className="px-4 py-3"><span className={cn("rounded-full border px-2 py-1 text-xs font-semibold", statusClass(item.scenario_status))}>{(item.scenario_status || "Unknown").toUpperCase()}</span></td><td className="px-4 py-3">{formatNumber(item.pressure_min_m)} / {formatNumber(item.pressure_avg_m)} m</td><td className="px-4 py-3 font-semibold">{item.nrw_pct == null ? "N/A" : `${formatNumber(item.nrw_pct)}%`}</td><td className="px-4 py-3">{item.alert_count}</td><td className="px-4 py-3">{formatDate(item.completed_at || item.created_at)}</td><td className="px-4 py-3 text-right"><Button asChild size="sm"><Link href={`/dashboard/hydraulic-reports/${item.report_reference || item.id}`}>View report</Link></Button></td></tr>)}</tbody></table></div>
+        {error ? <div className="p-10 text-center"><p className="font-semibold text-red-700 dark:text-red-300">{error}</p><Button className="mt-4" onClick={load}>Try again</Button></div> : loading ? <div className="p-14 text-center text-slate-500">Loading hydraulic scenarios...</div> : data.items.length === 0 ? <div className="p-14 text-center"><FileChartColumn className="mx-auto h-8 w-8 text-slate-400" /><p className="mt-3 font-semibold">No hydraulic scenarios found</p><p className="text-sm text-slate-500">Completed model runs will appear here automatically.</p></div> : (
+          <div className="overflow-x-auto"><table className="w-full min-w-[1050px] text-left text-sm"><thead className="bg-slate-800 text-white dark:bg-black"><tr>{["Scenario", "Scope", "Run by", "Status", "Min / Avg pressure", "NRW", "Alerts", "Completed", ""].map((label) => <th key={label} className="px-4 py-3 font-semibold">{label}</th>)}</tr></thead><tbody className="divide-y divide-slate-200 dark:divide-slate-700">{data.items.map((item) => <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/70"><td className="px-4 py-3"><p className="font-semibold text-slate-950 dark:text-white">{item.report_reference || item.id.slice(0, 12)}</p><p className="text-xs text-slate-500">{item.scenario_name || "Hydraulic scenario"}</p></td><td className="px-4 py-3"><p className="font-medium">{item.utility_name || "Historical utility"}</p><p className="text-xs text-slate-500">{item.dma_name || "Historical DMA"}</p></td><td className="px-4 py-3"><p>{item.created_by_name || "System"}</p><p className="text-xs capitalize text-slate-500">{(item.created_by_role || "automated").replaceAll("_", " ")}</p></td><td className="px-4 py-3"><span className={cn("rounded-full border px-2 py-1 text-xs font-semibold", statusClass(item.scenario_status))}>{(item.scenario_status || "Unknown").toUpperCase()}</span></td><td className="px-4 py-3">{formatNumber(item.pressure_min_m)} / {formatNumber(item.pressure_avg_m)} m</td><td className="px-4 py-3 font-semibold">{item.nrw_pct == null ? "N/A" : `${formatNumber(item.nrw_pct)}%`}</td><td className="px-4 py-3">{item.alert_count}</td><td className="px-4 py-3">{formatDate(item.completed_at || item.created_at)}</td><td className="px-4 py-3 text-right"><Button asChild size="sm"><Link href={`/dashboard/hydraulic-reports/${item.report_reference || item.id}`}>View scenario</Link></Button></td></tr>)}</tbody></table></div>
         )}
         <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 dark:border-slate-700"><p className="text-sm text-slate-500">Page {data.page} of {data.pages}</p><div className="flex gap-2"><Button variant="outline" size="icon" disabled={page <= 1 || loading} onClick={() => setPage((value) => value - 1)} aria-label="Previous page"><ChevronLeft className="h-4 w-4" /></Button><Button variant="outline" size="icon" disabled={page >= data.pages || loading} onClick={() => setPage((value) => value + 1)} aria-label="Next page"><ChevronRight className="h-4 w-4" /></Button></div></div>
       </section>

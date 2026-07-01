@@ -57,7 +57,7 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ["admin", "utility_manager", "dma_manager"],
   },
   {
-    title: "Hydraulic Model Reports",
+    title: "Hydraulic Model Scenarios",
     href: "/dashboard/hydraulic-reports",
     icon: FileChartColumn,
     roles: ["admin", "utility_manager", "dma_manager"],

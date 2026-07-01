@@ -30,6 +30,7 @@ export default function HydraulicWorkspacePage() {
   const { resolvedTheme } = useTheme()
   const theme = resolvedTheme === "dark" ? "dark" : "light"
   const [launchUrl, setLaunchUrl] = useState<URL | null>(null)
+  const [frameReady, setFrameReady] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -59,12 +60,12 @@ export default function HydraulicWorkspacePage() {
   const workspaceOrigin = useMemo(() => launchUrl?.origin ?? null, [launchUrl])
 
   useEffect(() => {
-    if (!launchUrl || !iframeRef.current?.contentWindow) return
+    if (!frameReady || !launchUrl || !iframeRef.current?.contentWindow) return
     iframeRef.current.contentWindow.postMessage(
       { type: "majiscope:theme", theme },
       launchUrl.origin
     )
-  }, [launchUrl, theme])
+  }, [frameReady, launchUrl, theme])
 
   useEffect(() => {
     function handleWorkspaceMessage(event: MessageEvent) {
@@ -81,11 +82,7 @@ export default function HydraulicWorkspacePage() {
 
   function handleFrameLoad() {
     setLoading(false)
-    if (!launchUrl || !iframeRef.current?.contentWindow) return
-    iframeRef.current.contentWindow.postMessage(
-      { type: "majiscope:theme", theme },
-      launchUrl.origin
-    )
+    setFrameReady(true)
   }
 
   if (error) {
