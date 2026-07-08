@@ -31,12 +31,6 @@ import { cn } from "@/lib/utils"
 import { BrandWordmark } from "@/components/shared/brand-wordmark"
 import { cleanupHydraulicWorkspaceSession } from "@/lib/hydraulic-workspace"
 
-const HYDRAULIC_TESTER_EMAIL = "admin2@hydranet.com"
-const HYDRAULIC_NAV_ROUTES = new Set([
-  "/dashboard/hydraulic-model",
-  "/dashboard/hydraulic-reports",
-])
-
 export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
@@ -47,12 +41,7 @@ export function AppSidebar() {
 
   if (!currentUser) return null
 
-  const isHydraulicTester = currentUser.email?.trim().toLowerCase() === HYDRAULIC_TESTER_EMAIL
-  const visibleItems = NAV_ITEMS.filter((item) => {
-    if (!item.roles.includes(currentUser.role)) return false
-    if (HYDRAULIC_NAV_ROUTES.has(item.href)) return isHydraulicTester
-    return true
-  })
+  const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes(currentUser.role))
 
   const initials = currentUser.name
     .split(" ")
