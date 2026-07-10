@@ -11,7 +11,7 @@
 // ============================================================
 // Environment variables are embedded by Next.js during the frontend build.
 const DEFAULT_BACKEND_URL = "http://localhost:8000";
-const DEFAULT_PRODUCTION_BACKEND_URL = "https://full-nfjr.onrender.com";
+const DEFAULT_PRODUCTION_BACKEND_URL = "https://majiscope.onrender.com";
 const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
 const BACKEND_API_PREFIX = '/api';
 
