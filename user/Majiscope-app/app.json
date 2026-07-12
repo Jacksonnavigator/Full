@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Majiscope",
+    "slug": "hydranet-user-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "splash": {
+      "image": "./assets/splash-screen.jpg",
+      "resizeMode": "contain",
+      "backgroundColor": "#eef9ff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hydratech.majiscopeuser"
+    },
+    "android": {
+      "package": "com.hydratech.majiscopeuser",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Majiscope to use your location to attach accurate GPS coordinates to your report."
+        }
+      ],
+      "expo-image-picker"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a97dd044-0e94-4170-9e29-2b6f979ab902"
+      }
+    },
+    "owner": "jacksonwambali"
+  }
+}

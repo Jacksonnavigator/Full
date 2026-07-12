@@ -2,6 +2,6 @@
 
 The active public app is:
 
-- `HydraNet-app/`
+- `Majiscope-app/`
 
-Use [`HydraNet-app/README.md`](c:/Users/fivia/Desktop/Hydratech/user/HydraNet-app/README.md) for run/setup commands.
+Use [`Majiscope-app/README.md`](c:/Users/fivia/Desktop/Hydratech/user/Majiscope-app/README.md) for run/setup commands.
