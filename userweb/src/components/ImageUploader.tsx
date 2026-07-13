@@ -1,109 +1,117 @@
-import React, { useRef, useState } from 'react'
+import React, { useState, useRef } from 'react'
 
-export default function ImageUploader({ onUploaded }: { onUploaded: (urls: string[]) => void }) {
-  const [uploading, setUploading] = useState(false)
-  const [urls, setUrls] = useState<string[]>([])
-  const [progress, setProgress] = useState<number | null>(null)
+interface ImageUploaderProps {
+  onUploaded: (base64Images: string[]) => void
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+export default function ImageUploader({ onUploaded }: ImageUploaderProps) {
+  const [previews, setPreviews] = useState<string[]>([])
+  const [processing, setProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [dragActive, setDragActive] = useState(false)
-  const inputRef = useRef<HTMLInputElement | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  async function doUpload(files: FileList | null) {
+  async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
-    setUploading(true)
     setError(null)
-    setProgress(0)
-    const uploadedUrls: string[] = []
-    try {
-      const base = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        if (file.size > 50 * 1024 * 1024) {
-          throw new Error('Each file must be smaller than 50 MB')
-        }
-        const form = new FormData()
-        form.append('file', file)
-        const res = await fetch(`${base}/api/uploads/public`, {
-          method: 'POST',
-          body: form,
-        })
-        if (!res.ok) throw new Error(`Upload failed: ${res.status}`)
-        const body = await res.json()
-        if (body?.downloadUrl) {
-          uploadedUrls.push(body.downloadUrl.startsWith('http') ? body.downloadUrl : `${base}${body.downloadUrl}`)
-        } else if (body?.id) {
-          uploadedUrls.push(`${base}/api/uploads/${body.id}`)
-        }
-        setProgress(Math.round(((i + 1) / files.length) * 100))
-      }
-      setUrls((prev) => {
-        const merged = [...prev, ...uploadedUrls]
-        onUploaded(merged)
-        return merged
-      })
-    } catch (err) {
-      console.error(err)
-      setError((err as any).message || 'Image upload failed')
-    } finally {
-      setUploading(false)
-      setProgress(null)
-      setDragActive(false)
+    setProcessing(true)
+
+    const fileArray = Array.from(files)
+
+    // Validate sizes (10 MB limit per file)
+    const oversized = fileArray.filter((f) => f.size > 10 * 1024 * 1024)
+    if (oversized.length > 0) {
+      setError(`${oversized.length} file(s) exceed 10 MB and were skipped.`)
     }
-  }
+    const valid = fileArray.filter((f) => f.size <= 10 * 1024 * 1024)
+    if (valid.length === 0) {
+      setProcessing(false)
+      return
+    }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    doUpload(e.target.files)
-  }
-
-  function handleAddClick() {
-    inputRef.current?.click()
+    try {
+      // Convert to base64 locally — no network call needed
+      const base64List = await Promise.all(valid.map(fileToBase64))
+      const next = [...previews, ...base64List]
+      setPreviews(next)
+      onUploaded(next)
+    } catch (err: any) {
+      setError('Could not read one or more images. Please try again.')
+    } finally {
+      setProcessing(false)
+    }
   }
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-    doUpload(e.dataTransfer.files)
+    handleFiles(e.dataTransfer.files)
+  }
+
+  function removeImage(index: number) {
+    const next = previews.filter((_, i) => i !== index)
+    setPreviews(next)
+    onUploaded(next)
   }
 
   return (
-    <div>
+    <div className="space-y-3">
       <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center transition ${dragActive ? 'border-teal-600 bg-teal-50' : 'border-slate-300 bg-white'}`}
-        onDragOver={(e) => {
-          e.preventDefault()
-          setDragActive(true)
-        }}
-        onDragLeave={(e) => {
-          e.preventDefault()
-          setDragActive(false)
-        }}
         onDrop={handleDrop}
+        onDragOver={(e) => e.preventDefault()}
+        onClick={() => inputRef.current?.click()}
+        className="flex cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500 transition hover:border-teal-400 hover:bg-teal-50"
       >
-        <div className="mb-4">
-          <svg className="mx-auto text-slate-400" width="56" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 15v3a1 1 0 001 1h16a1 1 0 001-1v-3" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M7 10l3-3 4 4 5-5 3 3" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-        <div className="mb-4 text-slate-600">Drag & Drop photos here or click on 'Add photo'</div>
-        <div>
-          <button type="button" onClick={handleAddClick} className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50">
-            Add photo
-          </button>
-        </div>
-        <input ref={inputRef} type="file" multiple accept="image/*" onChange={handleChange} className="hidden" />
+        {processing ? (
+          <span>Processing…</span>
+        ) : (
+          <>
+            <span className="font-medium text-slate-700">Click or drag photos here</span>
+            <span className="mt-1 text-xs">PNG, JPG, WEBP up to 10 MB each</span>
+          </>
+        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
       </div>
-      <p className="mt-3 text-sm text-slate-500">Add an overview photo to clarify your issue and speed up handling. You can add up to 50 MB of attachments at a time.</p>
-      {uploading && progress !== null ? <div className="text-sm text-slate-600 mt-2">Uploading... {progress}%</div> : null}
-      {error ? <div className="mt-2 text-sm text-red-600">{error}</div> : null}
-      {urls.length ? (
-        <div className="mt-3 grid grid-cols-4 gap-2">
-          {urls.map((u) => (
-            <img key={u} src={u} alt="uploaded" className="h-20 w-full object-cover rounded" />
+
+      {error && (
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          {error}
+        </p>
+      )}
+
+      {previews.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {previews.map((src, i) => (
+            <div key={i} className="relative h-20 w-20 overflow-hidden rounded border border-slate-200">
+              <img src={src} alt={`preview-${i}`} className="h-full w-full object-cover" />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  removeImage(i)
+                }}
+                className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-xs text-white hover:bg-black/80"
+              >
+                ✕
+              </button>
+            </div>
           ))}
         </div>
-      ) : null}
+      )}
     </div>
   )
 }
