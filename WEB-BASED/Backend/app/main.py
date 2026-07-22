@@ -28,6 +28,7 @@ from app.api import (
     health_router,
     uploads_router,
     hydraulic_model_router,
+    dashboard_router,
 )
 from app.services.database_migrations import run_heavy_startup_migrations, run_safe_startup_migrations
 from import_legacy_duwasa_reports import DEFAULT_CSV_PATH, import_legacy_duwasa_data
@@ -146,6 +147,7 @@ app.include_router(logs_router)
 app.include_router(health_router)
 app.include_router(uploads_router)
 app.include_router(hydraulic_model_router)
+app.include_router(dashboard_router)
 
 # ============================================================
 # Health Check & Status Endpoints

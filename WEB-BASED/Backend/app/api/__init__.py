@@ -18,6 +18,7 @@ from app.api.logs import logs_router
 from app.api.health import health_router
 from app.api.uploads import uploads_router
 from app.api.hydraulic_model import hydraulic_model_router
+from app.api.dashboard import dashboard_router
 
 __all__ = [
     "auth_router",
@@ -35,4 +36,5 @@ __all__ = [
     "health_router",
     "uploads_router",
     "hydraulic_model_router",
+    "dashboard_router",
 ]

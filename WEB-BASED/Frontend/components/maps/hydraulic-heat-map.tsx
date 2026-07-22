@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment, useEffect, useMemo } from "react"
-import { CircleMarker, MapContainer, Pane, Popup, TileLayer, useMap } from "react-leaflet"
+import { CircleMarker, MapContainer, Pane, Popup, Polyline, TileLayer, useMap } from "react-leaflet"
 import { useTheme } from "next-themes"
 import type { LatLngExpression } from "leaflet"
 
@@ -18,6 +18,11 @@ function isPointFeature(feature: GeoJsonFeature) {
   return feature.geometry?.type === "Point" && Array.isArray(coords) && coords.length >= 2
 }
 
+function isLineFeature(feature: GeoJsonFeature) {
+  const coords = feature.geometry?.coordinates
+  return feature.geometry?.type === "LineString" && Array.isArray(coords) && coords.length >= 2
+}
+
 function featureLatLng(feature: GeoJsonFeature): LatLngExpression | null {
   if (!isPointFeature(feature)) return null
   const [lng, lat] = feature.geometry!.coordinates as number[]
@@ -25,8 +30,27 @@ function featureLatLng(feature: GeoJsonFeature): LatLngExpression | null {
   return [lat, lng]
 }
 
+function featureLineLatLngs(feature: GeoJsonFeature): LatLngExpression[] {
+  if (!isLineFeature(feature)) return []
+  return ((feature.geometry!.coordinates as number[][]) || [])
+    .map((coord) => {
+      const [lng, lat] = coord
+      return Number.isFinite(lat) && Number.isFinite(lng) ? ([lat, lng] as LatLngExpression) : null
+    })
+    .filter(Boolean) as LatLngExpression[]
+}
+
 function heatColor(mode: HydraulicHeatMode, feature: GeoJsonFeature) {
   const props = feature.properties || {}
+  if (mode === "pipe_flow") {
+    const flow = Math.abs(Number(props.flow_rate_max_abs ?? props.flow_rate_avg ?? props.flow_rate ?? 0))
+    if (flow >= 50) return "#dc2626"
+    if (flow >= 20) return "#f97316"
+    if (flow >= 5) return "#facc15"
+    if (flow > 0) return "#60a5fa"
+    return "#6366f1"
+  }
+
   if (mode === "leakage_risk") {
     const score = typeof props.risk_score === "number" ? props.risk_score : 0
     if (score >= 0.8) return "#dc2626"
@@ -84,6 +108,13 @@ const HEAT_LEGENDS: Record<HydraulicHeatMode, Array<{ color: string; label: stri
     { color: "#b91c1c", label: "Critical · below 5 m" },
     { color: "#dc2626", label: "Low · 5-7 m" },
   ],
+  pipe_flow: [
+    { color: "#6366f1", label: "No or very low flow" },
+    { color: "#60a5fa", label: "Low flow" },
+    { color: "#facc15", label: "Moderate flow" },
+    { color: "#f97316", label: "High flow" },
+    { color: "#dc2626", label: "Very high flow" },
+  ],
   leakage_risk: [
     { color: "#a855f7", label: "Elevated · below 55%" },
     { color: "#f97316", label: "High · 55-79%" },
@@ -91,8 +122,23 @@ const HEAT_LEGENDS: Record<HydraulicHeatMode, Array<{ color: string; label: stri
   ],
 }
 
+const HEAT_GRADIENTS: Record<HydraulicHeatMode, string> = {
+  pressure: "linear-gradient(90deg, #ef4444, #f97316, #facc15, #22c55e, #2563eb)",
+  low_pressure: "linear-gradient(90deg, #b91c1c, #dc2626, #f97316)",
+  pipe_flow: "linear-gradient(90deg, #6366f1, #60a5fa, #facc15, #f97316, #dc2626)",
+  leakage_risk: "linear-gradient(90deg, #a855f7, #f97316, #dc2626)",
+}
+
 function tooltipRows(mode: HydraulicHeatMode, feature: GeoJsonFeature) {
   const props = feature.properties || {}
+  if (mode === "pipe_flow") {
+    return [
+      ["Pipe", String(props.element_id || "Unknown")],
+      ["Mean flow", typeof props.flow_rate_avg === "number" ? `${props.flow_rate_avg.toFixed(3)} m³/h` : "Not available"],
+      ["Peak flow", typeof props.flow_rate_max_abs === "number" ? `${props.flow_rate_max_abs.toFixed(3)} m³/h` : "Not available"],
+    ]
+  }
+
   if (mode === "leakage_risk") {
     return [
       ["Pipe", String(props.pipe_id || props.element_id || "Unknown")],
@@ -120,7 +166,11 @@ function MapBounds({ features }: { features: GeoJsonFeature[] }) {
   const map = useMap()
 
   useEffect(() => {
-    const points = features.map(featureLatLng).filter(Boolean) as [number, number][]
+    const points = features.flatMap((feature) => {
+      const point = featureLatLng(feature)
+      if (point) return [point]
+      return featureLineLatLngs(feature)
+    }).filter(Boolean) as [number, number][]
     if (!points.length) return
     map.fitBounds(points, { padding: [24, 24] })
   }, [features, map])
@@ -131,10 +181,12 @@ function MapBounds({ features }: { features: GeoJsonFeature[] }) {
 export function HydraulicHeatMap({
   mode,
   nodesGeojson,
+  pipesGeojson,
   hotspotsGeojson,
 }: {
   mode: HydraulicHeatMode
   nodesGeojson?: GeoJsonFeatureCollection
+  pipesGeojson?: GeoJsonFeatureCollection
   hotspotsGeojson?: GeoJsonFeatureCollection
 }) {
   const { resolvedTheme } = useTheme()
@@ -145,6 +197,10 @@ export function HydraulicHeatMap({
       return getGeoJsonFeatures(hotspotsGeojson).filter(isPointFeature)
     }
 
+    if (mode === "pipe_flow") {
+      return getGeoJsonFeatures(pipesGeojson).filter((feature) => isPointFeature(feature) || isLineFeature(feature))
+    }
+
     const nodeFeatures = getGeoJsonFeatures(nodesGeojson).filter(isPointFeature)
     if (mode === "low_pressure") {
       return nodeFeatures.filter((feature) => {
@@ -153,7 +209,7 @@ export function HydraulicHeatMap({
       })
     }
     return nodeFeatures
-  }, [hotspotsGeojson, mode, nodesGeojson])
+  }, [hotspotsGeojson, mode, nodesGeojson, pipesGeojson])
 
   const mapCenter = useMemo<LatLngExpression>(() => {
     const firstPoint = features.map(featureLatLng).find(Boolean)
@@ -171,38 +227,54 @@ export function HydraulicHeatMap({
           url={tileUrl}
           attribution={theme === "dark" ? "&copy; OSM &copy; CARTO" : "&copy; OpenStreetMap contributors"}
         />
-        <Pane name="hydraulic-heat-halo" className="hydraulic-heat-halo-pane" />
         <Pane name="hydraulic-heat-hit" className="hydraulic-heat-hit-pane" />
         <MapBounds features={features} />
 
         {features.map((feature, index) => {
           const latLng = featureLatLng(feature)
-          if (!latLng) return null
           const color = heatColor(mode, feature)
           const radius = heatRadius(mode, feature)
           const rows = tooltipRows(mode, feature)
+
+          if (mode === "pipe_flow" && isLineFeature(feature)) {
+            const line = featureLineLatLngs(feature)
+            if (!line.length) return null
+            return (
+              <Polyline
+                key={`${mode}-${index}`}
+                positions={line}
+                pathOptions={{ color, weight: 4, opacity: 0.92 }}
+              >
+                <Popup>
+                  <div className="min-w-40 text-sm">
+                    <p className="mb-2 font-semibold">{HYDRAULIC_HEAT_MODE_LABELS[mode]}</p>
+                    <div className="space-y-1">
+                      {rows.map(([label, value]) => (
+                        <div key={label} className="flex justify-between gap-3">
+                          <span className="text-slate-500">{label}</span>
+                          <span className="font-medium text-slate-900">{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Popup>
+              </Polyline>
+            )
+          }
+
+          if (!latLng) return null
 
           return (
             <Fragment key={`${mode}-${index}`}>
               <CircleMarker
                 center={latLng}
-                pane="hydraulic-heat-halo"
-                radius={radius}
-                pathOptions={{
-                  stroke: false,
-                  fillColor: color,
-                  fillOpacity: mode === "pressure" ? 0.32 : 0.4,
-                }}
-              />
-              <CircleMarker
-                center={latLng}
                 pane="hydraulic-heat-hit"
-                radius={Math.max(6, Math.min(10, radius / 2.8))}
+                radius={mode === "pipe_flow" ? 6 : Math.max(5, Math.min(8, radius / 3.5))}
                 pathOptions={{
-                  color,
-                  weight: 1.5,
+                  color: "#0f172a",
+                  weight: 1.2,
                   fillColor: color,
-                  fillOpacity: 0.9,
+                  fillOpacity: 0.92,
                 }}
               >
                 <Popup>
@@ -227,6 +299,7 @@ export function HydraulicHeatMap({
         <p className="mb-2 text-xs font-semibold text-slate-950 dark:text-white">
           {HYDRAULIC_HEAT_MODE_LABELS[mode]}
         </p>
+        <div className="mb-2 h-2 w-full rounded-full ring-1 ring-slate-900/10" style={{ background: HEAT_GRADIENTS[mode] }} />
         <div className="space-y-1.5">
           {HEAT_LEGENDS[mode].map((item) => (
             <div key={item.label} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-200">

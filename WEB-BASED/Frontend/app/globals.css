@@ -278,20 +278,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
   background: transparent;
 }
 
-.hydraulic-heat-halo-pane {
-  filter: blur(18px) saturate(140%);
-  transform-origin: center center;
-}
-
-.dark .hydraulic-heat-halo-pane {
-  mix-blend-mode: screen;
-}
-
-html[data-theme="light"] .hydraulic-heat-halo-pane,
-:root:not(.dark) .hydraulic-heat-halo-pane {
-  mix-blend-mode: multiply;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

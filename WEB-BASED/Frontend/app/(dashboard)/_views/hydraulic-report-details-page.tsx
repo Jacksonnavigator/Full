@@ -121,6 +121,10 @@ export default function HydraulicReportDetailsPage({ snapshotId }: { snapshotId:
   const summary = report?.summary_json || {}
   const leakage = report?.leakage_json || {}
   const nrw = report?.nrw_json || leakage.nrw || {}
+  const hydraulicArtifacts = summary.hydraulic_report_artifacts || {}
+  const artifactBalance = hydraulicArtifacts.hydraulic_balance || hydraulicArtifacts.flow_balance || {}
+  const artifactStatusEvents: Json[] = hydraulicArtifacts.status_events || []
+  const artifactWarnings: string[] = hydraulicArtifacts.warnings || []
   const warnings: string[] = useMemo(() => [...new Set([...(report?.alerts_json?.warnings || []), ...(leakage.warnings || []), ...(report?.error_message ? [report.error_message] : [])])], [leakage, report])
   const iliValue = useMemo(() => {
     if (typeof nrw.ili === "number") return nrw.ili
@@ -130,8 +134,8 @@ export default function HydraulicReportDetailsPage({ snapshotId }: { snapshotId:
   const risks: Json[] = leakage.pipe_risks_top20 || []
   const balance: Json[] = leakage.timestep_balance || []
   const heatModes = useMemo(
-    () => getAvailableHydraulicHeatModes({ nodesGeojson: report?.nodes_geojson, hotspotsGeojson: report?.hotspots_geojson }),
-    [report?.hotspots_geojson, report?.nodes_geojson]
+    () => getAvailableHydraulicHeatModes({ nodesGeojson: report?.nodes_geojson, pipesGeojson: report?.pipes_geojson, hotspotsGeojson: report?.hotspots_geojson }),
+    [report?.hotspots_geojson, report?.nodes_geojson, report?.pipes_geojson]
   )
 
   useEffect(() => {
@@ -160,6 +164,43 @@ export default function HydraulicReportDetailsPage({ snapshotId }: { snapshotId:
 
       {warnings.length ? <Section title="Model warnings"><ul className="space-y-2">{warnings.map((warning, index) => <li key={`${warning}-${index}`} className="flex gap-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100"><AlertTriangle className="h-4 w-4 shrink-0" />{warning}</li>)}</ul></Section> : null}
 
+      {Object.keys(hydraulicArtifacts).length ? (
+        <Section title="Hydraulic run artifacts">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            <Metric icon={Droplets} title="Recorded inflow" value={number(artifactBalance.total_inflow_m3h, " m³/h")} />
+            <Metric icon={Droplets} title="Recorded demand" value={number(artifactBalance.consumer_demand_m3h, " m³/h")} />
+            <Metric icon={ShieldAlert} title="Recorded NRW" value={number(artifactBalance.nrw_pct, "%", 1)} note={number(artifactBalance.nrw_m3h, " m³/h")} />
+            <Metric icon={Network} title="Status events" value={number(hydraulicArtifacts.status_event_count, "", 0)} />
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+                <p className="font-semibold text-slate-950 dark:text-white">Balance details</p>
+              </div>
+              <div className="max-h-72 overflow-auto">
+                {Object.keys(artifactBalance).length ? (
+                  <SnapshotEntry name="hydraulic balance" value={artifactBalance} />
+                ) : (
+                  <p className="px-4 py-3 text-sm text-slate-500">No balance attributes were recorded.</p>
+                )}
+              </div>
+            </div>
+            <div className="rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+                <p className="font-semibold text-slate-950 dark:text-white">Status and warnings</p>
+              </div>
+              <div className="max-h-72 overflow-auto">
+                {artifactWarnings.length ? <SnapshotEntry name="warnings" value={artifactWarnings} /> : null}
+                {artifactStatusEvents.length ? <SnapshotEntry name="status events" value={artifactStatusEvents} /> : null}
+                {!artifactWarnings.length && !artifactStatusEvents.length ? (
+                  <p className="px-4 py-3 text-sm text-slate-500">No status events or warnings were recorded.</p>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </Section>
+      ) : null}
+
       {balance.length ? <Section title="Hourly flow balance"><div className="mb-4 flex flex-wrap justify-end gap-2">{([['all', 'All'], ['inflow', 'Inflow'], ['demand', 'Demand'], ['nrw', 'NRW']] as Array<[FlowBalanceView, string]>).map(([view, viewLabel]) => <Button key={view} type="button" size="sm" variant={flowBalanceView === view ? "default" : "outline"} onClick={() => setFlowBalanceView(view)} aria-pressed={flowBalanceView === view}>{viewLabel}</Button>)}</div><div className="h-80"><ResponsiveContainer width="100%" height="100%"><LineChart data={balance}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="hour" /><YAxis /><Tooltip /><Legend />{flowBalanceView === "all" || flowBalanceView === "inflow" ? <Line type="monotone" dataKey="inflow_m3h" name="Inflow m³/h" stroke="#0284c7" strokeWidth={2} dot={false} /> : null}{flowBalanceView === "all" || flowBalanceView === "demand" ? <Line type="monotone" dataKey="demand_m3h" name="Demand m³/h" stroke="#059669" strokeWidth={2} dot={false} /> : null}{flowBalanceView === "all" || flowBalanceView === "nrw" ? <Line type="monotone" dataKey="nrw_m3h" name="NRW m³/h" stroke="#dc2626" strokeWidth={2} dot={false} /> : null}</LineChart></ResponsiveContainer></div></Section> : null}
 
       {selectedHeatMode ? (
@@ -184,6 +225,7 @@ export default function HydraulicReportDetailsPage({ snapshotId }: { snapshotId:
             <HydraulicHeatMap
               mode={selectedHeatMode}
               nodesGeojson={report.nodes_geojson}
+              pipesGeojson={report.pipes_geojson}
               hotspotsGeojson={report.hotspots_geojson}
             />
           </div>

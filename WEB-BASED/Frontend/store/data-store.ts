@@ -9,6 +9,10 @@ import { apiClient } from "@/lib/api-client"
 import CONFIG from "@/lib/config"
 import { transformKeys } from "@/lib/transform-data"
 
+const REFERENCE_CACHE_TTL = 30_000
+const NOTIFICATION_CACHE_TTL = 10_000
+const BOOTSTRAP_CACHE_TTL = 10_000
+
 // Type imports for proper typing
 import type {
   EntityStatus,
@@ -129,6 +133,19 @@ async function writeUtility(endpoint: string, method: "POST" | "PUT", data: Part
   }
 
   return transformKeys(payload?.data || payload) as Utility
+}
+
+function entityFromResponse<T extends { id?: string }>(data: unknown): T | null {
+  if (!data || typeof data !== "object") return null
+  const raw = "data" in data ? (data as { data?: unknown }).data : data
+  if (!raw || typeof raw !== "object") return null
+  const transformed = transformKeys(raw) as T
+  return transformed?.id ? transformed : null
+}
+
+function upsertEntity<T extends { id: string }>(items: T[], item: T) {
+  const exists = items.some((current) => current.id === item.id)
+  return exists ? items.map((current) => current.id === item.id ? item : current) : [item, ...items]
 }
 
 export interface DMA {
@@ -313,6 +330,7 @@ interface DataState {
 
   // Fetch Actions
   initialize: () => Promise<void>
+  fetchDashboardBootstrap: () => Promise<boolean>
   fetchUtilities: () => Promise<void>
   fetchDMAs: (utilityId?: string) => Promise<void>
   fetchEngineers: (dmaId?: string) => Promise<void>
@@ -387,13 +405,23 @@ export const useDataStore = create<DataState>((set, get) => ({
     set({ isLoading: true, error: null })
 
     try {
-      await Promise.all([
-        get().fetchUtilities(),
-        get().fetchDMAs(),
-        get().fetchEngineers(),
-        get().fetchTeams(),
-        get().fetchReports(),
-      ])
+      const bootstrapped = await get().fetchDashboardBootstrap()
+
+      if (bootstrapped) {
+        await Promise.all([
+          get().fetchEngineers(),
+          get().fetchTeams(),
+        ])
+      } else {
+        await Promise.all([
+          get().fetchUtilities(),
+          get().fetchDMAs(),
+          get().fetchEngineers(),
+          get().fetchTeams(),
+          get().fetchReports(),
+        ])
+      }
+
       set({ isLoading: false, initialized: true })
     } catch (error) {
       set({ isLoading: false, error: "Failed to initialize data" })
@@ -401,10 +429,50 @@ export const useDataStore = create<DataState>((set, get) => ({
     }
   },
 
+  // Fetch compact dashboard bootstrap data in one request.
+  fetchDashboardBootstrap: async () => {
+    try {
+      const response = await apiClient.get<{
+        utilities?: { items?: unknown[] }
+        dmas?: { items?: unknown[] }
+        reports?: { total?: number; map_items?: unknown[] }
+        notifications?: { items?: unknown[] }
+      }>("/dashboard/bootstrap", { cacheTtl: BOOTSTRAP_CACHE_TTL })
+
+      if (!response.success || !response.data) {
+        if (!isAbortLikeError(response.error, response.code)) {
+          console.error("Error fetching dashboard bootstrap:", response.error)
+        }
+        return false
+      }
+
+      const utilities = (response.data.utilities?.items || []).map(transformKeys) as Utility[]
+      const dmas = (response.data.dmas?.items || []).map(transformKeys) as DMA[]
+      const reports = (response.data.reports?.map_items || []).map(transformKeys) as Report[]
+      const notifications = ((response.data.notifications?.items || []) as Record<string, any>[]).map((item) =>
+        normalizeNotification(item)
+      )
+
+      set({
+        utilities,
+        dmas,
+        reports,
+        reportsListTotal:
+          typeof response.data.reports?.total === "number" ? response.data.reports.total : reports.length,
+        notifications,
+      })
+
+      return true
+    } catch (error) {
+      if (!isAbortLikeError(error)) console.error("Error fetching dashboard bootstrap:", error)
+      return false
+    }
+  },
+
   // Fetch utilities
   fetchUtilities: async () => {
     try {
-      const response = await apiClient.get("/utilities?limit=100")
+      const response = await apiClient.get("/utilities?limit=100", { cacheTtl: REFERENCE_CACHE_TTL })
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
         set({ utilities: transformed })
@@ -420,7 +488,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   fetchDMAs: async (utilityId?: string) => {
     try {
       const endpoint = utilityId ? `/dmas?utility_id=${utilityId}` : "/dmas"
-      const response = await apiClient.get(endpoint)
+      const response = await apiClient.get(endpoint, { cacheTtl: REFERENCE_CACHE_TTL })
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
         set({ dmas: transformed })
@@ -436,7 +504,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   fetchEngineers: async (dmaId?: string) => {
     try {
       const endpoint = dmaId ? `/engineers?dma_id=${dmaId}` : "/engineers"
-      const response = await apiClient.get(endpoint)
+      const response = await apiClient.get(endpoint, { cacheTtl: REFERENCE_CACHE_TTL })
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
         set({ engineers: transformed })
@@ -452,7 +520,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   fetchTeams: async (dmaId?: string) => {
     try {
       const endpoint = dmaId ? `/teams?dma_id=${dmaId}` : "/teams"
-      const response = await apiClient.get(endpoint)
+      const response = await apiClient.get(endpoint, { cacheTtl: REFERENCE_CACHE_TTL })
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
         set({ teams: transformed })
@@ -598,7 +666,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   // Fetch notifications
   fetchNotifications: async (userId: string) => {
     try {
-      const response = await apiClient.get(`/notifications?userId=${userId}`)
+      const response = await apiClient.get(`/notifications?userId=${userId}`, { cacheTtl: NOTIFICATION_CACHE_TTL })
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map((item: Record<string, any>) => normalizeNotification(item))
         set({ notifications: transformed })
@@ -623,6 +691,7 @@ export const useDataStore = create<DataState>((set, get) => ({
       }
 
       const transformed = normalizeNotification(response.data as Record<string, any>)
+      apiClient.invalidateCache("/notifications")
       set((state) => ({
         notifications: state.notifications.map((notification) =>
           notification.id === id ? transformed : notification
@@ -648,6 +717,7 @@ export const useDataStore = create<DataState>((set, get) => ({
           read: true,
         })),
       }))
+      apiClient.invalidateCache("/notifications")
 
       return Number((response.data as { updated?: number } | undefined)?.updated || 0)
     } catch (error) {
@@ -660,7 +730,10 @@ export const useDataStore = create<DataState>((set, get) => ({
   addUtility: async (data: Partial<Utility>) => {
     try {
       const createdUtility = await writeUtility("/utilities", "POST", data)
-      await get().fetchUtilities()
+      apiClient.invalidateCache()
+      set((state) => ({
+        utilities: upsertEntity(state.utilities, createdUtility),
+      }))
       return createdUtility
     } catch (error) {
       console.error("Error creating utility:", error)
@@ -671,7 +744,10 @@ export const useDataStore = create<DataState>((set, get) => ({
   updateUtility: async (id: string, data: Partial<Utility>) => {
     try {
       const updatedUtility = await writeUtility(`/utilities/${id}`, "PUT", data)
-      await get().fetchUtilities()
+      apiClient.invalidateCache()
+      set((state) => ({
+        utilities: upsertEntity(state.utilities, updatedUtility),
+      }))
       return updatedUtility
     } catch (error) {
       console.error("Error updating utility:", error)
@@ -683,7 +759,13 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.delete(`/utilities/${id}`)
       if (!response.success) throw new Error(response.error || "Failed to delete utility")
-      await get().fetchUtilities()
+      apiClient.invalidateCache("/utilities")
+      apiClient.invalidateCache("/dmas")
+      set((state) => ({
+        utilities: state.utilities.filter((utility) => utility.id !== id),
+        dmas: state.dmas.filter((dma) => dma.utilityId !== id),
+        reports: state.reports.filter((report) => report.utilityId !== id),
+      }))
     } catch (error) {
       console.error("Error deleting utility:", error)
       throw error
@@ -696,7 +778,11 @@ export const useDataStore = create<DataState>((set, get) => ({
       const response = await apiClient.post("/dmas", data)
       if (!response.success) throw new Error(response.error || "Failed to create DMA")
       const createdDMA = transformKeys(response.data || {}) as DMA
-      await get().fetchDMAs()
+      apiClient.invalidateCache("/dmas")
+      apiClient.invalidateCache("/utilities")
+      set((state) => ({
+        dmas: upsertEntity(state.dmas, createdDMA),
+      }))
       return createdDMA
     } catch (error) {
       console.error("Error creating DMA:", error)
@@ -709,7 +795,11 @@ export const useDataStore = create<DataState>((set, get) => ({
       const response = await apiClient.put(`/dmas/${id}`, data)
       if (!response.success) throw new Error(response.error || "Failed to update DMA")
       const updatedDMA = transformKeys(response.data || {}) as DMA
-      await get().fetchDMAs()
+      apiClient.invalidateCache("/dmas")
+      apiClient.invalidateCache("/utilities")
+      set((state) => ({
+        dmas: upsertEntity(state.dmas, updatedDMA),
+      }))
       return updatedDMA
     } catch (error) {
       console.error("Error updating DMA:", error)
@@ -721,7 +811,14 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.delete(`/dmas/${id}`)
       if (!response.success) throw new Error(response.error || "Failed to delete DMA")
-      await get().fetchDMAs()
+      apiClient.invalidateCache("/dmas")
+      apiClient.invalidateCache("/utilities")
+      set((state) => ({
+        dmas: state.dmas.filter((dma) => dma.id !== id),
+        teams: state.teams.filter((team) => team.dmaId !== id),
+        engineers: state.engineers.filter((engineer) => engineer.dmaId !== id),
+        reports: state.reports.filter((report) => report.dmaId !== id),
+      }))
     } catch (error) {
       console.error("Error deleting DMA:", error)
       throw error
@@ -731,7 +828,7 @@ export const useDataStore = create<DataState>((set, get) => ({
   // Fetch DMA Managers
   fetchDMAManagers: async () => {
     try {
-      const response = await apiClient.get("/dma-managers")
+      const response = await apiClient.get("/dma-managers", { cacheTtl: REFERENCE_CACHE_TTL })
       if (response.success && response.data) {
         const transformed = (response.data.items || []).map(transformKeys)
         set({ dmaManagers: transformed })
@@ -748,8 +845,16 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.post("/dma-managers", data)
       if (!response.success) throw new Error(response.error || "Failed to create DMA manager")
-      // Refetch both managers and DMAs to keep everything in sync
-      await Promise.all([get().fetchDMAManagers(), get().fetchDMAs()])
+      apiClient.invalidateCache("/dma-managers")
+      apiClient.invalidateCache("/dmas")
+      const createdManager = entityFromResponse<DMAManager>(response.data)
+      if (createdManager) {
+        set((state) => ({
+          dmaManagers: upsertEntity(state.dmaManagers, createdManager),
+        }))
+      } else {
+        await get().fetchDMAManagers()
+      }
     } catch (error) {
       console.error("Error creating DMA manager:", error)
       throw error
@@ -762,9 +867,16 @@ export const useDataStore = create<DataState>((set, get) => ({
       if (!response.success) {
         throw new Error(response.error || "Failed to update DMA manager")
       }
-      // Refetch both DMA managers and DMAs to ensure everything stays in sync
-      // This is important when unassigning managers from DMAs
-      await Promise.all([get().fetchDMAManagers(), get().fetchDMAs()])
+      apiClient.invalidateCache("/dma-managers")
+      apiClient.invalidateCache("/dmas")
+      const updatedManager = entityFromResponse<DMAManager>(response.data)
+      if (updatedManager) {
+        set((state) => ({
+          dmaManagers: upsertEntity(state.dmaManagers, updatedManager),
+        }))
+      } else {
+        await get().fetchDMAManagers()
+      }
     } catch (error) {
       console.error("Error updating DMA manager:", error)
       throw error
@@ -775,8 +887,12 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.delete(`/dma-managers/${id}`)
       if (!response.success) throw new Error(response.error || "Failed to delete DMA manager")
-      // Refetch both managers and DMAs to keep everything in sync
-      await Promise.all([get().fetchDMAManagers(), get().fetchDMAs()])
+      apiClient.invalidateCache("/dma-managers")
+      apiClient.invalidateCache("/dmas")
+      set((state) => ({
+        dmaManagers: state.dmaManagers.filter((manager) => manager.id !== id),
+        dmas: state.dmas.map((dma) => dma.managerId === id ? { ...dma, managerId: null, managerName: undefined } : dma),
+      }))
     } catch (error) {
       console.error("Error deleting DMA manager:", error)
       throw error
@@ -788,7 +904,16 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.post("/reports", data)
       if (!response.success) throw new Error(response.error || "Failed to create report")
-      await get().fetchReports()
+      apiClient.invalidateCache("/reports")
+      const createdReport = entityFromResponse<Report>(response.data)
+      if (createdReport) {
+        set((state) => ({
+          reports: upsertEntity(state.reports, createdReport),
+          reportsListTotal: state.reportsListTotal === null ? null : state.reportsListTotal + 1,
+        }))
+      } else {
+        await get().fetchReports()
+      }
     } catch (error) {
       console.error("Error creating report:", error)
       throw error
@@ -799,7 +924,17 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.put(`/reports/${id}`, data)
       if (!response.success) throw new Error(response.error || "Failed to update report")
-      await get().fetchReports()
+      apiClient.invalidateCache("/reports")
+      const updatedReport = entityFromResponse<Report>(response.data)
+      if (updatedReport) {
+        set((state) => ({
+          reports: upsertEntity(state.reports, updatedReport),
+        }))
+      } else {
+        set((state) => ({
+          reports: state.reports.map((report) => report.id === id ? { ...report, ...data } : report),
+        }))
+      }
     } catch (error) {
       console.error("Error updating report:", error)
       throw error
@@ -810,7 +945,11 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.delete(`/reports/${id}`)
       if (!response.success) throw new Error(response.error || "Failed to delete report")
-      await get().fetchReports()
+      apiClient.invalidateCache("/reports")
+      set((state) => ({
+        reports: state.reports.filter((report) => report.id !== id),
+        reportsListTotal: state.reportsListTotal === null ? null : Math.max(0, state.reportsListTotal - 1),
+      }))
     } catch (error) {
       console.error("Error deleting report:", error)
       throw error
@@ -822,7 +961,15 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.post("/engineers", data)
       if (!response.success) throw new Error(response.error || "Failed to create engineer")
-      await get().fetchEngineers()
+      apiClient.invalidateCache("/engineers")
+      const createdEngineer = entityFromResponse<Engineer>(response.data)
+      if (createdEngineer) {
+        set((state) => ({
+          engineers: upsertEntity(state.engineers, createdEngineer),
+        }))
+      } else {
+        await get().fetchEngineers()
+      }
     } catch (error) {
       console.error("Error creating engineer:", error)
       throw error
@@ -833,7 +980,17 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.put(`/engineers/${id}`, data)
       if (!response.success) throw new Error(response.error || "Failed to update engineer")
-      await get().fetchEngineers()
+      apiClient.invalidateCache("/engineers")
+      const updatedEngineer = entityFromResponse<Engineer>(response.data)
+      if (updatedEngineer) {
+        set((state) => ({
+          engineers: upsertEntity(state.engineers, updatedEngineer),
+        }))
+      } else {
+        set((state) => ({
+          engineers: state.engineers.map((engineer) => engineer.id === id ? { ...engineer, ...data } : engineer),
+        }))
+      }
     } catch (error) {
       console.error("Error updating engineer:", error)
       throw error
@@ -844,7 +1001,10 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.delete(`/engineers/${id}`)
       if (!response.success) throw new Error(response.error || "Failed to delete engineer")
-      await get().fetchEngineers()
+      apiClient.invalidateCache("/engineers")
+      set((state) => ({
+        engineers: state.engineers.filter((engineer) => engineer.id !== id),
+      }))
     } catch (error) {
       console.error("Error deleting engineer:", error)
       throw error
@@ -856,7 +1016,15 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.post("/teams", data)
       if (!response.success) throw new Error(response.error || "Failed to create team")
-      await get().fetchTeams()
+      apiClient.invalidateCache("/teams")
+      const createdTeam = entityFromResponse<Team>(response.data)
+      if (createdTeam) {
+        set((state) => ({
+          teams: upsertEntity(state.teams, createdTeam),
+        }))
+      } else {
+        await get().fetchTeams()
+      }
     } catch (error) {
       console.error("Error creating team:", error)
       throw error
@@ -867,7 +1035,17 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.put(`/teams/${id}`, data)
       if (!response.success) throw new Error(response.error || "Failed to update team")
-      await get().fetchTeams()
+      apiClient.invalidateCache("/teams")
+      const updatedTeam = entityFromResponse<Team>(response.data)
+      if (updatedTeam) {
+        set((state) => ({
+          teams: upsertEntity(state.teams, updatedTeam),
+        }))
+      } else {
+        set((state) => ({
+          teams: state.teams.map((team) => team.id === id ? { ...team, ...data } : team),
+        }))
+      }
     } catch (error) {
       console.error("Error updating team:", error)
       throw error
@@ -878,7 +1056,12 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.delete(`/teams/${id}`)
       if (!response.success) throw new Error(response.error || "Failed to delete team")
-      await get().fetchTeams()
+      apiClient.invalidateCache("/teams")
+      set((state) => ({
+        teams: state.teams.filter((team) => team.id !== id),
+        engineers: state.engineers.map((engineer) => engineer.teamId === id ? { ...engineer, teamId: null, teamName: null } : engineer),
+        reports: state.reports.map((report) => report.teamId === id ? { ...report, teamId: null, teamName: null } : report),
+      }))
     } catch (error) {
       console.error("Error deleting team:", error)
       throw error
@@ -910,7 +1093,13 @@ export const useDataStore = create<DataState>((set, get) => ({
     try {
       const response = await apiClient.put(`/reports/${id}`, { status })
       if (!response.success) throw new Error(response.error || "Failed to update report status")
-      await get().fetchReports()
+      apiClient.invalidateCache("/reports")
+      const updatedReport = entityFromResponse<Report>(response.data)
+      set((state) => ({
+        reports: state.reports.map((report) =>
+          report.id === id ? (updatedReport || { ...report, status: status as ReportStatus }) : report
+        ),
+      }))
     } catch (error) {
       console.error("Error updating report status:", error)
       throw error
@@ -923,7 +1112,16 @@ export const useDataStore = create<DataState>((set, get) => ({
         team_id: teamId,
       })
       if (!response.success) throw new Error(response.error || "Failed to assign report")
-      await get().fetchReports()
+      apiClient.invalidateCache("/reports")
+      const updatedReport = entityFromResponse<Report>(response.data)
+      const team = get().teams.find((item) => item.id === teamId)
+      set((state) => ({
+        reports: state.reports.map((report) =>
+          report.id === id
+            ? (updatedReport || { ...report, teamId, teamName: team?.name ?? report.teamName })
+            : report
+        ),
+      }))
     } catch (error) {
       console.error("Error assigning report:", error)
       throw error

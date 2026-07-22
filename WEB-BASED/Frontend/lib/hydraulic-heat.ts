@@ -1,10 +1,10 @@
-export type HydraulicHeatMode = "pressure" | "low_pressure" | "leakage_risk"
+export type HydraulicHeatMode = "pressure" | "low_pressure" | "pipe_flow" | "leakage_risk"
 
 export type GeoJsonFeature = {
   type: "Feature"
   geometry?: {
     type?: string
-    coordinates?: number[]
+    coordinates?: number[] | number[][]
   } | null
   properties?: Record<string, unknown> | null
 }
@@ -14,6 +14,7 @@ export type GeoJsonFeatureCollection = unknown
 export const HYDRAULIC_HEAT_MODE_LABELS: Record<HydraulicHeatMode, string> = {
   pressure: "Pressure",
   low_pressure: "Low Pressure",
+  pipe_flow: "Mean Flow",
   leakage_risk: "Leakage Risk",
 }
 
@@ -39,13 +40,16 @@ function hasPointCoordinates(feature: GeoJsonFeature) {
 
 export function getAvailableHydraulicHeatModes({
   nodesGeojson,
+  pipesGeojson,
   hotspotsGeojson,
 }: {
   nodesGeojson?: GeoJsonFeatureCollection
+  pipesGeojson?: GeoJsonFeatureCollection
   hotspotsGeojson?: GeoJsonFeatureCollection
 }): HydraulicHeatMode[] {
   const modes: HydraulicHeatMode[] = []
   const nodeFeatures = getGeoJsonFeatures(nodesGeojson).filter(hasPointCoordinates)
+  const pipeFeatures = getGeoJsonFeatures(pipesGeojson)
   const hotspotFeatures = getGeoJsonFeatures(hotspotsGeojson).filter(hasPointCoordinates)
 
   if (nodeFeatures.some((feature) => typeof feature.properties?.pressure === "number")) {
@@ -59,6 +63,16 @@ export function getAvailableHydraulicHeatModes({
     })
   ) {
     modes.push("low_pressure")
+  }
+
+  if (
+    pipeFeatures.some((feature) => {
+      const props = feature.properties || {}
+      const value = props.flow_rate_max_abs ?? props.flow_rate_avg ?? props.flow_rate
+      return typeof value === "number" && Number.isFinite(value)
+    })
+  ) {
+    modes.push("pipe_flow")
   }
 
   if (
