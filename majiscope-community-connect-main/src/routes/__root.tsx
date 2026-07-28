@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+﻿import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -77,10 +77,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MajiScope — Report Water Issues in Your Community" },
+      { title: "MajiScope â€” Report Water Issues in Your Community" },
       { name: "description", content: "MajiScope is a trusted community platform for reporting water issues quickly and helping improve service delivery." },
       { name: "author", content: "MajiScope" },
-      { property: "og:title", content: "MajiScope — Community Water Reporting" },
+      { property: "og:title", content: "MajiScope â€” Community Water Reporting" },
       { property: "og:description", content: "Report water issues, track response, and help improve service delivery in your community." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -91,7 +91,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/logo.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap" },
@@ -127,3 +128,4 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
+

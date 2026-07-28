@@ -8,6 +8,7 @@ export const Route = createFileRoute("/")({
 
 const APK_DOWNLOAD_URL = "/Majiscope-User.apk";
 const REPORT_WEB_APP_URL = "https://majiscope-0196.onrender.com";
+const BRAND_IMAGE_URL = "/logo.png";
 
 function Landing() {
   return (
@@ -29,10 +30,13 @@ function Landing() {
 
 function Logo({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <div className="grid h-9 w-9 place-items-center rounded-xl bg-[image:var(--gradient-hero)] shadow-[var(--shadow-card)]">
-        <Droplets className="h-5 w-5 text-white" strokeWidth={2.5} />
-      </div>
+    <div className={`flex items-center gap-3 ${className}`}>
+      <img
+        src={BRAND_IMAGE_URL}
+        alt=""
+        aria-hidden="true"
+        className="h-12 w-12 rounded-xl bg-white object-contain p-1 shadow-[var(--shadow-card)]"
+      />
       <span className="font-display text-xl font-extrabold tracking-tight">
         Maji<span className="text-brand">Scope</span>
       </span>
@@ -370,7 +374,7 @@ function DownloadApp() {
             <div className="relative rounded-[2.5rem] border-8 border-brand-deep bg-card p-4 shadow-[var(--shadow-elegant)]">
               <div className="rounded-2xl bg-[image:var(--gradient-soft)] p-5">
                 <div className="flex items-center gap-2">
-                  <Droplets className="h-5 w-5 text-brand" />
+                  <img src={BRAND_IMAGE_URL} alt="" aria-hidden="true" className="h-7 w-7 rounded-lg bg-white object-contain p-0.5" />
                   <span className="font-display font-bold">MajiScope</span>
                 </div>
                 <div className="mt-6 space-y-3">
@@ -446,5 +450,7 @@ function Footer() {
     </footer>
   );
 }
+
+
 
 

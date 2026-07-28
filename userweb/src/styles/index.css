@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -1162,5 +1162,59 @@ body {
 @media (max-width: 640px) {
   .site-header__waves {
     height: 29px;
+  }
+}
+/* Shared image logo used for both browser favicon and visible brand mark. */
+.brand {
+  gap: 12px;
+}
+
+.brand__logo {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: #fff;
+  object-fit: contain;
+  padding: 4px;
+  box-shadow: 0 8px 18px rgba(7, 71, 86, .14);
+}
+
+.brand__identity {
+  display: grid;
+  gap: 2px;
+}
+
+.brand__wordmark {
+  display: block;
+  height: auto;
+  color: #0f172a;
+  font-size: 29px;
+  font-weight: 900;
+  line-height: 31px;
+  text-shadow: none;
+}
+
+.brand__tagline {
+  color: #08758b;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 14px;
+}
+
+@media (max-width: 640px) {
+  .brand__logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+  }
+
+  .brand__wordmark {
+    font-size: 24px;
+    line-height: 27px;
+  }
+
+  .brand__tagline {
+    font-size: 10px;
   }
 }

@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 
 type HeaderProps = {
   language: 'en' | 'sw'
@@ -25,19 +25,10 @@ export default function Header({ language, activePath, onNavigate, onLanguageCli
     <header className="site-header">
       <div className="site-header__inner">
         <button type="button" className="brand" onClick={() => onNavigate('/')} aria-label="MajiScope home">
+          <img className="brand__logo" src="/logo.png" alt="" aria-hidden="true" />
           <span className="brand__identity">
-            <span className="brand__wordmark" aria-hidden="true">
-              <span className="brand__letter brand__letter--m">M</span>
-              <span className="brand__letter brand__letter--a">a</span>
-              <span className="brand__letter brand__letter--j">j</span>
-              <span className="brand__letter brand__letter--i">i</span>
-              <span className="brand__scope brand__scope--s">S</span>
-              <span className="brand__scope brand__scope--c">c</span>
-              <span className="brand__scope brand__scope--o">o</span>
-              <span className="brand__scope brand__scope--p">p</span>
-              <span className="brand__scope brand__scope--e">e</span>
-            </span>
-            <span className="brand__underline" aria-hidden="true"><i /><i /><i /></span>
+            <span className="brand__wordmark" aria-hidden="true">MajiScope</span>
+            <span className="brand__tagline">Community water reporting</span>
           </span>
         </button>
         <div className="header-actions">
@@ -59,3 +50,4 @@ export default function Header({ language, activePath, onNavigate, onLanguageCli
     </nav>
   </>
 }
+
