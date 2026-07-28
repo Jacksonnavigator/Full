@@ -1,35 +1,20 @@
-# User Reporting (Fixi-like)
+# MajiScope Public Web
 
-This is a minimal React + Vite TypeScript scaffold that implements a Fixi-like public reporting page integrated with the existing backend APIs in this repository.
+The public MajiScope web client mirrors the citizen workflow in `user/Majiscope-app`:
 
-Quick start:
+- English and Kiswahili preference stored in the browser
+- Guided, evidence-first water problem reporting
+- Photo/video upload to the public upload endpoint
+- Map pin, address search, and current-location capture
+- Anonymous report history persisted locally and synced by a public history key
+- Tracking-ID lookup, status detail, workflow notes, and utility contacts
+- Location-based emergency utility lookup and reporting guidance
 
-1. Install dependencies:
+## Run locally
 
-```bash
+```powershell
 cd userweb
-npm install
+npm run dev -- --host 127.0.0.1 --port 4177
 ```
 
-2. Run development server:
-
-```bash
-npm run dev
-```
-
-3. Configure backend URL via environment variable:
-
-Create a `.env` file with:
-
-```
-VITE_BACKEND_URL=http://localhost:8000
-```
-
-Features:
-- Click on map to pick location
-- Upload images (posted to `/api/uploads/public`)
-- Submit anonymous report to `/api/reports/anonymous`
-
-SPA routes:
-- `/` → report form
-- `/thanks?trackingId=...` → thank you page shown after successful submission
+The client uses `VITE_BACKEND_URL` when set and otherwise calls `https://majiscope.onrender.com`.

@@ -1,0 +1,16 @@
+{
+    "expo": {
+        "name": "MajiScope",
+        "slug": "majiscope",
+        "version": "1.0.0",
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "icon": "./assets/logo1 (1).png",
+        "splash": {
+            "image": "./assets/splash-screen.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#eef9ff"
+        }
+    }
+}

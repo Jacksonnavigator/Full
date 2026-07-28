@@ -1,166 +1,160 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
-type Suggestion = {
+type SearchResult = {
+  place_id: number
   display_name: string
   lat: string
   lon: string
+  name?: string
 }
 
-export default function AddressSearch({
-  onSelect,
-  placeholder = 'Search for an address or street',
-}: {
-  onSelect: (displayName: string, latlng: { lat: number; lng: number }) => void
+type Position = { lat: number; lng: number }
+
+type AddressSearchProps = {
+  language: 'en' | 'sw'
+  onSelect: (displayName: string, position: Position) => void
   placeholder?: string
-}) {
+  disabled?: boolean
+}
+
+const TANZANIA_VIEWBOX = '28.6,-0.7,40.8,-12.5'
+const SEARCH_DELAY_MS = 450
+const MIN_SEARCH_LENGTH = 2
+
+function isInTanzania(position: Position) {
+  return position.lat >= -12.5 && position.lat <= -0.7 && position.lng >= 28.6 && position.lng <= 40.8
+}
+
+function copyFor(language: AddressSearchProps['language']) {
+  return language === 'sw'
+    ? {
+        searching: 'Inatafuta...',
+        noResults: 'Hakuna eneo lililopatikana Tanzania kwa utafutaji huo.',
+        error: 'Utafutaji wa eneo haujapatikana. Jaribu tena baada ya muda.',
+        clear: 'Futa',
+      }
+    : {
+        searching: 'Searching...',
+        noResults: 'No place or street was found in Tanzania for that search.',
+        error: 'Location search is unavailable right now. Please try again shortly.',
+        clear: 'Clear',
+      }
+}
+
+export default function AddressSearch({ language, onSelect, placeholder, disabled = false }: AddressSearchProps) {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<Suggestion[]>([])
+  const [results, setResults] = useState<SearchResult[]>([])
   const [loading, setLoading] = useState(false)
-  const [geoLoading, setGeoLoading] = useState(false)
-  const [geoError, setGeoError] = useState<string | null>(null)
-  const abortRef = useRef<AbortController | null>(null)
-
-  async function fetchResults(searchQuery: string) {
-    if (!searchQuery || searchQuery.trim().length < 3) {
-      setResults([])
-      return
-    }
-
-    try {
-      abortRef.current?.abort()
-      const ac = new AbortController()
-      abortRef.current = ac
-      setLoading(true)
-      setGeoError(null)
-      const q = encodeURIComponent(searchQuery)
-      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=6&countrycodes=tz&q=${q}`
-      const res = await fetch(url, { signal: ac.signal, headers: { 'Accept-Language': 'en' } })
-      if (!res.ok) throw new Error('Geocode failed')
-      const data = await res.json()
-      setResults(Array.isArray(data) ? data : [])
-    } catch (err) {
-      if ((err as any).name === 'AbortError') return
-      console.error(err)
-      setResults([])
-      setGeoError('Unable to search for that address. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  function isInTanzania(lat: number, lng: number) {
-    return lat >= -12.35 && lat <= -0.85 && lng >= 29.0 && lng <= 40.5
-  }
-
-  const captureLocation = () => {
-    if (!navigator.geolocation) {
-      setGeoError('Location capture is not supported by this browser.')
-      return
-    }
-
-    setGeoLoading(true)
-    setGeoError(null)
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const coords = { lat: position.coords.latitude, lng: position.coords.longitude }
-        if (!isInTanzania(coords.lat, coords.lng)) {
-          setGeoError('Current location is outside Tanzania. Please select a location inside Tanzania or type a Tanzanian address.')
-          setGeoLoading(false)
-          return
-        }
-        setQuery('Current location')
-        setResults([])
-        onSelect('Current location', coords)
-        setGeoLoading(false)
-      },
-      (error) => {
-        console.error(error)
-        setGeoError('Unable to retrieve your current location. Please allow location access and try again.')
-        setGeoLoading(false)
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    )
-  }
+  const [searched, setSearched] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const cacheRef = useRef(new Map<string, SearchResult[]>())
+  const controllerRef = useRef<AbortController | null>(null)
+  const requestIdRef = useRef(0)
 
   useEffect(() => {
-    if (!query || query.trim().length < 3) {
+    const normalized = query.trim().replace(/\s+/g, ' ')
+    controllerRef.current?.abort()
+
+    if (normalized.length < MIN_SEARCH_LENGTH) {
       setResults([])
+      setLoading(false)
+      setSearched(false)
+      setError(null)
       return
     }
 
-    const id = window.setTimeout(() => {
-      fetchResults(query)
-    }, 300)
+    const timer = window.setTimeout(async () => {
+      const cached = cacheRef.current.get(normalized.toLowerCase())
+      if (cached) {
+        setResults(cached)
+        setSearched(true)
+        return
+      }
 
-    return () => window.clearTimeout(id)
-  }, [query])
+      const controller = new AbortController()
+      controllerRef.current = controller
+      const requestId = ++requestIdRef.current
+      setLoading(true)
+      setSearched(false)
+      setError(null)
 
-  const showNoResults = query.trim().length >= 2 && !loading && results.length === 0
-  const showLocationIcon = query.trim().length === 0
+      try {
+        const searchQuery = /\btanzania\b/i.test(normalized) ? normalized : `${normalized}, Tanzania`
+        const params = new URLSearchParams({
+          format: 'jsonv2',
+          q: searchQuery,
+          countrycodes: 'tz',
+          viewbox: TANZANIA_VIEWBOX,
+          bounded: '1',
+          addressdetails: '1',
+          dedupe: '1',
+          limit: '8',
+          'accept-language': language === 'sw' ? 'sw,en' : 'en',
+        })
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+          signal: controller.signal,
+          headers: { Accept: 'application/json' },
+        })
+        if (!response.ok) throw new Error('Location search failed')
+        const data = await response.json() as SearchResult[]
+        const filtered = data.filter((result) => isInTanzania({ lat: Number(result.lat), lng: Number(result.lon) }))
+        cacheRef.current.set(normalized.toLowerCase(), filtered)
+        if (requestId === requestIdRef.current) {
+          setResults(filtered)
+          setSearched(true)
+        }
+      } catch (reason) {
+        if (reason instanceof DOMException && reason.name === 'AbortError') return
+        if (requestId === requestIdRef.current) {
+          setResults([])
+          setSearched(true)
+          setError(copyFor(language).error)
+        }
+      } finally {
+        if (requestId === requestIdRef.current) setLoading(false)
+      }
+    }, SEARCH_DELAY_MS)
 
-  return (
-    <div className="relative">
-      <div className="relative">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="12" cy="9" r="2.5" fill="currentColor" />
-          </svg>
-        </span>
-        <input
-          className={`w-full rounded border px-3 py-2 pl-11 pr-14 text-sm shadow-sm focus:border-teal-500 focus:outline-none ${showNoResults ? 'border-red-500 bg-red-50' : 'border-slate-300 bg-white'}`}
-          placeholder={placeholder}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button
-          type="button"
-          className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#0f5b66] text-white shadow-sm hover:bg-[#0d4f58]"
-          onClick={() => {
-            if (showLocationIcon) {
-              captureLocation()
-            } else {
-              fetchResults(query)
-            }
-          }}
-        >
-          {showLocationIcon ? (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          ) : (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11 4a7 7 0 017 7 7 7 0 01-7 7 7 7 0 010-14z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          )}
-        </button>
-      </div>
+    return () => window.clearTimeout(timer)
+  }, [language, query])
 
-      {loading && <div className="absolute right-14 top-1/2 -translate-y-1/2 text-sm text-slate-500">Searching...</div>}
-      {showNoResults && (
-        <div className="mt-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          We could not find the issue location. Type and select a street name or click on the map.
-        </div>
-      )}
-      {results.length > 0 && (
-        <ul className="absolute z-40 mt-1 max-h-64 w-full overflow-auto rounded border border-slate-200 bg-white shadow-lg">
-          {results.map((r, i) => (
-            <li
-              key={i}
-              className="cursor-pointer px-3 py-2 hover:bg-slate-100"
-              onClick={() => {
-                setQuery(r.display_name)
-                setResults([])
-                onSelect(r.display_name, { lat: Number(r.lat), lng: Number(r.lon) })
-              }}
-            >
-              <div className="text-sm text-slate-900">{r.display_name}</div>
-            </li>
-          ))}
-        </ul>
-      )}
+  useEffect(() => () => controllerRef.current?.abort(), [])
+
+  const text = copyFor(language)
+  const noResults = searched && !loading && !error && results.length === 0 && query.trim().length >= MIN_SEARCH_LENGTH
+
+  return <div className="address-search">
+    <div className="address-search__input-wrap">
+      <input
+        value={query}
+        disabled={disabled}
+        autoComplete="off"
+        aria-autocomplete="list"
+        aria-expanded={results.length > 0}
+        placeholder={placeholder || (language === 'sw' ? 'Tafuta mtaa, sehemu au anwani Tanzania' : 'Search a street, place, or address in Tanzania')}
+        onChange={(event) => setQuery(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') event.preventDefault()
+          if (event.key === 'Escape') setResults([])
+        }}
+      />
+      {query ? <button type="button" className="address-search__clear" onClick={() => setQuery('')} disabled={disabled}>{text.clear}</button> : null}
+      {loading ? <span className="address-search__loading" aria-live="polite">{text.searching}</span> : null}
     </div>
-  )
+    {error ? <p className="field-error">{error}</p> : null}
+    {noResults ? <p className="address-search__message">{text.noResults}</p> : null}
+    {results.length > 0 ? <ul className="address-search__results" role="listbox">
+      {results.map((result) => <li key={result.place_id} role="option">
+        <button type="button" onClick={() => {
+          const position = { lat: Number(result.lat), lng: Number(result.lon) }
+          setQuery(result.name || result.display_name)
+          setResults([])
+          onSelect(result.display_name, position)
+        }}>
+          <strong>{result.name || result.display_name.split(',')[0]}</strong>
+          <span>{result.display_name}</span>
+        </button>
+      </li>)}
+    </ul> : null}
+  </div>
 }

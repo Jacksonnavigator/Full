@@ -1,47 +1,61 @@
 import React from 'react'
 
-export default function Header() {
-  return (
-    <header className="bg-primary border-b border-slate-200 text-white">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 text-xs sm:text-sm">
-        <div className="flex flex-wrap items-center gap-4">
-          <button
-            type="button"
-            className="flex items-center gap-3 text-white hover:text-slate-100"
-            onClick={() => (window.location.href = '/')}
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-lg font-black uppercase tracking-tight">M</span>
-            <span className="text-lg font-semibold">Majiscope</span>
-          </button>
-          <button type="button" className="hover:text-slate-100" onClick={() => window.alert('About Majiscope is not yet available in this preview.')}>About</button>
-          <button type="button" className="hover:text-slate-100" onClick={() => window.alert('Feedback about Majiscope is not yet available in this preview.')}>Feedback</button>
-        </div>
+type HeaderProps = {
+  language: 'en' | 'sw'
+  activePath: string
+  onNavigate: (path: string) => void
+  onLanguageClick: () => void
+}
 
-        <div className="flex flex-wrap items-center gap-3 text-slate-100">
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded border border-white/20 bg-white/5 px-3 py-1 hover:bg-white/10"
-            onClick={() => window.alert('Language options will be available soon.')}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18.4a8.4 8.4 0 110-16.8 8.4 8.4 0 010 16.8z" stroke="currentColor" strokeWidth="1.8" />
-              <path d="M2.5 12h19" stroke="currentColor" strokeWidth="1.8" />
-            </svg>
-            English
-          </button>
-          <span className="hidden h-4 border-l border-white/20 sm:inline" />
-          <button type="button" className="hover:text-white" onClick={() => (window.location.href = '/download')}>
-            Get the app
-          </button>
-          <button
-            type="button"
-            className="rounded border border-white/20 px-3 py-1 hover:bg-white/10"
-            onClick={() => (window.location.href = '/login')}
-          >
-            Login / Register
-          </button>
+const labels = {
+  en: { report: 'Report', history: 'History', emergency: 'SOS', terms: 'Terms', language: 'English' },
+  sw: { report: 'Ripoti', history: 'Historia', emergency: 'Dharura', terms: 'Sheria', language: 'Kiswahili' },
+}
+
+export default function Header({ language, activePath, onNavigate, onLanguageClick }: HeaderProps) {
+  const copy = labels[language]
+  const tabs = [
+    { path: '/', label: copy.report },
+    { path: '/history', label: copy.history },
+    { path: '/emergency', label: copy.emergency },
+    { path: '/terms', label: copy.terms },
+  ]
+
+  return <>
+    <header className="site-header">
+      <div className="site-header__inner">
+        <button type="button" className="brand" onClick={() => onNavigate('/')} aria-label="MajiScope home">
+          <span className="brand__identity">
+            <span className="brand__wordmark" aria-hidden="true">
+              <span className="brand__letter brand__letter--m">M</span>
+              <span className="brand__letter brand__letter--a">a</span>
+              <span className="brand__letter brand__letter--j">j</span>
+              <span className="brand__letter brand__letter--i">i</span>
+              <span className="brand__scope brand__scope--s">S</span>
+              <span className="brand__scope brand__scope--c">c</span>
+              <span className="brand__scope brand__scope--o">o</span>
+              <span className="brand__scope brand__scope--p">p</span>
+              <span className="brand__scope brand__scope--e">e</span>
+            </span>
+            <span className="brand__underline" aria-hidden="true"><i /><i /><i /></span>
+          </span>
+        </button>
+        <div className="header-actions">
+          <button type="button" className="language-button" onClick={onLanguageClick}>{copy.language}</button>
+          <span className="header-actions__ministry"><small>Powered by</small><strong>Water Ministry</strong></span>
         </div>
       </div>
+      <span className="site-header__waves" aria-hidden="true">
+        <svg viewBox="0 0 375 72" preserveAspectRatio="none">
+          <path d="M0 30 C60 64 120 12 180 30 C240 48 300 18 360 40 C372 46 384 52 375 56 L375 72 L0 72 Z" fill="rgba(6,139,176,0.22)" />
+          <path d="M0 38 C70 66 140 24 210 38 C280 52 330 30 375 50 L375 72 L0 72 Z" fill="rgba(3,105,121,0.32)" />
+        </svg>
+      </span>
     </header>
-  )
+    <nav className="primary-nav" aria-label="Main navigation">
+      <div className="primary-nav__inner">
+        {tabs.map((tab) => <button key={tab.path} type="button" className={activePath === tab.path || (tab.path === '/history' && activePath.startsWith('/history/')) ? 'nav-item nav-item--active' : 'nav-item'} onClick={() => onNavigate(tab.path)}>{tab.label}</button>)}
+      </div>
+    </nav>
+  </>
 }

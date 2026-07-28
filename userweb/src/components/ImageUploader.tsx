@@ -1,117 +1,54 @@
-import React, { useState, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 interface ImageUploaderProps {
-  onUploaded: (base64Images: string[]) => void
+  files: File[]
+  onChange: (files: File[]) => void
+  disabled?: boolean
+  language: 'en' | 'sw'
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
+const MAX_FILE_SIZE = 15 * 1024 * 1024
+const MAX_FILES = 4
 
-export default function ImageUploader({ onUploaded }: ImageUploaderProps) {
-  const [previews, setPreviews] = useState<string[]>([])
-  const [processing, setProcessing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export default function ImageUploader({ files, onChange, disabled, language }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [previews, setPreviews] = useState<string[]>([])
 
-  async function handleFiles(files: FileList | null) {
-    if (!files || files.length === 0) return
+  useEffect(() => {
+    const nextPreviews = files.map((file) => URL.createObjectURL(file))
+    setPreviews(nextPreviews)
+    return () => nextPreviews.forEach(URL.revokeObjectURL)
+  }, [files])
+
+  function addFiles(selected: FileList | null) {
+    if (!selected) return
     setError(null)
-    setProcessing(true)
-
-    const fileArray = Array.from(files)
-
-    // Validate sizes (10 MB limit per file)
-    const oversized = fileArray.filter((f) => f.size > 10 * 1024 * 1024)
-    if (oversized.length > 0) {
-      setError(`${oversized.length} file(s) exceed 10 MB and were skipped.`)
-    }
-    const valid = fileArray.filter((f) => f.size <= 10 * 1024 * 1024)
-    if (valid.length === 0) {
-      setProcessing(false)
-      return
-    }
-
-    try {
-      // Convert to base64 locally — no network call needed
-      const base64List = await Promise.all(valid.map(fileToBase64))
-      const next = [...previews, ...base64List]
-      setPreviews(next)
-      onUploaded(next)
-    } catch (err: any) {
-      setError('Could not read one or more images. Please try again.')
-    } finally {
-      setProcessing(false)
-    }
-  }
-
-  function handleDrop(e: React.DragEvent<HTMLDivElement>) {
-    e.preventDefault()
-    handleFiles(e.dataTransfer.files)
-  }
-
-  function removeImage(index: number) {
-    const next = previews.filter((_, i) => i !== index)
-    setPreviews(next)
-    onUploaded(next)
+    const candidates = Array.from(selected).filter((file) => file.type.startsWith('image/') || file.type.startsWith('video/'))
+    const tooLarge = candidates.filter((file) => file.size > MAX_FILE_SIZE)
+    const allowed = candidates.filter((file) => file.size <= MAX_FILE_SIZE).slice(0, MAX_FILES - files.length)
+    if (tooLarge.length) setError(language === 'sw' ? 'Baadhi ya faili ni makubwa kuliko MB 15.' : 'Some files are larger than 15 MB.')
+    if (!allowed.length && !tooLarge.length) setError(language === 'sw' ? `Unaweza kuongeza hadi faili ${MAX_FILES}.` : `You can add up to ${MAX_FILES} files.`)
+    if (allowed.length) onChange([...files, ...allowed])
+    if (inputRef.current) inputRef.current.value = ''
   }
 
   return (
-    <div className="space-y-3">
-      <div
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-        onClick={() => inputRef.current?.click()}
-        className="flex cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm text-slate-500 transition hover:border-teal-400 hover:bg-teal-50"
-      >
-        {processing ? (
-          <span>Processing…</span>
-        ) : (
-          <>
-            <span className="font-medium text-slate-700">Click or drag photos here</span>
-            <span className="mt-1 text-xs">PNG, JPG, WEBP up to 10 MB each</span>
-          </>
-        )}
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={(e) => handleFiles(e.target.files)}
-        />
-      </div>
-
-      {error && (
-        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          {error}
-        </p>
-      )}
-
-      {previews.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {previews.map((src, i) => (
-            <div key={i} className="relative h-20 w-20 overflow-hidden rounded border border-slate-200">
-              <img src={src} alt={`preview-${i}`} className="h-full w-full object-cover" />
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  removeImage(i)
-                }}
-                className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-xs text-white hover:bg-black/80"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="media-picker">
+      <input ref={inputRef} className="sr-only" type="file" accept="image/*,video/*" multiple onChange={(event) => addFiles(event.target.files)} disabled={disabled || files.length >= MAX_FILES} />
+      <button type="button" className="media-picker__trigger" onClick={() => inputRef.current?.click()} disabled={disabled || files.length >= MAX_FILES}>
+        <span className="media-picker__plus">+</span>
+        <span>{files.length ? (language === 'sw' ? 'Ongeza ushahidi zaidi' : 'Add more evidence') : (language === 'sw' ? 'Ongeza picha au video' : 'Add photo or video')}</span>
+        <small>{language === 'sw' ? 'Hadi faili 4, MB 15 kila moja' : 'Up to 4 files, 15 MB each'}</small>
+      </button>
+      {previews.length > 0 ? <div className="media-picker__grid">
+        {previews.map((preview, index) => <div className="media-picker__item" key={`${files[index].name}-${files[index].lastModified}`}>
+          {files[index].type.startsWith('video/') ? <video src={preview} muted playsInline /> : <img src={preview} alt="Selected evidence" />}
+          <button type="button" className="media-picker__remove" onClick={() => onChange(files.filter((_, fileIndex) => fileIndex !== index))} aria-label="Remove selected file">x</button>
+          <span>{files[index].type.startsWith('video/') ? 'Video' : 'Photo'}</span>
+        </div>)}
+      </div> : null}
+      {error ? <p className="field-error">{error}</p> : null}
     </div>
   )
 }
