@@ -19,7 +19,6 @@ import { formatTanzaniaDate } from "@/lib/date-time"
 import { cn } from "@/lib/utils"
 import {
   AlertTriangle,
-  Building2,
   ClipboardCheck,
   Flame,
   Gauge,
@@ -32,7 +31,7 @@ import {
 } from "lucide-react"
 
 type DateFilter = "all" | "today" | "7d" | "30d" | "90d"
-type OverlayTone = "slate" | "blue" | "amber" | "emerald" | "rose" | "violet"
+type OverlayTone = "slate" | "blue" | "amber" | "emerald" | "rose"
 type OverlayTheme = "light" | "dark"
 
 type BreakdownMetric = {
@@ -120,18 +119,6 @@ const TONE_STYLES: Record<
     },
     chip: "bg-rose-50 text-rose-700",
     progress: "bg-rose-600",
-  },
-  violet: {
-    shell: {
-      dark: "border-violet-400/20 bg-slate-950/78 text-white",
-      light: "border-violet-200/80 bg-white/90 text-slate-900",
-    },
-    icon: {
-      dark: "bg-violet-500/18 text-violet-100 shadow-violet-900/20",
-      light: "bg-violet-600 text-white shadow-violet-600/20",
-    },
-    chip: "bg-violet-50 text-violet-700",
-    progress: "bg-violet-600",
   },
 }
 

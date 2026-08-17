@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import {
   AlertTriangle,
-  Building2,
   ExternalLink,
   Globe2,
   Loader2,
@@ -13,6 +12,7 @@ import {
   Save,
   Search,
 } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 import { toast } from "sonner"
 
 import { useAuthStore } from "@/store/auth-store"
@@ -124,7 +124,7 @@ function QueueCard({
           </div>
           <div className="rounded-2xl border border-slate-200/70 bg-white p-3">
             <div className="flex items-center gap-2 text-slate-600">
-              <Building2 className="h-4 w-4 text-indigo-600" />
+              <WaterUtilityIcon className="h-4 w-4 text-cyan-600" />
               <span className="font-medium">Reporter</span>
             </div>
             <p className="mt-2 font-semibold text-slate-800">{report.reporterName || "Unknown"}</p>

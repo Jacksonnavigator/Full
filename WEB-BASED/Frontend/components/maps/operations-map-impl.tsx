@@ -5,11 +5,14 @@ import { CircleMarker, GeoJSON, MapContainer, Popup, TileLayer, useMap, useMapEv
 import type { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson"
 import type { LatLngBoundsExpression } from "leaflet"
 import * as L from "leaflet"
-import { ChevronDown, CircleDot, Database, Gauge, Layers3, MapPinned, Route, SlidersHorizontal, Warehouse } from "lucide-react"
+import { ChevronDown, MapPinned, Route, SlidersHorizontal } from "lucide-react"
+import { InfrastructureIcon } from "@/components/icons/infrastructure-icon"
+import { getInfrastructureIconDef, infrastructureIconPathsHtml } from "@/lib/infrastructure-assets"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import CONFIG from "@/lib/config"
+import { PALETTE } from "@/lib/palette"
 import type {
   OperationsMapAggregateMarker,
   OperationsMapBoundaryOverlay,
@@ -22,32 +25,28 @@ const DEFAULT_CENTER: [number, number] = [-6.369, 34.8888]
 const NATIONAL_BOUNDARY_ZOOM = 8
 
 const DMA_BOUNDARY_STYLE = {
-  color: "#f04e23",
-  fillColor: "#f97316",
+  color: PALETTE.map.boundaryLighter.color,
+  fillColor: PALETTE.map.boundaryLighter.fillColor,
 } as const
+
+const POPUP_BORDER = PALETTE.semantic.neutral.bg
+const POPUP_MUTED = PALETTE.semantic.neutral.base
+const POPUP_TEXT = PALETTE.semantic.neutral.text
+const POPUP_CARD = PALETTE.semantic.neutral.bg
+const POPUP_SUCCESS_BG = PALETTE.semantic.success.bg
+const POPUP_SUCCESS_BG_STRONG = PALETTE.semantic.success.soft
+const POPUP_SUCCESS_TEXT = PALETTE.semantic.success.base
+const POPUP_ACCENT_BG = PALETTE.accent.bg
+const POPUP_ACCENT_BG_STRONG = PALETTE.accent.bgStrong
+const POPUP_ACCENT_TEXT = PALETTE.accent.base
 
 const DEFAULT_BOUNDARY_STYLE = {
   utility: {
-    color: "#0284c7",
-    fillColor: "#0ea5e9",
+    color: PALETTE.map.boundary.color,
+    fillColor: PALETTE.map.boundary.fillColor,
   },
   dma: DMA_BOUNDARY_STYLE,
 } as const
-
-const INFRASTRUCTURE_SYMBOLS: Record<string, { svg: string }> = {
-  valves: {
-    svg: '<path d="M5 8.5h3.2l2.3 2.1 2.3-2.1H16v7h-3.2l-2.3-2.1-2.3 2.1H5v-7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10.5 6.2v3.6M8.5 6.2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-  },
-  water_sources: {
-    svg: '<path d="M10.5 3.8c2.8 3.1 4.2 5.3 4.2 7.3a4.2 4.2 0 1 1-8.4 0c0-2 1.4-4.2 4.2-7.3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
-  },
-  storage_facilities: {
-    svg: '<path d="M5.5 7.2c0-1.2 2.2-2.2 5-2.2s5 1 5 2.2v7.6c0 1.2-2.2 2.2-5 2.2s-5-1-5-2.2V7.2Z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M15.5 7.2c0 1.2-2.2 2.2-5 2.2s-5-1-5-2.2" fill="none" stroke="currentColor" stroke-width="1.7"/>',
-  },
-  bulk_meters: {
-    svg: '<path d="M5 13a5.5 5.5 0 0 1 11 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.5 12.8 13 9.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.2 15.6h6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-  },
-}
 
 const networkLayerCache = new Map<string, GeoJsonObject>()
 const pendingNetworkLayerLoads = new Map<string, Promise<GeoJsonObject>>()
@@ -151,23 +150,23 @@ function getStatusMeta(status: string) {
   if (status === "pending_approval") {
     return {
       label: "Awaiting approval",
-      fill: "#7c3aed",
-      stroke: "#5b21b6",
+      fill: PALETTE.map.status.pendingApproval.fill,
+      stroke: PALETTE.map.status.pendingApproval.stroke,
     }
   }
 
   if (status === "approved" || status === "closed") {
     return {
       label: status === "closed" ? "Closed" : "Repaired",
-      fill: "#15803d",
-      stroke: "#166534",
+      fill: PALETTE.map.status.resolved.fill,
+      stroke: PALETTE.map.status.resolved.stroke,
     }
   }
 
   return {
     label: "Open",
-    fill: "#be123c",
-    stroke: "#881337",
+    fill: PALETTE.map.status.open.fill,
+    stroke: PALETTE.map.status.open.stroke,
   }
 }
 
@@ -273,50 +272,53 @@ function buildNetworkPopupHtml(feature: Feature) {
   })
 
   const renderedRows = entries.slice(0, 14).map(([key, value]) => {
-    return `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding:4px 0;">
-      <span style="font-size:11px;color:#64748b;">${escapeHtml(formatPropertyLabel(key))}</span>
-      <span style="font-size:11px;color:#0f172a;font-weight:600;text-align:right;max-width:220px;word-break:break-word;">${escapeHtml(String(value))}</span>
+    return `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid ${POPUP_BORDER};padding:4px 0;">
+      <span style="font-size:11px;color:${POPUP_MUTED};">${escapeHtml(formatPropertyLabel(key))}</span>
+      <span style="font-size:11px;color:${POPUP_TEXT};font-weight:600;text-align:right;max-width:220px;word-break:break-word;">${escapeHtml(String(value))}</span>
     </div>`
   })
 
   const startEndRows: string[] = []
   if (startPoint) {
     startEndRows.push(
-      `<div style="display:flex;justify-content:space-between;gap:10px;"><span style="font-size:11px;color:#64748b;">Start Point</span><span style="font-size:11px;color:#0f172a;font-weight:600;">${startPoint[0].toFixed(5)}, ${startPoint[1].toFixed(5)}</span></div>`
+      `<div style="display:flex;justify-content:space-between;gap:10px;"><span style="font-size:11px;color:${POPUP_MUTED};">Start Point</span><span style="font-size:11px;color:${POPUP_TEXT};font-weight:600;">${startPoint[0].toFixed(5)}, ${startPoint[1].toFixed(5)}</span></div>`
     )
   }
   if (endPoint) {
     startEndRows.push(
-      `<div style="display:flex;justify-content:space-between;gap:10px;"><span style="font-size:11px;color:#64748b;">End Point</span><span style="font-size:11px;color:#0f172a;font-weight:600;">${endPoint[0].toFixed(5)}, ${endPoint[1].toFixed(5)}</span></div>`
+      `<div style="display:flex;justify-content:space-between;gap:10px;"><span style="font-size:11px;color:${POPUP_MUTED};">End Point</span><span style="font-size:11px;color:${POPUP_TEXT};font-weight:600;">${endPoint[0].toFixed(5)}, ${endPoint[1].toFixed(5)}</span></div>`
     )
   }
 
   return `<div style="width:300px;max-height:240px;overflow:auto;font-family:Inter,ui-sans-serif,system-ui;">
-    <div style="position:sticky;top:0;background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:8px 10px;margin:-4px -4px 8px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0f172a;">Pipe Segment</div>
-      <div style="font-size:11px;color:#64748b;margin-top:2px;">Network attributes from uploaded utility dataset</div>
+    <div style="position:sticky;top:0;background:${POPUP_CARD};border-bottom:1px solid ${POPUP_BORDER};padding:8px 10px;margin:-4px -4px 8px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${POPUP_TEXT};">Pipe Segment</div>
+      <div style="font-size:11px;color:${POPUP_MUTED};margin-top:2px;">Network attributes from uploaded utility dataset</div>
     </div>
     <div style="display:grid;gap:2px;">${renderedRows.join("")}</div>
-    ${startEndRows.length ? `<div style="margin-top:8px;border-top:1px solid #e2e8f0;padding-top:6px;display:grid;gap:4px;">${startEndRows.join("")}</div>` : ""}
+    ${startEndRows.length ? `<div style="margin-top:8px;border-top:1px solid ${POPUP_BORDER};padding-top:6px;display:grid;gap:4px;">${startEndRows.join("")}</div>` : ""}
   </div>`
 }
 
-function getInfrastructureIcon(assetType: string) {
-  if (assetType === "valves") return Gauge
-  if (assetType === "storage_facilities") return Warehouse
-  if (assetType === "bulk_meters") return Database
-  return CircleDot
-}
-
 function createInfrastructureDivIcon(assetType: string, color: string) {
-  const symbol = INFRASTRUCTURE_SYMBOLS[assetType] || INFRASTRUCTURE_SYMBOLS.valves
+  const def = getInfrastructureIconDef(assetType)
   return L.divIcon({
     className: "majiscope-infrastructure-div-icon",
-    iconSize: [26, 26],
-    iconAnchor: [13, 13],
-    popupAnchor: [0, -13],
-    html: `<span style="display:flex;height:26px;width:26px;align-items:center;justify-content:center;border-radius:9999px;background:${color};color:white;border:2px solid rgba(255,255,255,.96);box-shadow:0 10px 22px -13px rgba(15,23,42,.85);"><svg viewBox="0 0 21 21" aria-hidden="true" style="height:18px;width:18px;filter:drop-shadow(0 1px 0 rgba(15,23,42,.18));">${symbol.svg}</svg></span>`,
+    iconSize: [17, 17],
+    iconAnchor: [8.5, 8.5],
+    popupAnchor: [0, -8.5],
+    html: `<span style="display:flex;height:17px;width:17px;align-items:center;justify-content:center;border-radius:9999px;background:${color};color:white;border:1.5px solid rgba(255,255,255,.96);box-shadow:0 8px 18px -14px rgba(15,23,42,.85);"><svg viewBox="${def.viewBox}" aria-hidden="true" style="height:11px;width:11px;filter:drop-shadow(0 1px 0 rgba(15,23,42,.18));">${infrastructureIconPathsHtml(assetType)}</svg></span>`,
   })
+}
+
+function createInfrastructureLineStyle(color: string = PALETTE.map.infrastructure.color) {
+  return {
+    color,
+    weight: 2,
+    opacity: 0.76,
+    fillColor: color,
+    fillOpacity: 0.16,
+  }
 }
 
 function buildBoundaryPopupHtml(overlay: OperationsMapBoundaryOverlay) {
@@ -326,20 +328,20 @@ function buildBoundaryPopupHtml(overlay: OperationsMapBoundaryOverlay) {
   const label = overlay.level === "utility" ? "Utility boundary" : "DMA boundary"
 
   return `<div style="width:220px;font-family:Inter,ui-sans-serif,system-ui;">
-    <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#64748b;">${label}</div>
-    <div style="margin-top:4px;font-size:14px;font-weight:700;color:#0f172a;">${escapeHtml(overlay.label)}</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${POPUP_MUTED};">${label}</div>
+    <div style="margin-top:4px;font-size:14px;font-weight:700;color:${POPUP_TEXT};">${escapeHtml(overlay.label)}</div>
     <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:10px;text-align:center;">
-      <div style="border-radius:10px;background:#f1f5f9;padding:7px 6px;">
-        <div style="font-size:12px;font-weight:700;color:#0f172a;">${reported.toLocaleString()}</div>
-        <div style="font-size:10px;color:#64748b;">Reported</div>
+      <div style="border-radius:10px;background:${POPUP_CARD};padding:7px 6px;">
+        <div style="font-size:12px;font-weight:700;color:${POPUP_TEXT};">${reported.toLocaleString()}</div>
+        <div style="font-size:10px;color:${POPUP_MUTED};">Reported</div>
       </div>
-      <div style="border-radius:10px;background:#ecfdf5;padding:7px 6px;">
-        <div style="font-size:12px;font-weight:700;color:#047857;">${resolved.toLocaleString()}</div>
-        <div style="font-size:10px;color:#64748b;">Resolved</div>
+      <div style="border-radius:10px;background:linear-gradient(135deg,${POPUP_SUCCESS_BG},${POPUP_SUCCESS_BG_STRONG});padding:7px 6px;">
+        <div style="font-size:12px;font-weight:700;color:${POPUP_SUCCESS_TEXT};">${resolved.toLocaleString()}</div>
+        <div style="font-size:10px;color:${POPUP_MUTED};">Resolved</div>
       </div>
-      <div style="border-radius:10px;background:#eff6ff;padding:7px 6px;">
-        <div style="font-size:12px;font-weight:700;color:#0369a1;">${efficiency}%</div>
-        <div style="font-size:10px;color:#64748b;">Efficiency</div>
+      <div style="border-radius:10px;background:linear-gradient(135deg,${POPUP_ACCENT_BG},${POPUP_ACCENT_BG_STRONG});padding:7px 6px;">
+        <div style="font-size:12px;font-weight:700;color:${POPUP_ACCENT_TEXT};">${efficiency}%</div>
+        <div style="font-size:10px;color:${POPUP_MUTED};">Efficiency</div>
       </div>
     </div>
   </div>`
@@ -897,7 +899,7 @@ export function OperationsMapImpl({
                   key={`network-${index}`}
                   data={networkLayer}
                   style={() => ({
-                    color: "#2563eb",
+                    color: PALETTE.map.network.color,
                     weight: 2.25,
                     opacity: 0.64,
                   })}
@@ -921,13 +923,7 @@ export function OperationsMapImpl({
                     pointToLayer={(_, latlng) =>
                       L.marker(latlng, { icon: createInfrastructureDivIcon(asset.assetType, asset.color) })
                     }
-                    style={() => ({
-                      color: asset.color,
-                      weight: 2,
-                      opacity: 0.76,
-                      fillColor: asset.color,
-                      fillOpacity: 0.16,
-                    })}
+                    style={createInfrastructureLineStyle(asset.color)}
                     onEachFeature={(feature, layer) => {
                       if (!feature) return
                       const popupHtml = buildNetworkPopupHtml(feature as Feature)
@@ -950,7 +946,7 @@ export function OperationsMapImpl({
                   center={[marker.latitude, marker.longitude]}
                   radius={radius}
                   pathOptions={{
-                    fillColor: marker.level === "utility" ? "#0284c7" : "#7c3aed",
+                    fillColor: PALETTE.map.aggregate.color,
                     color: "#ffffff",
                     fillOpacity: 0.82,
                     weight: 2,
@@ -1121,7 +1117,7 @@ export function OperationsMapImpl({
                     variant={showNetwork ? "default" : "outline"}
                     className={
                       showNetwork
-                        ? "h-8 justify-start rounded-xl bg-slate-800 px-3 text-white hover:bg-slate-900"
+                        ? "h-8 justify-start rounded-xl border-slate-300 bg-white/70 px-3 text-slate-700 hover:bg-slate-200 dark:border-slate-600/70 dark:bg-slate-900/70 dark:text-slate-200"
                         : isSatellite
                           ? "h-8 justify-start rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
                           : "h-8 justify-start rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
@@ -1129,12 +1125,18 @@ export function OperationsMapImpl({
                     onClick={() => setShowNetwork((current) => !current)}
                     disabled={(!networkUrls.length || !isInfrastructureZoomSupported) && !showNetwork}
                   >
-                    <Layers3 className="mr-2 h-3.5 w-3.5" />
+                    <span
+                      className="mr-2 h-2 w-2 shrink-0 rounded-full"
+                      style={{
+                        backgroundColor: showNetwork ? PALETTE.map.infrastructure.color : "currentColor",
+                        opacity: showNetwork ? 1 : 0.35,
+                      }}
+                    />
+                    <InfrastructureIcon assetType="pipe_network" className="mr-1.5 h-3.5 w-3.5" />
                     {showNetwork ? "Hide pipe network" : "Show pipe network"}
                   </Button>
                   {infrastructureLayers.map((asset) => {
                     const visible = Boolean(visibleAssetTypes[asset.assetType])
-                    const Icon = getInfrastructureIcon(asset.assetType)
 
                     return (
                       <Button
@@ -1144,12 +1146,11 @@ export function OperationsMapImpl({
                         variant={visible ? "default" : "outline"}
                         className={
                           visible
-                            ? "h-8 justify-start rounded-xl px-3 text-white hover:brightness-95"
+                            ? "h-8 justify-start rounded-xl border-slate-300 bg-white/70 px-3 text-slate-700 hover:bg-slate-200 dark:border-slate-600/70 dark:bg-slate-900/70 dark:text-slate-200"
                             : isSatellite
                               ? "h-8 justify-start rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
                               : "h-8 justify-start rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
                         }
-                        style={visible ? { backgroundColor: asset.color } : undefined}
                         onClick={() =>
                           setVisibleAssetTypes((current) => ({
                             ...current,
@@ -1158,7 +1159,14 @@ export function OperationsMapImpl({
                         }
                         disabled={(!asset.previewUrls.length || !isInfrastructureZoomSupported) && !visible}
                       >
-                        <Icon className="mr-2 h-3.5 w-3.5" />
+                        <span
+                          className="mr-2 h-2 w-2 shrink-0 rounded-full"
+                          style={{
+                            backgroundColor: visible ? asset.color : "currentColor",
+                            opacity: visible ? 1 : 0.35,
+                          }}
+                        />
+                        <InfrastructureIcon assetType={asset.assetType} className="mr-1.5 h-3.5 w-3.5" />
                         {visible ? `Hide ${asset.label}` : `Show ${asset.label}`}
                       </Button>
                     )
@@ -1169,7 +1177,7 @@ export function OperationsMapImpl({
                     variant={showBoundaries ? "default" : "outline"}
                     className={
                       showBoundaries
-                        ? "h-8 justify-start rounded-xl bg-orange-600 px-3 text-white hover:bg-orange-700"
+                        ? "h-8 justify-start rounded-xl border-slate-300 bg-white/70 px-3 text-slate-700 hover:bg-slate-200 dark:border-slate-600/70 dark:bg-slate-900/70 dark:text-slate-200"
                         : isSatellite
                           ? "h-8 justify-start rounded-xl border-white/14 bg-white/8 px-3 text-white hover:bg-white/12"
                           : "h-8 justify-start rounded-xl border-slate-300 bg-slate-100 px-3 text-slate-700 hover:bg-slate-200"
@@ -1177,7 +1185,14 @@ export function OperationsMapImpl({
                     onClick={() => setShowBoundaries((current) => !current)}
                     disabled={!hasBoundaryOverlays}
                   >
-                    <MapPinned className="mr-2 h-3.5 w-3.5" />
+                    <span
+                      className="mr-2 h-2 w-2 shrink-0 rounded-full"
+                      style={{
+                        backgroundColor: showBoundaries ? PALETTE.map.boundary.color : "currentColor",
+                        opacity: showBoundaries ? 1 : 0.35,
+                      }}
+                    />
+                    <MapPinned className="mr-1.5 h-3.5 w-3.5" />
                     {showBoundaries ? `Hide ${boundaryLayerLabel}` : `Show ${boundaryLayerLabel}`}
                   </Button>
                 </div>

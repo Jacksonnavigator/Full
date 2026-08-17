@@ -15,7 +15,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Building2, CheckCircle2, Download, Eye, Layers, Loader2, Mail, MailPlus, MoreHorizontal, Pencil, Phone, Plus, Search, Send, ShieldCheck, Trash2, Upload, User, UserCog, Users } from "lucide-react"
+import { CheckCircle2, Download, Eye, Layers, Loader2, Mail, MailPlus, MoreHorizontal, Pencil, Phone, Plus, Search, Send, ShieldCheck, Trash2, Upload, User, UserCog, Users } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 import { formatTanzaniaDateTime } from "@/lib/date-time"
 import { toast } from "sonner"
 import type { EntityStatus } from "@/lib/types"
@@ -490,7 +491,7 @@ export default function EngineersPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           <StatCard icon={<Users className="h-6 w-6 text-white" />} label="Total Engineers" value={totalEngineers} gradient="from-teal-500 to-cyan-600" />
           <StatCard icon={<CheckCircle2 className="h-6 w-6 text-white" />} label="Active" value={activeEngineers} gradient="from-green-500 to-emerald-600" />
-          <StatCard icon={<UserCog className="h-6 w-6 text-white" />} label="Team Leaders" value={teamLeadersCount} gradient="from-violet-500 to-purple-600" />
+          <StatCard icon={<UserCog className="h-6 w-6 text-white" />} label="Team Leaders" value={teamLeadersCount} gradient="from-sky-500 to-cyan-600" />
           <StatCard icon={<MailPlus className="h-6 w-6 text-white" />} label="Pending Setup" value={pendingSetupCount} gradient="from-amber-500 to-orange-600" />
         </div>
       </div>
@@ -675,8 +676,8 @@ export default function EngineersPage() {
               </div>
               <DetailRow icon={<Mail className="h-4 w-4 text-blue-600" />} label="Email" value={viewingEngineer.email} />
               <DetailRow icon={<Phone className="h-4 w-4 text-green-600" />} label="Phone" value={viewingEngineer.phone || "Provided during setup"} />
-              <DetailRow icon={<Layers className="h-4 w-4 text-violet-600" />} label="Team" value={viewingEngineer.teamName || "Unassigned"} />
-              <DetailRow icon={<Building2 className="h-4 w-4 text-teal-600" />} label="DMA" value={viewingEngineer.dmaName || "Not assigned"} />
+              <DetailRow icon={<Layers className="h-4 w-4 text-cyan-600" />} label="Team" value={viewingEngineer.teamName || "Unassigned"} />
+              <DetailRow icon={<WaterUtilityIcon className="h-4 w-4 text-teal-600" />} label="DMA" value={viewingEngineer.dmaName || "Not assigned"} />
               <DetailRow icon={<ShieldCheck className="h-4 w-4 text-amber-600" />} label="Onboarding" value={viewingEngineer.onboardingStatus.replace("_", " ")} />
               <DetailRow icon={<MailPlus className="h-4 w-4 text-orange-600" />} label="Invite Expires" value={formatDateTime(viewingEngineer.inviteExpiresAt)} />
               <DetailRow icon={<User className="h-4 w-4 text-sky-600" />} label="Assigned Reports" value={String(viewingEngineer.assignedReports || 0)} />

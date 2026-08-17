@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react"
-import { Database, Download, Gauge, Loader2, Network, Upload, Warehouse, Waves, Trash2 } from "lucide-react"
+import { Download, Loader2, Trash2, Upload } from "lucide-react"
+import { InfrastructureIcon } from "@/components/icons/infrastructure-icon"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/auth-store"
 import { getUtilityInfrastructureAsset, useDataStore, type Utility } from "@/store/data-store"
@@ -19,36 +20,31 @@ const ASSETS = [
     type: "pipe_network",
     label: "Water pipes",
     description: "Polyline pipe network map used by the dashboard pipe overlay.",
-    icon: Network,
     color: "from-sky-500 to-cyan-600",
   },
   {
     type: "valves",
     label: "Valves",
     description: "Point valve assets from the utility GIS export.",
-    icon: Gauge,
     color: "from-rose-500 to-red-600",
   },
   {
     type: "water_sources",
     label: "Water sources",
     description: "Point source assets such as wells, boreholes, or intakes.",
-    icon: Waves,
     color: "from-cyan-500 to-blue-600",
   },
   {
     type: "storage_facilities",
     label: "Storage facilities",
     description: "Point tank and reservoir storage facility assets.",
-    icon: Warehouse,
     color: "from-amber-500 to-orange-600",
   },
   {
     type: "bulk_meters",
     label: "Bulk meters",
     description: "Point bulk meter assets used for utility infrastructure visibility.",
-    icon: Database,
-    color: "from-violet-500 to-purple-600",
+    color: "from-sky-500 to-cyan-600",
   },
 ] as const
 
@@ -284,7 +280,6 @@ export default function UtilityInfrastructurePage() {
         <div className="min-h-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-slate-50/60 p-2 shadow-sm dark:border-slate-800 dark:bg-slate-950/30">
           <div className="h-full space-y-3 overflow-y-auto pr-1">
             {ASSETS.map((asset) => {
-            const Icon = asset.icon
             const file = getAssetFile(selectedUtility, asset.type)
             const busy = busyKey === `${selectedUtility?.id}:${asset.type}`
             const selected = selectedAssetType === asset.type
@@ -309,7 +304,7 @@ export default function UtilityInfrastructurePage() {
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <Icon className="mt-0.5 h-6 w-6 shrink-0 text-sky-600 dark:text-sky-300" />
+                  <InfrastructureIcon assetType={asset.type} className="mt-0.5 h-6 w-6 shrink-0 text-sky-600 dark:text-sky-300" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <div>

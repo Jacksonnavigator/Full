@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { useDataStore } from "@/store/data-store"
+import { PALETTE } from "@/lib/palette"
 import { StatCard } from "@/components/shared/stat-card"
 import { formatTanzaniaDate } from "@/lib/date-time"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -19,12 +20,12 @@ import {
   ClipboardCheck,
   UserCog,
   AlertTriangle,
-  Building2,
   Flame,
   ShieldAlert,
   Clock3,
   Gauge,
 } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 import {
   BarChart,
   Bar,
@@ -39,7 +40,7 @@ import {
   Legend,
 } from "recharts"
 
-const PIE_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
+const PIE_COLORS = PALETTE.chartSeries
 const HOTSPOT_CELL_SIZE = 0.0035
 const RESOLVED_STATUSES = new Set(["approved", "closed"])
 
@@ -253,7 +254,7 @@ export function DMADashboard() {
         <StatCard
           title="Total Teams"
           value={myTeams.length}
-          icon={Building2}
+          icon={WaterUtilityIcon}
           gradient="blue"
           trend={{ value: 5, isPositive: true }}
         />
@@ -419,13 +420,13 @@ export function DMADashboard() {
                 <Bar
                   dataKey="engineers"
                   name="Engineers"
-                  fill="#3b82f6"
+                  fill={PALETTE.chart.chart1}
                   radius={[4, 4, 0, 0]}
                 />
                 <Bar
                   dataKey="reports"
                   name="Reports"
-                  fill="#10b981"
+                  fill={PALETTE.chart.chart2}
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>

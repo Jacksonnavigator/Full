@@ -28,12 +28,12 @@ export default function BranchesPage() {
                 <p className="mt-1 text-xs text-slate-500">Public reports now route to the nearest DMA.</p>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
-                <Users className="mb-2 h-5 w-5 text-indigo-600" />
+                <Users className="mb-2 h-5 w-5 text-cyan-600" />
                 <p className="text-sm font-semibold text-slate-700">Teams are the field unit</p>
                 <p className="mt-1 text-xs text-slate-500">Create teams directly under a DMA and place engineers there.</p>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
-                <Layers className="mb-2 h-5 w-5 text-violet-600" />
+                <Layers className="mb-2 h-5 w-5 text-cyan-600" />
                 <p className="text-sm font-semibold text-slate-700">Legacy data stays safe</p>
                 <p className="mt-1 text-xs text-slate-500">Old branch records are retained only for backend compatibility.</p>
               </div>

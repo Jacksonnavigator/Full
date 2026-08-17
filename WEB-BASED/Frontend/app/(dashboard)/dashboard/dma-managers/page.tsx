@@ -59,7 +59,6 @@ import {
   Phone,
   Save,
   Unlink,
-  Building2,
   Lock,
   Eye,
   EyeOff,
@@ -68,6 +67,7 @@ import {
   FileText,
   Send,
 } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -331,24 +331,24 @@ export default function DMAManagersPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-              <UserCog className="h-7 w-7 text-violet-600" />
+              <UserCog className="h-7 w-7 text-cyan-600" />
               DMA Managers
             </h1>
             <p className="text-slate-500 mt-1">
               {isUtilityManager ? `Manage DMA Managers for ${myUtilityDisplayName}` : "Manage all DMA Managers in the system"}
             </p>
           </div>
-          <Button onClick={openCreateDialog} className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all duration-300 rounded-xl h-11 px-6">
+          <Button onClick={openCreateDialog} className="bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 rounded-xl h-11 px-6">
             <Plus className="h-4 w-4 mr-2" />
             Invite Manager
           </Button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 bg-gradient-to-br from-violet-50/30 to-white">
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 bg-gradient-to-br from-cyan-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-3">
-                <UserCog className="h-8 w-8 shrink-0 text-violet-600" />
+                <UserCog className="h-8 w-8 shrink-0 text-cyan-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Managers</p>
                   <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
@@ -367,10 +367,10 @@ export default function DMAManagersPage() {
               </div>
             </CardContent>
           </Card>
-          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 bg-gradient-to-br from-blue-50/30 to-white">
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 bg-gradient-to-br from-cyan-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-3">
-                <MapPin className="h-8 w-8 shrink-0 text-blue-600" />
+                <MapPin className="h-8 w-8 shrink-0 text-cyan-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">With DMAs</p>
                   <p className="text-2xl font-bold text-slate-800">{stats.assigned}</p>
@@ -394,9 +394,9 @@ export default function DMAManagersPage() {
 
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative w-full sm:w-80">
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-400/10 to-purple-500/10 blur-lg opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-400/10 to-sky-500/10 blur-lg opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
           <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          <Input placeholder="Search by name, email, DMA..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-11 h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20 shadow-sm" />
+          <Input placeholder="Search by name, email, DMA..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-11 h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 shadow-sm" />
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-500">
           <Users className="h-4 w-4" />
@@ -411,7 +411,7 @@ export default function DMAManagersPage() {
               <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-10 text-center">
                 <p className="text-lg font-semibold text-slate-800">No managers found</p>
                 <p className="mt-1 text-sm text-slate-500">{search ? "Try adjusting your search terms" : "Get started by inviting your first DMA manager"}</p>
-                {!search ? <Button onClick={openCreateDialog} className="mt-4 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl"><Plus className="h-4 w-4 mr-2" />Invite DMA Manager</Button> : null}
+                {!search ? <Button onClick={openCreateDialog} className="mt-4 bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 text-white shadow-lg shadow-cyan-500/25 rounded-xl"><Plus className="h-4 w-4 mr-2" />Invite DMA Manager</Button> : null}
               </div>
             ) : filteredManagers.map((manager) => {
               const dma = dmas.find((d) => d.id === manager.dmaId)
@@ -419,8 +419,8 @@ export default function DMAManagersPage() {
               return (
                 <div key={manager.id} className={cn("rounded-2xl border p-4 shadow-sm", isInactive ? "border-red-200 bg-red-50/40" : "border-slate-200 bg-white")}>
                   <div className="flex items-start gap-3">
-                    <Avatar className={cn("h-10 w-10 shadow-lg", isInactive ? "ring-2 ring-red-200" : "ring-2 ring-violet-200")}>
-                      <AvatarFallback className={cn("text-sm font-semibold", isInactive ? "bg-gradient-to-br from-red-400 to-rose-500 text-white" : "bg-gradient-to-br from-violet-500 to-purple-600 text-white")}>
+                    <Avatar className={cn("h-10 w-10 shadow-lg", isInactive ? "ring-2 ring-red-200" : "ring-2 ring-cyan-200")}>
+                      <AvatarFallback className={cn("text-sm font-semibold", isInactive ? "bg-gradient-to-br from-red-400 to-rose-500 text-white" : "bg-gradient-to-br from-sky-500 to-cyan-600 text-white")}>
                         {getInitials(manager.name)}
                       </AvatarFallback>
                     </Avatar>
@@ -445,7 +445,7 @@ export default function DMAManagersPage() {
                     <Button variant="outline" size="sm" onClick={() => setViewingManager(manager)}><Eye className="mr-2 h-4 w-4" />Details</Button>
                     <Button variant="outline" size="sm" onClick={() => openEditDialog(manager)}><Pencil className="mr-2 h-4 w-4" />Edit</Button>
                     {manager.onboardingStatus !== "completed" ? <Button variant="outline" size="sm" onClick={() => handleResendInvite(manager.id)}><Send className="mr-2 h-4 w-4" />Resend</Button> : null}
-                    {manager.dmaId ? <Button variant="outline" size="sm" className="text-orange-600" onClick={() => setUnassignId(manager.id)}><Unlink className="mr-2 h-4 w-4" />Unassign</Button> : null}
+                    {manager.dmaId ? <Button variant="outline" size="sm" className="text-amber-600" onClick={() => setUnassignId(manager.id)}><Unlink className="mr-2 h-4 w-4" />Unassign</Button> : null}
                     <Button variant="outline" size="sm" className="text-red-600" onClick={() => setDeleteId(manager.id)}><Trash2 className="mr-2 h-4 w-4" />Delete</Button>
                   </div>
                 </div>
@@ -473,7 +473,7 @@ export default function DMAManagersPage() {
                           <p className="text-lg font-semibold text-slate-800">No managers found</p>
                           <p className="text-sm text-slate-500 mt-1">{search ? "Try adjusting your search terms" : "Get started by inviting your first DMA manager"}</p>
                         </div>
-                        {!search && <Button onClick={openCreateDialog} className="mt-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl"><Plus className="h-4 w-4 mr-2" />Invite DMA Manager</Button>}
+                        {!search && <Button onClick={openCreateDialog} className="mt-2 bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 text-white shadow-lg shadow-cyan-500/25 rounded-xl"><Plus className="h-4 w-4 mr-2" />Invite DMA Manager</Button>}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -482,11 +482,11 @@ export default function DMAManagersPage() {
                     const dma = dmas.find((d) => d.id === manager.dmaId)
                     const isInactive = manager.status === "inactive"
                     return (
-                      <TableRow key={manager.id} className={cn("border-b border-slate-100 transition-all duration-200", isInactive ? "bg-red-50/30 hover:bg-red-50/50" : "hover:bg-violet-50/50")}>
+                      <TableRow key={manager.id} className={cn("border-b border-slate-100 transition-all duration-200", isInactive ? "bg-red-50/30 hover:bg-red-50/50" : "hover:bg-cyan-50/50")}>
                         <TableCell className="py-4 px-6">
                           <div className="flex items-center gap-3">
-                            <Avatar className={cn("h-10 w-10 shadow-lg transition-all duration-300", isInactive ? "ring-2 ring-red-200" : "ring-2 ring-violet-200")}>
-                              <AvatarFallback className={cn("text-sm font-semibold", isInactive ? "bg-gradient-to-br from-red-400 to-rose-500 text-white" : "bg-gradient-to-br from-violet-500 to-purple-600 text-white")}>{getInitials(manager.name)}</AvatarFallback>
+                            <Avatar className={cn("h-10 w-10 shadow-lg transition-all duration-300", isInactive ? "ring-2 ring-red-200" : "ring-2 ring-cyan-200")}>
+                              <AvatarFallback className={cn("text-sm font-semibold", isInactive ? "bg-gradient-to-br from-red-400 to-rose-500 text-white" : "bg-gradient-to-br from-sky-500 to-cyan-600 text-white")}>{getInitials(manager.name)}</AvatarFallback>
                             </Avatar>
                             <div>
                               <p className="font-semibold text-slate-800">{manager.name}</p>
@@ -503,11 +503,11 @@ export default function DMAManagersPage() {
                         <TableCell className="py-4 px-6">
                           {dma ? (
                             <div className="flex items-center gap-2">
-                              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-100 to-blue-100 flex items-center justify-center"><MapPin className="h-4 w-4 text-cyan-600" /></div>
+                              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 flex items-center justify-center"><MapPin className="h-4 w-4 text-cyan-600" /></div>
                               <span className="font-medium text-slate-700">{dma.name}</span>
                             </div>
                           ) : (
-                            <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50 hover:bg-orange-100"><MapPin className="h-3 w-3 mr-1" />Unassigned</Badge>
+                            <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 hover:bg-amber-100"><MapPin className="h-3 w-3 mr-1" />Unassigned</Badge>
                           )}
                         </TableCell>
                         <TableCell className="py-4 px-6"><div className="flex flex-col items-start gap-2"><EntityStatusBadge status={manager.status} />{renderOnboardingBadge(manager.onboardingStatus)}</div></TableCell>
@@ -517,10 +517,10 @@ export default function DMAManagersPage() {
                               <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg hover:bg-slate-100 transition-colors"><MoreHorizontal className="h-4 w-4 text-slate-500" /><span className="sr-only">Actions</span></Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-lg shadow-slate-200/50 border-slate-200/60">
-                              <DropdownMenuItem onClick={() => setViewingManager(manager)} className="rounded-lg gap-2 cursor-pointer"><Eye className="h-4 w-4 text-blue-500" />View Details</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => openEditDialog(manager)} className="rounded-lg gap-2 cursor-pointer"><Pencil className="h-4 w-4 text-violet-500" />Edit Manager</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setViewingManager(manager)} className="rounded-lg gap-2 cursor-pointer"><Eye className="h-4 w-4 text-cyan-500" />View Details</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openEditDialog(manager)} className="rounded-lg gap-2 cursor-pointer"><Pencil className="h-4 w-4 text-cyan-500" />Edit Manager</DropdownMenuItem>
                               {manager.onboardingStatus !== "completed" && <DropdownMenuItem onClick={() => handleResendInvite(manager.id)} className="rounded-lg gap-2 cursor-pointer"><Send className="h-4 w-4 text-cyan-500" />{resendingInviteId === manager.id ? "Sending..." : "Resend Invite"}</DropdownMenuItem>}
-                              {manager.dmaId && <DropdownMenuItem onClick={() => setUnassignId(manager.id)} className="text-orange-600 focus:text-orange-600 focus:bg-orange-50 rounded-lg gap-2 cursor-pointer"><Unlink className="h-4 w-4" />Unassign from DMA</DropdownMenuItem>}
+                              {manager.dmaId && <DropdownMenuItem onClick={() => setUnassignId(manager.id)} className="text-amber-600 focus:text-amber-600 focus:bg-amber-50 rounded-lg gap-2 cursor-pointer"><Unlink className="h-4 w-4" />Unassign from DMA</DropdownMenuItem>}
                               <DropdownMenuItem onClick={() => setDeleteId(manager.id)} className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-lg gap-2 cursor-pointer"><Trash2 className="h-4 w-4" />Delete Manager</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -539,15 +539,15 @@ export default function DMAManagersPage() {
         <DialogContent className="sm:max-w-lg bg-white/95 backdrop-blur-xl border-slate-200/50 shadow-2xl shadow-slate-200/50 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">{editingManager ? <Pencil className="h-4 w-4 text-white" /> : <Plus className="h-4 w-4 text-white" />}</div>
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 flex items-center justify-center">{editingManager ? <Pencil className="h-4 w-4 text-white" /> : <Plus className="h-4 w-4 text-white" />}</div>
               {editingManager ? "Edit DMA Manager" : "Invite DMA Manager"}
             </DialogTitle>
             {editingManager && <DialogDescription>Currently assigned to: <span className="font-semibold">{dmas.find(d => d.id === editingManager.dmaId)?.name || editingManager?.dmaName || "Unassigned"}</span></DialogDescription>}
           </DialogHeader>
           <div className="flex flex-col gap-5 py-4 max-h-[60vh] overflow-y-auto">
-            <div className="rounded-xl border border-violet-200/80 bg-gradient-to-r from-violet-50/50 to-purple-50/50 p-4">
-              <div className="flex items-center gap-2 text-sm"><Building2 className="h-4 w-4 text-violet-600" /><span className="font-semibold text-violet-700">{selectedUtility?.name || myUtilityDisplayName}</span></div>
-              <p className="text-xs text-violet-500/80 mt-2">
+            <div className="rounded-xl border border-cyan-200/80 bg-gradient-to-r from-cyan-50/50 to-sky-50/50 p-4">
+              <div className="flex items-center gap-2 text-sm"><WaterUtilityIcon className="h-4 w-4 text-cyan-600" /><span className="font-semibold text-cyan-700">{selectedUtility?.name || myUtilityDisplayName}</span></div>
+              <p className="text-xs text-cyan-500/80 mt-2">
                 {isUtilityManager
                   ? "This DMA manager will be associated with your utility."
                   : "Select the utility first, then optionally assign a DMA under it."}
@@ -578,17 +578,17 @@ export default function DMAManagersPage() {
             )}
             <div className="flex flex-col gap-2">
               <Label htmlFor="manager-email" className="text-sm font-medium text-slate-700">Email <span className="text-red-500">*</span></Label>
-              <Input id="manager-email" type="email" value={formEmail} onChange={(e) => setFormEmail(e.target.value)} placeholder="john@example.com" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
+              <Input id="manager-email" type="email" value={formEmail} onChange={(e) => setFormEmail(e.target.value)} placeholder="john@example.com" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20" />
             </div>
             {editingManager && (
               <>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="manager-name" className="text-sm font-medium text-slate-700">Manager Name <span className="text-red-500">*</span></Label>
-                  <Input id="manager-name" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="e.g., John Mwangi" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
+                  <Input id="manager-name" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="e.g., John Mwangi" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20" />
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="manager-phone" className="text-sm font-medium text-slate-700">Phone Number</Label>
-                  <Input id="manager-phone" type="tel" value={formPhone} onChange={(e) => setFormPhone(e.target.value)} placeholder="+254 712 345 678" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
+                  <Input id="manager-phone" type="tel" value={formPhone} onChange={(e) => setFormPhone(e.target.value)} placeholder="+254 712 345 678" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20" />
                 </div>
               </>
             )}
@@ -616,20 +616,20 @@ export default function DMAManagersPage() {
               <div className="border-t border-slate-200 pt-4 flex flex-col gap-3">
                 <Label className="flex items-center gap-2 text-sm font-medium text-slate-700"><Lock className="h-4 w-4" />Change Password (optional)</Label>
                 <div className="relative">
-                  <Input type={showPassword ? "text" : "password"} value={formPassword} onChange={(e) => setFormPassword(e.target.value)} placeholder="Enter new password (optional)" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl pr-10 focus:border-violet-400 focus:ring-violet-400/20" />
+                  <Input type={showPassword ? "text" : "password"} value={formPassword} onChange={(e) => setFormPassword(e.target.value)} placeholder="Enter new password (optional)" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl pr-10 focus:border-cyan-400 focus:ring-cyan-400/20" />
                   <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-full px-3 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</Button>
                 </div>
-                <Input type={showPassword ? "text" : "password"} value={formConfirmPassword} onChange={(e) => setFormConfirmPassword(e.target.value)} placeholder="Confirm password" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-violet-400 focus:ring-violet-400/20" />
+                <Input type={showPassword ? "text" : "password"} value={formConfirmPassword} onChange={(e) => setFormConfirmPassword(e.target.value)} placeholder="Confirm password" className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20" />
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-violet-200 bg-violet-50/60 p-4 text-sm text-slate-600">
+              <div className="rounded-xl border border-dashed border-cyan-200 bg-cyan-50/60 p-4 text-sm text-slate-600">
                 The system will send this DMA manager a secure setup link so they can finish their own profile and password.
               </div>
             )}
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">Cancel</Button>
-            <Button onClick={handleSubmit} className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 rounded-xl">
+            <Button onClick={handleSubmit} className="bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 text-white shadow-lg shadow-cyan-500/25 rounded-xl">
               {editingManager ? <><Save className="h-4 w-4 mr-2" />Save Changes</> : <><Plus className="h-4 w-4 mr-2" />Invite Manager</>}
             </Button>
           </DialogFooter>
@@ -644,7 +644,7 @@ export default function DMAManagersPage() {
         <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-xl border-slate-200/50 shadow-2xl shadow-slate-200/50 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-xl">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 flex items-center justify-center">
                 <Eye className="h-5 w-5 text-white" />
               </div>
               DMA Manager Details
@@ -657,11 +657,11 @@ export default function DMAManagersPage() {
             return (
               <div className="flex flex-col gap-6 py-4">
                 {/* Manager Profile Card */}
-                <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 bg-gradient-to-r from-violet-50/50 to-purple-50/50">
+                <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 bg-gradient-to-r from-cyan-50/50 to-sky-50/50">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
-                      <Avatar className="h-16 w-16 shadow-lg ring-2 ring-violet-200">
-                        <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-violet-500 to-purple-600 text-white">
+                      <Avatar className="h-16 w-16 shadow-lg ring-2 ring-cyan-200">
+                        <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-sky-500 to-cyan-600 text-white">
                           {getInitials(viewingManager.name)}
                         </AvatarFallback>
                       </Avatar>
@@ -691,8 +691,8 @@ export default function DMAManagersPage() {
                   <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
                     <CardContent className="p-5">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                          <Building2 className="h-5 w-5 text-white" />
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-700 flex items-center justify-center">
+                          <WaterUtilityIcon className="h-5 w-5 text-white" />
                         </div>
                         <div>
                           <h4 className="font-semibold text-slate-800">{utility.name}</h4>
@@ -712,7 +712,7 @@ export default function DMAManagersPage() {
                   <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
                     <CardContent className="p-5">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-700 flex items-center justify-center">
                           <MapPin className="h-5 w-5 text-white" />
                         </div>
                         <div>
@@ -727,7 +727,7 @@ export default function DMAManagersPage() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         <div className="rounded-xl bg-slate-50 p-3">
                           <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                            <Building2 className="h-3.5 w-3.5" />
+                            <WaterUtilityIcon className="h-3.5 w-3.5" />
                             Utility
                           </div>
                           <p className="text-sm font-medium text-slate-800">{utility?.name || "N/A"}</p>
@@ -756,7 +756,7 @@ export default function DMAManagersPage() {
                   <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
                     <CardContent className="p-6 text-center">
                       <div className="flex flex-col items-center gap-3">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
                           <Unlink className="h-6 w-6 text-amber-600" />
                         </div>
                         <div>

@@ -5,8 +5,16 @@ import type { LeafletMouseEvent } from "leaflet"
 import { CircleMarker, MapContainer, Polygon, Polyline, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { PALETTE } from "@/lib/palette"
 
 const DEFAULT_CENTER: [number, number] = [-6.7924, 39.2083]
+
+const BOUNDARY_STROKE = PALETTE.map.boundary.color
+const BOUNDARY_FILL = PALETTE.map.boundary.fillColor
+const POINT_STROKE = PALETTE.semantic.neutral.text
+const POINT_FILL = PALETTE.map.boundaryLighter.fillColor
+const CENTER_COLOR = PALETTE.accent.strong
+const CENTER_FILL = PALETTE.accent.base
 
 type SelectionMode = "center" | "boundary"
 type CoordinatePoint = { latitude: number; longitude: number }
@@ -172,8 +180,8 @@ export function DMALocationPickerImpl({
           <Polygon
             positions={boundaryLatLngs}
             pathOptions={{
-              color: "#0891b2",
-              fillColor: "#22d3ee",
+              color: BOUNDARY_STROKE,
+              fillColor: BOUNDARY_FILL,
               fillOpacity: 0.18,
               weight: 3,
               dashArray: "6 6",
@@ -183,7 +191,7 @@ export function DMALocationPickerImpl({
           <Polyline
             positions={boundaryLatLngs}
             pathOptions={{
-              color: "#0891b2",
+              color: BOUNDARY_STROKE,
               weight: 3,
               dashArray: "6 6",
             }}
@@ -196,8 +204,8 @@ export function DMALocationPickerImpl({
             center={[point.latitude, point.longitude]}
             radius={7}
             pathOptions={{
-              color: "#0f172a",
-              fillColor: "#22d3ee",
+              color: POINT_STROKE,
+              fillColor: POINT_FILL,
               fillOpacity: 0.95,
               weight: 2,
             }}
@@ -213,8 +221,8 @@ export function DMALocationPickerImpl({
             center={[centerValue.latitude, centerValue.longitude]}
             radius={11}
             pathOptions={{
-              color: "#0f766e",
-              fillColor: "#14b8a6",
+              color: CENTER_COLOR,
+              fillColor: CENTER_FILL,
               fillOpacity: 0.9,
               weight: 2,
             }}

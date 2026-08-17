@@ -353,10 +353,10 @@ export default function ReportsPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 bg-gradient-to-br from-violet-50/30 to-white">
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 bg-gradient-to-br from-amber-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <CheckCircle2 className="h-8 w-8 shrink-0 text-violet-600" />
+                <CheckCircle2 className="h-8 w-8 shrink-0 text-amber-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Awaiting DMA Approval</p>
                   <p className="text-2xl font-bold text-slate-800">{pendingApproval}</p>
@@ -533,7 +533,7 @@ export default function ReportsPage() {
                           isNew
                             ? "bg-blue-50/30 hover:bg-blue-50/60"
                             : isPending
-                              ? "bg-violet-50/30 hover:bg-violet-50/60"
+                              ? "bg-amber-50/30 hover:bg-amber-50/60"
                               : "hover:bg-rose-50/60"
                         )}
                       >
@@ -543,7 +543,7 @@ export default function ReportsPage() {
                             <FileText
                               className={cn(
                                 "mt-0.5 h-5 w-5 shrink-0",
-                                isNew ? "text-sky-600" : isPending ? "text-violet-600" : "text-rose-600"
+                                isNew ? "text-sky-600" : isPending ? "text-amber-600" : "text-rose-600"
                               )}
                             />
                             <div className="space-y-1">

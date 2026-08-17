@@ -357,14 +357,14 @@ export default function UsersPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-              <Users className="h-7 w-7 text-blue-600" />
+              <Users className="h-7 w-7 text-cyan-600" />
               Users
             </h1>
             <p className="text-slate-500 mt-1">Invite and manage public reporting user accounts</p>
           </div>
           <Button 
             onClick={openCreateDialog}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 rounded-xl h-11 px-6"
+            className="bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 text-white shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300 rounded-xl h-11 px-6"
           >
             <Plus className="h-4 w-4 mr-2" />
             Invite User
@@ -373,10 +373,10 @@ export default function UsersPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 bg-gradient-to-br from-blue-50/30 to-white">
+          <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 overflow-hidden group hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 bg-gradient-to-br from-cyan-50/30 to-white">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
-                <Users className="h-8 w-8 shrink-0 text-blue-600" />
+                <Users className="h-8 w-8 shrink-0 text-cyan-600" />
                 <div>
                   <p className="text-sm font-medium text-slate-500">Total Users</p>
                   <p className="text-2xl font-bold text-slate-800">{totalUsers}</p>
@@ -414,13 +414,13 @@ export default function UsersPage() {
       {/* Modern Search */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="relative w-full sm:w-80">
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/10 to-indigo-500/10 blur-lg opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-400/10 to-sky-500/10 blur-lg opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
           <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <Input
             placeholder="Search by name, email, phone, status..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-11 h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20 shadow-sm"
+            className="pl-11 h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 shadow-sm"
           />
         </div>
         <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -474,7 +474,7 @@ export default function UsersPage() {
                         {!search && (
                           <Button 
                             onClick={openCreateDialog}
-                            className="mt-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 rounded-xl"
+                            className="mt-2 bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 text-white shadow-lg shadow-cyan-500/25 rounded-xl"
                           >
                             <Plus className="h-4 w-4 mr-2" />
                             Invite User
@@ -494,7 +494,7 @@ export default function UsersPage() {
                           "border-b border-slate-100 transition-all duration-200",
                           isInactive 
                             ? "bg-red-50/30 hover:bg-red-50/50" 
-                            : "hover:bg-blue-50/50"
+                            : "hover:bg-cyan-50/50"
                         )}
                       >
                         {/* User Info with Avatar */}
@@ -504,13 +504,13 @@ export default function UsersPage() {
                               "h-10 w-10 shadow-lg transition-all duration-300",
                               isInactive 
                                 ? "ring-2 ring-red-200" 
-                                : "ring-2 ring-blue-200"
+                                : "ring-2 ring-cyan-200"
                             )}>
                               <AvatarFallback className={cn(
                                 "text-sm font-semibold",
                                 isInactive
                                   ? "bg-gradient-to-br from-red-400 to-rose-500 text-white"
-                                  : "bg-gradient-to-br from-blue-500 to-indigo-600 text-white"
+                                  : "bg-gradient-to-br from-sky-500 to-cyan-600 text-white"
                               )}>
                                 {getInitials(user.name)}
                               </AvatarFallback>
@@ -567,14 +567,14 @@ export default function UsersPage() {
                                 onClick={() => setViewingUser(user)} 
                                 className="rounded-lg gap-2 cursor-pointer"
                               >
-                                <Eye className="h-4 w-4 text-blue-500" />
+                                <Eye className="h-4 w-4 text-cyan-500" />
                                 View Details
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => openEditDialog(user)} 
                                 className="rounded-lg gap-2 cursor-pointer"
                               >
-                                <Pencil className="h-4 w-4 text-blue-500" />
+                                <Pencil className="h-4 w-4 text-cyan-500" />
                                 Edit User
                               </DropdownMenuItem>
                               {user.onboardingStatus !== "completed" && (
@@ -611,7 +611,7 @@ export default function UsersPage() {
         <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col bg-white/95 backdrop-blur-xl border-slate-200/50 shadow-2xl shadow-slate-200/50 rounded-2xl">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 flex items-center justify-center">
                 {editingUser ? (
                   <Pencil className="h-4 w-4 text-white" />
                 ) : (
@@ -630,7 +630,7 @@ export default function UsersPage() {
                 value={formEmail}
                 onChange={(e) => setFormEmail(e.target.value)}
                 placeholder="e.g., john@example.com"
-                className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
+                className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
                 disabled={isLoading}
               />
             </div>
@@ -643,7 +643,7 @@ export default function UsersPage() {
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
                     placeholder="e.g., John Smith"
-                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
+                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
                     disabled={isLoading}
                   />
                 </div>
@@ -655,7 +655,7 @@ export default function UsersPage() {
                     value={formPhone}
                     onChange={(e) => setFormPhone(e.target.value)}
                     placeholder="e.g., +255 22 211 0001"
-                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
+                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
                     disabled={isLoading}
                   />
                 </div>
@@ -697,7 +697,7 @@ export default function UsersPage() {
                       value={formPassword}
                       onChange={(e) => setFormPassword(e.target.value)}
                       placeholder="Enter new password (optional)"
-                      className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20 pr-10"
+                      className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20 pr-10"
                       disabled={isLoading}
                     />
                     <Button
@@ -720,13 +720,13 @@ export default function UsersPage() {
                     value={formConfirmPassword}
                     onChange={(e) => setFormConfirmPassword(e.target.value)}
                     placeholder="Confirm password"
-                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-blue-400 focus:ring-blue-400/20"
+                    className="h-11 bg-slate-50/80 border-slate-200/80 rounded-xl focus:border-cyan-400 focus:ring-cyan-400/20"
                     disabled={isLoading}
                   />
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-blue-200 bg-blue-50/60 p-4 text-sm text-slate-600">
+              <div className="rounded-xl border border-dashed border-cyan-200 bg-cyan-50/60 p-4 text-sm text-slate-600">
                 The system will send this user a secure setup link so they can finish their own profile and password.
               </div>
             )}
@@ -738,7 +738,7 @@ export default function UsersPage() {
             <Button 
               onClick={handleSubmit}
               disabled={isLoading}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 rounded-xl"
+              className="bg-gradient-to-r from-sky-500 to-cyan-600 hover:from-sky-600 hover:to-cyan-700 text-white shadow-lg shadow-cyan-500/25 rounded-xl"
             >
               {editingUser ? (
                 <>
@@ -772,7 +772,7 @@ export default function UsersPage() {
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-xl border-slate-200/50 shadow-2xl shadow-slate-200/50 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3 text-xl">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 flex items-center justify-center">
                 <Eye className="h-5 w-5 text-white" />
               </div>
               User Details
@@ -781,11 +781,11 @@ export default function UsersPage() {
           {viewingUser && (
             <div className="flex flex-col gap-6 py-4">
               {/* User Profile Card */}
-              <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 bg-gradient-to-r from-blue-50/50 to-indigo-50/50">
+              <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 bg-gradient-to-r from-cyan-50/50 to-sky-50/50">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <Avatar className="h-16 w-16 shadow-lg ring-2 ring-blue-200">
-                      <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                    <Avatar className="h-16 w-16 shadow-lg ring-2 ring-cyan-200">
+                      <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-sky-500 to-cyan-600 text-white">
                         {getInitials(viewingUser.name)}
                       </AvatarFallback>
                     </Avatar>

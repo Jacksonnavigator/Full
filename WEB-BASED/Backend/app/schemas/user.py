@@ -183,6 +183,10 @@ class UtilityResponse(UtilityBase):
     """Schema for utility response"""
     id: str
     slug: Optional[str] = None
+    manager_id: Optional[str] = None
+    manager_name: Optional[str] = None
+    dmas_count: int = 0
+    reports_count: int = 0
     service_areas: List[UtilityServiceAreaResponse] = Field(default_factory=list)
     infrastructure_layers: List[UtilityInfrastructureAssetResponse] = Field(default_factory=list)
     created_at: datetime

@@ -44,7 +44,7 @@ export function ConfirmDialog({
               "h-10 w-10 rounded-xl flex items-center justify-center shadow-lg",
               variant === "destructive" 
                 ? "bg-gradient-to-br from-red-500 to-rose-600 shadow-red-500/20" 
-                : "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-blue-500/20"
+                : "bg-gradient-to-br from-cyan-500 to-sky-600 shadow-cyan-500/20"
             )}>
               {variant === "destructive" ? (
                 <Trash2 className="h-5 w-5 text-white" />

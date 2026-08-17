@@ -207,9 +207,9 @@ const getResolvedTimingMeta = (report: Report) => {
       }
     case "assigned":
       return {
-        icon: <Clock className="h-5 w-5 text-indigo-600" />,
+        icon: <Clock className="h-5 w-5 text-amber-600" />,
         value: "Assigned, not resolved yet",
-        tone: "bg-indigo-100",
+        tone: "bg-amber-100",
       }
     default:
       return {
@@ -783,10 +783,10 @@ export default function ReportDetailPage() {
 
               <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <DetailCard icon={<MapPin className="h-5 w-5 text-emerald-600" />} label="Location" value={getReportLocationLabel(report)} tone="bg-emerald-100" />
-                <DetailCard icon={<FileText className="h-5 w-5 text-indigo-600" />} label="Report Type" value={isLeakageReport ? "Leakage" : "Non-leakage"} tone="bg-indigo-100" />
+                <DetailCard icon={<FileText className="h-5 w-5 text-sky-600" />} label="Report Type" value={isLeakageReport ? "Leakage" : "Non-leakage"} tone="bg-sky-100" />
                 {isLeakageReport ? <DetailCard icon={<Droplets className="h-5 w-5 text-cyan-600" />} label="Leakage Type" value={leakageTypeMeta.label} tone="bg-cyan-100" /> : null}
-                <DetailCard icon={<Users className="h-5 w-5 text-indigo-600" />} label="Utility / Region" value={utilityLabel} tone="bg-indigo-100" />
-                <DetailCard icon={<Users className="h-5 w-5 text-violet-600" />} label="DMA / District" value={dmaLabel} tone="bg-violet-100" />
+                <DetailCard icon={<Users className="h-5 w-5 text-cyan-600" />} label="Utility / Region" value={utilityLabel} tone="bg-cyan-100" />
+                <DetailCard icon={<Users className="h-5 w-5 text-sky-600" />} label="DMA / District" value={dmaLabel} tone="bg-sky-100" />
                 <DetailCard icon={<UserCog className="h-5 w-5 text-amber-600" />} label="Assigned Team" value={report.teamName || "Not assigned"} tone="bg-amber-100" />
               </div>
             </CardContent>
@@ -811,8 +811,8 @@ export default function ReportDetailPage() {
                     </div>
                   )}
                   {report.teamLeaderReviewNotes && (
-                    <div className="rounded-2xl border border-violet-200/60 bg-violet-50/60 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-700">Team Leader Review</p>
+                    <div className="rounded-2xl border border-sky-200/60 bg-sky-50/60 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Team Leader Review</p>
                       <p className="mt-2 text-sm leading-6 text-slate-700">{report.teamLeaderReviewNotes}</p>
                     </div>
                   )}
@@ -863,7 +863,7 @@ export default function ReportDetailPage() {
           <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20">
             <CardContent className="p-6">
               <div className="flex items-center gap-2">
-                <Clock className="h-6 w-6 shrink-0 text-violet-600" />
+                <Clock className="h-6 w-6 shrink-0 text-cyan-600" />
                 <div>
                   <p className="text-sm font-semibold text-slate-800">Activity Timeline</p>
                   <p className="text-xs text-slate-500">Assignments, approvals, and routing events for this report.</p>
@@ -880,7 +880,7 @@ export default function ReportDetailPage() {
                   activityLogs.map((log) => (
                     <div key={log.id} className="flex gap-3">
                       <div className="flex flex-col items-center">
-                        <div className="mt-1 h-3 w-3 rounded-full bg-violet-500 shadow-sm shadow-violet-500/30" />
+                        <div className="mt-1 h-3 w-3 rounded-full bg-cyan-500 shadow-sm shadow-cyan-500/30" />
                         <div className="mt-2 h-full w-px bg-slate-200" />
                       </div>
                       <div className="pb-4">
@@ -989,9 +989,9 @@ export default function ReportDetailPage() {
             <CardContent className="p-6">
               <p className="text-sm font-semibold text-slate-800">Routing & Ownership</p>
               <div className="mt-4 grid grid-cols-1 gap-3">
-                <DetailCard icon={<Users className="h-5 w-5 text-indigo-600" />} label="Utility / Region" value={utilityLabel} tone="bg-indigo-100" />
+                <DetailCard icon={<Users className="h-5 w-5 text-cyan-600" />} label="Utility / Region" value={utilityLabel} tone="bg-cyan-100" />
                 <DetailCard icon={<MapPin className="h-5 w-5 text-emerald-600" />} label="DMA / District" value={dmaLabel} tone="bg-emerald-100" />
-                <DetailCard icon={<UserCog className="h-5 w-5 text-violet-600" />} label="Team Leader" value={report.teamLeaderName || "Not assigned"} tone="bg-violet-100" />
+                <DetailCard icon={<UserCog className="h-5 w-5 text-sky-600" />} label="Team Leader" value={report.teamLeaderName || "Not assigned"} tone="bg-sky-100" />
                 <DetailCard icon={<Users className="h-5 w-5 text-amber-600" />} label="Assigned Engineer" value={report.assignedEngineerName || "Not assigned"} tone="bg-amber-100" />
               </div>
             </CardContent>

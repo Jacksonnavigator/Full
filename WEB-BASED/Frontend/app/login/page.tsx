@@ -22,6 +22,18 @@ const BACKGROUND_IMAGES = [
   "/login-backgrounds/majiscopebackgrd-5.jpg",
 ]
 
+// Rotating slogans - swap in sync with the background slideshow.
+// Each slogan is split into two parts: the first uses the brand gradient
+// (matching "Maji"), the second uses white (matching "Scope").
+const SLOGANS: { first: string; second: string }[] = [
+  { first: "Powering Water Management", second: "with Technology" },
+  { first: "Enhancing Every Drop", second: "with Technology" },
+  { first: "Smart Water.", second: "Informed Management." },
+  { first: "Every Drop,", second: "Fully Accounted." },
+  { first: "Where Data", second: "Meets Water." },
+  { first: "Water Intelligence,", second: "Reimagined." },
+]
+
 export default function LoginPage() {
   const router = useRouter()
   const { login, isLoading, error, clearError } = useAuthStore()
@@ -160,10 +172,22 @@ export default function LoginPage() {
 
           <BrandWordmark size="xl" theme="dark" centered className="mb-2" />
 
-          {/* Tagline */}
-          <p className="mt-4 text-sm font-medium tracking-widest text-cyan-200/70 uppercase">
-            Water Infrastructure Intelligence
-          </p>
+          {/* Rotating Slogan - styled as an elegant quotation */}
+          <blockquote
+            key={currentImageIndex}
+            className="mt-5 animate-fade-in max-w-sm text-center font-serif"
+          >
+            <span aria-hidden="true" className="mr-1.5 text-2xl leading-none text-cyan-200/90">&ldquo;</span>
+            <span className="font-bold italic tracking-wide">
+              <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-teal-300 bg-clip-text text-transparent drop-shadow-lg">
+                {SLOGANS[(currentImageIndex) % SLOGANS.length].first}
+              </span>{" "}
+              <span className="text-white drop-shadow-lg">
+                {SLOGANS[(currentImageIndex) % SLOGANS.length].second}
+              </span>
+            </span>
+            <span aria-hidden="true" className="ml-1.5 text-2xl leading-none text-cyan-200/90">&rdquo;</span>
+          </blockquote>
         </div>
 
         {/* Login Card with Glassmorphism */}
@@ -268,8 +292,15 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-white/30">
-            MajiScope &middot; Water Infrastructure Intelligence &middot; Tanzania
+          <p className="font-serif text-xs text-white/40">
+            <span className="text-white/30">MajiScope</span>
+            <span aria-hidden="true" className="mx-1.5 text-white/20">&middot;</span>
+            <span className="font-bold italic">
+              <span className="text-cyan-200/90">Smart Water.</span>{" "}
+              <span className="text-white/70">Informed Management.</span>
+            </span>
+            <span aria-hidden="true" className="mx-1.5 text-white/20">&middot;</span>
+            <span className="text-white/30">Tanzania</span>
           </p>
           <div className="mt-3 flex items-center justify-center gap-3">
             <button

@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { LEAKAGE_TYPE_CONFIG } from "@/lib/constants"
 import type { LeakageType } from "@/lib/types"
+import { PALETTE } from "@/lib/palette"
 
 const LEAKAGE_TYPE_ICONS: Partial<Record<LeakageType, LucideIcon>> = {
   ground_leakage: Droplets,
@@ -32,7 +33,7 @@ export function LeakageTypeBadge({ type }: { type?: LeakageType | string | null 
   const knownType = normalizedType as LeakageType
   const config = LEAKAGE_TYPE_CONFIG[knownType]
   const Icon = LEAKAGE_TYPE_ICONS[knownType] || Tag
-  const color = config?.color || "#475569"
+  const color = config?.color || PALETTE.semantic.neutral.base
   const label = config?.label || formatLeakageType(normalizedType)
 
   return (

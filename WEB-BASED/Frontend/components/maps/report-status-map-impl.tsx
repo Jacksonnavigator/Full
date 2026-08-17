@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet"
 import { Button } from "@/components/ui/button"
+import { PALETTE } from "@/lib/palette"
 
 type ReportMapItem = {
   id: string
@@ -23,17 +24,23 @@ type StatusFilter = "all" | "new" | "active" | "completed"
 
 const getReportColor = (status: string) => {
   switch (status) {
-    case "new":
-      return { fill: "#ef4444", stroke: "#b91c1c", label: "Unassigned" }
+    case "new": {
+      const c = PALETTE.map.status.open
+      return { fill: c.fill, stroke: c.stroke, label: "Unassigned" }
+    }
     case "assigned":
     case "in_progress":
-    case "pending_approval":
-      return { fill: "#f59e0b", stroke: "#b45309", label: "Assigned / In Progress" }
+    case "pending_approval": {
+      const c = PALETTE.map.status.pendingApproval
+      return { fill: c.fill, stroke: c.stroke, label: "Assigned / In Progress" }
+    }
     case "approved":
-    case "closed":
-      return { fill: "#10b981", stroke: "#047857", label: "Completed" }
+    case "closed": {
+      const c = PALETTE.map.status.resolved
+      return { fill: c.fill, stroke: c.stroke, label: "Completed" }
+    }
     default:
-      return { fill: "#64748b", stroke: "#334155", label: "Other" }
+      return { fill: PALETTE.semantic.neutral.base, stroke: PALETTE.semantic.neutral.strong, label: "Other" }
   }
 }
 

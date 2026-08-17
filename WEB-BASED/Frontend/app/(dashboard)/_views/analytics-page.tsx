@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select"
 import { Download, Loader2 } from "lucide-react"
 import { PRIORITY_CONFIG, REPORT_STATUS_CONFIG } from "@/lib/constants"
+import { PALETTE } from "@/lib/palette"
 import {
   computeLeakageTypeDistribution,
   computeReportTypeDistribution,
@@ -325,7 +326,7 @@ export default function AnalyticsPage() {
                 <XAxis type="number" tick={CHART_AXIS_TICK} />
                 <YAxis type="category" dataKey="name" width={120} tick={CHART_AXIS_TICK} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#2563eb" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" fill={PALETTE.chart.chart1} radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -342,7 +343,7 @@ export default function AnalyticsPage() {
                 <XAxis type="number" tick={CHART_AXIS_TICK} />
                 <YAxis type="category" dataKey="name" width={90} tick={CHART_AXIS_TICK} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#f59e0b" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" fill={PALETTE.chart.chart3} radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -461,7 +462,7 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="name" tick={CHART_AXIS_TICK} />
                 <YAxis tick={CHART_AXIS_TICK} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#0891b2" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" fill={PALETTE.chart.chart1} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -479,7 +480,7 @@ export default function AnalyticsPage() {
               <XAxis dataKey="name" tick={CHART_AXIS_TICK} interval={0} angle={-20} textAnchor="end" height={70} />
               <YAxis tick={CHART_AXIS_TICK} />
               <Tooltip />
-              <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" fill={PALETTE.chart.chart5} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -496,7 +497,7 @@ export default function AnalyticsPage() {
               <XAxis dataKey="month" tick={CHART_AXIS_TICK} />
               <YAxis tick={CHART_AXIS_TICK} />
               <Tooltip />
-              <Line type="monotone" dataKey="count" stroke="#0f766e" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="count" stroke={PALETTE.chart.chart2} strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

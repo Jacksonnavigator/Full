@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { getNotificationTag, resolveNotificationDestinationWithData } from "@/lib/notifications"
+import { getRoleBadgeClass } from "@/lib/constants"
 import { formatTanzaniaShortDate } from "@/lib/date-time"
 import { cn } from "@/lib/utils"
 import { DEFAULT_WEB_UI_PREFERENCES, loadWebUiPreferences, subscribeToWebUiPreferences } from "@/lib/user-preferences"
@@ -177,19 +178,6 @@ export function TopNavbar() {
     return formatTanzaniaShortDate(date, "N/A")
   }
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "from-amber-600 to-orange-700"
-      case "utility_manager":
-        return "from-sky-700 to-blue-700"
-      case "dma_manager":
-        return "from-emerald-600 to-teal-700"
-      default:
-        return "from-slate-500 to-slate-600"
-    }
-  }
-
   const getRoleLabel = (role: string) => {
     switch (role) {
       case "admin":
@@ -326,7 +314,7 @@ export function TopNavbar() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                      className="relative h-9 w-9 rounded-xl text-slate-600 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                       aria-label="Open notifications"
                     >
                       <Bell className="h-4 w-4" />
@@ -346,15 +334,16 @@ export function TopNavbar() {
             </Tooltip>
             <DropdownMenuContent
               align="end"
-              className="z-[9999] w-80 rounded-xl border-white/10 bg-slate-900/95 p-0 backdrop-blur-xl"
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              className="z-[9999] w-80 rounded-xl border-0 p-0 shadow-lg shadow-slate-200/50 backdrop-blur-xl"
             >
-              <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <div className="flex items-center justify-between border-b px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <Bell className="h-4 w-4 text-sky-300" />
-                  <span className="font-semibold text-white">Notifications</span>
+                  <Bell className="h-4 w-4 text-sky-600 dark:text-sky-300" />
+                  <span className="font-semibold text-slate-900 dark:text-white">Notifications</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-sky-500/15 px-2 py-0.5 text-xs font-medium text-sky-300">
+                  <span className="rounded-full bg-sky-500/15 px-2 py-0.5 text-xs font-medium text-sky-700 dark:text-sky-300">
                     {unreadCount} unread
                   </span>
                   {unreadCount > 0 ? (
@@ -363,7 +352,7 @@ export function TopNavbar() {
                       size="sm"
                       onClick={() => void handleMarkAllRead()}
                       disabled={markingAllRead}
-                      className="h-7 rounded-lg px-2 text-xs text-sky-300 hover:bg-sky-500/10 hover:text-sky-200"
+                      className="h-7 rounded-lg px-2 text-xs text-sky-600 hover:bg-sky-500/10 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
                     >
                       {markingAllRead ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCheck className="h-3.5 w-3.5" />}
                     </Button>
@@ -382,53 +371,53 @@ export function TopNavbar() {
                       key={notification.id}
                       type="button"
                       onClick={() => void handleOpenNotification(notification.id, notification.title, notification.type, notification.link, notification.data)}
-                      className={`flex w-full gap-3 rounded-lg p-3 text-left transition-colors hover:bg-white/5 ${
+                      className={`flex w-full gap-3 rounded-lg p-3 text-left transition-colors hover:bg-slate-100 dark:hover:bg-white/5 ${
                         notification.read ? "" : "bg-sky-500/5"
                       }`}
                     >
                       <div
                         className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                          notification.read ? "bg-slate-500/20" : "bg-sky-500/15"
+                          notification.read ? "bg-slate-100 dark:bg-slate-500/20" : "bg-sky-500/15"
                         }`}
                       >
                         {notification.read ? (
-                          <Clock className="h-4 w-4 text-slate-300" />
+                          <Clock className="h-4 w-4 text-slate-500 dark:text-slate-300" />
                         ) : (
-                          <Bell className="h-4 w-4 text-sky-300" />
+                          <Bell className="h-4 w-4 text-sky-600 dark:text-sky-300" />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-medium text-white">{notification.title}</p>
+                          <p className="truncate text-sm font-medium text-slate-900 dark:text-white">{notification.title}</p>
                           {!notification.read ? (
-                            <span className="rounded-full bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-sky-200">
+                            <span className="rounded-full bg-sky-500/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-sky-700 dark:text-sky-200">
                               New
                             </span>
                           ) : null}
                         </div>
-                        <p className="mt-1 line-clamp-2 text-xs text-slate-400">{notification.message}</p>
+                        <p className="mt-1 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{notification.message}</p>
                         <div className="mt-2 flex items-center justify-between gap-2">
-                          <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-300">
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600 dark:bg-white/5 dark:text-slate-300">
                             {getNotificationTag(notification)}
                           </span>
-                          <p className="text-[10px] text-slate-500">{formatNotificationTime(notification.createdAt)}</p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400">{formatNotificationTime(notification.createdAt)}</p>
                         </div>
                       </div>
                     </button>
                   ))
                 ) : (
                   <div className="rounded-lg px-3 py-8 text-center">
-                    <Bell className="mx-auto h-8 w-8 text-slate-500" />
-                    <p className="mt-3 text-sm font-medium text-white">No notifications yet</p>
-                    <p className="mt-1 text-xs text-slate-400">Assignments, approvals, and alerts will appear here.</p>
+                    <Bell className="mx-auto h-8 w-8 text-slate-400 dark:text-slate-500" />
+                    <p className="mt-3 text-sm font-medium text-slate-900 dark:text-white">No notifications yet</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Assignments, approvals, and alerts will appear here.</p>
                   </div>
                 )}
               </div>
-              <div className="border-t border-white/10 p-2">
+              <div className="border-t p-2">
                 <Button
                   variant="ghost"
                   onClick={handleOpenNotificationsPage}
-                  className="w-full justify-center rounded-lg text-sm text-sky-300 hover:bg-sky-500/10 hover:text-sky-200"
+                  className="w-full justify-center rounded-lg text-sm text-sky-600 hover:bg-sky-500/10 hover:text-sky-800 dark:text-sky-300 dark:hover:text-sky-200"
                 >
                   View all notifications
                 </Button>
@@ -446,11 +435,11 @@ export function TopNavbar() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-card dark:hover:bg-slate-900 sm:px-3"
+                className="relative flex h-auto items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:hover:bg-slate-800 dark:hover:text-white sm:px-3"
               >
                 <div className="relative">
-                  <Avatar className="relative h-12 w-12 ring-2 ring-slate-300 dark:ring-slate-700">
-                    <AvatarFallback className="bg-gradient-to-br from-sky-700 to-blue-700 text-lg font-semibold text-white">
+                  <Avatar className="relative h-12 w-12 rounded-xl">
+                    <AvatarFallback className="rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 text-lg font-semibold text-white">
                       {currentUser?.name
                         ?.split(" ")
                         .map((n) => n[0])
@@ -458,11 +447,6 @@ export function TopNavbar() {
                         .toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  
-                  {/* Online Indicator */}
-                  <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full border-2 border-white bg-emerald-500 dark:border-slate-950">
-                    <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                  </span>
                 </div>
 
                 {/* User Info - Desktop */}
@@ -470,7 +454,7 @@ export function TopNavbar() {
                   <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                     {currentUser?.name || "User"}
                   </span>
-                  <span className={`inline-flex items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeColor(currentUser?.role || "")} px-1.5 py-0.5 text-[9px] font-medium text-white`}>
+                  <span className={`inline-flex items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeClass(currentUser?.role || "")} px-1.5 py-0.5 text-[9px] font-medium text-white`}>
                     <Shield className="h-2 w-2" />
                     {getRoleLabel(currentUser?.role || "")}
                   </span>
@@ -482,20 +466,21 @@ export function TopNavbar() {
 
             <DropdownMenuContent
               align="end"
-              className="z-[9999] w-72 rounded-xl border-white/10 bg-slate-900/95 p-0 backdrop-blur-xl"
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              className="z-[9999] w-72 rounded-xl border-0 p-0 shadow-lg shadow-slate-200/50 backdrop-blur-xl"
             >
               {/* Profile Header */}
-              <div className="relative overflow-hidden border-b border-white/10 p-4">
+              <div className="relative overflow-hidden border-b p-4">
                 {/* Background Gradient */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-sky-700/10 via-transparent to-blue-700/10" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-sky-500/10 via-transparent to-cyan-600/10" />
                 
                 <div className="relative flex items-center gap-3">
                   <div className="relative">
-                    <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-sky-700 to-blue-700 opacity-35 blur" />
+                    <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-600 opacity-35 blur" />
                 
                     
-                    <Avatar className="relative h-8 w-8 ring-2 ring-white/20">
-                      <AvatarFallback className="bg-gradient-to-br from-sky-700 to-blue-700 text-sm font-semibold text-white">
+                    <Avatar className="relative h-8 w-8 rounded-xl">
+                      <AvatarFallback className="rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 text-sm font-semibold text-white">
                         {currentUser?.name
                           ?.split(" ")
                           .map((n) => n[0])
@@ -505,13 +490,13 @@ export function TopNavbar() {
                     </Avatar>
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-white">
+                    <span className="font-semibold text-slate-900 dark:text-white">
                       {currentUser?.name || "User"}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
                       {currentUser?.email || "Email unavailable"}
                     </span>
-                    <span className={`mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeColor(currentUser?.role || "")} px-2 py-0.5 text-[10px] font-medium text-white`}>
+                    <span className={`mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-gradient-to-r ${getRoleBadgeClass(currentUser?.role || "")} px-2 py-0.5 text-[10px] font-medium text-white`}>
                       <Shield className="h-2.5 w-2.5" />
                       {getRoleLabel(currentUser?.role || "")}
                     </span>
@@ -524,10 +509,10 @@ export function TopNavbar() {
                 <DropdownMenuGroup>
                   <DropdownMenuItem
                     onClick={handleProfile}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5"
+                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white dark:focus:bg-white/5 dark:focus:text-white"
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/15">
-                      <User className="h-4 w-4 text-sky-300" />
+                      <User className="h-4 w-4 text-sky-600 dark:text-sky-300" />
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">View Profile</span>
@@ -537,10 +522,10 @@ export function TopNavbar() {
 
                   <DropdownMenuItem
                     onClick={handleSettings}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5"
+                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white dark:focus:bg-white/5 dark:focus:text-white"
                   >
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/15">
-                      <Settings className="h-4 w-4 text-sky-300" />
+                      <Settings className="h-4 w-4 text-sky-600 dark:text-sky-300" />
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Settings</span>
@@ -550,10 +535,10 @@ export function TopNavbar() {
 
                   <DropdownMenuItem
                     onClick={handleOpenNotificationsPage}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-300 transition-colors hover:bg-white/5 hover:text-white focus:bg-white/5"
+                    className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white dark:focus:bg-white/5 dark:focus:text-white"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20">
-                      <Activity className="h-4 w-4 text-emerald-400" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15">
+                      <Activity className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Notifications</span>
@@ -562,18 +547,18 @@ export function TopNavbar() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
 
-                <DropdownMenuSeparator className="my-2 bg-white/10" />
+                <DropdownMenuSeparator className="my-2 bg-slate-200 dark:bg-white/10" />
 
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300 focus:bg-red-500/10"
+                  className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-red-600 transition-colors hover:bg-red-500/10 hover:text-red-700 focus:bg-red-500/10 focus:text-red-700 dark:text-red-400 dark:hover:text-red-300 dark:focus:bg-red-500/10 dark:focus:text-red-300"
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/20">
-                    <LogOut className="h-4 w-4 text-red-400" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500/10">
+                    <LogOut className="h-4 w-4 text-red-600 dark:text-red-400" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">Sign Out</span>
-                    <span className="text-[10px] text-red-400/70">End your current session</span>
+                    <span className="text-[10px] text-red-600/70 dark:text-red-400/70">End your current session</span>
                   </div>
                 </DropdownMenuItem>
               </div>

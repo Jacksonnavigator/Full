@@ -10,7 +10,7 @@ const REPORT_TYPE_META = {
   non_leakage: {
     label: "Non-leakage",
     Icon: ClipboardList,
-    className: "border-indigo-300 bg-indigo-50 text-indigo-800 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-200",
+    className: "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300",
   },
 } as const
 

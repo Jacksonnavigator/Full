@@ -31,6 +31,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import { PALETTE } from "@/lib/palette"
 import {
   computeLeakKpis,
   computeLeakageTypeDistribution,
@@ -62,9 +63,9 @@ function KpiCard({
 }) {
   const toneClasses = {
     slate: "border-slate-300/80 bg-slate-100/85 text-slate-950",
-    green: "border-emerald-200/80 bg-emerald-50/55 text-emerald-950",
-    red: "border-rose-200/80 bg-rose-50/55 text-rose-950",
-    amber: "border-amber-200/80 bg-amber-50/55 text-amber-950",
+    green: "border-slate-300/80 bg-slate-100/85 text-emerald-600",
+    red: "border-slate-300/80 bg-slate-100/85 text-rose-600",
+    amber: "border-slate-300/80 bg-slate-100/85 text-amber-600",
   } as const
 
   return (
@@ -86,20 +87,17 @@ type ComparisonBarRow = {
 type DashboardHierarchyLevel = "national" | "utility" | "dma" | "detail"
 
 const CHART_AXIS_TICK = { fill: "var(--chart-axis-text)", fontSize: 10 }
+const CHART_GRID = PALETTE.semantic.neutral.bg
+const CHART_AXIS_LINE = PALETTE.semantic.neutral.base
+const CHART_TOOLTIP_BG = PALETTE.semantic.neutral.bg
+const CHART_TOOLTIP_BORDER = PALETTE.semantic.neutral.base
+const CHART_TEXT = PALETTE.semantic.neutral.text
+const CHART_LEGEND_TEXT = PALETTE.semantic.neutral.strong
 const TANZANIA_BOUNDS: [[number, number], [number, number]] = [
   [-11.9, 28.8],
   [-0.95, 41.25],
 ]
-const BOUNDARY_COLORS = [
-  "#0284c7",
-  "#16a34a",
-  "#7c3aed",
-  "#f97316",
-  "#dc2626",
-  "#0d9488",
-  "#ca8a04",
-  "#be185d",
-]
+const BOUNDARY_COLOR = PALETTE.map.boundary.color
 
 function isOperationsMapBoundaryOverlay(
   overlay: OperationsMapBoundaryOverlay | null
@@ -188,13 +186,13 @@ function ComparisonBarChartView({
           barCategoryGap={12}
           barGap={2}
         >
-          <CartesianGrid stroke="#dbe3ee" horizontal vertical />
+          <CartesianGrid stroke={CHART_GRID} horizontal vertical />
           <XAxis
             type="number"
             domain={[0, Math.ceil(maxValue * 1.05)]}
             tick={CHART_AXIS_TICK}
-            axisLine={{ stroke: "#cbd5e1" }}
-            tickLine={{ stroke: "#cbd5e1" }}
+            axisLine={{ stroke: CHART_AXIS_LINE }}
+            tickLine={{ stroke: CHART_AXIS_LINE }}
           />
           <YAxis
             type="category"
@@ -202,30 +200,30 @@ function ComparisonBarChartView({
             width={108}
             tick={CHART_AXIS_TICK}
             tickFormatter={formatAxisLabel}
-            axisLine={{ stroke: "#cbd5e1" }}
+            axisLine={{ stroke: CHART_AXIS_LINE }}
             tickLine={false}
           />
           <Tooltip
             cursor={{ fill: "rgba(148, 163, 184, 0.12)" }}
             contentStyle={{
-              background: "#f1f5f9",
-              border: "1px solid #cbd5e1",
+              background: CHART_TOOLTIP_BG,
+              border: `1px solid ${CHART_TOOLTIP_BORDER}`,
               borderRadius: 10,
-              color: "#0f172a",
+              color: CHART_TEXT,
             }}
             formatter={(value: number, name: string) => [
               value.toLocaleString(),
               name === "reported" ? "Reported" : "Resolved",
             ]}
-            labelStyle={{ color: "#0f172a", fontWeight: 600 }}
+            labelStyle={{ color: CHART_TEXT, fontWeight: 600 }}
           />
           <Legend
             iconType="circle"
-            wrapperStyle={{ fontSize: 11, color: "#475569", paddingTop: 8 }}
+            wrapperStyle={{ fontSize: 11, color: CHART_LEGEND_TEXT, paddingTop: 8 }}
             formatter={(value) => (value === "reported" ? "Reported" : "Resolved")}
           />
-          <Bar dataKey="reported" fill="#7c3aed" radius={0} barSize={8} />
-          <Bar dataKey="resolved" fill="#15803d" radius={0} barSize={8} />
+          <Bar dataKey="reported" fill={PALETTE.chart.chart1} radius={0} barSize={8} />
+          <Bar dataKey="resolved" fill={PALETTE.chart.chart2} radius={0} barSize={8} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -276,7 +274,7 @@ function ComparisonBarChartCard({
             <Button
               type="button"
               size="sm"
-              className="h-7 shrink-0 rounded-lg bg-gradient-to-r from-sky-700 to-blue-700 px-3 text-xs font-semibold text-white shadow-sm shadow-slate-900/15 hover:from-sky-800 hover:to-blue-800"
+              className="h-7 shrink-0 rounded-lg bg-gradient-to-r from-sky-700 to-cyan-700 px-3 text-xs font-semibold text-white shadow-sm shadow-slate-900/15 hover:from-sky-800 hover:to-cyan-800"
               onClick={() => setAllOpen(true)}
             >
               View all
@@ -687,7 +685,7 @@ export function OperationsDashboard() {
         geojson: utility.boundaryGeojson,
         reported: utilityReports.length,
         resolved: utilityReports.filter((report) => isResolvedStatus(report.status)).length,
-        color: BOUNDARY_COLORS[index % BOUNDARY_COLORS.length],
+        color: BOUNDARY_COLOR,
       }
     }
 
@@ -705,7 +703,7 @@ export function OperationsDashboard() {
         geojson: dma.boundaryGeojson,
         reported: dmaReports.length,
         resolved: dmaReports.filter((report) => isResolvedStatus(report.status)).length,
-        color: BOUNDARY_COLORS[index % BOUNDARY_COLORS.length],
+        color: BOUNDARY_COLOR,
       }
     }
 
@@ -750,10 +748,10 @@ export function OperationsDashboard() {
 
   const infrastructureLayers = useMemo(() => {
     const assetDefinitions = [
-      { assetType: "valves", label: "Valves", color: "#dc2626" },
-      { assetType: "water_sources", label: "Water sources", color: "#0891b2" },
-      { assetType: "storage_facilities", label: "Storage facilities", color: "#d97706" },
-      { assetType: "bulk_meters", label: "Bulk meters", color: "#7c3aed" },
+      { assetType: "valves", label: "Valves", color: PALETTE.infraDotColors.valves },
+      { assetType: "water_sources", label: "Water sources", color: PALETTE.infraDotColors.water_sources },
+      { assetType: "storage_facilities", label: "Storage facilities", color: PALETTE.infraDotColors.storage_facilities },
+      { assetType: "bulk_meters", label: "Bulk meters", color: PALETTE.infraDotColors.bulk_meters },
     ]
     const layersByType = new Map(
       assetDefinitions.map((asset) => [
@@ -953,11 +951,11 @@ export function OperationsDashboard() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Map legend</p>
             <div className="mt-2.5 max-h-[150px] space-y-1.5 overflow-y-auto pr-1 text-xs text-slate-700">
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-rose-600" />
+                <span className="h-2.5 w-2.5 rounded-full bg-red-600" />
                 Open / rejected
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-violet-600" />
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-600" />
                 Pending approval
               </div>
               <div className="flex items-center gap-2">
@@ -965,7 +963,7 @@ export function OperationsDashboard() {
                 Resolved (approved / closed)
               </div>
               <div className="flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-blue-700" />
+                <span className="h-2.5 w-2.5 rounded-full bg-cyan-600" />
                 Pipe network
               </div>
             </div>
@@ -1017,7 +1015,6 @@ export function OperationsDashboard() {
             <div className="grid gap-2">
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-300/70 bg-white/45 px-3 py-2 text-xs dark:border-slate-600/70 dark:bg-slate-950/45">
                 <span className="font-semibold text-slate-700 dark:text-white">{hierarchyLabel}</span>
-                <span className="font-mono text-slate-500 dark:text-slate-300">z{mapZoom}</span>
               </div>
               <Select
                 value={selectedUtilityId}

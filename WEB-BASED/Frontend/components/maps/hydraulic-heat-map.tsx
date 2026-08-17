@@ -12,6 +12,13 @@ import {
   HYDRAULIC_HEAT_MODE_LABELS,
   getGeoJsonFeatures,
 } from "@/lib/hydraulic-heat"
+import { PALETTE } from "@/lib/palette"
+
+const HEAT_RED = PALETTE.chart.chart4
+const HEAT_RED_DARK = PALETTE.semantic.danger.strong
+const HEAT_AMBER = PALETTE.chart.chart3
+const HEAT_CYAN = PALETTE.chart.chart1
+const HEAT_CYAN_DARK = PALETTE.accent.strong
 
 function isPointFeature(feature: GeoJsonFeature) {
   const coords = feature.geometry?.coordinates
@@ -44,35 +51,35 @@ function heatColor(mode: HydraulicHeatMode, feature: GeoJsonFeature) {
   const props = feature.properties || {}
   if (mode === "pipe_flow") {
     const flow = Math.abs(Number(props.flow_rate_max_abs ?? props.flow_rate_avg ?? props.flow_rate ?? 0))
-    if (flow >= 50) return "#dc2626"
-    if (flow >= 20) return "#f97316"
-    if (flow >= 5) return "#facc15"
-    if (flow > 0) return "#60a5fa"
-    return "#6366f1"
+    if (flow >= 50) return HEAT_RED_DARK
+    if (flow >= 20) return HEAT_RED
+    if (flow >= 5) return HEAT_AMBER
+    if (flow > 0) return HEAT_CYAN
+    return HEAT_CYAN
   }
 
   if (mode === "leakage_risk") {
     const score = typeof props.risk_score === "number" ? props.risk_score : 0
-    if (score >= 0.8) return "#dc2626"
-    if (score >= 0.55) return "#f97316"
-    return "#a855f7"
+    if (score >= 0.8) return HEAT_RED
+    if (score >= 0.55) return HEAT_AMBER
+    return HEAT_CYAN
   }
 
   if (mode === "low_pressure") {
     const pressure = typeof props.pressure === "number" ? props.pressure : typeof props.pressure_min === "number" ? props.pressure_min : null
-    if (pressure == null) return "#ef4444"
-    if (pressure < 5) return "#b91c1c"
-    if (pressure < 10) return "#dc2626"
-    return "#f97316"
+    if (pressure == null) return HEAT_RED
+    if (pressure < 5) return HEAT_RED_DARK
+    if (pressure < 10) return HEAT_RED
+    return HEAT_AMBER
   }
 
   const pressure = typeof props.pressure === "number" ? props.pressure : typeof props.pressure_min === "number" ? props.pressure_min : null
-  if (pressure == null) return "#38bdf8"
-  if (pressure < 10) return "#ef4444"
-  if (pressure < 20) return "#f97316"
-  if (pressure < 30) return "#facc15"
-  if (pressure < 45) return "#22c55e"
-  return "#2563eb"
+  if (pressure == null) return HEAT_CYAN
+  if (pressure < 10) return HEAT_RED
+  if (pressure < 20) return HEAT_AMBER
+  if (pressure < 30) return HEAT_CYAN
+  if (pressure < 45) return HEAT_CYAN
+  return HEAT_CYAN_DARK
 }
 
 function heatRadius(mode: HydraulicHeatMode, feature: GeoJsonFeature) {
@@ -98,35 +105,34 @@ function heatRadius(mode: HydraulicHeatMode, feature: GeoJsonFeature) {
 
 const HEAT_LEGENDS: Record<HydraulicHeatMode, Array<{ color: string; label: string }>> = {
   pressure: [
-    { color: "#ef4444", label: "Critically low · below 10 m" },
-    { color: "#f97316", label: "Low · 10-20 m" },
-    { color: "#facc15", label: "Moderate · 20-30 m" },
-    { color: "#22c55e", label: "Normal · 30-45 m" },
-    { color: "#2563eb", label: "High · 45 m and above" },
+    { color: HEAT_RED, label: "Critically low · below 10 m" },
+    { color: HEAT_AMBER, label: "Low · 10-20 m" },
+    { color: HEAT_CYAN, label: "Moderate · 20-45 m" },
+    { color: HEAT_CYAN_DARK, label: "High · 45 m and above" },
   ],
   low_pressure: [
-    { color: "#b91c1c", label: "Critical · below 5 m" },
-    { color: "#dc2626", label: "Low · 5-7 m" },
+    { color: HEAT_RED_DARK, label: "Critical · below 5 m" },
+    { color: HEAT_RED, label: "Low · 5-10 m" },
+    { color: HEAT_AMBER, label: "10 m and above" },
   ],
   pipe_flow: [
-    { color: "#6366f1", label: "No or very low flow" },
-    { color: "#60a5fa", label: "Low flow" },
-    { color: "#facc15", label: "Moderate flow" },
-    { color: "#f97316", label: "High flow" },
-    { color: "#dc2626", label: "Very high flow" },
+    { color: HEAT_CYAN, label: "No or very low flow" },
+    { color: HEAT_AMBER, label: "Moderate flow" },
+    { color: HEAT_RED, label: "High flow" },
+    { color: HEAT_RED_DARK, label: "Very high flow" },
   ],
   leakage_risk: [
-    { color: "#a855f7", label: "Elevated · below 55%" },
-    { color: "#f97316", label: "High · 55-79%" },
-    { color: "#dc2626", label: "Critical · 80% and above" },
+    { color: HEAT_CYAN, label: "Elevated · below 55%" },
+    { color: HEAT_AMBER, label: "High · 55-79%" },
+    { color: HEAT_RED, label: "Critical · 80% and above" },
   ],
 }
 
 const HEAT_GRADIENTS: Record<HydraulicHeatMode, string> = {
-  pressure: "linear-gradient(90deg, #ef4444, #f97316, #facc15, #22c55e, #2563eb)",
-  low_pressure: "linear-gradient(90deg, #b91c1c, #dc2626, #f97316)",
-  pipe_flow: "linear-gradient(90deg, #6366f1, #60a5fa, #facc15, #f97316, #dc2626)",
-  leakage_risk: "linear-gradient(90deg, #a855f7, #f97316, #dc2626)",
+  pressure: `linear-gradient(90deg, ${HEAT_RED}, ${HEAT_AMBER}, ${HEAT_CYAN}, ${HEAT_CYAN_DARK})`,
+  low_pressure: `linear-gradient(90deg, ${HEAT_RED_DARK}, ${HEAT_RED}, ${HEAT_AMBER})`,
+  pipe_flow: `linear-gradient(90deg, ${HEAT_CYAN}, ${HEAT_AMBER}, ${HEAT_RED}, ${HEAT_RED_DARK})`,
+  leakage_risk: `linear-gradient(90deg, ${HEAT_CYAN}, ${HEAT_AMBER}, ${HEAT_RED})`,
 }
 
 function tooltipRows(mode: HydraulicHeatMode, feature: GeoJsonFeature) {
@@ -271,7 +277,7 @@ export function HydraulicHeatMap({
                 pane="hydraulic-heat-hit"
                 radius={mode === "pipe_flow" ? 6 : Math.max(5, Math.min(8, radius / 3.5))}
                 pathOptions={{
-                  color: "#0f172a",
+                  color: HEAT_CYAN_DARK,
                   weight: 1.2,
                   fillColor: color,
                   fillOpacity: 0.92,

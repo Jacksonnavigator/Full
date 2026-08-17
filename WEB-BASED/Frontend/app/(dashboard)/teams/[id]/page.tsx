@@ -7,7 +7,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { EntityStatusBadge } from "@/components/shared/status-badge"
-import { ArrowLeft, Building2, Crown, Loader2, Mail, Phone, Plus, Users } from "lucide-react"
+import { ArrowLeft, Crown, Loader2, Mail, Phone, Plus, Users } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 import { toast } from "sonner"
 
 interface TeamMember {
@@ -177,7 +178,7 @@ export default function TeamMembersPage() {
         <Card className="border-slate-200/60 shadow-lg shadow-slate-200/20 md:col-span-2">
           <CardContent className="p-5">
             <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/20">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 shadow-lg shadow-cyan-500/20">
                 <Users className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -197,7 +198,7 @@ export default function TeamMembersPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {engineer.role === "team_leader" && (
-                        <span className="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-medium text-violet-700">Leader</span>
+                        <span className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700">Leader</span>
                       )}
                       <EntityStatusBadge status={engineer.status as any} />
                     </div>
@@ -221,7 +222,7 @@ export default function TeamMembersPage() {
             </div>
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-2 text-slate-600">
-                <Building2 className="h-4 w-4 text-cyan-600" />
+                <WaterUtilityIcon className="h-4 w-4 text-cyan-600" />
                 <span>{team.dma_name || "DMA not set"}</span>
               </div>
               {team.leader?.email && (

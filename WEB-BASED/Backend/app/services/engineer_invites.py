@@ -59,7 +59,7 @@ def _render_detail_cards(lines: list[str]) -> str:
         (
             '<tr>'
             '<td style="padding: 0 0 12px 0;">'
-            '<div style="border:1px solid #dbeafe;border-radius:14px;padding:12px 14px;background:#f8fbff;">'
+            '<div style="border:1px solid #e0f2fe;border-radius:14px;padding:12px 14px;background:#f0fbff;">'
             f'<p style="margin:0;font-size:13px;line-height:1.4;color:#0f172a;font-weight:600;">{escape(line)}</p>'
             "</div>"
             "</td>"
@@ -71,7 +71,7 @@ def _render_detail_cards(lines: list[str]) -> str:
 
 def _wrap_email_html(*, badge: str, title: str, intro: str, body_html: str, footer: str) -> str:
     return f"""
-    <div style="margin:0;padding:32px 16px;background:#e0f2fe;background-image:linear-gradient(135deg,#0f172a 0%,#0b4a6f 48%,#22d3ee 100%);font-family:Arial,sans-serif;">
+    <div style="margin:0;padding:32px 16px;background:#e0f2fe;background-image:linear-gradient(135deg,#0e7490 0%,#0e7490 48%,#0ea5e9 100%);font-family:Arial,sans-serif;">
       <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:640px;margin:0 auto;">
         <tr>
           <td style="padding-bottom:18px;text-align:center;">
@@ -82,7 +82,7 @@ def _wrap_email_html(*, badge: str, title: str, intro: str, body_html: str, foot
         </tr>
         <tr>
           <td style="border-radius:28px;overflow:hidden;background:#ffffff;box-shadow:0 22px 60px rgba(15,23,42,0.22);">
-            <div style="padding:36px 36px 28px;background:radial-gradient(circle at top right,#67e8f9 0%,#0ea5e9 35%,#082f49 100%);">
+            <div style="padding:36px 36px 28px;background:radial-gradient(circle at top right,#67e8f9 0%,#0ea5e9 35%,#0e7490 100%);">
               <p style="margin:0 0 10px;color:#cffafe;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Welcome to Majiscope</p>
               <h1 style="margin:0;color:#ffffff;font-size:30px;line-height:1.2;">{escape(title)}</h1>
               <p style="margin:14px 0 0;color:#e0f2fe;font-size:15px;line-height:1.7;">{intro}</p>
@@ -128,7 +128,7 @@ def send_account_invitation_email(
           </p>
         </div>
         <p style="margin:0 0 26px;">
-          <a href="{safe_invite_url}" style="display:inline-block;padding:15px 24px;border-radius:14px;background:linear-gradient(135deg,#14b8a6 0%,#0891b2 100%);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">
+          <a href="{safe_invite_url}" style="display:inline-block;padding:15px 24px;border-radius:14px;background:linear-gradient(135deg,#0ea5e9 0%,#0891b2 100%);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">
             Complete account setup
           </a>
         </p>
@@ -218,7 +218,7 @@ def send_password_reset_email(
           </p>
         </div>
         <p style="margin:0 0 26px;">
-          <a href="{safe_reset_url}" style="display:inline-block;padding:15px 24px;border-radius:14px;background:linear-gradient(135deg,#14b8a6 0%,#0891b2 100%);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">
+          <a href="{safe_reset_url}" style="display:inline-block;padding:15px 24px;border-radius:14px;background:linear-gradient(135deg,#0ea5e9 0%,#0891b2 100%);color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">
             Reset password
           </a>
         </p>

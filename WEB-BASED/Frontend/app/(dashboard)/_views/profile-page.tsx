@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ROLE_LABELS } from "@/lib/constants"
+import { ROLE_LABELS, getRoleBadgeClass } from "@/lib/constants"
 import { transformKeys } from "@/lib/transform-data"
 import { 
   Loader2, 
@@ -18,12 +18,12 @@ import {
   Phone, 
   User, 
   Shield, 
-  Building2,
   MapPin,
   CheckCircle,
   AlertCircle,
   Save
 } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 
 interface UserRecord {
   id: string
@@ -151,19 +151,6 @@ export default function ProfilePage() {
     .join("")
     .toUpperCase() || "?"
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "from-amber-500 to-orange-600"
-      case "utility_manager":
-        return "from-cyan-500 to-blue-600"
-      case "dma_manager":
-        return "from-emerald-500 to-teal-600"
-      default:
-        return "from-slate-500 to-slate-600"
-    }
-  }
-
   return (
     <div className="flex flex-col gap-8 pb-8">
       <PageHeader
@@ -182,7 +169,7 @@ export default function ProfilePage() {
             <CardContent className="p-8">
               <div className="flex flex-col items-center text-center sm:flex-row sm:text-left gap-6">
                 {/* Avatar */}
-                <div className={`h-20 w-20 rounded-2xl bg-gradient-to-br ${getRoleBadgeColor(currentUser?.role || "")} flex items-center justify-center text-white text-2xl font-bold shadow-lg shrink-0`}>
+                <div className={`h-20 w-20 rounded-2xl bg-gradient-to-br ${getRoleBadgeClass(currentUser?.role || "")} flex items-center justify-center text-white text-2xl font-bold shadow-lg shrink-0`}>
                   {initials}
                 </div>
 
@@ -330,7 +317,7 @@ export default function ProfilePage() {
                 {/* Role */}
                 <div className="flex flex-col gap-2">
                   <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Role</Label>
-                  <Badge className={`w-fit bg-gradient-to-r ${getRoleBadgeColor(currentUser?.role || "")} text-white`}>
+                  <Badge className={`w-fit bg-gradient-to-r ${getRoleBadgeClass(currentUser?.role || "")} text-white`}>
                     {ROLE_LABELS[currentUser?.role || "user"]}
                   </Badge>
                 </div>
@@ -360,7 +347,7 @@ export default function ProfilePage() {
                   {userRecord.utilityId && (
                     <div className="flex flex-col gap-2">
                       <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-cyan-600" />
+                        <WaterUtilityIcon className="h-4 w-4 text-cyan-600" />
                         Assigned Utility
                       </Label>
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-cyan-50 border border-cyan-200">
@@ -371,7 +358,7 @@ export default function ProfilePage() {
                   {userRecord.dmaId && (
                     <div className="flex flex-col gap-2">
                       <Label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-emerald-600" />
+                        <WaterUtilityIcon className="h-4 w-4 text-emerald-600" />
                         Assigned DMA
                       </Label>
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50 border border-emerald-200">

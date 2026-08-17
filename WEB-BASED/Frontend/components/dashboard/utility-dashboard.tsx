@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/auth-store"
 import { getUtilityInfrastructureAsset, useDataStore } from "@/store/data-store"
+import { PALETTE } from "@/lib/palette"
 import { StatCard } from "@/components/shared/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ReportStatusMap } from "@/components/maps/report-status-map"
@@ -17,8 +18,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   Flame,
-  Building2,
 } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 import {
   BarChart,
   Bar,
@@ -390,8 +391,8 @@ export function UtilityDashboard() {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="reports" name="Total" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="resolved" name="Resolved" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="reports" name="Total" fill={PALETTE.chart.chart1} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="resolved" name="Resolved" fill={PALETTE.chart.chart2} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -420,9 +421,9 @@ export function UtilityDashboard() {
                   type="monotone"
                   dataKey="compliance"
                   name="Resolved %"
-                  stroke="#3b82f6"
+                  stroke={PALETTE.chart.chart1}
                   strokeWidth={2}
-                  dot={{ fill: "#3b82f6", r: 4 }}
+                  dot={{ fill: PALETTE.chart.chart1, r: 4 }}
                   activeDot={{ r: 6 }}
                 />
               </LineChart>
@@ -435,7 +436,7 @@ export function UtilityDashboard() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Building2 className="h-4 w-4 text-primary" />
+            <WaterUtilityIcon className="h-4 w-4 text-primary" />
             Recent Reports
           </CardTitle>
         </CardHeader>

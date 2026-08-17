@@ -22,7 +22,6 @@ import type { EntityStatus, GeoJsonPolygon } from "@/lib/types"
 import { toast } from "sonner"
 import {
   ArrowLeft,
-  Building2,
   CheckCircle2,
   Loader2,
   MapPin,
@@ -33,6 +32,7 @@ import {
   Upload,
   XCircle,
 } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 
 interface DMAFormPageProps {
   mode: "create" | "edit"
@@ -449,7 +449,7 @@ export default function DMAFormPage({ mode, dmaId }: DMAFormPageProps) {
               <Label className="text-sm font-medium text-slate-700">Utility</Label>
               <div className="rounded-xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/50 to-teal-50/50 p-4">
                 <div className="flex items-center gap-2 text-sm">
-                  <Building2 className="h-4 w-4 text-emerald-600" />
+                  <WaterUtilityIcon className="h-4 w-4 text-emerald-600" />
                   <span className="font-semibold text-emerald-700">{utilityName}</span>
                 </div>
               </div>

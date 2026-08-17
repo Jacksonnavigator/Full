@@ -5,8 +5,16 @@ import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet"
 import type { Feature, FeatureCollection, GeoJsonObject, Geometry } from "geojson"
 import type { LatLngBoundsExpression } from "leaflet"
 import * as L from "leaflet"
-import { AlertTriangle, Database, Gauge, Network, Warehouse, Waves, type LucideIcon } from "lucide-react"
+import { AlertTriangle } from "lucide-react"
+import { InfrastructureIcon } from "@/components/icons/infrastructure-icon"
+import { getInfrastructureIconDef, infrastructureIconPathsHtml } from "@/lib/infrastructure-assets"
 import CONFIG from "@/lib/config"
+import { PALETTE } from "@/lib/palette"
+
+const INFRA_COLOR = PALETTE.map.infrastructure.color
+const INFRA_BORDER = PALETTE.semantic.neutral.bg
+const INFRA_MUTED = PALETTE.semantic.neutral.base
+const INFRA_TEXT = PALETTE.semantic.neutral.text
 
 const DEFAULT_CENTER: [number, number] = [-6.7924, 39.2083]
 
@@ -60,35 +68,16 @@ type GeometryCoordinates =
   | number[]
   | GeometryCoordinates[]
 
-const ASSET_SYMBOLS: Record<string, { color: string; svg: string }> = {
-  valves: {
-    color: "#e11d48",
-    svg: '<path d="M5 8.5h3.2l2.3 2.1 2.3-2.1H16v7h-3.2l-2.3-2.1-2.3 2.1H5v-7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10.5 6.2v3.6M8.5 6.2h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-  },
-  water_sources: {
-    color: "#0284c7",
-    svg: '<path d="M10.5 3.8c2.8 3.1 4.2 5.3 4.2 7.3a4.2 4.2 0 1 1-8.4 0c0-2 1.4-4.2 4.2-7.3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
-  },
-  storage_facilities: {
-    color: "#d97706",
-    svg: '<path d="M5.5 7.2c0-1.2 2.2-2.2 5-2.2s5 1 5 2.2v7.6c0 1.2-2.2 2.2-5 2.2s-5-1-5-2.2V7.2Z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M15.5 7.2c0 1.2-2.2 2.2-5 2.2s-5-1-5-2.2" fill="none" stroke="currentColor" stroke-width="1.7"/>',
-  },
-  bulk_meters: {
-    color: "#7c3aed",
-    svg: '<path d="M5 13a5.5 5.5 0 0 1 11 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M10.5 12.8 13 9.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.2 15.6h6.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-  },
-}
-
-const ASSET_META: Record<string, { label: string; icon: LucideIcon; color: string }> = {
-  pipe_network: { label: "pipe network", icon: Network, color: "#0f766e" },
-  valves: { label: "valves", icon: Gauge, color: "#e11d48" },
-  water_sources: { label: "water sources", icon: Waves, color: "#0284c7" },
-  storage_facilities: { label: "storage facilities", icon: Warehouse, color: "#d97706" },
-  bulk_meters: { label: "bulk meters", icon: Database, color: "#7c3aed" },
+const ASSET_META: Record<string, { label: string; color: string }> = {
+  pipe_network: { label: "pipe network", color: INFRA_COLOR },
+  valves: { label: "valves", color: INFRA_COLOR },
+  water_sources: { label: "water sources", color: INFRA_COLOR },
+  storage_facilities: { label: "storage facilities", color: INFRA_COLOR },
+  bulk_meters: { label: "bulk meters", color: INFRA_COLOR },
 }
 
 function getAssetColor(assetType?: string | null) {
-  return ASSET_SYMBOLS[assetType || ""]?.color || "#0f766e"
+  return PALETTE.map.infrastructure.color
 }
 
 function getAssetMeta(assetType?: string | null) {
@@ -96,13 +85,13 @@ function getAssetMeta(assetType?: string | null) {
 }
 
 function createAssetDivIcon(assetType?: string | null) {
-  const symbol = ASSET_SYMBOLS[assetType || ""] || ASSET_SYMBOLS.valves
+  const def = getInfrastructureIconDef(assetType)
   return L.divIcon({
     className: "majiscope-asset-div-icon",
     iconSize: [28, 28],
     iconAnchor: [14, 14],
     popupAnchor: [0, -14],
-    html: `<span style="--asset-color:${symbol.color}" class="majiscope-asset-marker"><svg viewBox="0 0 21 21" aria-hidden="true">${symbol.svg}</svg></span>`,
+    html: `<span style="--asset-color:${PALETTE.map.infrastructure.color}" class="majiscope-asset-marker"><svg viewBox="${def.viewBox}" aria-hidden="true">${infrastructureIconPathsHtml(assetType)}</svg></span>`,
   })
 }
 
@@ -134,18 +123,18 @@ function buildFeaturePopupHtml(feature: Feature, title: string) {
   ).filter(([, value]) => value !== null && value !== "")
 
   const rows = entries.slice(0, 18).map(([key, value]) => (
-    `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding:5px 0;">
-      <span style="font-size:11px;color:#64748b;">${escapeHtml(formatPropertyLabel(key))}</span>
-      <span style="font-size:11px;color:#0f172a;font-weight:700;text-align:right;max-width:220px;word-break:break-word;">${escapeHtml(String(value))}</span>
+    `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;border-bottom:1px solid ${INFRA_BORDER};padding:5px 0;">
+      <span style="font-size:11px;color:${INFRA_MUTED};">${escapeHtml(formatPropertyLabel(key))}</span>
+      <span style="font-size:11px;color:${INFRA_TEXT};font-weight:700;text-align:right;max-width:220px;word-break:break-word;">${escapeHtml(String(value))}</span>
     </div>`
   ))
 
   return `<div style="width:300px;max-height:260px;overflow:auto;font-family:Inter,ui-sans-serif,system-ui;">
-    <div style="position:sticky;top:0;background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:9px 10px;margin:-4px -4px 8px;">
-      <div style="font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0f172a;">${escapeHtml(title)}</div>
-      <div style="font-size:11px;color:#64748b;margin-top:2px;">Attributes from uploaded GIS file</div>
+    <div style="position:sticky;top:0;background:${INFRA_BORDER};border-bottom:1px solid ${INFRA_BORDER};padding:9px 10px;margin:-4px -4px 8px;">
+      <div style="font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:${INFRA_TEXT};">${escapeHtml(title)}</div>
+      <div style="font-size:11px;color:${INFRA_MUTED};margin-top:2px;">Attributes from uploaded GIS file</div>
     </div>
-    ${rows.length ? `<div style="display:grid;gap:2px;">${rows.join("")}</div>` : '<div style="font-size:12px;color:#64748b;">No attribute data was included for this feature.</div>'}
+    ${rows.length ? `<div style="display:grid;gap:2px;">${rows.join("")}</div>` : `<div style="font-size:12px;color:${INFRA_MUTED};">No attribute data was included for this feature.</div>`}
   </div>`
 }
 
@@ -287,7 +276,6 @@ export function UtilityPipeNetworkMapImpl({
   }, [utilityId, previewUrl])
 
   const assetMeta = useMemo(() => getAssetMeta(assetType), [assetType])
-  const HeaderIcon = assetMeta.icon
 
   const previewCoordinates = useMemo(() => collectGeoJsonCoordinates(geojson), [geojson])
 
@@ -332,7 +320,7 @@ export function UtilityPipeNetworkMapImpl({
     <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="border-b border-slate-100 bg-slate-50/80 px-4 py-3">
         <div className="flex items-center gap-2">
-          <HeaderIcon className="h-5 w-5 shrink-0" style={{ color: assetMeta.color }} />
+          <InfrastructureIcon assetType={assetType} className="h-5 w-5 shrink-0" style={{ color: assetMeta.color }} />
           <div>
             <p className="text-sm font-semibold text-slate-800">{title}</p>
             <p className="mt-0.5 text-xs text-slate-500">
@@ -389,7 +377,7 @@ export function UtilityPipeNetworkMapImpl({
               assetType === "pipe_network"
                 ? L.circleMarker(latlng, {
                     radius: 3,
-                    fillColor: "#0f766e",
+                    fillColor: INFRA_COLOR,
                     color: "#ffffff",
                     weight: 1.5,
                     fillOpacity: 0.9,

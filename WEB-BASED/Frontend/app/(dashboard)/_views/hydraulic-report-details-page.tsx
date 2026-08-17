@@ -5,6 +5,7 @@ import Link from "next/link"
 import { AlertTriangle, ArrowLeft, CalendarClock, ChevronDown, Droplets, FileChartColumn, Gauge, Network, ShieldAlert, UserRound } from "lucide-react"
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { apiClient } from "@/lib/api-client"
+import { PALETTE } from "@/lib/palette"
 import { usePageAccess } from "@/hooks/use-page-access"
 import { Button } from "@/components/ui/button"
 import { HydraulicHeatMap } from "@/components/maps/hydraulic-heat-map"
@@ -201,7 +202,7 @@ export default function HydraulicReportDetailsPage({ snapshotId }: { snapshotId:
         </Section>
       ) : null}
 
-      {balance.length ? <Section title="Hourly flow balance"><div className="mb-4 flex flex-wrap justify-end gap-2">{([['all', 'All'], ['inflow', 'Inflow'], ['demand', 'Demand'], ['nrw', 'NRW']] as Array<[FlowBalanceView, string]>).map(([view, viewLabel]) => <Button key={view} type="button" size="sm" variant={flowBalanceView === view ? "default" : "outline"} onClick={() => setFlowBalanceView(view)} aria-pressed={flowBalanceView === view}>{viewLabel}</Button>)}</div><div className="h-80"><ResponsiveContainer width="100%" height="100%"><LineChart data={balance}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="hour" /><YAxis /><Tooltip /><Legend />{flowBalanceView === "all" || flowBalanceView === "inflow" ? <Line type="monotone" dataKey="inflow_m3h" name="Inflow m³/h" stroke="#0284c7" strokeWidth={2} dot={false} /> : null}{flowBalanceView === "all" || flowBalanceView === "demand" ? <Line type="monotone" dataKey="demand_m3h" name="Demand m³/h" stroke="#059669" strokeWidth={2} dot={false} /> : null}{flowBalanceView === "all" || flowBalanceView === "nrw" ? <Line type="monotone" dataKey="nrw_m3h" name="NRW m³/h" stroke="#dc2626" strokeWidth={2} dot={false} /> : null}</LineChart></ResponsiveContainer></div></Section> : null}
+      {balance.length ? <Section title="Hourly flow balance"><div className="mb-4 flex flex-wrap justify-end gap-2">{([['all', 'All'], ['inflow', 'Inflow'], ['demand', 'Demand'], ['nrw', 'NRW']] as Array<[FlowBalanceView, string]>).map(([view, viewLabel]) => <Button key={view} type="button" size="sm" variant={flowBalanceView === view ? "default" : "outline"} onClick={() => setFlowBalanceView(view)} aria-pressed={flowBalanceView === view}>{viewLabel}</Button>)}</div><div className="h-80"><ResponsiveContainer width="100%" height="100%"><LineChart data={balance}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="hour" /><YAxis /><Tooltip /><Legend />{flowBalanceView === "all" || flowBalanceView === "inflow" ? <Line type="monotone" dataKey="inflow_m3h" name="Inflow m³/h" stroke={PALETTE.chart.chart1} strokeWidth={2} dot={false} /> : null}{flowBalanceView === "all" || flowBalanceView === "demand" ? <Line type="monotone" dataKey="demand_m3h" name="Demand m³/h" stroke={PALETTE.chart.chart2} strokeWidth={2} dot={false} /> : null}{flowBalanceView === "all" || flowBalanceView === "nrw" ? <Line type="monotone" dataKey="nrw_m3h" name="NRW m³/h" stroke={PALETTE.chart.chart4} strokeWidth={2} dot={false} /> : null}</LineChart></ResponsiveContainer></div></Section> : null}
 
       {selectedHeatMode ? (
         <Section title="Hydraulic heat map">

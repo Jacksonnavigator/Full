@@ -1,6 +1,7 @@
 "use client"
 
 import { useDataStore } from "@/store/data-store"
+import { PALETTE } from "@/lib/palette"
 import { StatCard } from "@/components/shared/stat-card"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { EntityStatusBadge, ReportStatusBadge } from "@/components/shared/status-badge"
@@ -29,7 +30,7 @@ import {
   Legend,
 } from "recharts"
 
-const PIE_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#06b6d4", "#8b5cf6", "#6b7280"]
+const PIE_COLORS = PALETTE.chartSeries
 
 export function AdminDashboard() {
   const { utilities, dmas, reports, engineers } = useDataStore()
@@ -71,7 +72,7 @@ export function AdminDashboard() {
     {
       label: "Reports without utility",
       value: reportsWithoutUtility,
-      tone: "text-fuchsia-700 bg-fuchsia-50",
+      tone: "text-sky-700 bg-sky-50",
       icon: Globe,
     },
     {
@@ -211,8 +212,8 @@ export function AdminDashboard() {
                     fontSize: "12px",
                   }}
                 />
-                <Bar dataKey="reports" name="Total Reports" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="resolved" name="Resolved" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="reports" name="Total Reports" fill={PALETTE.chart.chart1} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="resolved" name="Resolved" fill={PALETTE.chart.chart2} radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

@@ -14,7 +14,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Building2, CheckCircle2, FileText, Loader2, MoreHorizontal, Pencil, Plus, Search, Settings, Trash2, UserCog, Users } from "lucide-react"
+import { CheckCircle2, FileText, Loader2, MoreHorizontal, Pencil, Plus, Search, Settings, Trash2, UserCog, Users } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import type { EntityStatus } from "@/lib/types"
@@ -233,7 +234,7 @@ export default function TeamsPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 shadow-lg shadow-cyan-500/20">
                 <UserCog className="h-5 w-5 text-white" />
               </div>
               Team Management
@@ -242,14 +243,14 @@ export default function TeamsPage() {
               Teams now sit directly under {dmaName || "your DMA"}.
             </p>
           </div>
-          <Button onClick={openCreateDialog} className="h-11 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700">
+          <Button onClick={openCreateDialog} className="h-11 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:from-cyan-600 hover:to-sky-700">
             <Plus className="mr-2 h-4 w-4" />
             Create Team
           </Button>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <StatCard icon={<UserCog className="h-6 w-6 text-white" />} label="Total Teams" value={totalTeams} gradient="from-purple-500 to-indigo-600" />
+          <StatCard icon={<UserCog className="h-6 w-6 text-white" />} label="Total Teams" value={totalTeams} gradient="from-cyan-500 to-sky-600" />
           <StatCard icon={<CheckCircle2 className="h-6 w-6 text-white" />} label="Active Teams" value={activeTeams} gradient="from-green-500 to-emerald-600" />
           <StatCard icon={<Users className="h-6 w-6 text-white" />} label="Total Members" value={totalMembers} gradient="from-blue-500 to-cyan-600" />
           <StatCard icon={<FileText className="h-6 w-6 text-white" />} label="Active Reports" value={totalReports} gradient="from-amber-500 to-orange-600" />
@@ -291,12 +292,12 @@ export default function TeamsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredTeams.map((team) => (
-            <Card key={team.id} className={cn("border-slate-200/60 shadow-lg shadow-slate-200/20 transition-all duration-300 hover:-translate-y-1", team.status === "active" ? "hover:shadow-xl hover:shadow-purple-500/10" : "bg-red-50/20 hover:shadow-xl hover:shadow-red-500/10")}>
-              <div className={cn("h-1", team.status === "active" ? "bg-gradient-to-r from-purple-400 via-violet-500 to-purple-400" : "bg-gradient-to-r from-red-400 via-rose-500 to-red-400")} />
+            <Card key={team.id} className={cn("border-slate-200/60 shadow-lg shadow-slate-200/20 transition-all duration-300 hover:-translate-y-1", team.status === "active" ? "hover:shadow-xl hover:shadow-cyan-500/10" : "bg-red-50/20 hover:shadow-xl hover:shadow-red-500/10")}>
+              <div className={cn("h-1", team.status === "active" ? "bg-gradient-to-r from-cyan-400 via-sky-500 to-cyan-400" : "bg-gradient-to-r from-red-400 via-rose-500 to-red-400")} />
               <CardContent className="p-5">
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/20">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 shadow-lg shadow-cyan-500/20">
                       <UserCog className="h-5 w-5 text-white" />
                     </div>
                     <div>
@@ -331,7 +332,7 @@ export default function TeamsPage() {
 
                 <div className="space-y-2 border-t border-slate-100 pt-4 text-sm text-slate-600">
                   <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-cyan-500" />
+                    <WaterUtilityIcon className="h-4 w-4 text-cyan-500" />
                     <span className="font-medium">{team.dmaName}</span>
                   </div>
                   <div className="flex items-center gap-4">
@@ -340,7 +341,7 @@ export default function TeamsPage() {
                       <span className="font-medium">{team.memberCount}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <FileText className="h-4 w-4 text-indigo-500" />
+                      <FileText className="h-4 w-4 text-cyan-500" />
                       <span className="font-medium">{team.activeReports}</span>
                     </div>
                   </div>
@@ -366,12 +367,12 @@ export default function TeamsPage() {
             <DialogTitle>{editingTeam ? "Edit Team" : "Create Team"}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 overflow-y-auto py-4 pr-1">
-            <div className="rounded-xl border border-purple-200/80 bg-gradient-to-r from-purple-50/50 to-indigo-50/50 p-4">
+            <div className="rounded-xl border border-cyan-200/80 bg-gradient-to-r from-cyan-50/50 to-sky-50/50 p-4">
               <div className="flex items-center gap-2 text-sm">
-                <Building2 className="h-4 w-4 text-purple-600" />
-                <span className="font-semibold text-purple-700">{dmaName || "Your DMA"}</span>
+                <WaterUtilityIcon className="h-4 w-4 text-cyan-600" />
+                <span className="font-semibold text-cyan-700">{dmaName || "Your DMA"}</span>
               </div>
-              <p className="mt-2 text-xs text-purple-500/80">Teams are now created directly under this DMA.</p>
+              <p className="mt-2 text-xs text-cyan-500/80">Teams are now created directly under this DMA.</p>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="team-name">Team Name</Label>
@@ -396,7 +397,7 @@ export default function TeamsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmit} disabled={saving} className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700">
+            <Button onClick={handleSubmit} disabled={saving} className="bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:from-cyan-600 hover:to-sky-700">
               {saving ? "Saving..." : editingTeam ? "Save Changes" : "Create Team"}
             </Button>
           </DialogFooter>

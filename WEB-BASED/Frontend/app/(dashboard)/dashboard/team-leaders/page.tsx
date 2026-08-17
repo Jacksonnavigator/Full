@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Building2, CheckCircle2, Crown, Eye, Loader2, Pencil, Search, Users, XCircle } from "lucide-react"
+import { CheckCircle2, Crown, Eye, Loader2, Pencil, Search, Users, XCircle } from "lucide-react"
+import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 import { toast } from "sonner"
 
 interface Team {
@@ -201,7 +202,7 @@ export default function TeamLeadersPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           <StatCard icon={<Users className="h-6 w-6 text-white" />} label="Total Teams" value={teams.length} gradient="from-amber-500 to-orange-600" />
           <StatCard icon={<CheckCircle2 className="h-6 w-6 text-white" />} label="Active Teams" value={activeTeams} gradient="from-green-500 to-emerald-600" />
-          <StatCard icon={<Crown className="h-6 w-6 text-white" />} label="With Leaders" value={teamsWithLeaders} gradient="from-violet-500 to-purple-600" />
+          <StatCard icon={<Crown className="h-6 w-6 text-white" />} label="With Leaders" value={teamsWithLeaders} gradient="from-sky-500 to-cyan-600" />
           <StatCard icon={<XCircle className="h-6 w-6 text-white" />} label="Without Leaders" value={teamsWithoutLeaders} gradient="from-red-500 to-rose-600" />
         </div>
       </div>
@@ -296,7 +297,7 @@ export default function TeamLeadersPage() {
                       </TableCell>
                       <TableCell className="px-6 py-4 break-words">
                         <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-cyan-600" />
+                          <WaterUtilityIcon className="h-4 w-4 text-cyan-600" />
                           <span>{team.dmaName}</span>
                         </div>
                       </TableCell>

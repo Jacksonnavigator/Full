@@ -1,6 +1,7 @@
 import type { Report } from "@/store/data-store"
 import { LEAKAGE_TYPE_CONFIG } from "@/lib/constants"
 import type { LeakageType, ReportType } from "@/lib/types"
+import { PALETTE } from "@/lib/palette"
 
 const LEAKAGE_TYPE_KEYS = Object.keys(LEAKAGE_TYPE_CONFIG) as LeakageType[]
 
@@ -44,23 +45,23 @@ export function getSimpleMapStatusMeta(status: string) {
   if (status === "pending_approval") {
     return {
       label: "Awaiting approval",
-      fill: "#a855f7",
-      stroke: "#6d28d9",
+      fill: PALETTE.map.status.pendingApproval.fill,
+      stroke: PALETTE.map.status.pendingApproval.stroke,
     }
   }
 
   if (isResolvedReport(status)) {
     return {
       label: status === "closed" ? "Closed" : "Repaired",
-      fill: "#22c55e",
-      stroke: "#15803d",
+      fill: PALETTE.map.status.resolved.fill,
+      stroke: PALETTE.map.status.resolved.stroke,
     }
   }
 
   return {
     label: "Open",
-    fill: "#ef4444",
-    stroke: "#991b1b",
+    fill: PALETTE.map.status.open.fill,
+    stroke: PALETTE.map.status.open.stroke,
   }
 }
 
@@ -111,8 +112,8 @@ export function computeReportTypeDistribution(reports: Report[]): ReportTypeDist
     name: string
     fill: string
   }> = [
-    { type: "leakage", name: "Leakage", fill: "#0891b2" },
-    { type: "non_leakage", name: "Non-leakage", fill: "#4f46e5" },
+    { type: "leakage", name: "Leakage", fill: PALETTE.chart.chart1 },
+    { type: "non_leakage", name: "Non-leakage", fill: PALETTE.semantic.neutral.base },
   ]
   const counts = new Map<ReportType, number>(reportTypes.map(({ type }) => [type, 0]))
 
