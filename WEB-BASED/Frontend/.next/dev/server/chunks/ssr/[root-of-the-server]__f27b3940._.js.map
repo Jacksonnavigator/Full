@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 22, "column": 0}, "map": {"version":3,"sources":["file:///home/thobbs/Documents/PRESENT/Frontend/app/%28dashboard%29/dashboard/water-level/%5BtankId%5D/page.tsx"],"sourcesContent":["import { redirect } from \"next/navigation\"\n\nexport default async function LegacyWaterLevelTankRedirectPage({\n  params,\n}: {\n  params: Promise<{ tankId: string }>\n}) {\n  const { tankId } = await params\n  redirect(`/dashboard/sensor-data/${tankId}`)\n}\n"],"names":[],"mappings":";;;;AAAA;AAAA;;AAEe,eAAe,iCAAiC,EAC7D,MAAM,EAGP;IACC,MAAM,EAAE,MAAM,EAAE,GAAG,MAAM;IACzB,IAAA,iMAAQ,EAAC,CAAC,uBAAuB,EAAE,QAAQ;AAC7C"}}]
+}

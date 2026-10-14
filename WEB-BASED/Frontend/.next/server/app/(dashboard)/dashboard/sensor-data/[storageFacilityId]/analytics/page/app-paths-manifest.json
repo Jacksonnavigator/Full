@@ -1,0 +1,3 @@
+{
+  "/(dashboard)/dashboard/sensor-data/[storageFacilityId]/analytics/page": "app/(dashboard)/dashboard/sensor-data/[storageFacilityId]/analytics/page.js"
+}

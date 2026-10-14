@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 22, "column": 0}, "map": {"version":3,"sources":["file:///home/thobbs/Documents/PRESENT/Frontend/app/%28dashboard%29/dashboard/utilities/%5ButilityId%5D/page.tsx"],"sourcesContent":["import UtilityDetailPage from \"../../../../_views/utility-detail-page\"\n\nexport default async function UtilityDetailRoute({\n  params,\n}: {\n  params: Promise<{ utilityId: string }>\n}) {\n  const { utilityId } = await params\n\n  return <UtilityDetailPage utilityId={utilityId} />\n}\n"],"names":[],"mappings":";;;;;;;;;;;;AAEe,eAAe,mBAAmB,EAC/C,MAAM,EAGP;IACC,MAAM,EAAE,SAAS,EAAE,GAAG,MAAM;IAE5B,qBAAO,8OAAC;QAAkB,WAAW;;;;;;AACvC"}}]
+}

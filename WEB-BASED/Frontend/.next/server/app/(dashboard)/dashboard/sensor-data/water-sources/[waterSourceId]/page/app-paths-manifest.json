@@ -1,0 +1,3 @@
+{
+  "/(dashboard)/dashboard/sensor-data/water-sources/[waterSourceId]/page": "app/(dashboard)/dashboard/sensor-data/water-sources/[waterSourceId]/page.js"
+}

@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 22, "column": 0}, "map": {"version":3,"sources":["file:///home/thobbs/Documents/PRESENT/Frontend/app/%28dashboard%29/dashboard/water-level/page.tsx"],"sourcesContent":["import { redirect } from \"next/navigation\"\n\nexport default function LegacyWaterLevelRedirectPage() {\n  redirect(\"/dashboard/sensor-data\")\n}\n"],"names":[],"mappings":";;;;AAAA;AAAA;;AAEe,SAAS;IACtB,IAAA,iMAAQ,EAAC;AACX"}}]
+}
