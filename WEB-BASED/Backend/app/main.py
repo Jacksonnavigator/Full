@@ -31,6 +31,7 @@ from app.api import (
     hydraulic_model_router,
     dashboard_router,
     sensors_router,
+    storage_facility_sensors_router,
     storage_facilities_router,
     water_sources_router,
     water_source_sensors_router,
@@ -58,12 +59,18 @@ async def lifespan(app: FastAPI):
     print(f"   CORS Origin Regex: {settings.cors_origin_regex}")
     print(f"   Startup Migrations Enabled: {settings.run_startup_migrations}")
     print(f"   Heavy Startup Migrations Enabled: {settings.run_startup_migrations}")
+    startup_all_database_schema_sync_enabled = settings.run_startup_all_database_schema_sync
     startup_schema_sync_enabled = (
         settings.run_startup_schema_sync
         and not engine.dialect.name.startswith("postgresql")
     )
     print(f"   Startup Schema Sync Enabled: {startup_schema_sync_enabled}")
-    if settings.run_startup_schema_sync and not startup_schema_sync_enabled:
+    print(f"   Startup All-Database Schema Sync Enabled: {startup_all_database_schema_sync_enabled}")
+    if (
+        settings.run_startup_schema_sync
+        and not startup_schema_sync_enabled
+        and not startup_all_database_schema_sync_enabled
+    ):
         print("   Startup Schema Sync Skipped: disabled for PostgreSQL web startup")
     print(f"   Legacy DUWASA Startup Import: {settings.legacy_duwasa_import_on_startup}")
     print("=" * 60)
@@ -74,7 +81,12 @@ async def lifespan(app: FastAPI):
     if settings.run_startup_migrations:
         run_safe_startup_migrations(engine)
         run_heavy_startup_migrations(engine)
-    if startup_schema_sync_enabled:
+    if startup_all_database_schema_sync_enabled:
+        from app.services.startup_schema_sync import sync_startup_database_schemas
+
+        print("   Synchronously ensuring ORM schemas exist in both databases")
+        sync_startup_database_schemas(engine, sensor_engine)
+    if startup_schema_sync_enabled and not startup_all_database_schema_sync_enabled:
         Base.metadata.create_all(bind=engine)
 
     media_schema_ready = asyncio.Event()
@@ -147,7 +159,7 @@ async def lifespan(app: FastAPI):
                 reconcile_all_water_sources,
             )
 
-            if settings.run_startup_schema_sync:
+            if settings.run_startup_schema_sync and not startup_all_database_schema_sync_enabled:
                 SensorBase.metadata.create_all(bind=sensor_engine)
             with SessionLocal() as boot_db:
                 if settings.run_startup_migrations or startup_schema_sync_enabled:
@@ -285,6 +297,7 @@ app.include_router(uploads_router)
 app.include_router(hydraulic_model_router)
 app.include_router(dashboard_router)
 app.include_router(sensors_router)
+app.include_router(storage_facility_sensors_router)
 app.include_router(storage_facilities_router)
 app.include_router(water_sources_router)
 app.include_router(water_source_sensors_router)
