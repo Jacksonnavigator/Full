@@ -63,6 +63,21 @@ from app.schemas.business import (
     PushTokenResponse,
 )
 
+from app.schemas.sensors import (
+    StorageFacilityCreate,
+    StorageFacilityPatch,
+    StorageFacilityRead,
+    StorageFacilityListResponse,
+    StorageFacilitySyncSummary,
+    SensorRegisterRequest,
+    SensorRegisterResponse,
+    SensorUpdateRequest,
+    SensorIngestRequest,
+    SensorIngestResponse,
+    SensorRead,
+    SensorListResponse,
+)
+
 __all__ = [
     # User schemas
     "UserBase",
@@ -128,4 +143,18 @@ __all__ = [
     "NotificationBulkCreate",
     "PushTokenRegisterRequest",
     "PushTokenResponse",
+    # StorageFacility schemas
+    "StorageFacilityCreate",
+    "StorageFacilityPatch",
+    "StorageFacilityRead",
+    "StorageFacilityListResponse",
+    "StorageFacilitySyncSummary",
+    # Sensor schemas
+    "SensorRegisterRequest",
+    "SensorRegisterResponse",
+    "SensorUpdateRequest",
+    "SensorIngestRequest",
+    "SensorIngestResponse",
+    "SensorRead",
+    "SensorListResponse",
 ]

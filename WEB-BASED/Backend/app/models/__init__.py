@@ -34,7 +34,15 @@ from app.models.business import (
 from app.models.uploads import (
     ImageUpload,
     ImageTypeEnum,
+    MediaStorageDeletion,
 )
+from app.models.sensors import (
+    StorageFacility,
+    StorageFacilityStatusEnum,
+    WaterSource,
+    WaterSourceStatusEnum,
+)
+from app.models.sensor_mirror_outbox import SensorMirrorOutbox, WaterSourceSensorMirrorOutbox
 
 __all__ = [
     "Base",
@@ -58,6 +66,12 @@ __all__ = [
     "PushDeviceToken",
     # Upload models
     "ImageUpload",
+    "MediaStorageDeletion",
+    # Sensor-era models (storage_facility remains; sensors/readings live in the sensor platform DB)
+    "StorageFacility",
+    "WaterSource",
+    "SensorMirrorOutbox",
+    "WaterSourceSensorMirrorOutbox",
     # Enums
     "EntityStatusEnum",
     "UtilityServiceAreaCategoryEnum",
@@ -67,4 +81,6 @@ __all__ = [
     "LeakageTypeEnum",
     "NotificationTypeEnum",
     "ImageTypeEnum",
+    "StorageFacilityStatusEnum",
+    "WaterSourceStatusEnum",
 ]

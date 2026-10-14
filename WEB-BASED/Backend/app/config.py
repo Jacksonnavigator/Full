@@ -5,6 +5,7 @@ Centralized environment and application settings
 
 import os
 from typing import Any, List
+from urllib.parse import urlsplit
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -33,6 +34,31 @@ class Settings(BaseSettings):
         default="postgresql+psycopg://user:password@localhost:5432/majiscope",
         alias="DATABASE_URL",
     )
+    # Separate store for sensor telemetry (readings) and the sensor registry.
+    # Treated as a remote host; may point at the same Postgres server.
+    sensor_database_url: str = Field(
+        default="postgresql+psycopg://user:password@localhost:5432/sensor_platform",
+        alias="SENSOR_DATABASE_URL",
+    )
+
+    # ===== Report media object storage =====
+    media_storage_backend: str = Field(default="local", alias="MEDIA_STORAGE_BACKEND")
+    media_storage_path: str = Field(default=".media_objects", alias="MEDIA_STORAGE_PATH")
+    media_storage_api_url: str = Field(default="", alias="MEDIA_STORAGE_API_URL")
+    media_storage_api_key: str = Field(default="", alias="MEDIA_STORAGE_API_KEY")
+    # Legacy S3 source settings remain available for the one-time Garage migration.
+    media_s3_bucket: str = Field(default="", alias="MEDIA_S3_BUCKET")
+    media_s3_region: str = Field(default="", alias="MEDIA_S3_REGION")
+    media_s3_endpoint_url: str = Field(default="", alias="MEDIA_S3_ENDPOINT_URL")
+    media_s3_access_key_id: str = Field(default="", alias="MEDIA_S3_ACCESS_KEY_ID")
+    media_s3_secret_access_key: str = Field(default="", alias="MEDIA_S3_SECRET_ACCESS_KEY")
+    media_s3_session_token: str = Field(default="", alias="MEDIA_S3_SESSION_TOKEN")
+    media_s3_addressing_style: str = Field(default="auto", alias="MEDIA_S3_ADDRESSING_STYLE")
+    media_s3_sse: str = Field(default="", alias="MEDIA_S3_SSE")
+    media_s3_kms_key_id: str = Field(default="", alias="MEDIA_S3_KMS_KEY_ID")
+    # One-time-compatible, idempotent migration of legacy report media on boot.
+    # Keep opt-in so large or remote deployments can run the migration as a job.
+    media_backfill_on_startup: bool = Field(default=False, alias="MEDIA_BACKFILL_ON_STARTUP")
 
     # ===== Security Settings =====
     secret_key: str = Field(
@@ -93,6 +119,11 @@ class Settings(BaseSettings):
     hydraulic_model_launch_secret: str = Field(default="", alias="HYDRAULIC_MODEL_LAUNCH_SECRET")
     hydraulic_model_callback_secret: str = Field(default="", alias="HYDRAULIC_MODEL_CALLBACK_SECRET")
     hydraulic_model_temp_ttl_hours: int = Field(default=24, alias="HYDRAULIC_MODEL_TEMP_TTL_HOURS")
+
+    # ===== Sensor Ingest =====
+    # Shared secret accepted via the X-Ingest-Key header for device ingest.
+    # Empty (default) disables key-based ingest; authenticated users still work.
+    sensor_ingest_key: str = Field(default="", alias="SENSOR_INGEST_KEY")
     
     # ===== Server Settings =====
     host: str = Field(default="0.0.0.0", alias="HOST")
@@ -101,12 +132,16 @@ class Settings(BaseSettings):
     # ===== Runtime database startup behavior =====
     run_startup_migrations: bool = Field(default=True, alias="RUN_STARTUP_MIGRATIONS")
     run_startup_schema_sync: bool = Field(default=True, alias="RUN_STARTUP_SCHEMA_SYNC")
+    run_sensor_platform_startup_reconcile: bool = Field(default=True, alias="RUN_SENSOR_PLATFORM_STARTUP_RECONCILE")
 
     # ===== Optional startup import =====
     legacy_duwasa_import_on_startup: bool = Field(default=False, alias="LEGACY_DUWASA_IMPORT_ON_STARTUP")
     legacy_duwasa_import_csv_path: str = Field(default="", alias="LEGACY_DUWASA_IMPORT_CSV_PATH")
     legacy_duwasa_import_strict: bool = Field(default=False, alias="LEGACY_DUWASA_IMPORT_STRICT")
     legacy_duwasa_import_limit: int | None = Field(default=None, alias="LEGACY_DUWASA_IMPORT_LIMIT")
+
+    # ===== Optional GPKG storage_facility sync on startup =====
+    run_storage_facility_gpkg_sync_on_startup: bool = Field(default=True, alias="RUN_STORAGE_FACILITY_GPKG_SYNC_ON_STARTUP")
 
     @field_validator("debug", mode="before")
     @classmethod
@@ -125,8 +160,11 @@ class Settings(BaseSettings):
         "smtp_use_tls",
         "run_startup_migrations",
         "run_startup_schema_sync",
+        "run_sensor_platform_startup_reconcile",
+        "media_backfill_on_startup",
         "legacy_duwasa_import_on_startup",
         "legacy_duwasa_import_strict",
+        "run_storage_facility_gpkg_sync_on_startup",
         mode="before",
     )
     @classmethod
@@ -140,6 +178,10 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def normalize_runtime_fields(self) -> "Settings":
         self.environment = self.environment.strip().lower()
+        self.media_storage_backend = self.media_storage_backend.strip().lower()
+        self.media_storage_api_url = self.media_storage_api_url.strip().rstrip("/")
+        self.media_storage_api_key = self.media_storage_api_key.strip()
+        self.media_s3_region = self.media_s3_region.strip()
         self.public_backend_url = self.public_backend_url.rstrip("/")
         self.hydraulic_model_base_url = self.hydraulic_model_base_url.rstrip("/")
         if self.environment == "production" and "frontend_url" not in self.__pydantic_fields_set__:
@@ -147,6 +189,25 @@ class Settings(BaseSettings):
         if self.environment == "production":
             self.run_startup_migrations = False
             self.run_startup_schema_sync = False
+            if self.media_storage_backend != "http":
+                raise ValueError("Production requires MEDIA_STORAGE_BACKEND=http")
+        if self.media_storage_backend not in {"local", "http", "s3"}:
+            raise ValueError("MEDIA_STORAGE_BACKEND must be 'local', 'http', or 's3'")
+        if self.media_storage_backend == "http":
+            if not self.media_storage_api_url.strip():
+                raise ValueError("MEDIA_STORAGE_API_URL is required when MEDIA_STORAGE_BACKEND=http")
+            if not self.media_storage_api_key.strip():
+                raise ValueError("MEDIA_STORAGE_API_KEY is required when MEDIA_STORAGE_BACKEND=http")
+            storage_url = urlsplit(self.media_storage_api_url)
+            if (
+                storage_url.scheme not in {"http", "https"}
+                or not storage_url.hostname
+                or storage_url.query
+                or storage_url.fragment
+            ):
+                raise ValueError("MEDIA_STORAGE_API_URL must be a base HTTP(S) URL")
+        if self.media_storage_backend == "s3" and not self.media_s3_bucket.strip():
+            raise ValueError("MEDIA_S3_BUCKET is required when MEDIA_STORAGE_BACKEND=s3")
         if "debug" not in self.__pydantic_fields_set__:
             self.debug = self.environment == "development"
         if self.environment != "production" and "run_startup_migrations" not in self.__pydantic_fields_set__:

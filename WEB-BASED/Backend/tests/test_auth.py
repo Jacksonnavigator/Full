@@ -41,7 +41,7 @@ class TestAuthentication:
         
         assert response.status_code == 401
         data = response.json()
-        assert data["success"] is False
+        assert data["detail"] == "Invalid email or password"
     
     def test_login_invalid_password(self, client: TestClient, test_user: User):
         """Test login with invalid password"""
@@ -55,7 +55,7 @@ class TestAuthentication:
         
         assert response.status_code == 401
         data = response.json()
-        assert data["success"] is False
+        assert data["detail"] == "Invalid email or password"
     
     def test_refresh_token(self, client: TestClient, test_user: User):
         """Test token refresh"""

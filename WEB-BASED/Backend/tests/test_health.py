@@ -12,7 +12,7 @@ class TestHealthCheck:
     
     def test_health_check(self, client: TestClient):
         """Test health check endpoint"""
-        response = client.get("/health")
+        response = client.get("/api/health")
         
         assert response.status_code == 200
         data = response.json()

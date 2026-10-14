@@ -32,6 +32,8 @@ class TestUtilityCRUD:
             json={
                 "name": "Water Company A",
                 "description": "Test water utility",
+                "center_latitude": -3.37,
+                "center_longitude": 36.68,
             },
         )
         
@@ -47,7 +49,7 @@ class TestUtilityCRUD:
         create_response = client.post(
             "/api/utilities",
             headers=auth_headers,
-            json={"name": "Test Utility", "description": "Test"},
+            json={"name": "Test Utility", "description": "Test", "center_latitude": -3.37, "center_longitude": 36.68},
         )
         utility_id = create_response.json()["id"]
         
@@ -67,7 +69,7 @@ class TestUtilityCRUD:
         create_response = client.post(
             "/api/utilities",
             headers=auth_headers,
-            json={"name": "Original Name", "description": "Test"},
+            json={"name": "Original Name", "description": "Test", "center_latitude": -3.37, "center_longitude": 36.68},
         )
         utility_id = create_response.json()["id"]
         
@@ -88,7 +90,7 @@ class TestUtilityCRUD:
         create_response = client.post(
             "/api/utilities",
             headers=auth_headers,
-            json={"name": "To Delete", "description": "Test"},
+            json={"name": "To Delete", "description": "Test", "center_latitude": -3.37, "center_longitude": 36.68},
         )
         utility_id = create_response.json()["id"]
         

@@ -15,6 +15,7 @@ import tempfile
 from pathlib import Path
 from typing import Optional, Tuple
 
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from shapely import wkb
 from shapely.geometry import MultiPoint, Point, shape
@@ -22,6 +23,7 @@ from shapely.geometry.base import BaseGeometry
 from shapely.errors import GEOSException
 
 from app.models import DMA, Utility, UtilityInfrastructureLayer, EntityStatusEnum
+from app.security.dependencies import CurrentUser
 
 TANZANIA_LATITUDE_RANGE = (-12.5, -0.5)
 TANZANIA_LONGITUDE_RANGE = (29.0, 40.8)
@@ -535,3 +537,27 @@ def find_nearest_dma(latitude: float, longitude: float, db: Session) -> Tuple[Op
     """
     utility, _utility_distance = find_nearest_utility(latitude, longitude, db)
     return find_nearest_dma_within_utility(latitude, longitude, utility, db)
+
+
+def resolve_current_user_utility_id(current_user: CurrentUser, db: Session) -> Optional[str]:
+    if current_user.user_type == "utility_manager":
+        return current_user.utility_id
+
+    if current_user.user_type in {"dma_manager", "engineer"} and current_user.dma_id:
+        dma = db.query(DMA).filter(DMA.id == current_user.dma_id).first()
+        return dma.utility_id if dma else None
+
+    return None
+
+
+def ensure_utility_access(utility: Utility, current_user: CurrentUser, db: Session) -> None:
+    if current_user.user_type == "user":
+        return
+
+    if resolve_current_user_utility_id(current_user, db) == utility.id:
+        return
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You do not have access to this utility",
+    )

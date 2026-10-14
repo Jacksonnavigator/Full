@@ -1,9 +1,9 @@
 """
 Runtime database migrations for local/dev deployments.
 
-This project does not currently use a full Alembic workflow in active
-development, so startup migrations keep the local SQLite/Postgres database in
-sync with the live backend models.
+These compatibility migrations support legacy development databases. Production
+schema changes are managed by reviewed Alembic revisions from a controlled
+deployment job; application replicas must not run DDL concurrently.
 """
 
 from __future__ import annotations
@@ -80,9 +80,59 @@ def run_safe_startup_migrations(engine: Engine) -> None:
     _migrate_utility_service_area_table(engine)
     _migrate_dma_boundary_columns(engine)
     _migrate_utility_infrastructure_layer_table(engine)
+    _migrate_sensor_tables(engine)
+    _migrate_storage_facility_key_field(engine)
+    _migrate_water_source_schema(engine)
     _migrate_hydraulic_model_tables(engine)
     _migrate_hydraulic_snapshot_report_columns(engine)
+    ensure_media_object_storage_schema(engine)
     _drop_legacy_utility_pipe_network_table(engine)
+
+
+def ensure_media_object_storage_schema(engine: Engine) -> None:
+    """Ensure media object reference columns exist before any backfill runs."""
+    inspector = inspect(engine)
+    if "image_upload" not in inspector.get_table_names():
+        return
+
+    from alembic.migration import MigrationContext
+    from alembic.operations import Operations
+    import sqlalchemy as sa
+
+    columns = {column["name"]: column for column in inspector.get_columns("image_upload")}
+    unique_names = {item["name"] for item in inspector.get_unique_constraints("image_upload") if item.get("name")}
+    index_names = {item["name"] for item in inspector.get_indexes("image_upload") if item.get("name")}
+    needs_change = (
+        not columns.get("file_data", {}).get("nullable", True)
+        or any(name not in columns for name in ("storage_backend", "storage_key", "sha256"))
+        or "uq_image_upload_storage_key" not in unique_names | index_names
+    )
+
+    if needs_change:
+        with engine.begin() as connection:
+            operations = Operations(MigrationContext.configure(connection))
+            with operations.batch_alter_table(
+                "image_upload",
+                recreate="always" if engine.dialect.name == "sqlite" else "auto",
+            ) as batch:
+                if not columns.get("file_data", {}).get("nullable", True):
+                    batch.alter_column(
+                        "file_data",
+                        existing_type=sa.LargeBinary(),
+                        existing_nullable=False,
+                        nullable=True,
+                    )
+                if "storage_backend" not in columns:
+                    batch.add_column(sa.Column("storage_backend", sa.String(length=16), nullable=True))
+                if "storage_key" not in columns:
+                    batch.add_column(sa.Column("storage_key", sa.String(length=512), nullable=True))
+                if "sha256" not in columns:
+                    batch.add_column(sa.Column("sha256", sa.String(length=64), nullable=True))
+                if "uq_image_upload_storage_key" not in unique_names | index_names:
+                    batch.create_unique_constraint("uq_image_upload_storage_key", ["storage_key"])
+
+    from app.models.uploads import MediaStorageDeletion
+    MediaStorageDeletion.__table__.create(bind=engine, checkfirst=True)
 
 
 def run_heavy_startup_migrations(engine: Engine) -> None:
@@ -195,6 +245,146 @@ def _migrate_utility_infrastructure_layer_table(engine: Engine) -> None:
             connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_utility_id ON utility_infrastructure_layer (utility_id)")
             connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_asset_type ON utility_infrastructure_layer (asset_type)")
             connection.exec_driver_sql("CREATE INDEX IF NOT EXISTS ix_utility_infrastructure_layer_uploaded_by_manager_id ON utility_infrastructure_layer (uploaded_by_manager_id)")
+
+
+def _migrate_storage_facility_key_field(engine: Engine) -> None:
+    inspector = inspect(engine)
+    if "utility_infrastructure_layer" not in inspector.get_table_names():
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("utility_infrastructure_layer")}
+    if "storage_facility_key_field" in columns:
+        return
+
+    with engine.begin() as connection:
+        if engine.dialect.name.startswith("postgresql"):
+            if not _run_postgres_ddl_without_timeout(
+                connection,
+                'ALTER TABLE utility_infrastructure_layer ADD COLUMN IF NOT EXISTS storage_facility_key_field VARCHAR(100)',
+            ):
+                return
+        else:
+            connection.exec_driver_sql("ALTER TABLE utility_infrastructure_layer ADD COLUMN storage_facility_key_field VARCHAR(100)")
+
+
+def _migrate_water_source_schema(engine: Engine) -> None:
+    """Apply the additive water-source schema needed by local startup."""
+    inspector = inspect(engine)
+    if "utility_infrastructure_layer" not in inspector.get_table_names():
+        return
+
+    from app.models import UtilityInfrastructureLayer, WaterSource, WaterSourceSensorMirrorOutbox
+
+    columns = {column["name"] for column in inspector.get_columns("utility_infrastructure_layer")}
+    with engine.begin() as connection:
+        if "water_source_key_field" not in columns:
+            statement = (
+                "ALTER TABLE utility_infrastructure_layer "
+                "ADD COLUMN IF NOT EXISTS water_source_key_field VARCHAR(100)"
+                if engine.dialect.name.startswith("postgresql")
+                else "ALTER TABLE utility_infrastructure_layer ADD COLUMN water_source_key_field VARCHAR(100)"
+            )
+            if engine.dialect.name.startswith("postgresql"):
+                if not _run_postgres_ddl_without_timeout(connection, statement, required=True):
+                    return
+            else:
+                connection.exec_driver_sql(statement)
+
+        WaterSource.__table__.create(bind=connection, checkfirst=True)
+        WaterSourceSensorMirrorOutbox.__table__.create(bind=connection, checkfirst=True)
+
+
+def _migrate_sensor_tables(engine: Engine) -> None:
+    """
+    Ensure the storage_facilities table exists (main DB source of truth), and DROP the
+    legacy sensor tables that moved to the sensor platform database.
+
+    Legacy tables (sensor_device, sensor_reading, sensor_pending_reading) were
+    migrated to the sensor platform DB via scripts/migrate_sensor_data.py;
+    they are removed here so the main DB no longer carries stale copies.
+    """
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    if "utility" not in existing_tables or "dma" not in existing_tables:
+        return
+
+    if "storage_facilities" not in existing_tables:
+        if engine.dialect.name.startswith("postgresql"):
+            ddl_statements = [
+                """
+                CREATE TABLE IF NOT EXISTS storage_facilities (
+                    id VARCHAR(36) PRIMARY KEY,
+                    utility_id VARCHAR(36) NOT NULL REFERENCES utility(id) ON DELETE CASCADE,
+                    dma_id VARCHAR(36) REFERENCES dma(id) ON DELETE SET NULL,
+                    source_key VARCHAR(500) NOT NULL,
+                    name VARCHAR(255),
+                    latitude FLOAT,
+                    longitude FLOAT,
+                    status VARCHAR(20) NOT NULL DEFAULT 'active',
+                    created_at TIMESTAMP NOT NULL,
+                    updated_at TIMESTAMP NOT NULL,
+                    deactivated_at TIMESTAMP,
+                    CONSTRAINT uq_storage_facilities_utility_source_key UNIQUE (utility_id, source_key)
+                )
+                """,
+                "CREATE INDEX IF NOT EXISTS ix_storage_facilities_utility_id ON storage_facilities (utility_id)",
+                "CREATE INDEX IF NOT EXISTS ix_storage_facilities_dma_id ON storage_facilities (dma_id)",
+                "CREATE INDEX IF NOT EXISTS ix_storage_facilities_status ON storage_facilities (status)",
+            ]
+        else:
+            ddl_statements = [
+                """
+                CREATE TABLE IF NOT EXISTS storage_facilities (
+                    id VARCHAR(36) PRIMARY KEY,
+                    utility_id VARCHAR(36) NOT NULL,
+                    dma_id VARCHAR(36),
+                    source_key VARCHAR(500) NOT NULL,
+                    name VARCHAR(255),
+                    latitude FLOAT,
+                    longitude FLOAT,
+                    status VARCHAR(20) NOT NULL DEFAULT 'active',
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL,
+                    deactivated_at DATETIME,
+                    CONSTRAINT uq_storage_facilities_utility_source_key UNIQUE (utility_id, source_key),
+                    FOREIGN KEY(utility_id) REFERENCES utility(id) ON DELETE CASCADE,
+                    FOREIGN KEY(dma_id) REFERENCES dma(id) ON DELETE SET NULL
+                )
+                """,
+                "CREATE INDEX IF NOT EXISTS ix_storage_facilities_utility_id ON storage_facilities (utility_id)",
+                "CREATE INDEX IF NOT EXISTS ix_storage_facilities_dma_id ON storage_facilities (dma_id)",
+                "CREATE INDEX IF NOT EXISTS ix_storage_facilities_status ON storage_facilities (status)",
+            ]
+        with engine.begin() as connection:
+            for statement in ddl_statements:
+                if engine.dialect.name.startswith("postgresql"):
+                    if not _run_postgres_ddl_without_timeout(connection, statement, required=False):
+                        return
+                else:
+                    connection.exec_driver_sql(statement)
+
+    # Drop legacy sensor tables (data lives in the sensor platform DB now).
+    for legacy_table in (
+        "sensor_pending_reading",
+        "sensor_reading",
+        "sensor_device",
+    ):
+        if legacy_table in existing_tables:
+            with engine.begin() as connection:
+                try:
+                    connection.exec_driver_sql(f"DROP TABLE IF EXISTS {legacy_table} CASCADE")
+                except Exception as exc:  # non-fatal: best effort cleanup
+                    print(f"   Legacy table drop skipped for {legacy_table}: {exc}")
+
+    # Ensure water_quality_reading has the pressure column (added in v2.1)
+    if "water_quality_reading" in existing_tables:
+        with engine.begin() as connection:
+            try:
+                connection.exec_driver_sql(
+                    "ALTER TABLE water_quality_reading ADD COLUMN IF NOT EXISTS pressure FLOAT;"
+                )
+            except Exception as exc:
+                print(f"   Pressure column add skipped: {exc}")
 
 
 def _drop_legacy_utility_pipe_network_table(engine: Engine) -> None:

@@ -4,9 +4,11 @@ Request and response models for API validation
 """
 
 from datetime import datetime
+from app.schemas.utc_datetime import UTCDateTime
 from typing import Any, Optional, List
 from pydantic import BaseModel, EmailStr, Field
 from app.constants.enums import EntityStatus
+from app.schemas.sensors import StorageFacilitySyncSummary, WaterSourceSyncSummary
 
 
 # ============================================================================
@@ -40,8 +42,8 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     """Schema for user response"""
     id: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
     user_type: str = "user"  # Type of user: user, utility_manager, dma_manager, engineer
     role: Optional[str] = None  # For engineers: "engineer" or "team_leader"
     # Manager-specific fields
@@ -52,8 +54,8 @@ class UserResponse(UserBase):
     team_id: Optional[str] = None
     team_name: Optional[str] = None
     onboarding_status: str = "completed"
-    invite_expires_at: Optional[datetime] = None
-    setup_completed_at: Optional[datetime] = None
+    invite_expires_at: Optional[UTCDateTime] = None
+    setup_completed_at: Optional[UTCDateTime] = None
 
     class Config:
         from_attributes = True
@@ -120,8 +122,8 @@ class UtilityServiceAreaResponse(UtilityServiceAreaBase):
 
     id: str
     utility_id: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
 
     class Config:
         from_attributes = True
@@ -176,7 +178,7 @@ class UtilityInfrastructureAssetResponse(BaseModel):
     feature_count: int = 0
     download_url: str
     preview_url: str
-    uploaded_at: datetime
+    uploaded_at: UTCDateTime
 
 
 class UtilityResponse(UtilityBase):
@@ -189,8 +191,8 @@ class UtilityResponse(UtilityBase):
     reports_count: int = 0
     service_areas: List[UtilityServiceAreaResponse] = Field(default_factory=list)
     infrastructure_layers: List[UtilityInfrastructureAssetResponse] = Field(default_factory=list)
-    created_at: datetime
-    updated_at: datetime
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
 
     class Config:
         from_attributes = True
@@ -219,6 +221,8 @@ class UtilityInfrastructureUploadResponse(BaseModel):
     utility: UtilityResponse
     asset: UtilityInfrastructureAssetResponse
     ingest_summary: PipeNetworkIngestSummary
+    storage_facility_sync: Optional[StorageFacilitySyncSummary] = None
+    water_source_sync: Optional[WaterSourceSyncSummary] = None
 
 
 class UtilityListResponse(BaseModel):
@@ -273,10 +277,10 @@ class UtilityManagerResponse(UtilityManagerBase):
     id: str
     avatar: Optional[str] = None
     onboarding_status: str = "completed"
-    invite_expires_at: Optional[datetime] = None
-    setup_completed_at: Optional[datetime] = None
-    created_at: datetime
-    updated_at: datetime
+    invite_expires_at: Optional[UTCDateTime] = None
+    setup_completed_at: Optional[UTCDateTime] = None
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
 
     class Config:
         from_attributes = True
@@ -335,8 +339,8 @@ class DMAResponse(DMABase):
     teams_count: int = 0
     reports_count: int = 0
     engineers_count: int = 0
-    created_at: datetime
-    updated_at: datetime
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
 
     class Config:
         from_attributes = True
@@ -385,10 +389,10 @@ class DMAManagerResponse(DMAManagerBase):
     utility_name: Optional[str] = None
     dma_name: Optional[str] = None
     onboarding_status: str = "completed"
-    invite_expires_at: Optional[datetime] = None
-    setup_completed_at: Optional[datetime] = None
-    created_at: datetime
-    updated_at: datetime
+    invite_expires_at: Optional[UTCDateTime] = None
+    setup_completed_at: Optional[UTCDateTime] = None
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
 
     class Config:
         from_attributes = True
@@ -437,8 +441,8 @@ class TeamResponse(TeamBase):
     """Schema for team response"""
     id: str
     slug: Optional[str] = None
-    created_at: datetime
-    updated_at: datetime
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
 
     class Config:
         from_attributes = True
@@ -503,10 +507,10 @@ class EngineerResponse(BaseModel):
     status: str
     role: str
     onboarding_status: str = "completed"
-    invite_expires_at: Optional[datetime] = None
-    setup_completed_at: Optional[datetime] = None
-    created_at: datetime
-    updated_at: datetime
+    invite_expires_at: Optional[UTCDateTime] = None
+    setup_completed_at: Optional[UTCDateTime] = None
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
     
     class Config:
         from_attributes = True
@@ -541,7 +545,7 @@ class EngineerInvitationValidateResponse(BaseModel):
     team_name: Optional[str] = None
     dma_id: Optional[str] = None
     dma_name: Optional[str] = None
-    expires_at: Optional[datetime] = None
+    expires_at: Optional[UTCDateTime] = None
 
 
 class EngineerInvitationComplete(BaseModel):
@@ -559,7 +563,7 @@ class EngineerInvitationResponse(BaseModel):
     delivery_method: str
     delivery_message: str
     invite_url: Optional[str] = None
-    expires_at: datetime
+    expires_at: UTCDateTime
 
 
 # ============================================================================
@@ -595,10 +599,10 @@ class ReportResponse(BaseModel):
     reporter_name: str
     reporter_phone: str
     notes: Optional[str] = None
-    sla_deadline: Optional[datetime] = None
-    resolved_at: Optional[datetime] = None
-    created_at: datetime
-    updated_at: datetime
+    sla_deadline: Optional[UTCDateTime] = None
+    resolved_at: Optional[UTCDateTime] = None
+    created_at: UTCDateTime
+    updated_at: UTCDateTime
 
     class Config:
         from_attributes = True

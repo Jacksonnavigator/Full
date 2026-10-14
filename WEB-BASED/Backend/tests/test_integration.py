@@ -6,7 +6,7 @@ End-to-end integration tests for complete workflows
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from app.models import Utility, DMA, Branch
+from app.models import Utility, DMA
 
 
 class TestCompleteWorkflow:
@@ -18,7 +18,12 @@ class TestCompleteWorkflow:
         utility_resp = client.post(
             "/api/utilities",
             headers=auth_headers,
-            json={"name": "Test Utility", "description": "Integration test utility"},
+            json={
+                "name": "Test Utility",
+                "description": "Integration test utility",
+                "center_latitude": -3.37,
+                "center_longitude": 36.68,
+            },
         )
         assert utility_resp.status_code == 201
         utility_id = utility_resp.json()["id"]
@@ -36,23 +41,23 @@ class TestCompleteWorkflow:
         assert dma_resp.status_code == 201
         dma_id = dma_resp.json()["id"]
         
-        # Create Branch
-        branch_resp = client.post(
-            "/api/branches",
+        # Create Team under the DMA
+        team_resp = client.post(
+            "/api/teams",
             headers=auth_headers,
             json={
                 "dma_id": dma_id,
-                "name": "Test Branch",
-                "description": "Test branch",
+                "name": "Test Team",
+                "description": "Test team",
             },
         )
-        assert branch_resp.status_code == 201
-        branch_id = branch_resp.json()["id"]
+        assert team_resp.status_code == 201
+        team_id = team_resp.json()["id"]
         
         # Verify hierarchy
         assert utility_id
         assert dma_id
-        assert branch_id
+        assert team_id
     
     def test_unauthorized_access_without_token(self, client: TestClient):
         """Test that protected routes require authentication"""
@@ -64,7 +69,7 @@ class TestCompleteWorkflow:
     
     def test_cross_origin_request(self, client: TestClient):
         """Test CORS headers are present"""
-        response = client.get("/health")
+        response = client.get("/api/health")
         
         assert response.status_code == 200
         # Check if CORS middleware is working
@@ -107,7 +112,12 @@ class TestPagination:
             client.post(
                 "/api/utilities",
                 headers=auth_headers,
-                json={"name": f"Utility {i}", "description": f"Test {i}"},
+                json={
+                    "name": f"Utility {i}",
+                    "description": f"Test {i}",
+                    "center_latitude": -3.37,
+                    "center_longitude": 36.68,
+                },
             )
         
         # Test with limit

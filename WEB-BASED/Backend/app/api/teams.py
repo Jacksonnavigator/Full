@@ -223,9 +223,6 @@ async def create_team(
 
     db.add(new_team)
     db.flush()
-    previous_leader_id = team.leader_id
-    db.query(Engineer).filter(Engineer.id == previous_leader_id).update({"role": "engineer"})
-    team.leader_id = None
     audit_log(
         db,
         request=request,

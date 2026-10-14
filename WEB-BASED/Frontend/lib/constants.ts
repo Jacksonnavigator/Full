@@ -14,11 +14,14 @@ import {
   ScrollText,
   Route,
   FileChartColumn,
+  Droplets,
+  Gauge,
 } from "lucide-react"
 import type { ComponentType } from "react"
 import { HydraulicPumpIcon } from "@/components/icons/hydraulic-pump-icon"
 import { WaterUtilityIcon } from "@/components/icons/water-utility-icon"
 import { InfrastructureUploadIcon } from "@/components/icons/infrastructure-upload-icon"
+import { SensorIcon } from "@/components/icons/sensor-icon"
 import type { UserRole, ReportStatus, ReportPriority, EntityStatus, LeakageType } from "./types"
 import { PALETTE } from "./palette"
 
@@ -61,6 +64,18 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Hydraulic Model Scenarios",
     href: "/dashboard/hydraulic-reports",
     icon: FileChartColumn,
+    roles: ["admin", "utility_manager", "dma_manager"],
+  },
+  {
+    title: "Sensor Data Monitoring",
+    href: "/dashboard/sensor-data",
+    icon: Droplets,
+    roles: ["admin", "utility_manager", "dma_manager"],
+  },
+  {
+    title: "Sensor Management",
+    href: "/dashboard/sensors",
+    icon: SensorIcon,
     roles: ["admin", "utility_manager", "dma_manager"],
   },
   {

@@ -5,7 +5,7 @@ Tests for database models and ORM operations
 
 import pytest
 from sqlalchemy.orm import Session
-from app.models import User, Utility, DMA, Branch, Team, Engineer
+from app.models import User, Utility, DMA, Team, Engineer
 from app.security.auth import hash_password
 from app.constants.enums import EntityStatus
 
@@ -17,9 +17,9 @@ class TestUserModel:
         """Test creating user"""
         user = User(
             email="model@example.com",
-            first_name="Model",
-            last_name="Test",
-            password_hash=hash_password("password123"),
+            name="Model Test",
+            phone="+255700000000",
+            password=hash_password("password123"),
         )
         
         db.add(user)
@@ -34,9 +34,8 @@ class TestUserModel:
         """Test user relationships"""
         user = User(
             email="relationship@example.com",
-            first_name="Test",
-            last_name="User",
-            password_hash=hash_password("password123"),
+            name="Test User",
+            password=hash_password("password123"),
         )
         
         db.add(user)
@@ -84,41 +83,13 @@ class TestUtilityHierarchy:
         
         assert dma.id
         assert dma.utility_id == utility.id
-    
-    def test_branch_creation_with_dma(self, db: Session):
-        """Test creating branch with DMA relationship"""
-        utility = Utility(name="Utility", status=EntityStatus.ACTIVE)
-        db.add(utility)
-        db.commit()
-        
-        dma = DMA(
-            utility_id=utility.id,
-            name="DMA",
-            status=EntityStatus.ACTIVE,
-        )
-        db.add(dma)
-        db.commit()
-        db.refresh(dma)
-        
-        branch = Branch(
-            dma_id=dma.id,
-            name="Test Branch",
-            status=EntityStatus.ACTIVE,
-        )
-        
-        db.add(branch)
-        db.commit()
-        db.refresh(branch)
-        
-        assert branch.id
-        assert branch.dma_id == dma.id
 
 
 class TestTeamStructure:
     """Team and engineer structure tests"""
     
     def test_team_creation(self, db: Session):
-        """Test creating team"""
+        """Test creating team under a DMA"""
         utility = Utility(name="Utility", status=EntityStatus.ACTIVE)
         db.add(utility)
         db.commit()
@@ -127,13 +98,8 @@ class TestTeamStructure:
         db.add(dma)
         db.commit()
         
-        branch = Branch(dma_id=dma.id, name="Branch", status=EntityStatus.ACTIVE)
-        db.add(branch)
-        db.commit()
-        db.refresh(branch)
-        
         team = Team(
-            branch_id=branch.id,
+            dma_id=dma.id,
             name="Test Team",
             status=EntityStatus.ACTIVE,
         )
@@ -143,22 +109,11 @@ class TestTeamStructure:
         db.refresh(team)
         
         assert team.id
-        assert team.branch_id == branch.id
+        assert team.dma_id == dma.id
     
     def test_engineer_assignment(self, db: Session):
         """Test assigning engineer to team"""
-        # Create user
-        user = User(
-            email="engineer@example.com",
-            first_name="Engineer",
-            last_name="User",
-            password_hash=hash_password("password123"),
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-        
-        # Create team structure
+        # Create engineer (standalone account tied to a DMA)
         utility = Utility(name="Utility", status=EntityStatus.ACTIVE)
         db.add(utility)
         db.commit()
@@ -167,20 +122,19 @@ class TestTeamStructure:
         db.add(dma)
         db.commit()
         
-        branch = Branch(dma_id=dma.id, name="Branch", status=EntityStatus.ACTIVE)
-        db.add(branch)
-        db.commit()
-        
-        team = Team(branch_id=branch.id, name="Team", status=EntityStatus.ACTIVE)
+        team = Team(dma_id=dma.id, name="Team", status=EntityStatus.ACTIVE)
         db.add(team)
         db.commit()
         db.refresh(team)
         
         # Assign engineer
         engineer = Engineer(
-            user_id=user.id,
+            name="Engineer User",
+            email="engineer@example.com",
+            password=hash_password("password123"),
+            dma_id=dma.id,
             team_id=team.id,
-            specialization="Water Systems",
+            role="engineer",
             status=EntityStatus.ACTIVE,
         )
         
@@ -189,5 +143,5 @@ class TestTeamStructure:
         db.refresh(engineer)
         
         assert engineer.id
-        assert engineer.user_id == user.id
+        assert engineer.dma_id == dma.id
         assert engineer.team_id == team.id
