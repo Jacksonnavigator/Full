@@ -8,12 +8,13 @@ keeping user access decisions inside MajiScope.
 from datetime import datetime, timedelta, timezone
 import hashlib
 import json
+import os
 import secrets
 from urllib.parse import urlencode
 from typing import Optional
 
 import httpx
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from shapely.geometry import Point, shape
@@ -526,6 +527,7 @@ def _call_hydraulic_gpkg_builder(
     dma: DMA,
     layers: dict[str, UtilityInfrastructureLayer],
     reported_leaks_geojson: dict,
+    inp_upload: tuple[str, bytes, str] | None = None,
 ) -> dict:
     if not settings.hydraulic_model_base_url:
         raise HTTPException(
@@ -544,6 +546,8 @@ def _call_hydraulic_gpkg_builder(
         )
 
     files = _layer_upload_files(layers)
+    if inp_upload:
+        files["inp_file"] = inp_upload
 
     data = {
         "session_id": session.id,
@@ -590,12 +594,42 @@ def check_hydraulic_model_readiness(
     return _build_readiness(db, current_user, payload.utility_id, payload.dma_id)
 
 
-@hydraulic_model_router.post("/prepare", response_model=HydraulicModelPrepareResponse)
-def prepare_hydraulic_model(
-    payload: HydraulicModelPrepareRequest,
+@hydraulic_model_router.post("/prepare-with-inp", response_model=HydraulicModelPrepareResponse)
+def prepare_hydraulic_model_with_inp(
     request: Request,
+    utility_id: str = Form(...),
+    dma_id: str = Form(...),
+    inp_file: UploadFile = File(...),
     current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
+):
+    filename = inp_file.filename or ""
+    if not filename.lower().endswith(".inp"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Upload an EPANET input file with the .inp extension.",
+        )
+    content = inp_file.file.read(50 * 1024 * 1024 + 1)
+    if not content or len(content) > 50 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="The .inp file must be non-empty and no larger than 50 MB.",
+        )
+    return _prepare_hydraulic_model(
+        HydraulicModelPrepareRequest(utility_id=utility_id, dma_id=dma_id),
+        request,
+        current_user,
+        db,
+        inp_upload=(os.path.basename(filename), content, "application/octet-stream"),
+    )
+
+
+def _prepare_hydraulic_model(
+    payload: HydraulicModelPrepareRequest,
+    request: Request,
+    current_user: CurrentUser,
+    db: Session,
+    inp_upload: tuple[str, bytes, str] | None = None,
 ):
     readiness = _build_readiness(db, current_user, payload.utility_id, payload.dma_id)
     if not readiness.ready or not readiness.selected_utility_id or not readiness.selected_dma_id:
@@ -637,6 +671,7 @@ def prepare_hydraulic_model(
             dma=dma,
             layers=layers,
             reported_leaks_geojson=reported_leaks_geojson,
+            inp_upload=inp_upload,
         )
     except HTTPException as exc:
         session.status = "failed"
@@ -651,6 +686,8 @@ def prepare_hydraulic_model(
         **readiness.model_dump(),
         "prepared_file": prepared,
         "reported_leak_count": reported_leak_count,
+        "inp_filename": prepared.get("inp_filename"),
+        "inp_network": prepared.get("inp_network"),
     }
     db.commit()
     db.refresh(session)
@@ -666,6 +703,11 @@ def prepare_hydraulic_model(
                 "return_url": f"{settings.frontend_url.rstrip('/')}/dashboard",
                 "utility_name": utility.name if utility else "Utility",
                 "dma_name": dma.name,
+                "inp_filename": prepared.get("inp_filename") or "",
+                "inp_label": prepared.get("inp_original_filename") or "",
+                "inp_coordinates_geojson": str(
+                    bool((prepared.get("inp_network") or {}).get("coordinates_are_lonlat"))
+                ).lower(),
             }
         )
         launch_url = f"{base_url}/app?{query}"
@@ -688,6 +730,9 @@ def prepare_hydraulic_model(
             "hydraulic_filename": session.hydraulic_filename,
             "expires_at": utc_datetime_isoformat(session.expires_at),
             "reported_leak_count": reported_leak_count,
+            "inp_filename": prepared.get("inp_filename"),
+            "inp_original_filename": prepared.get("inp_original_filename"),
+            "inp_sha256": prepared.get("inp_sha256"),
         },
         utility_id=session.utility_id,
         dma_id=session.dma_id,
@@ -700,8 +745,22 @@ def prepare_hydraulic_model(
         status=session.status,
         launch_url=launch_url,
         expires_at=session.expires_at,
-        message="Hydraulic model is prepared. Open the hydraulic model to continue.",
+        message=(
+            "Hydraulic model is prepared with the uploaded EPANET .inp model."
+            if prepared.get("inp_filename")
+            else "Hydraulic model is prepared. Open the hydraulic model to continue."
+        ),
     )
+
+
+@hydraulic_model_router.post("/prepare", response_model=HydraulicModelPrepareResponse)
+def prepare_hydraulic_model(
+    payload: HydraulicModelPrepareRequest,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return _prepare_hydraulic_model(payload, request, current_user, db)
 
 
 def _snapshot_reference() -> str:
@@ -783,13 +842,16 @@ def _snapshot_common(snapshot: HydraulicSimulationSnapshot, db: Session) -> dict
 def _snapshot_list_item(snapshot: HydraulicSimulationSnapshot, db: Session) -> HydraulicSimulationSnapshotListItem:
     summary = snapshot.summary_json or {}
     nrw = snapshot.nrw_json or ((snapshot.leakage_json or {}).get("nrw") or {})
-    warnings = (snapshot.alerts_json or {}).get("warnings") or []
+    warnings = list((snapshot.alerts_json or {}).get("warnings") or [])
+    warnings.extend((snapshot.leakage_json or {}).get("warnings") or [])
+    if snapshot.error_message:
+        warnings.append(snapshot.error_message)
     return HydraulicSimulationSnapshotListItem(
         **_snapshot_common(snapshot, db),
         pressure_min_m=summary.get("pressure_min_m"),
         pressure_avg_m=summary.get("pressure_avg_m"),
         nrw_pct=nrw.get("nrw_pct"),
-        alert_count=len(warnings),
+        alert_count=len(set(warnings)),
     )
 
 
@@ -824,6 +886,7 @@ def _snapshot_comparison_item(snapshot: HydraulicSimulationSnapshot, db: Session
     leakage = snapshot.leakage_json or {}
     leakage_nrw = leakage.get("nrw") or {}
     water_balance = {**leakage_nrw, **(snapshot.nrw_json or {})}
+    detailed_results = snapshot.detailed_results_json or {}
     return HydraulicScenarioComparisonItem(
         id=snapshot.id,
         report_reference=snapshot.report_reference,
@@ -845,6 +908,8 @@ def _snapshot_comparison_item(snapshot: HydraulicSimulationSnapshot, db: Session
         },
         pressure_zones=leakage.get("pressure_zones") or [],
         pressure_time_series=summary.get("pressure_time_series") or [],
+        detailed_time_series=detailed_results.get("time_series") or [],
+        report_available=bool(detailed_results.get("report_text")),
         water_balance=water_balance,
         risk_distribution=_snapshot_risk_distribution(snapshot),
     )
@@ -919,6 +984,7 @@ def create_hydraulic_simulation_snapshot(
     snapshot.nrw_json = payload.nrw_json
     snapshot.leakage_json = payload.leakage_json
     snapshot.alerts_json = payload.alerts_json
+    snapshot.detailed_results_json = payload.detailed_results_json
     snapshot.nodes_geojson = payload.nodes_geojson
     snapshot.pipes_geojson = payload.pipes_geojson
     snapshot.hotspots_geojson = payload.hotspots_geojson
@@ -1086,6 +1152,7 @@ def get_hydraulic_simulation_snapshot(
         nrw_json=snapshot.nrw_json,
         leakage_json=snapshot.leakage_json,
         alerts_json=snapshot.alerts_json,
+        detailed_results_json=snapshot.detailed_results_json,
         nodes_geojson=snapshot.nodes_geojson,
         pipes_geojson=snapshot.pipes_geojson,
         hotspots_geojson=snapshot.hotspots_geojson,
